@@ -1,0 +1,45 @@
+# This is an example .goreleaser.yml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+project_name: datree-cli
+release: 
+  prerelease: auto
+before:
+  hooks:
+    # you may remove this if you don't need go generate
+    - go generate ./...
+builds:
+  - env:
+      - CGO_ENABLED=0
+    binary: datree
+    id: datree
+    goos:
+      - linux
+    main: ./main.go
+    flags:
+      - -tags={{.Env.DATREE_DEPLOYMENT}}
+  - env:
+      - CGO_ENABLED=0
+    binary: datree
+    id: datree-macos
+    goos:
+      - darwin
+    main: ./main.go
+    flags:
+      - -tags={{.Env.DATREE_DEPLOYMENT}}
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      amd64: x86_64
+    format: zip
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      

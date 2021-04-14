@@ -1,0 +1,230 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: static-web
+  namespace: test
+  labels:
+    owner: test-at-datree.io
+    role: myrole
+    env: yishay
+spec:
+  hostPID: false
+  hostIPC: false
+  hostNetwork: false
+  volumes:
+    - name: docker-sock
+      hostPath:
+        path: /var/run/docker
+  containers:
+    - name: web
+      image: aa/nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2
+      securityContext:
+        runAsUser: 10001
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: 8080
+          httpHeaders:
+          - name: Custom-Header
+            value: Awesome
+      readinessProbe:
+        tcpSocket:
+          port: 8080
+        initialDelaySeconds: 5
+        periodSeconds: 10
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "64m"
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-site
+  namespace: test
+  labels:
+    owner: test-at-datree.io
+    environment: prod
+    app: web
+    env: aaa
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      namespace: test
+      labels:
+        app: web
+        env: dd
+    spec:
+      hostPID: false
+      hostIPC: false
+      hostNetwork: false
+      # restartPolicy: Always
+      volumes:
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker
+      containers:
+        - name: front-end
+          image: nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2
+          securityContext:
+            runAsUser: 10001
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+              httpHeaders:
+              - name: Custom-Header
+                value: Awesome
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "64m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+        - name: rss-reader
+          image: nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2
+          securityContext:
+            runAsUser: 10001
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+              httpHeaders:
+              - name: Custom-Header
+                value: Awesome
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "64m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 88
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-wildcard-host
+  labels:
+    owner: test-at-datree.io
+spec:
+  rules:
+  - host: "*.example.com"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/bar"
+        backend:
+          service:
+            name: service1
+            port:
+              number: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+  labels:
+    owner: test-at-datree.io
+spec:
+  type: ClusterIP
+  selector:
+    app: MyApp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9376
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: hello
+  namespace: test
+  labels:
+    owner: test-at-datree.io
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 200
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: docker-sock
+            hostPath:
+              path: /var/run/docker
+          containers:
+          - name: hello
+            image: nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2
+            securityContext:
+              runAsUser: 10001
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 8080
+                httpHeaders:
+                - name: Custom-Header
+                  value: Awesome
+            readinessProbe:
+              tcpSocket:
+                port: 8080
+              initialDelaySeconds: 5
+              periodSeconds: 10
+            imagePullPolicy: IfNotPresent
+            resources: 
+              requests:
+                cpu: "500m"
+                memory: "50Mi"
+              limits:
+                cpu: "1000m"
+                memory: "50Mi"
+            command:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: php-apache
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: php-apache
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
