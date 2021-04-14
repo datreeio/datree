@@ -50,7 +50,7 @@ We understand that sometimes it might be hard to extract essential bits of code 
 
 Unfortunately, we are not able to investigate / fix bugs without a minimal reproduction, so if we don't hear back from you, we are going to close an issue that doesn't have enough info to be reproduced.
 
-You can file new issues by selecting from our [new issue templates](https://github.com/datreeio/datree/blob/issues-template/.github/ISSUE_TEMPLATE/bug_report.md) and filling out the issue template.
+You can file new issues by selecting from our [new issue templates](https://github.com/datreeio/datree/issues/new/choose) and filling out the issue template.
 
 
 ### <a name="submit-pr"></a> Submitting a Pull Request (PR)
