@@ -5,6 +5,7 @@ release:
   prerelease: auto
 before:
   hooks:
+    post: gon gon.hcl
     # you may remove this if you don't need go generate
     - go generate ./...
 builds:
@@ -26,6 +27,9 @@ builds:
     main: ./main.go
     flags:
       - -tags={{.Env.DATREE_DEPLOYMENT}}
+    hooks:
+      post: gon gon.hcl
+
 archives:
   - replacements:
       darwin: Darwin
