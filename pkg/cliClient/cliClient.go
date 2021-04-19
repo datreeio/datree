@@ -3,10 +3,10 @@ package cliClient
 import (
 	"encoding/json"
 	"net/http"
-	"runtime"
 
 	"github.com/datreeio/datree/pkg/httpClient"
 	extractor "github.com/datreeio/datree/pkg/propertiesExtractor"
+	"github.com/shirou/gopsutil/host"
 )
 
 type HTTPClient interface {
@@ -30,8 +30,10 @@ type EvaluationRequest struct {
 	CliId    string `json:"cliId"`
 	Pattern  string `json:"pattern"`
 	Metadata struct {
-		CliVersion string `json:"cliVersion"`
-		Os         string `json:"os"`
+		CliVersion      string `json:"cliVersion"`
+		Os              string `json:"os"`
+		PlatformVersion string `json:"platformVersion"`
+		KernelVersion   string `json:"kernelVersion"`
 	} `json:"metadata"`
 	Files []extractor.FileProperties `json:"files"`
 }
@@ -63,7 +65,10 @@ type EvaluationResponse struct {
 }
 
 func (c *CliClient) RequestEvaluation(pattern string, files []*extractor.FileProperties, cliId string) (EvaluationResponse, error) {
-	evaluationRequest := c.createEvaluationRequest(pattern, files, cliId)
+	evaluationRequest, err := c.createEvaluationRequest(pattern, files, cliId)
+	if err != nil {
+		return EvaluationResponse{}, err
+	}
 	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate", evaluationRequest, nil)
 	if err != nil {
 		return EvaluationResponse{}, err
@@ -78,23 +83,32 @@ func (c *CliClient) RequestEvaluation(pattern string, files []*extractor.FilePro
 	return *evaluationResponse, nil
 }
 
-func (c *CliClient) createEvaluationRequest(pattern string, files []*extractor.FileProperties, cliId string) EvaluationRequest {
+func (c *CliClient) createEvaluationRequest(pattern string, files []*extractor.FileProperties, cliId string) (EvaluationRequest, error) {
 	var filesProperties []extractor.FileProperties
 
 	for _, file := range files {
 		filesProperties = append(filesProperties, *file)
 	}
 
-	return EvaluationRequest{
+	osInfo, err := host.Info()
+	if err != nil {
+		return EvaluationRequest{}, err
+	}
+	evaluationRequest := EvaluationRequest{
 		CliId:   cliId,
 		Pattern: pattern,
 		Metadata: struct {
-			CliVersion string "json:\"cliVersion\""
-			Os         string "json:\"os\""
+			CliVersion      string "json:\"cliVersion\""
+			Os              string "json:\"os\""
+			PlatformVersion string "json:\"platformVersion\""
+			KernelVersion   string "json:\"kernelVersion\""
 		}{
-			CliVersion: "0.0.1",
-			Os:         runtime.GOOS,
+			CliVersion:      "0.0.1",
+			Os:              osInfo.OS,
+			PlatformVersion: osInfo.PlatformVersion,
+			KernelVersion:   osInfo.KernelVersion,
 		},
 		Files: filesProperties,
 	}
+	return evaluationRequest, nil
 }

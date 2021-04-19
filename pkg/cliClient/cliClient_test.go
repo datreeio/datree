@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/httpClient"
@@ -162,11 +161,15 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 					Pattern: "pattern",
 					Files:   castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
 					Metadata: struct {
-						CliVersion string "json:\"cliVersion\""
-						Os         string "json:\"os\""
+						CliVersion      string "json:\"cliVersion\""
+						Os              string "json:\"os\""
+						PlatformVersion string "json:\"platformVersion\""
+						KernelVersion   string "json:\"kernelVersion\""
 					}{
-						CliVersion: "0.0.1",
-						Os:         runtime.GOOS,
+						CliVersion:      "0.0.1",
+						Os:              "darwin",
+						PlatformVersion: "10.15.7",
+						KernelVersion:   "19.6.0",
 					},
 				},
 				headers: nil,
