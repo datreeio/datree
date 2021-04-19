@@ -4,8 +4,6 @@ project_name: datree-cli
 release: 
   prerelease: auto
 before:
-  hooks:
-    post: gon gon.hcl
     # you may remove this if you don't need go generate
     - go generate ./...
 builds:
