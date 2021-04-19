@@ -17,7 +17,7 @@ type LocalConfigManager interface {
 }
 
 type Evaluator interface {
-	PrintResults(results *bl.EvaluationResults, cliId string) error
+	PrintResults(results *bl.EvaluationResults, cliId string, output string) error
 	PrintFileParsingErrors(errors []propertiesExtractor.FileError)
 	Evaluate(pattern string, cliId string, evaluationConc int) (*bl.EvaluationResults, []propertiesExtractor.FileError, error)
 }
@@ -27,21 +27,35 @@ type TestCommandContext struct {
 	Evaluator   Evaluator
 }
 
+type TestCommandFlags struct {
+	Output string
+}
+
 func CreateTestCommand(ctx *TestCommandContext) *cobra.Command {
-	return &cobra.Command{
+	testCommand := &cobra.Command{
 		Use:   "test",
 		Short: "Execute static analysis for pattern",
 		Long:  `Execute static analysis for pattern. Input should be glob`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return test(ctx, args[0])
+			outputFlag, err := cmd.Flags().GetString("output")
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+
+			testCommandFlags := TestCommandFlags{Output: outputFlag}
+			return test(ctx, args[0], testCommandFlags)
 		},
 		Args:          cobra.ExactValidArgs(1),
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
+
+	testCommand.Flags().StringP("output", "o", "", "Define output format")
+	return testCommand
 }
 
-func test(ctx *TestCommandContext, pattern string) error {
+func test(ctx *TestCommandContext, pattern string, flags TestCommandFlags) error {
 	absolutePath, err := filepath.Abs(pattern)
 	if err != nil {
 		fmt.Println(err)
@@ -77,5 +91,5 @@ func test(ctx *TestCommandContext, pattern string) error {
 
 	}
 
-	return ctx.Evaluator.PrintResults(evaluationResponse, config.CliId)
+	return ctx.Evaluator.PrintResults(evaluationResponse, config.CliId, flags.Output)
 }
