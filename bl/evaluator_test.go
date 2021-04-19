@@ -171,7 +171,7 @@ func test_evaluate_success() *evaluateTestCase {
 					RulesCount       int
 					TotalFailedRules int
 					FilesCount       int
-				}{RulesCount: 1, TotalFailedRules: 0, FilesCount: 0},
+				}{RulesCount: 1, TotalFailedRules: 0, FilesCount: 1},
 			},
 			fileErrors: []propertiesExtractor.FileError{},
 			err:        nil,
@@ -182,7 +182,7 @@ func test_evaluate_success() *evaluateTestCase {
 func test_evaluate_failedRequest() *evaluateTestCase {
 	evaluationResponse := cliClient.EvaluationResponse{}
 	return &evaluateTestCase{
-		name: "success",
+		name: "fail",
 		args: struct {
 			pattern        string
 			cliId          string
@@ -226,7 +226,7 @@ func test_evaluate_failedRequest() *evaluateTestCase {
 		}{
 			response:   nil,
 			fileErrors: []propertiesExtractor.FileError{},
-			err:        fmt.Errorf("RequestEvaluation has failed"),
+			err:        fmt.Errorf("error"),
 		},
 	}
 }
