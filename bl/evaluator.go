@@ -58,7 +58,7 @@ func (e *Evaluator) Evaluate(pattern string, cliId string, evaluationConc int) (
 		return nil, fileErrors, err
 	}
 
-	results := e.aggregateEvaluationResults(res.Results)
+	results := e.aggregateEvaluationResults(res.Results, len(files))
 
 	return results, fileErrors, nil
 }
@@ -92,7 +92,7 @@ func (e *Evaluator) PrintFileParsingErrors(errors []propertiesExtractor.FileErro
 	}
 }
 
-func (e *Evaluator) aggregateEvaluationResults(evaluationResults []cliClient.EvaluationResult) *EvaluationResults {
+func (e *Evaluator) aggregateEvaluationResults(evaluationResults []cliClient.EvaluationResult, filesCount int) *EvaluationResults {
 	mapper := make(map[string]map[int]*Rule)
 
 	totalRulesCount := len(evaluationResults)
@@ -133,7 +133,7 @@ func (e *Evaluator) aggregateEvaluationResults(evaluationResults []cliClient.Eva
 		}{
 			RulesCount:       totalRulesCount,
 			TotalFailedRules: totalFailedCount,
-			FilesCount:       len(filenames),
+			FilesCount:       filesCount,
 		},
 	}
 
