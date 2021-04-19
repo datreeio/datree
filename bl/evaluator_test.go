@@ -226,7 +226,7 @@ func test_evaluate_failedRequest() *evaluateTestCase {
 		}{
 			response:   nil,
 			fileErrors: []propertiesExtractor.FileError{},
-			err:        fmt.Errorf("RequestEvaluation has failed"),
+			err:        fmt.Errorf("error"),
 		},
 	}
 }

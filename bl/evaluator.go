@@ -55,7 +55,7 @@ func (e *Evaluator) Evaluate(pattern string, cliId string, evaluationConc int) (
 
 	res, err := e.cliClient.RequestEvaluation(pattern, files, cliId)
 	if err != nil {
-		return nil, fileErrors, fmt.Errorf("RequestEvaluation has failed")
+		return nil, fileErrors, err
 	}
 
 	results := e.aggregateEvaluationResults(res.Results)
