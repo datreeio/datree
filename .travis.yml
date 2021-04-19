@@ -5,6 +5,7 @@ go:
 
 script:
   - go build -tags $DATREE_DEPLOYMENT
+  - go test ./...
   - curl -sfL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION sh -s -- check
 
 before_deploy:

@@ -3,6 +3,7 @@ package httpClient
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -57,6 +58,11 @@ func (c *Client) Request(method string, resourceURI string, body interface{}, he
 	if err != nil {
 		return responseBody, err
 	}
+
+	if response.StatusCode > 399 {
+		return responseBody, fmt.Errorf("Error: %v", string(b))
+	}
+
 	responseBody = Response{
 		StatusCode: response.StatusCode,
 		Body:       b,
