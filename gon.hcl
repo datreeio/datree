@@ -3,7 +3,7 @@ bundle_id = "io.datree"
 
 apple_id {
   username = "yishay@datree.io"
-  password = "^5U&09m8IXyV"
+  password = "bluv-nsno-wnyn-atkn"
 }
 
 sign {
