@@ -8,15 +8,14 @@
 ## What is Datree?
 [Datree](https://datree.io/?utm_source=github&utm_medium=organic_oss) helps to prevent Kubernetes misconfigurations from ever making it to production.  
 
-The CLI integration provides policies enforcement solution for Kubernetes to run automatic checks on every pull request for rule violations and misconfigurations. When rule violations are found, Datree prevents merging and shows the developer instructions to understand and fix the issue inside the CI process.  
+The CLI integration can be used locally or in the CI to provide a policy enforcement solution for Kubernetes. The policy runs automatic checks on every invocation (e.g. pull request, code change, etc.) for rule violations and misconfigurations. When rule violations are found, Datree will prevent them and will show the Engineers instructions on how and why to fix those issues.
 
 ## Quick start in two steps
 #### 1. Install the latest release on your CLI  
-**MacOS:** ``curl https://get.datree.io | /bin/sh``  
-**Linux:** ``curl https://get.datree.io/install-linux.sh | /bin/sh``  
+**Linux & MacOS:** ``curl https://get.datree.io | /bin/bash``  
 **Windows:** ``not supported yet :(``  
 
-#### 2. Pass datree a Kuberntes manifest file
+#### 2. Pass datree a Kuberntes manifest file to scan
 ``datree test <k8s-manifest-file>``  
 
 ...and voilà, you just made your first invocation! 🥳    
