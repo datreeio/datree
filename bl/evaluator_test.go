@@ -252,7 +252,7 @@ func TestPrintResults(t *testing.T) {
 		}{},
 	}
 
-	evaluator.PrintResults(&results, "cli_id")
+	evaluator.PrintResults(&results, "cli_id", "")
 
 	expectedPrinterWarnings := []printer.Warning{}
 	printerSpy.AssertCalled(t, "PrintWarnings", expectedPrinterWarnings)
