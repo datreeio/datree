@@ -12,11 +12,14 @@ OUTPUT_BASENAME_WITH_POSTFIX=$OUTPUT_BASENAME.zip
 curl -L $DOWNLOAD_URL -o $OUTPUT_BASENAME_WITH_POSTFIX
 unzip $OUTPUT_BASENAME_WITH_POSTFIX -d $OUTPUT_BASENAME
 
+mkdir -p ~/.datree
+
 if [[ $osName == "Linux" ]]
 then
+    sudo rm -f /usr/local/bin/datree
     sudo cp $OUTPUT_BASENAME/datree /usr/local/bin
-    mkdir ~/.datree
 else
+    rm -f /usr/local/bin/datree
     cp $OUTPUT_BASENAME/datree /usr/local/bin
 fi
 
