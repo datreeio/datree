@@ -11,20 +11,16 @@ import (
 type HTTPClient interface {
 	Request(method string, resourceURI string, body interface{}, headers map[string]string) (httpClient.Response, error)
 }
-
-type getUserAgentFn = func() (*UserAgent, error)
 type CliClient struct {
-	baseUrl      string
-	httpClient   HTTPClient
-	getUserAgent getUserAgentFn
+	baseUrl    string
+	httpClient HTTPClient
 }
 
 func NewCliClient(url string) *CliClient {
 	httpClient := httpClient.NewClient(url, nil)
 	return &CliClient{
-		baseUrl:      url,
-		httpClient:   httpClient,
-		getUserAgent: getUserAgent,
+		baseUrl:    url,
+		httpClient: httpClient,
 	}
 }
 
@@ -66,12 +62,8 @@ type EvaluationResponse struct {
 	Status       string             `json:"status"`
 }
 
-func (c *CliClient) RequestEvaluation(pattern string, files []*extractor.FileProperties, cliId string, cliVersion string) (EvaluationResponse, error) {
-	evaluationRequest, err := c.createEvaluationRequest(pattern, files, cliId, cliVersion)
-	if err != nil {
-		return EvaluationResponse{}, err
-	}
-	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate", evaluationRequest, nil)
+func (c *CliClient) RequestEvaluation(request EvaluationRequest) (EvaluationResponse, error) {
+	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate", request, nil)
 	if err != nil {
 		return EvaluationResponse{}, err
 	}
@@ -83,34 +75,4 @@ func (c *CliClient) RequestEvaluation(pattern string, files []*extractor.FilePro
 	}
 
 	return *evaluationResponse, nil
-}
-
-func (c *CliClient) createEvaluationRequest(pattern string, files []*extractor.FileProperties, cliId string, cliVersion string) (EvaluationRequest, error) {
-	var filesProperties []extractor.FileProperties
-
-	for _, file := range files {
-		filesProperties = append(filesProperties, *file)
-	}
-
-	userAgent, err := c.getUserAgent()
-	if err != nil {
-		return EvaluationRequest{}, err
-	}
-	evaluationRequest := EvaluationRequest{
-		CliId:   cliId,
-		Pattern: pattern,
-		Metadata: struct {
-			CliVersion      string "json:\"cliVersion\""
-			Os              string "json:\"os\""
-			PlatformVersion string "json:\"platformVersion\""
-			KernelVersion   string "json:\"kernelVersion\""
-		}{
-			CliVersion:      cliVersion,
-			Os:              userAgent.OS,
-			PlatformVersion: userAgent.PlatformVersion,
-			KernelVersion:   userAgent.KernelVersion,
-		},
-		Files: filesProperties,
-	}
-	return evaluationRequest, nil
 }

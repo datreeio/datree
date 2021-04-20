@@ -8,6 +8,7 @@ import (
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/datreeio/datree/pkg/propertiesExtractor"
+	"github.com/shirou/gopsutil/host"
 )
 
 type Printer interface {
@@ -15,15 +16,32 @@ type Printer interface {
 	PrintSummaryTable(summary printer.Summary)
 }
 type CLIClient interface {
-	RequestEvaluation(pattern string, files []*propertiesExtractor.FileProperties, cliId string, cliVersion string) (cliClient.EvaluationResponse, error)
+	RequestEvaluation(cliClient.EvaluationRequest) (cliClient.EvaluationResponse, error)
 }
 type PropertiesExtractor interface {
 	ReadFilesFromPattern(pattern string, conc int) ([]*propertiesExtractor.FileProperties, []propertiesExtractor.FileError, []error)
 }
+
 type Evaluator struct {
 	propertiesExtractor PropertiesExtractor
 	cliClient           CLIClient
 	printer             Printer
+	osInfo              *OSInfo
+}
+
+type OSInfo struct {
+	OS              string
+	PlatformVersion string
+	KernelVersion   string
+}
+
+func createOSInfo() *OSInfo {
+	infoStat, _ := host.Info()
+	return &OSInfo{
+		OS:              infoStat.OS,
+		KernelVersion:   infoStat.KernelVersion,
+		PlatformVersion: infoStat.PlatformVersion,
+	}
 }
 
 func CreateNewEvaluator(pe PropertiesExtractor, c CLIClient, p Printer) *Evaluator {
@@ -31,6 +49,7 @@ func CreateNewEvaluator(pe PropertiesExtractor, c CLIClient, p Printer) *Evaluat
 		propertiesExtractor: pe,
 		cliClient:           c,
 		printer:             p,
+		osInfo:              createOSInfo(),
 	}
 }
 
@@ -43,6 +62,12 @@ type EvaluationResults struct {
 	}
 }
 
+type UserAgent struct {
+	OS              string
+	PlatformVersion string
+	KernelVersion   string
+}
+
 func (e *Evaluator) Evaluate(pattern string, cliId string, evaluationConc int, cliVersion string) (*EvaluationResults, []propertiesExtractor.FileError, error) {
 	files, fileErrors, errors := e.propertiesExtractor.ReadFilesFromPattern(pattern, evaluationConc)
 	if len(errors) > 0 {
@@ -53,7 +78,30 @@ func (e *Evaluator) Evaluate(pattern string, cliId string, evaluationConc int, c
 		return nil, fileErrors, fmt.Errorf("no files detected")
 	}
 
-	res, err := e.cliClient.RequestEvaluation(pattern, files, cliId, cliVersion)
+	var filesProperties []propertiesExtractor.FileProperties
+
+	for _, file := range files {
+		filesProperties = append(filesProperties, *file)
+	}
+
+	evaluationRequest := cliClient.EvaluationRequest{
+		CliId:   cliId,
+		Pattern: pattern,
+		Metadata: struct {
+			CliVersion      string "json:\"cliVersion\""
+			Os              string "json:\"os\""
+			PlatformVersion string "json:\"platformVersion\""
+			KernelVersion   string "json:\"kernelVersion\""
+		}{
+			CliVersion:      cliVersion,
+			Os:              e.osInfo.OS,
+			PlatformVersion: e.osInfo.PlatformVersion,
+			KernelVersion:   e.osInfo.KernelVersion,
+		},
+		Files: filesProperties,
+	}
+
+	res, err := e.cliClient.RequestEvaluation(evaluationRequest)
 	if err != nil {
 		return nil, fileErrors, err
 	}

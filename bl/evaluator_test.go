@@ -24,8 +24,8 @@ type mockCliClient struct {
 	mock.Mock
 }
 
-func (m *mockCliClient) RequestEvaluation(pattern string, files []*propertiesExtractor.FileProperties, cliId string, cliVersion string) (cliClient.EvaluationResponse, error) {
-	args := m.Called(pattern, files, cliId)
+func (m *mockCliClient) RequestEvaluation(evaluationRequest cliClient.EvaluationRequest) (cliClient.EvaluationResponse, error) {
+	args := m.Called(evaluationRequest)
 	return args.Get(0).(cliClient.EvaluationResponse), args.Error(1)
 }
 
@@ -59,9 +59,10 @@ type cliClientMockTestCase struct {
 type evaluateTestCase struct {
 	name string
 	args struct {
-		pattern        string
-		cliId          string
-		evaluationConc int
+		pattern           string
+		cliId             string
+		evaluationConc    int
+		evaluationRequest cliClient.EvaluationRequest
 	}
 	mock struct {
 		propertiesExtractor propertiesExtractorMockTestCase
@@ -86,18 +87,23 @@ func TestEvaluate(t *testing.T) {
 			printer := &mockPrinter{}
 
 			propertiesExtractor.On("ReadFilesFromPattern", mock.Anything, mock.Anything).Return(tt.mock.propertiesExtractor.readFilesFromPattern.properties, tt.mock.propertiesExtractor.readFilesFromPattern.filesErrors, tt.mock.propertiesExtractor.readFilesFromPattern.errors)
-			cliClient.On("RequestEvaluation", mock.Anything, mock.Anything, mock.Anything).Return(tt.mock.cliClient.requestEvaluation.response, tt.mock.cliClient.requestEvaluation.errors)
+			cliClient.On("RequestEvaluation", mock.Anything).Return(tt.mock.cliClient.requestEvaluation.response, tt.mock.cliClient.requestEvaluation.errors)
 
 			evaluator := &Evaluator{
 				propertiesExtractor: propertiesExtractor,
 				cliClient:           cliClient,
 				printer:             printer,
+				osInfo: &OSInfo{
+					OS:              "darwin",
+					PlatformVersion: "1.2.3",
+					KernelVersion:   "4.5.6",
+				},
 			}
 
 			actualResponse, actualFilesErrs, actualErr := evaluator.Evaluate(tt.args.pattern, tt.args.cliId, tt.args.evaluationConc, "0.0.1")
 
 			propertiesExtractor.AssertCalled(t, "ReadFilesFromPattern", tt.args.pattern, tt.args.evaluationConc)
-			cliClient.AssertCalled(t, "RequestEvaluation", tt.args.pattern, tt.mock.propertiesExtractor.readFilesFromPattern.properties, tt.args.cliId)
+			cliClient.AssertCalled(t, "RequestEvaluation", tt.args.evaluationRequest)
 
 			assert.Equal(t, tt.expected.response, actualResponse)
 			assert.Equal(t, tt.expected.fileErrors, actualFilesErrs)
@@ -125,14 +131,33 @@ func test_evaluate_success() *evaluateTestCase {
 	return &evaluateTestCase{
 		name: "success",
 		args: struct {
-			pattern        string
-			cliId          string
-			evaluationConc int
+			pattern           string
+			cliId             string
+			evaluationConc    int
+			evaluationRequest cliClient.EvaluationRequest
 		}{
 			pattern:        "*/*",
 			cliId:          "cliId-test",
 			evaluationConc: 1,
-		},
+			evaluationRequest: cliClient.EvaluationRequest{
+				Pattern: "*/*",
+				CliId:   "cliId-test",
+				Metadata: struct {
+					CliVersion      string "json:\"cliVersion\""
+					Os              string "json:\"os\""
+					PlatformVersion string "json:\"platformVersion\""
+					KernelVersion   string "json:\"kernelVersion\""
+				}{
+					CliVersion:      "0.0.1",
+					Os:              "darwin",
+					PlatformVersion: "1.2.3",
+					KernelVersion:   "4.5.6",
+				},
+				Files: []propertiesExtractor.FileProperties{{
+					FileName:       "path1/path2/file.yaml",
+					Configurations: []propertiesExtractor.K8sConfiguration{{"apiVersion": "extensions/v1beta1"}},
+				}},
+			}},
 		mock: struct {
 			propertiesExtractor propertiesExtractorMockTestCase
 			cliClient           cliClientMockTestCase
@@ -184,14 +209,33 @@ func test_evaluate_failedRequest() *evaluateTestCase {
 	return &evaluateTestCase{
 		name: "fail",
 		args: struct {
-			pattern        string
-			cliId          string
-			evaluationConc int
+			pattern           string
+			cliId             string
+			evaluationConc    int
+			evaluationRequest cliClient.EvaluationRequest
 		}{
 			pattern:        "*/*",
 			cliId:          "cliId-test",
 			evaluationConc: 1,
-		},
+			evaluationRequest: cliClient.EvaluationRequest{
+				Pattern: "*/*",
+				CliId:   "cliId-test",
+				Metadata: struct {
+					CliVersion      string "json:\"cliVersion\""
+					Os              string "json:\"os\""
+					PlatformVersion string "json:\"platformVersion\""
+					KernelVersion   string "json:\"kernelVersion\""
+				}{
+					CliVersion:      "0.0.1",
+					Os:              "darwin",
+					PlatformVersion: "1.2.3",
+					KernelVersion:   "4.5.6",
+				},
+				Files: []propertiesExtractor.FileProperties{{
+					FileName:       "path1/path2/file.yaml",
+					Configurations: []propertiesExtractor.K8sConfiguration{{"apiVersion": "extensions/v1beta1"}},
+				}},
+			}},
 		mock: struct {
 			propertiesExtractor propertiesExtractorMockTestCase
 			cliClient           cliClientMockTestCase
