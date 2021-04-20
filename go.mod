@@ -11,7 +11,6 @@ require (
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/lithammer/shortuuid v3.0.0+incompatible
-	github.com/magiconair/properties v1.8.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/shirou/gopsutil v3.21.3+incompatible
 	github.com/spf13/cobra v1.1.3
