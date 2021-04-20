@@ -1,6 +1,7 @@
 package bl
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,6 +9,7 @@ import (
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/datreeio/datree/pkg/propertiesExtractor"
+	"gopkg.in/yaml.v3"
 )
 
 type Printer interface {
@@ -63,7 +65,29 @@ func (e *Evaluator) Evaluate(pattern string, cliId string, evaluationConc int, c
 	return results, fileErrors, nil
 }
 
-func (e *Evaluator) PrintResults(results *EvaluationResults, cliId string) error {
+func (e *Evaluator) PrintResults(results *EvaluationResults, cliId string, output string) error {
+	if output == "json" {
+		jsonOutput, err := json.Marshal(results)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		fmt.Println(string(jsonOutput))
+		return nil
+	}
+
+	if output == "yaml" {
+		yamlOutput, err := yaml.Marshal(results)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		fmt.Println(string(yamlOutput))
+		return nil
+	}
+
 	warnings, err := e.parseEvaluationResultsToWarnings(results)
 	if err != nil {
 		fmt.Println(err)

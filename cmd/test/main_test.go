@@ -23,8 +23,8 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) PrintResults(results *bl.EvaluationResults, cliId string) error {
-	m.Called(results, cliId)
+func (m *mockEvaluator) PrintResults(results *bl.EvaluationResults, cliId string, output string) error {
+	m.Called(results, cliId, output)
 	return nil
 }
 
@@ -47,7 +47,7 @@ func TestTestCommand(t *testing.T) {
 	}
 	evaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedEvaluateResponse, []propertiesExtractor.FileError{}, nil)
 	evaluator.On("PrintFileParsingErrors", mock.Anything).Return()
-	evaluator.On("PrintResults", mock.Anything, mock.Anything).Return()
+	evaluator.On("PrintResults", mock.Anything, mock.Anything, mock.Anything).Return()
 
 	localConfigManager := &mockLocalConfigManager{}
 	localConfigManager.On("GetConfiguration").Return(localConfig.LocalConfiguration{CliId: "134kh"}, nil)
@@ -57,11 +57,37 @@ func TestTestCommand(t *testing.T) {
 		LocalConfig: localConfigManager,
 	}
 
-	test(ctx, "8/*")
+	test_testCommand_no_flags(t, localConfigManager, evaluator, mockedEvaluateResponse, ctx)
+	test_testCommand_json_output(t, localConfigManager, evaluator, mockedEvaluateResponse, ctx)
+	test_testCommand_yaml_output(t, localConfigManager, evaluator, mockedEvaluateResponse, ctx)
+}
+
+func test_testCommand_no_flags(t *testing.T, localConfigManager *mockLocalConfigManager, evaluator *mockEvaluator, mockedEvaluateResponse *bl.EvaluationResults, ctx *TestCommandContext) {
+	test(ctx, "8/*", TestCommandFlags{})
 	localConfigManager.AssertCalled(t, "GetConfiguration")
 
 	expectedPath, _ := filepath.Abs("8/*")
 	evaluator.AssertCalled(t, "Evaluate", expectedPath, "134kh", 50)
 	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
-	evaluator.AssertCalled(t, "PrintResults", mockedEvaluateResponse, "134kh")
+	evaluator.AssertCalled(t, "PrintResults", mockedEvaluateResponse, "134kh", "")
+}
+
+func test_testCommand_json_output(t *testing.T, localConfigManager *mockLocalConfigManager, evaluator *mockEvaluator, mockedEvaluateResponse *bl.EvaluationResults, ctx *TestCommandContext) {
+	test(ctx, "8/*", TestCommandFlags{Output: "json"})
+	localConfigManager.AssertCalled(t, "GetConfiguration")
+
+	expectedPath, _ := filepath.Abs("8/*")
+	evaluator.AssertCalled(t, "Evaluate", expectedPath, "134kh", 50)
+	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
+	evaluator.AssertCalled(t, "PrintResults", mockedEvaluateResponse, "134kh", "json")
+}
+
+func test_testCommand_yaml_output(t *testing.T, localConfigManager *mockLocalConfigManager, evaluator *mockEvaluator, mockedEvaluateResponse *bl.EvaluationResults, ctx *TestCommandContext) {
+	test(ctx, "8/*", TestCommandFlags{Output: "yaml"})
+	localConfigManager.AssertCalled(t, "GetConfiguration")
+
+	expectedPath, _ := filepath.Abs("8/*")
+	evaluator.AssertCalled(t, "Evaluate", expectedPath, "134kh", 50)
+	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
+	evaluator.AssertCalled(t, "PrintResults", mockedEvaluateResponse, "134kh", "yaml")
 }
