@@ -57,6 +57,12 @@ func TestTestCommand(t *testing.T) {
 		LocalConfig: localConfigManager,
 	}
 
+	test_testCommand_no_flags(t, localConfigManager, evaluator, mockedEvaluateResponse, ctx)
+	test_testCommand_json_output(t, localConfigManager, evaluator, mockedEvaluateResponse, ctx)
+	test_testCommand_yaml_output(t, localConfigManager, evaluator, mockedEvaluateResponse, ctx)
+}
+
+func test_testCommand_no_flags(t *testing.T, localConfigManager *mockLocalConfigManager, evaluator *mockEvaluator, mockedEvaluateResponse *bl.EvaluationResults, ctx *TestCommandContext) {
 	test(ctx, "8/*", TestCommandFlags{})
 	localConfigManager.AssertCalled(t, "GetConfiguration")
 
@@ -64,4 +70,24 @@ func TestTestCommand(t *testing.T) {
 	evaluator.AssertCalled(t, "Evaluate", expectedPath, "134kh", 50)
 	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
 	evaluator.AssertCalled(t, "PrintResults", mockedEvaluateResponse, "134kh", "")
+}
+
+func test_testCommand_json_output(t *testing.T, localConfigManager *mockLocalConfigManager, evaluator *mockEvaluator, mockedEvaluateResponse *bl.EvaluationResults, ctx *TestCommandContext) {
+	test(ctx, "8/*", TestCommandFlags{Output: "json"})
+	localConfigManager.AssertCalled(t, "GetConfiguration")
+
+	expectedPath, _ := filepath.Abs("8/*")
+	evaluator.AssertCalled(t, "Evaluate", expectedPath, "134kh", 50)
+	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
+	evaluator.AssertCalled(t, "PrintResults", mockedEvaluateResponse, "134kh", "json")
+}
+
+func test_testCommand_yaml_output(t *testing.T, localConfigManager *mockLocalConfigManager, evaluator *mockEvaluator, mockedEvaluateResponse *bl.EvaluationResults, ctx *TestCommandContext) {
+	test(ctx, "8/*", TestCommandFlags{Output: "yaml"})
+	localConfigManager.AssertCalled(t, "GetConfiguration")
+
+	expectedPath, _ := filepath.Abs("8/*")
+	evaluator.AssertCalled(t, "Evaluate", expectedPath, "134kh", 50)
+	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
+	evaluator.AssertCalled(t, "PrintResults", mockedEvaluateResponse, "134kh", "yaml")
 }
