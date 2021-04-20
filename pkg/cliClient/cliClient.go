@@ -6,23 +6,25 @@ import (
 
 	"github.com/datreeio/datree/pkg/httpClient"
 	extractor "github.com/datreeio/datree/pkg/propertiesExtractor"
-	"github.com/shirou/gopsutil/host"
 )
 
 type HTTPClient interface {
 	Request(method string, resourceURI string, body interface{}, headers map[string]string) (httpClient.Response, error)
 }
 
+type getUserAgentFn = func() (*UserAgent, error)
 type CliClient struct {
-	baseUrl    string
-	httpClient HTTPClient
+	baseUrl      string
+	httpClient   HTTPClient
+	getUserAgent getUserAgentFn
 }
 
 func NewCliClient(url string) *CliClient {
 	httpClient := httpClient.NewClient(url, nil)
 	return &CliClient{
-		baseUrl:    url,
-		httpClient: httpClient,
+		baseUrl:      url,
+		httpClient:   httpClient,
+		getUserAgent: getUserAgent,
 	}
 }
 
@@ -64,8 +66,8 @@ type EvaluationResponse struct {
 	Status       string             `json:"status"`
 }
 
-func (c *CliClient) RequestEvaluation(pattern string, files []*extractor.FileProperties, cliId string) (EvaluationResponse, error) {
-	evaluationRequest, err := c.createEvaluationRequest(pattern, files, cliId)
+func (c *CliClient) RequestEvaluation(pattern string, files []*extractor.FileProperties, cliId string, cliVersion string) (EvaluationResponse, error) {
+	evaluationRequest, err := c.createEvaluationRequest(pattern, files, cliId, cliVersion)
 	if err != nil {
 		return EvaluationResponse{}, err
 	}
@@ -83,14 +85,14 @@ func (c *CliClient) RequestEvaluation(pattern string, files []*extractor.FilePro
 	return *evaluationResponse, nil
 }
 
-func (c *CliClient) createEvaluationRequest(pattern string, files []*extractor.FileProperties, cliId string) (EvaluationRequest, error) {
+func (c *CliClient) createEvaluationRequest(pattern string, files []*extractor.FileProperties, cliId string, cliVersion string) (EvaluationRequest, error) {
 	var filesProperties []extractor.FileProperties
 
 	for _, file := range files {
 		filesProperties = append(filesProperties, *file)
 	}
 
-	osInfo, err := host.Info()
+	userAgent, err := c.getUserAgent()
 	if err != nil {
 		return EvaluationRequest{}, err
 	}
@@ -103,10 +105,10 @@ func (c *CliClient) createEvaluationRequest(pattern string, files []*extractor.F
 			PlatformVersion string "json:\"platformVersion\""
 			KernelVersion   string "json:\"kernelVersion\""
 		}{
-			CliVersion:      "0.0.1",
-			Os:              osInfo.OS,
-			PlatformVersion: osInfo.PlatformVersion,
-			KernelVersion:   osInfo.KernelVersion,
+			CliVersion:      cliVersion,
+			Os:              userAgent.OS,
+			PlatformVersion: userAgent.PlatformVersion,
+			KernelVersion:   userAgent.KernelVersion,
 		},
 		Files: filesProperties,
 	}

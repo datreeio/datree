@@ -15,7 +15,7 @@ type Printer interface {
 	PrintSummaryTable(summary printer.Summary)
 }
 type CLIClient interface {
-	RequestEvaluation(pattern string, files []*propertiesExtractor.FileProperties, cliId string) (cliClient.EvaluationResponse, error)
+	RequestEvaluation(pattern string, files []*propertiesExtractor.FileProperties, cliId string, cliVersion string) (cliClient.EvaluationResponse, error)
 }
 type PropertiesExtractor interface {
 	ReadFilesFromPattern(pattern string, conc int) ([]*propertiesExtractor.FileProperties, []propertiesExtractor.FileError, []error)
@@ -43,7 +43,7 @@ type EvaluationResults struct {
 	}
 }
 
-func (e *Evaluator) Evaluate(pattern string, cliId string, evaluationConc int) (*EvaluationResults, []propertiesExtractor.FileError, error) {
+func (e *Evaluator) Evaluate(pattern string, cliId string, evaluationConc int, cliVersion string) (*EvaluationResults, []propertiesExtractor.FileError, error) {
 	files, fileErrors, errors := e.propertiesExtractor.ReadFilesFromPattern(pattern, evaluationConc)
 	if len(errors) > 0 {
 		return nil, fileErrors, fmt.Errorf("failed evaluation with the following errors: %s", errors)
@@ -53,7 +53,7 @@ func (e *Evaluator) Evaluate(pattern string, cliId string, evaluationConc int) (
 		return nil, fileErrors, fmt.Errorf("no files detected")
 	}
 
-	res, err := e.cliClient.RequestEvaluation(pattern, files, cliId)
+	res, err := e.cliClient.RequestEvaluation(pattern, files, cliId, cliVersion)
 	if err != nil {
 		return nil, fileErrors, err
 	}

@@ -35,6 +35,7 @@ type RequestEvaluationTestCase struct {
 			status int
 			body   *EvaluationResponse
 		}
+		getUserAgentFn func() (*UserAgent, error)
 	}
 	expected struct {
 		request struct {
@@ -61,11 +62,12 @@ func TestRequestEvaluation(t *testing.T) {
 			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
 
 			client := &CliClient{
-				baseUrl:    "http://cli-service.test.io",
-				httpClient: &httpClientMock,
+				baseUrl:      "http://cli-service.test.io",
+				httpClient:   &httpClientMock,
+				getUserAgent: tt.mock.getUserAgentFn,
 			}
 
-			res, _ := client.RequestEvaluation(tt.args.pattern, tt.args.properties, tt.args.cliId)
+			res, _ := client.RequestEvaluation(tt.args.pattern, tt.args.properties, tt.args.cliId, "0.0.1")
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, *tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, *tt.expected.response, res)
@@ -130,6 +132,7 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 				status int
 				body   *EvaluationResponse
 			}
+			getUserAgentFn func() (*UserAgent, error)
 		}{
 			response: struct {
 				status int
@@ -137,6 +140,12 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 			}{
 				status: http.StatusOK,
 				body:   &EvaluationResponse{},
+			},
+			getUserAgentFn: func() (*UserAgent, error) {
+				return &UserAgent{
+					OS:              "darwin",
+					PlatformVersion: "1.2.3",
+					KernelVersion:   "4.5.6"}, nil
 			},
 		},
 		expected: struct {
@@ -168,8 +177,8 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 					}{
 						CliVersion:      "0.0.1",
 						Os:              "darwin",
-						PlatformVersion: "10.15.7",
-						KernelVersion:   "19.6.0",
+						PlatformVersion: "1.2.3",
+						KernelVersion:   "4.5.6",
 					},
 				},
 				headers: nil,
