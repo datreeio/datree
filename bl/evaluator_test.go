@@ -24,7 +24,7 @@ type mockCliClient struct {
 	mock.Mock
 }
 
-func (m *mockCliClient) RequestEvaluation(pattern string, files []*propertiesExtractor.FileProperties, cliId string) (cliClient.EvaluationResponse, error) {
+func (m *mockCliClient) RequestEvaluation(pattern string, files []*propertiesExtractor.FileProperties, cliId string, cliVersion string) (cliClient.EvaluationResponse, error) {
 	args := m.Called(pattern, files, cliId)
 	return args.Get(0).(cliClient.EvaluationResponse), args.Error(1)
 }
@@ -94,7 +94,7 @@ func TestEvaluate(t *testing.T) {
 				printer:             printer,
 			}
 
-			actualResponse, actualFilesErrs, actualErr := evaluator.Evaluate(tt.args.pattern, tt.args.cliId, tt.args.evaluationConc)
+			actualResponse, actualFilesErrs, actualErr := evaluator.Evaluate(tt.args.pattern, tt.args.cliId, tt.args.evaluationConc, "0.0.1")
 
 			propertiesExtractor.AssertCalled(t, "ReadFilesFromPattern", tt.args.pattern, tt.args.evaluationConc)
 			cliClient.AssertCalled(t, "RequestEvaluation", tt.args.pattern, tt.mock.propertiesExtractor.readFilesFromPattern.properties, tt.args.cliId)
