@@ -9,7 +9,6 @@ import (
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/datreeio/datree/pkg/propertiesExtractor"
-	"github.com/shirou/gopsutil/host"
 	"gopkg.in/yaml.v3"
 )
 
@@ -29,21 +28,6 @@ type Evaluator struct {
 	cliClient           CLIClient
 	printer             Printer
 	osInfo              *OSInfo
-}
-
-type OSInfo struct {
-	OS              string
-	PlatformVersion string
-	KernelVersion   string
-}
-
-func createOSInfo() *OSInfo {
-	infoStat, _ := host.Info()
-	return &OSInfo{
-		OS:              infoStat.OS,
-		KernelVersion:   infoStat.KernelVersion,
-		PlatformVersion: infoStat.PlatformVersion,
-	}
 }
 
 func CreateNewEvaluator(pe PropertiesExtractor, c CLIClient, p Printer) *Evaluator {
