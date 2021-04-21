@@ -6,9 +6,9 @@
 ![open issues](https://img.shields.io/github/issues-raw/datreeio/datree)
 
 ## What is Datree?
-[Datree](https://datree.io/?utm_source=github&utm_medium=organic_oss) helps to prevent Kubernetes misconfigurations from ever making it to production.  
+[Datree](https://datree.io/?utm_source=github&utm_medium=organic_oss) helps prevent Kubernetes misconfigurations from ever making it to production.  
 
-The CLI integration can be used locally or in the CI to provide a policy enforcement solution for Kubernetes. The policy runs automatic checks on every invocation (e.g. pull request, code change, etc.) for rule violations and misconfigurations. When rule violations are found, Datree will prevent them and will show the Engineers instructions on how and why to fix those issues.
+The CLI integration can be used locally or as part of a CI pipline to provide a policy enforcement solution for Kubernetes. Datree runs automatic checks on every invocation (e.g. pull request, code change, etc.) for rule violations and misconfigurations. When rule violations are found, Datree will promt to prevent them by showing the engineers instructions on how and why to fix these issues.
 
 ## Quick start in two steps
 #### 1. Install the latest release on your CLI  
@@ -19,15 +19,15 @@ The CLI integration can be used locally or in the CI to provide a policy enforce
 ``datree test <k8s-manifest-file>``  
 
 ...and voilà, you just made your first invocation! 🥳    
-In your CLI, you will see something like that:  
+In your command line, you will see something like this:  
 [![datree-cli-output](https://raw.githubusercontent.com/datreeio/datree/main/images/CLI-output.png)](#) 
 
 #### Ready to review our "Getting Started" guide?
-All the information that is needed to explore a bunch of other cool feature, or how to set up your policy, can be found in [**our docs**](https://hub.datree.io/getting-started/?utm_source=github&utm_medium=organic_oss).
+All the information that is needed to get started, as well exploring a bunch of other cool features (including how to set up your policy) can be found in [**our docs**](https://hub.datree.io/getting-started/?utm_source=github&utm_medium=organic_oss).
 
 ## Built-in rules
 Right now, there are 30 battle-tested rules for you to choose from.  
-The rules are covering different Kubernetes resources/use-cases:
+The rules cover different Kubernetes resources/use-cases:
 * [Workload](https://hub.datree.io/workload/?utm_source=github&utm_medium=organic_oss)
 * [CronJob](https://hub.datree.io/cronjob/?utm_source=github&utm_medium=organic_oss)
 * [Containers](https://hub.datree.io/containers/?utm_source=github&utm_medium=organic_oss)
