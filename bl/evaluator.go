@@ -35,7 +35,7 @@ func CreateNewEvaluator(pe PropertiesExtractor, c CLIClient, p Printer) *Evaluat
 		propertiesExtractor: pe,
 		cliClient:           c,
 		printer:             p,
-		osInfo:              NewOsOInfo(),
+		osInfo:              NewOsInfo(),
 	}
 }
 
