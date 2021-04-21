@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/httpClient"
@@ -27,9 +26,7 @@ func (c *mockHTTPClient) Request(method string, resourceURI string, body interfa
 type RequestEvaluationTestCase struct {
 	name string
 	args struct {
-		pattern    string
-		cliId      string
-		properties []*extractor.FileProperties
+		evaluationRequest *EvaluationRequest
 	}
 	mock struct {
 		response struct {
@@ -66,7 +63,7 @@ func TestRequestEvaluation(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			res, _ := client.RequestEvaluation(tt.args.pattern, tt.args.properties, tt.args.cliId)
+			res, _ := client.RequestEvaluation(*tt.args.evaluationRequest)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, *tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, *tt.expected.response, res)
@@ -118,13 +115,19 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 	return &RequestEvaluationTestCase{
 		name: "success - request evaluation",
 		args: struct {
-			pattern    string
-			cliId      string
-			properties []*extractor.FileProperties
+			evaluationRequest *EvaluationRequest
 		}{
-			pattern:    "pattern",
-			properties: castPropertiesPointersMock("service_mock", "mocks/service_mock.yaml"),
-			cliId:      "cli-id-test",
+			evaluationRequest: &EvaluationRequest{
+				CliId:   "cli-id-test",
+				Pattern: "pattern",
+				Files:   castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
+				Metadata: Metadata{
+					CliVersion:      "0.0.1",
+					Os:              "darwin",
+					PlatformVersion: "1.2.3",
+					KernelVersion:   "4.5.6",
+				},
+			},
 		},
 		mock: struct {
 			response struct {
@@ -161,12 +164,11 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 					CliId:   "cli-id-test",
 					Pattern: "pattern",
 					Files:   castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
-					Metadata: struct {
-						CliVersion string "json:\"cliVersion\""
-						Os         string "json:\"os\""
-					}{
-						CliVersion: "0.0.1",
-						Os:         runtime.GOOS,
+					Metadata: Metadata{
+						CliVersion:      "0.0.1",
+						Os:              "darwin",
+						PlatformVersion: "1.2.3",
+						KernelVersion:   "4.5.6",
 					},
 				},
 				headers: nil,
