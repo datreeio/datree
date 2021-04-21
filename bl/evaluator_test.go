@@ -142,12 +142,7 @@ func test_evaluate_success() *evaluateTestCase {
 			evaluationRequest: cliClient.EvaluationRequest{
 				Pattern: "*/*",
 				CliId:   "cliId-test",
-				Metadata: struct {
-					CliVersion      string "json:\"cliVersion\""
-					Os              string "json:\"os\""
-					PlatformVersion string "json:\"platformVersion\""
-					KernelVersion   string "json:\"kernelVersion\""
-				}{
+				Metadata: cliClient.Metadata{
 					CliVersion:      "0.0.1",
 					Os:              "darwin",
 					PlatformVersion: "1.2.3",
@@ -220,12 +215,7 @@ func test_evaluate_failedRequest() *evaluateTestCase {
 			evaluationRequest: cliClient.EvaluationRequest{
 				Pattern: "*/*",
 				CliId:   "cliId-test",
-				Metadata: struct {
-					CliVersion      string "json:\"cliVersion\""
-					Os              string "json:\"os\""
-					PlatformVersion string "json:\"platformVersion\""
-					KernelVersion   string "json:\"kernelVersion\""
-				}{
+				Metadata: cliClient.Metadata{
 					CliVersion:      "0.0.1",
 					Os:              "darwin",
 					PlatformVersion: "1.2.3",

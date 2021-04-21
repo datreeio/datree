@@ -121,12 +121,7 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 				CliId:   "cli-id-test",
 				Pattern: "pattern",
 				Files:   castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
-				Metadata: struct {
-					CliVersion      string "json:\"cliVersion\""
-					Os              string "json:\"os\""
-					PlatformVersion string "json:\"platformVersion\""
-					KernelVersion   string "json:\"kernelVersion\""
-				}{
+				Metadata: Metadata{
 					CliVersion:      "0.0.1",
 					Os:              "darwin",
 					PlatformVersion: "1.2.3",
@@ -169,12 +164,7 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 					CliId:   "cli-id-test",
 					Pattern: "pattern",
 					Files:   castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
-					Metadata: struct {
-						CliVersion      string "json:\"cliVersion\""
-						Os              string "json:\"os\""
-						PlatformVersion string "json:\"platformVersion\""
-						KernelVersion   string "json:\"kernelVersion\""
-					}{
+					Metadata: Metadata{
 						CliVersion:      "0.0.1",
 						Os:              "darwin",
 						PlatformVersion: "1.2.3",
