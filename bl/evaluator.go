@@ -35,7 +35,7 @@ func CreateNewEvaluator(pe PropertiesExtractor, c CLIClient, p Printer) *Evaluat
 		propertiesExtractor: pe,
 		cliClient:           c,
 		printer:             p,
-		osInfo:              createOSInfo(),
+		osInfo:              NewOsOInfo(),
 	}
 }
 
@@ -73,12 +73,7 @@ func (e *Evaluator) Evaluate(pattern string, cliId string, evaluationConc int, c
 	evaluationRequest := cliClient.EvaluationRequest{
 		CliId:   cliId,
 		Pattern: pattern,
-		Metadata: struct {
-			CliVersion      string "json:\"cliVersion\""
-			Os              string "json:\"os\""
-			PlatformVersion string "json:\"platformVersion\""
-			KernelVersion   string "json:\"kernelVersion\""
-		}{
+		Metadata: cliClient.Metadata{
 			CliVersion:      cliVersion,
 			Os:              e.osInfo.OS,
 			PlatformVersion: e.osInfo.PlatformVersion,

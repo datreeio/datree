@@ -24,16 +24,18 @@ func NewCliClient(url string) *CliClient {
 	}
 }
 
+type Metadata struct {
+	CliVersion      string `json:"cliVersion"`
+	Os              string `json:"os"`
+	PlatformVersion string `json:"platformVersion"`
+	KernelVersion   string `json:"kernelVersion"`
+}
+
 type EvaluationRequest struct {
-	CliId    string `json:"cliId"`
-	Pattern  string `json:"pattern"`
-	Metadata struct {
-		CliVersion      string `json:"cliVersion"`
-		Os              string `json:"os"`
-		PlatformVersion string `json:"platformVersion"`
-		KernelVersion   string `json:"kernelVersion"`
-	} `json:"metadata"`
-	Files []extractor.FileProperties `json:"files"`
+	CliId    string                     `json:"cliId"`
+	Pattern  string                     `json:"pattern"`
+	Metadata Metadata                   `json:"metadata"`
+	Files    []extractor.FileProperties `json:"files"`
 }
 
 type Match struct {

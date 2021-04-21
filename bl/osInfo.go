@@ -8,7 +8,7 @@ type OSInfo struct {
 	KernelVersion   string
 }
 
-func createOSInfo() *OSInfo {
+func NewOsOInfo() *OSInfo {
 	infoStat, _ := host.Info()
 	return &OSInfo{
 		OS:              infoStat.OS,
