@@ -19,7 +19,7 @@ type LocalConfigManager interface {
 type Evaluator interface {
 	PrintResults(results *bl.EvaluationResults, cliId string, output string) error
 	PrintFileParsingErrors(errors []propertiesExtractor.FileError)
-	Evaluate(pattern string, cliId string, evaluationConc int) (*bl.EvaluationResults, []propertiesExtractor.FileError, error)
+	Evaluate(pattern string, cliId string, evaluationConc int, cliVersion string) (*bl.EvaluationResults, []propertiesExtractor.FileError, error)
 }
 
 type TestCommandContext struct {
@@ -74,7 +74,7 @@ func test(ctx *TestCommandContext, pattern string, flags TestCommandFlags) error
 		return err
 	}
 
-	evaluationResponse, fileParsingErrors, err := ctx.Evaluator.Evaluate(absolutePath, config.CliId, 50)
+	evaluationResponse, fileParsingErrors, err := ctx.Evaluator.Evaluate(absolutePath, config.CliId, 50, "0.0.1")
 	s.Stop()
 
 	if err != nil {

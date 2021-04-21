@@ -32,7 +32,7 @@ func (m *mockEvaluator) PrintFileParsingErrors(errors []propertiesExtractor.File
 	m.Called(errors)
 }
 
-func (m *mockEvaluator) Evaluate(pattern string, cliId string, evaluationConc int) (*bl.EvaluationResults, []propertiesExtractor.FileError, error) {
+func (m *mockEvaluator) Evaluate(pattern string, cliId string, evaluationConc int, cliVersion string) (*bl.EvaluationResults, []propertiesExtractor.FileError, error) {
 	args := m.Called(pattern, cliId, evaluationConc)
 	return args.Get(0).(*bl.EvaluationResults), args.Get(1).([]propertiesExtractor.FileError), args.Error(2)
 }
@@ -45,7 +45,7 @@ func TestTestCommand(t *testing.T) {
 			FilesCount       int
 		}{RulesCount: 1, TotalFailedRules: 0, FilesCount: 0},
 	}
-	evaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything).Return(mockedEvaluateResponse, []propertiesExtractor.FileError{}, nil)
+	evaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedEvaluateResponse, []propertiesExtractor.FileError{}, nil)
 	evaluator.On("PrintFileParsingErrors", mock.Anything).Return()
 	evaluator.On("PrintResults", mock.Anything, mock.Anything, mock.Anything).Return()
 
