@@ -3,7 +3,6 @@ package cliClient
 import (
 	"encoding/json"
 	"net/http"
-	"runtime"
 
 	"github.com/datreeio/datree/pkg/httpClient"
 	extractor "github.com/datreeio/datree/pkg/propertiesExtractor"
@@ -12,7 +11,6 @@ import (
 type HTTPClient interface {
 	Request(method string, resourceURI string, body interface{}, headers map[string]string) (httpClient.Response, error)
 }
-
 type CliClient struct {
 	baseUrl    string
 	httpClient HTTPClient
@@ -26,14 +24,18 @@ func NewCliClient(url string) *CliClient {
 	}
 }
 
+type Metadata struct {
+	CliVersion      string `json:"cliVersion"`
+	Os              string `json:"os"`
+	PlatformVersion string `json:"platformVersion"`
+	KernelVersion   string `json:"kernelVersion"`
+}
+
 type EvaluationRequest struct {
-	CliId    string `json:"cliId"`
-	Pattern  string `json:"pattern"`
-	Metadata struct {
-		CliVersion string `json:"cliVersion"`
-		Os         string `json:"os"`
-	} `json:"metadata"`
-	Files []extractor.FileProperties `json:"files"`
+	CliId    string                     `json:"cliId"`
+	Pattern  string                     `json:"pattern"`
+	Metadata Metadata                   `json:"metadata"`
+	Files    []extractor.FileProperties `json:"files"`
 }
 
 type Match struct {
@@ -62,9 +64,8 @@ type EvaluationResponse struct {
 	Status       string             `json:"status"`
 }
 
-func (c *CliClient) RequestEvaluation(pattern string, files []*extractor.FileProperties, cliId string) (EvaluationResponse, error) {
-	evaluationRequest := c.createEvaluationRequest(pattern, files, cliId)
-	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate", evaluationRequest, nil)
+func (c *CliClient) RequestEvaluation(request EvaluationRequest) (EvaluationResponse, error) {
+	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate", request, nil)
 	if err != nil {
 		return EvaluationResponse{}, err
 	}
@@ -76,25 +77,4 @@ func (c *CliClient) RequestEvaluation(pattern string, files []*extractor.FilePro
 	}
 
 	return *evaluationResponse, nil
-}
-
-func (c *CliClient) createEvaluationRequest(pattern string, files []*extractor.FileProperties, cliId string) EvaluationRequest {
-	var filesProperties []extractor.FileProperties
-
-	for _, file := range files {
-		filesProperties = append(filesProperties, *file)
-	}
-
-	return EvaluationRequest{
-		CliId:   cliId,
-		Pattern: pattern,
-		Metadata: struct {
-			CliVersion string "json:\"cliVersion\""
-			Os         string "json:\"os\""
-		}{
-			CliVersion: "0.0.1",
-			Os:         runtime.GOOS,
-		},
-		Files: filesProperties,
-	}
 }
