@@ -23,7 +23,7 @@ The CLI integration provides a policy enforcement solution for Kubernetes to run
 
 ...and voilà, you just ran your first invocation! 🥳    
 In your command line, you’ll see something like this: 
-[![datree-cli-output](https://raw.githubusercontent.com/datreeio/datree/main/images/CLI-output.png)](#) 
+![Datree CLI Gif](https://clipublic.s3.amazonaws.com/live.gif)
 
 #### Ready to review our "Getting Started" guide?
 All the information needed to get started, as well as a bunch of other cool features (including how to set up your policy), can be found in [**our docs**](https://hub.datree.io/getting-started/?utm_source=github&utm_medium=organic_oss).
