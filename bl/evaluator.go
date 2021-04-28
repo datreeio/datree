@@ -148,12 +148,8 @@ func (e *Evaluator) aggregateEvaluationResults(evaluationResults []cliClient.Eva
 
 	totalRulesCount := len(evaluationResults)
 	totalFailedCount := 0
-	filenames := make(map[string]string)
 
 	for _, result := range evaluationResults {
-		if !result.Passed {
-			totalFailedCount++
-		}
 		for _, match := range result.Results.Matches {
 			// file not already exists in mapper
 			if _, exists := mapper[match.FileName]; !exists {
@@ -162,16 +158,11 @@ func (e *Evaluator) aggregateEvaluationResults(evaluationResults []cliClient.Eva
 
 			// file and rule not already exists in mapper
 			if _, exists := mapper[match.FileName][result.Rule.ID]; !exists {
-				filenames[match.FileName] = match.FileName
+				totalFailedCount++
 				mapper[match.FileName][result.Rule.ID] = &Rule{ID: result.Rule.ID, Name: result.Rule.Name, FailSuggestion: result.Rule.FailSuggestion, Count: 0}
 			}
 
 			mapper[match.FileName][result.Rule.ID].IncrementCount()
-		}
-		for _, mismatch := range result.Results.Mismatches {
-			if _, exists := mapper[mismatch.FileName]; !exists {
-				filenames[mismatch.FileName] = mismatch.FileName
-			}
 		}
 	}
 
