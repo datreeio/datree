@@ -26,6 +26,8 @@ builds:
     main: ./main.go
     flags:
       - -tags={{.Env.DATREE_DEPLOYMENT}}
+    hooks:
+     post: gon gon.hcl
 archives:
   - replacements:
       darwin: Darwin
