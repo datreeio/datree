@@ -22,8 +22,10 @@ The CLI integration provides a policy enforcement solution for Kubernetes to run
 ``datree test <k8s-manifest-file>``  
 
 ...and voilà, you just ran your first invocation! 🥳    
-In your command line, you’ll see something like this: 
-![Datree CLI Gif](https://clipublic.s3.amazonaws.com/live.gif)
+In your command line, you’ll see something like this:
+<img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree" width="600" height="400">
+
+
 
 #### Ready to review our "Getting Started" guide?
 All the information needed to get started, as well as a bunch of other cool features (including how to set up your policy), can be found in [**our docs**](https://hub.datree.io/getting-started/?utm_source=github&utm_medium=organic_oss).
