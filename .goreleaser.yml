@@ -1,7 +1,7 @@
 # This is an example .goreleaser.yml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
 project_name: datree-cli
-release: 
+release:
   prerelease: auto
 before:
   hooks:
@@ -17,6 +17,8 @@ builds:
     main: ./main.go
     flags:
       - -tags={{.Env.DATREE_DEPLOYMENT}}
+    ldflags:
+      - -X github.com/datreeio/datree/cmd.CliVersion={{.Env.DATREE_BUILD_VERSION}}
   - env:
       - CGO_ENABLED=0
     binary: datree
@@ -26,6 +28,8 @@ builds:
     main: ./main.go
     flags:
       - -tags={{.Env.DATREE_DEPLOYMENT}}
+    ldflags:
+      - -X github.com/datreeio/datree/cmd.CliVersion={{.Env.DATREE_BUILD_VERSION}}
 archives:
   - replacements:
       darwin: Darwin
@@ -33,13 +37,12 @@ archives:
       amd64: x86_64
     format: zip
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 snapshot:
   name_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
-      
+      - "^docs:"
+      - "^test:"

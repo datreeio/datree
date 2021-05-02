@@ -23,6 +23,7 @@ type Evaluator interface {
 }
 
 type TestCommandContext struct {
+	CliVersion  string
 	LocalConfig LocalConfigManager
 	Evaluator   Evaluator
 }
@@ -31,7 +32,7 @@ type TestCommandFlags struct {
 	Output string
 }
 
-func CreateTestCommand(ctx *TestCommandContext) *cobra.Command {
+func NewTestCommand(ctx *TestCommandContext) *cobra.Command {
 	testCommand := &cobra.Command{
 		Use:   "test",
 		Short: "Execute static analysis for pattern",
@@ -74,7 +75,7 @@ func test(ctx *TestCommandContext, pattern string, flags TestCommandFlags) error
 		return err
 	}
 
-	evaluationResponse, fileParsingErrors, err := ctx.Evaluator.Evaluate(absolutePath, config.CliId, 50, "0.0.1")
+	evaluationResponse, fileParsingErrors, err := ctx.Evaluator.Evaluate(absolutePath, config.CliId, 50, ctx.CliVersion)
 	s.Stop()
 
 	if err != nil {
