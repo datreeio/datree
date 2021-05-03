@@ -9,10 +9,10 @@ import (
 func NewVersionCommand(cliVersion string) *cobra.Command {
 	var versionCmd = &cobra.Command{
 		Use:   "version",
-		Short: "Print the version number of Hugo",
-		Long:  `All software has versions. This is Hugo's`,
+		Short: "Print the version number",
+		Long:  "Print the version number",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("datree version: ", cliVersion)
+			fmt.Println(cliVersion)
 		},
 	}
 	return versionCmd
