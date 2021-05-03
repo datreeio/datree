@@ -5,6 +5,7 @@ import (
 
 	"github.com/datreeio/datree/bl"
 	"github.com/datreeio/datree/cmd/test"
+	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/localConfig"
@@ -19,13 +20,18 @@ var rootCmd = &cobra.Command{
 	Long:  `Datree is a static code analysis tool for kubernetes files. Full code can be found at https://github.com/datreeio/datree`,
 }
 
+var CliVersion string
+
 func init() {
 	app := startup()
 
-	rootCmd.AddCommand(test.CreateTestCommand(&test.TestCommandContext{
+	rootCmd.AddCommand(test.NewTestCommand(&test.TestCommandContext{
+		CliVersion:  CliVersion,
 		Evaluator:   app.Context.Evaluator,
 		LocalConfig: app.Context.LocalConfig,
 	}))
+
+	rootCmd.AddCommand(version.NewVersionCommand(CliVersion))
 }
 
 func Execute() {
