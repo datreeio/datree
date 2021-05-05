@@ -24,7 +24,7 @@ The CLI integration provides a policy enforcement solution for Kubernetes to run
 ...and voilà, you just ran your first invocation! 🥳    
 
 In your command line, you’ll see something like this:
-<img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree" width="600" height="400">
+<img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree" width="600" height="400">  
 
 #### Playground
 [![katakoda-logo](https://raw.githubusercontent.com/datreeio/datree/main/images/katakoda-logo.png)](#)  
