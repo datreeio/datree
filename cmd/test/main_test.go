@@ -1,7 +1,6 @@
 package test
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/datreeio/datree/bl"
@@ -32,8 +31,8 @@ func (m *mockEvaluator) PrintFileParsingErrors(errors []propertiesExtractor.File
 	m.Called(errors)
 }
 
-func (m *mockEvaluator) Evaluate(pattern string, cliId string, evaluationConc int, cliVersion string) (*bl.EvaluationResults, []propertiesExtractor.FileError, error) {
-	args := m.Called(pattern, cliId, evaluationConc)
+func (m *mockEvaluator) Evaluate(paths []string, cliId string, evaluationConc int, cliVersion string) (*bl.EvaluationResults, []propertiesExtractor.FileError, error) {
+	args := m.Called(paths, cliId, evaluationConc)
 	return args.Get(0).(*bl.EvaluationResults), args.Get(1).([]propertiesExtractor.FileError), args.Error(2)
 }
 func TestTestCommand(t *testing.T) {
@@ -63,31 +62,28 @@ func TestTestCommand(t *testing.T) {
 }
 
 func test_testCommand_no_flags(t *testing.T, localConfigManager *mockLocalConfigManager, evaluator *mockEvaluator, mockedEvaluateResponse *bl.EvaluationResults, ctx *TestCommandContext) {
-	test(ctx, "8/*", TestCommandFlags{})
+	test(ctx, []string{"8/*"}, TestCommandFlags{})
 	localConfigManager.AssertCalled(t, "GetConfiguration")
 
-	expectedPath, _ := filepath.Abs("8/*")
-	evaluator.AssertCalled(t, "Evaluate", expectedPath, "134kh", 50)
+	evaluator.AssertCalled(t, "Evaluate", []string{"8/*"}, "134kh", 50)
 	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
 	evaluator.AssertCalled(t, "PrintResults", mockedEvaluateResponse, "134kh", "")
 }
 
 func test_testCommand_json_output(t *testing.T, localConfigManager *mockLocalConfigManager, evaluator *mockEvaluator, mockedEvaluateResponse *bl.EvaluationResults, ctx *TestCommandContext) {
-	test(ctx, "8/*", TestCommandFlags{Output: "json"})
+	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "json"})
 	localConfigManager.AssertCalled(t, "GetConfiguration")
 
-	expectedPath, _ := filepath.Abs("8/*")
-	evaluator.AssertCalled(t, "Evaluate", expectedPath, "134kh", 50)
+	evaluator.AssertCalled(t, "Evaluate", []string{"8/*"}, "134kh", 50)
 	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
 	evaluator.AssertCalled(t, "PrintResults", mockedEvaluateResponse, "134kh", "json")
 }
 
 func test_testCommand_yaml_output(t *testing.T, localConfigManager *mockLocalConfigManager, evaluator *mockEvaluator, mockedEvaluateResponse *bl.EvaluationResults, ctx *TestCommandContext) {
-	test(ctx, "8/*", TestCommandFlags{Output: "yaml"})
+	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "yaml"})
 	localConfigManager.AssertCalled(t, "GetConfiguration")
 
-	expectedPath, _ := filepath.Abs("8/*")
-	evaluator.AssertCalled(t, "Evaluate", expectedPath, "134kh", 50)
+	evaluator.AssertCalled(t, "Evaluate", []string{"8/*"}, "134kh", 50)
 	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
 	evaluator.AssertCalled(t, "PrintResults", mockedEvaluateResponse, "134kh", "yaml")
 }

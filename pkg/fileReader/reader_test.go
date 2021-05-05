@@ -142,13 +142,9 @@ func TestCreateFileReader(t *testing.T) {
 type getFilesPathsTestCase struct {
 	name string
 	args struct {
-		pattern string
+		paths []string
 	}
 	mock struct {
-		glob struct {
-			response []string
-			err      error
-		}
 		stat struct {
 			response os.FileInfo
 			err      error
@@ -159,10 +155,6 @@ type getFilesPathsTestCase struct {
 		}
 	}
 	expected struct {
-		glob struct {
-			calledWith string
-			isCalled   bool
-		}
 		stat struct {
 			calledWith string
 			isCalled   bool
@@ -188,7 +180,6 @@ func TestGetFilesPaths(t *testing.T) {
 			stat := statMock{}
 			abs := absMock{}
 
-			glob.On("Glob", mock.Anything).Return(tt.mock.glob.response, tt.mock.glob.err)
 			abs.On("Abs", mock.Anything).Return(tt.mock.abs.response, tt.mock.abs.err)
 			stat.On("Stat", mock.Anything).Return(tt.mock.stat.response, tt.mock.stat.err)
 
@@ -199,7 +190,7 @@ func TestGetFilesPaths(t *testing.T) {
 				abs:      abs.Abs,
 			}
 
-			res, err := fileReader.GetFilesPaths(tt.args.pattern)
+			res, err := fileReader.GetFilesPaths(tt.args.paths)
 
 			var actualRes []string
 			for m := range res {
@@ -213,10 +204,6 @@ func TestGetFilesPaths(t *testing.T) {
 
 			assert.Equal(t, tt.expected.response, actualRes)
 			assert.Equal(t, tt.expected.err, actualErrs)
-
-			if tt.expected.glob.isCalled {
-				glob.AssertCalled(t, "Glob", tt.expected.glob.calledWith)
-			}
 
 			if tt.expected.abs.isCalled {
 				abs.AssertCalled(t, "Abs", tt.expected.abs.calledWith)
@@ -233,14 +220,10 @@ func TestGetFilesPaths(t *testing.T) {
 func getFilesPaths_noMatchesTestCase() getFilesPathsTestCase {
 	return getFilesPathsTestCase{
 		name: "success no matches",
-		args: struct{ pattern string }{
-			pattern: "*",
+		args: struct{ paths []string }{
+			paths: []string{},
 		},
 		mock: struct {
-			glob struct {
-				response []string
-				err      error
-			}
 			stat struct {
 				response os.FileInfo
 				err      error
@@ -250,13 +233,6 @@ func getFilesPaths_noMatchesTestCase() getFilesPathsTestCase {
 				err      error
 			}
 		}{
-			glob: struct {
-				response []string
-				err      error
-			}{
-				response: make([]string, 0),
-				err:      nil,
-			},
 			stat: struct {
 				response os.FileInfo
 				err      error
@@ -273,10 +249,6 @@ func getFilesPaths_noMatchesTestCase() getFilesPathsTestCase {
 			},
 		},
 		expected: struct {
-			glob struct {
-				calledWith string
-				isCalled   bool
-			}
 			stat struct {
 				calledWith string
 				isCalled   bool
@@ -288,13 +260,6 @@ func getFilesPaths_noMatchesTestCase() getFilesPathsTestCase {
 			response []string
 			err      []error
 		}{
-			glob: struct {
-				calledWith string
-				isCalled   bool
-			}{
-				calledWith: "*",
-				isCalled:   true,
-			},
 			stat: struct {
 				calledWith string
 				isCalled   bool
@@ -338,14 +303,10 @@ func getFilesPaths_withMatchesTestCase() getFilesPathsTestCase {
 
 	return getFilesPathsTestCase{
 		name: "success with matches",
-		args: struct{ pattern string }{
-			pattern: "./mock/*",
+		args: struct{ paths []string }{
+			paths: []string{"./fail-30.yaml"},
 		},
 		mock: struct {
-			glob struct {
-				response []string
-				err      error
-			}
 			stat struct {
 				response os.FileInfo
 				err      error
@@ -355,13 +316,6 @@ func getFilesPaths_withMatchesTestCase() getFilesPathsTestCase {
 				err      error
 			}
 		}{
-			glob: struct {
-				response []string
-				err      error
-			}{
-				response: []string{"./fail-30.yaml"},
-				err:      nil,
-			},
 			stat: struct {
 				response os.FileInfo
 				err      error
@@ -378,10 +332,6 @@ func getFilesPaths_withMatchesTestCase() getFilesPathsTestCase {
 			},
 		},
 		expected: struct {
-			glob struct {
-				calledWith string
-				isCalled   bool
-			}
 			stat struct {
 				calledWith string
 				isCalled   bool
@@ -393,13 +343,6 @@ func getFilesPaths_withMatchesTestCase() getFilesPathsTestCase {
 			response []string
 			err      []error
 		}{
-			glob: struct {
-				calledWith string
-				isCalled   bool
-			}{
-				calledWith: "./mock/*",
-				isCalled:   true,
-			},
 			stat: struct {
 				calledWith string
 				isCalled   bool

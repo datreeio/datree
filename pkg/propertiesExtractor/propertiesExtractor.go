@@ -12,7 +12,7 @@ import (
 
 type FileReader interface {
 	ReadFileContent(filepath string) (string, error)
-	GetFilesPaths(pattern string) (chan string, chan error)
+	GetFilesPaths(paths []string) (chan string, chan error)
 }
 
 type PropertiesExtractor struct {
@@ -42,8 +42,8 @@ func NewPropertiesExtractor(fr FileReader) *PropertiesExtractor {
 	}
 }
 
-func (e *PropertiesExtractor) ReadFilesFromPattern(pattern string, conc int) ([]*FileProperties, []FileError, []error) {
-	filePathsChan, getFilesPathsErrorsChan := e.reader.GetFilesPaths(pattern)
+func (e *PropertiesExtractor) ReadFilesFromPaths(paths []string, conc int) ([]*FileProperties, []FileError, []error) {
+	filePathsChan, getFilesPathsErrorsChan := e.reader.GetFilesPaths(paths)
 	filesPropertiesChan, extractPropertiesErrorsChan := e.extractFilesProperties(filePathsChan, conc)
 
 	var files []*FileProperties
