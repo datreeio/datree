@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"path/filepath"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -19,7 +18,7 @@ type LocalConfigManager interface {
 type Evaluator interface {
 	PrintResults(results *bl.EvaluationResults, cliId string, output string) error
 	PrintFileParsingErrors(errors []propertiesExtractor.FileError)
-	Evaluate(pattern string, cliId string, evaluationConc int, cliVersion string) (*bl.EvaluationResults, []propertiesExtractor.FileError, error)
+	Evaluate(patterns []string, cliId string, evaluationConc int, cliVersion string) (*bl.EvaluationResults, []propertiesExtractor.FileError, error)
 }
 
 type TestCommandContext struct {
@@ -45,9 +44,8 @@ func NewTestCommand(ctx *TestCommandContext) *cobra.Command {
 			}
 
 			testCommandFlags := TestCommandFlags{Output: outputFlag}
-			return test(ctx, args[0], testCommandFlags)
+			return test(ctx, args, testCommandFlags)
 		},
-		Args:          cobra.ExactValidArgs(1),
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
@@ -56,13 +54,7 @@ func NewTestCommand(ctx *TestCommandContext) *cobra.Command {
 	return testCommand
 }
 
-func test(ctx *TestCommandContext, pattern string, flags TestCommandFlags) error {
-	absolutePath, err := filepath.Abs(pattern)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
+func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
 
 	s.Suffix = " Loading..."
@@ -75,7 +67,7 @@ func test(ctx *TestCommandContext, pattern string, flags TestCommandFlags) error
 		return err
 	}
 
-	evaluationResponse, fileParsingErrors, err := ctx.Evaluator.Evaluate(absolutePath, config.CliId, 50, ctx.CliVersion)
+	evaluationResponse, fileParsingErrors, err := ctx.Evaluator.Evaluate(paths, config.CliId, 50, ctx.CliVersion)
 	s.Stop()
 
 	if err != nil {

@@ -19,8 +19,8 @@ func (m *mockFileReader) ReadFileContent(filepath string) (string, error) {
 	return args.Get(0).(string), args.Error(1)
 }
 
-func (m *mockFileReader) GetFilesPaths(pattern string) (chan string, chan error) {
-	args := m.Called(pattern)
+func (m *mockFileReader) GetFilesPaths(paths []string) (chan string, chan error) {
+	args := m.Called(paths)
 	return args.Get(0).(chan string), args.Get(1).(chan error)
 }
 
@@ -55,8 +55,8 @@ func TestNewPropertiesExtractor(t *testing.T) {
 type readFilesFromPatternTestCase struct {
 	name string
 	args struct {
-		conc    int
-		pattern string
+		conc  int
+		paths []string
 	}
 	mock struct {
 		readFileContentResponse struct {
@@ -92,9 +92,9 @@ func TestReadFilesFromPattern(t *testing.T) {
 			propertiesExtractor := &PropertiesExtractor{
 				reader: fileReader,
 			}
-			actualFilesProperties, actualFileErrs, actualErrors := propertiesExtractor.ReadFilesFromPattern(tt.args.pattern, tt.args.conc)
+			actualFilesProperties, actualFileErrs, actualErrors := propertiesExtractor.ReadFilesFromPaths(tt.args.paths, tt.args.conc)
 
-			fileReader.AssertCalled(t, "GetFilesPaths", tt.args.pattern)
+			fileReader.AssertCalled(t, "GetFilesPaths", tt.args.paths)
 			fileReader.AssertCalled(t, "ReadFileContent", tt.expected.readFileContentCalledWith[0])
 
 			for i, prop := range actualFilesProperties {
@@ -116,11 +116,11 @@ func test_readFileFromPattern_success() readFilesFromPatternTestCase {
 	return readFilesFromPatternTestCase{
 		name: "success",
 		args: struct {
-			conc    int
-			pattern string
+			conc  int
+			paths []string
 		}{
-			conc:    5,
-			pattern: "pattern/*",
+			conc:  5,
+			paths: []string{"path1/path2/file.yaml"},
 		},
 		mock: struct {
 			readFileContentResponse struct {
@@ -165,11 +165,11 @@ func test_readFileFromPattern_invalidYaml() readFilesFromPatternTestCase {
 	return readFilesFromPatternTestCase{
 		name: "invalid yaml",
 		args: struct {
-			conc    int
-			pattern string
+			conc  int
+			paths []string
 		}{
-			conc:    5,
-			pattern: "pattern/*",
+			conc:  5,
+			paths: []string{"path1/path2/file.yaml"},
 		},
 		mock: struct {
 			readFileContentResponse struct {
@@ -214,11 +214,11 @@ func test_readFileFromPattern_invalidFile() readFilesFromPatternTestCase {
 	return readFilesFromPatternTestCase{
 		name: "invalid yaml",
 		args: struct {
-			conc    int
-			pattern string
+			conc  int
+			paths []string
 		}{
-			conc:    5,
-			pattern: "pattern/*",
+			conc:  5,
+			paths: []string{"path1/path2/file.yaml"},
 		},
 		mock: struct {
 			readFileContentResponse struct {
