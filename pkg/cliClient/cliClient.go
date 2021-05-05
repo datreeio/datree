@@ -33,7 +33,6 @@ type Metadata struct {
 
 type EvaluationRequest struct {
 	CliId    string                     `json:"cliId"`
-	Pattern  string                     `json:"pattern"`
 	Metadata Metadata                   `json:"metadata"`
 	Files    []extractor.FileProperties `json:"files"`
 }
