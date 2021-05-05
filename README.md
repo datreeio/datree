@@ -10,7 +10,7 @@
 
 It’s far more effective than manual processes, such as sending an email to a slew of developers, begging them to set various limits, which likely falls on deaf ears because developers are already overwhelmed.
 
-## How It Works
+## How it Works
 The CLI integration provides a policy enforcement solution for Kubernetes to run automatic checks on every code change for rule violations and misconfigurations. When rule violations are found, Datree produces an alert which guides the developer to fix the issue inside the CI process — or even earlier as a pre-commit hook — while explaining the reason behind the rule.
 
 ## Quick start in two steps
@@ -26,6 +26,9 @@ The CLI integration provides a policy enforcement solution for Kubernetes to run
 In your command line, you’ll see something like this:
 <img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree" width="600" height="400">
 
+#### Playground
+[![katakoda-logo](https://raw.githubusercontent.com/datreeio/datree/main/images/katakoda-logo.png)](#)  
+You can also checkout our [interactive demo scenario](https://www.katacoda.com/datree/scenarios/datree-demo) on Katakoda without having to install anything on your machin.  
 
 #### Ready to review our "Getting Started" guide?
 All the information needed to get started, as well as a bunch of other cool features (including how to set up your policy), can be found in [**our docs**](https://hub.datree.io/getting-started/?utm_source=github&utm_medium=organic_oss).
