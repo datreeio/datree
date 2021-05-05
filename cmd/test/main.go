@@ -18,7 +18,7 @@ type LocalConfigManager interface {
 type Evaluator interface {
 	PrintResults(results *bl.EvaluationResults, cliId string, output string) error
 	PrintFileParsingErrors(errors []propertiesExtractor.FileError)
-	Evaluate(patterns []string, cliId string, evaluationConc int, cliVersion string) (*bl.EvaluationResults, []propertiesExtractor.FileError, error)
+	Evaluate(paths []string, cliId string, evaluationConc int, cliVersion string) (*bl.EvaluationResults, []propertiesExtractor.FileError, error)
 }
 
 type TestCommandContext struct {
