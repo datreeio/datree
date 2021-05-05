@@ -20,7 +20,7 @@ type CLIClient interface {
 	RequestEvaluation(cliClient.EvaluationRequest) (cliClient.EvaluationResponse, error)
 }
 type PropertiesExtractor interface {
-	ReadFilesFromPattern(pattern string, conc int) ([]*propertiesExtractor.FileProperties, []propertiesExtractor.FileError, []error)
+	ReadFilesFromPaths(paths []string, conc int) ([]*propertiesExtractor.FileProperties, []propertiesExtractor.FileError, []error)
 }
 
 type Evaluator struct {
@@ -54,8 +54,8 @@ type UserAgent struct {
 	KernelVersion   string
 }
 
-func (e *Evaluator) Evaluate(pattern string, cliId string, evaluationConc int, cliVersion string) (*EvaluationResults, []propertiesExtractor.FileError, error) {
-	files, fileErrors, errors := e.propertiesExtractor.ReadFilesFromPattern(pattern, evaluationConc)
+func (e *Evaluator) Evaluate(paths []string, cliId string, evaluationConc int, cliVersion string) (*EvaluationResults, []propertiesExtractor.FileError, error) {
+	files, fileErrors, errors := e.propertiesExtractor.ReadFilesFromPaths(paths, evaluationConc)
 	if len(errors) > 0 {
 		return nil, fileErrors, fmt.Errorf("failed evaluation with the following errors: %s", errors)
 	}
@@ -71,8 +71,7 @@ func (e *Evaluator) Evaluate(pattern string, cliId string, evaluationConc int, c
 	}
 
 	evaluationRequest := cliClient.EvaluationRequest{
-		CliId:   cliId,
-		Pattern: pattern,
+		CliId: cliId,
 		Metadata: cliClient.Metadata{
 			CliVersion:      cliVersion,
 			Os:              e.osInfo.OS,

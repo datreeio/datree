@@ -15,8 +15,8 @@ type mockPropertiesExtractor struct {
 	mock.Mock
 }
 
-func (m *mockPropertiesExtractor) ReadFilesFromPattern(pattern string, conc int) ([]*propertiesExtractor.FileProperties, []propertiesExtractor.FileError, []error) {
-	args := m.Called(pattern, conc)
+func (m *mockPropertiesExtractor) ReadFilesFromPaths(paths []string, conc int) ([]*propertiesExtractor.FileProperties, []propertiesExtractor.FileError, []error) {
+	args := m.Called(paths, conc)
 	return args.Get(0).([]*propertiesExtractor.FileProperties), args.Get(1).([]propertiesExtractor.FileError), args.Get(2).([]error)
 }
 
@@ -42,7 +42,7 @@ func (c *mockPrinter) PrintSummaryTable(summary printer.Summary) {
 }
 
 type propertiesExtractorMockTestCase struct {
-	readFilesFromPattern struct {
+	readFilesFromPaths struct {
 		properties  []*propertiesExtractor.FileProperties
 		filesErrors []propertiesExtractor.FileError
 		errors      []error
@@ -59,7 +59,7 @@ type cliClientMockTestCase struct {
 type evaluateTestCase struct {
 	name string
 	args struct {
-		pattern           string
+		paths             []string
 		cliId             string
 		evaluationConc    int
 		evaluationRequest cliClient.EvaluationRequest
@@ -86,7 +86,7 @@ func TestEvaluate(t *testing.T) {
 			cliClient := &mockCliClient{}
 			printer := &mockPrinter{}
 
-			propertiesExtractor.On("ReadFilesFromPattern", mock.Anything, mock.Anything).Return(tt.mock.propertiesExtractor.readFilesFromPattern.properties, tt.mock.propertiesExtractor.readFilesFromPattern.filesErrors, tt.mock.propertiesExtractor.readFilesFromPattern.errors)
+			propertiesExtractor.On("ReadFilesFromPaths", mock.Anything, mock.Anything).Return(tt.mock.propertiesExtractor.readFilesFromPaths.properties, tt.mock.propertiesExtractor.readFilesFromPaths.filesErrors, tt.mock.propertiesExtractor.readFilesFromPaths.errors)
 			cliClient.On("RequestEvaluation", mock.Anything).Return(tt.mock.cliClient.requestEvaluation.response, tt.mock.cliClient.requestEvaluation.errors)
 
 			evaluator := &Evaluator{
@@ -100,9 +100,9 @@ func TestEvaluate(t *testing.T) {
 				},
 			}
 
-			actualResponse, actualFilesErrs, actualErr := evaluator.Evaluate(tt.args.pattern, tt.args.cliId, tt.args.evaluationConc, "0.0.1")
+			actualResponse, actualFilesErrs, actualErr := evaluator.Evaluate(tt.args.paths, tt.args.cliId, tt.args.evaluationConc, "0.0.1")
 
-			propertiesExtractor.AssertCalled(t, "ReadFilesFromPattern", tt.args.pattern, tt.args.evaluationConc)
+			propertiesExtractor.AssertCalled(t, "ReadFilesFromPaths", tt.args.paths, tt.args.evaluationConc)
 			cliClient.AssertCalled(t, "RequestEvaluation", tt.args.evaluationRequest)
 
 			assert.Equal(t, tt.expected.response, actualResponse)
@@ -131,17 +131,16 @@ func test_evaluate_success() *evaluateTestCase {
 	return &evaluateTestCase{
 		name: "success",
 		args: struct {
-			pattern           string
+			paths             []string
 			cliId             string
 			evaluationConc    int
 			evaluationRequest cliClient.EvaluationRequest
 		}{
-			pattern:        "*/*",
+			paths:          []string{"path1/path2/file.yaml"},
 			cliId:          "cliId-test",
 			evaluationConc: 1,
 			evaluationRequest: cliClient.EvaluationRequest{
-				Pattern: "*/*",
-				CliId:   "cliId-test",
+				CliId: "cliId-test",
 				Metadata: cliClient.Metadata{
 					CliVersion:      "0.0.1",
 					Os:              "darwin",
@@ -158,7 +157,7 @@ func test_evaluate_success() *evaluateTestCase {
 			cliClient           cliClientMockTestCase
 		}{
 			propertiesExtractor: propertiesExtractorMockTestCase{
-				readFilesFromPattern: struct {
+				readFilesFromPaths: struct {
 					properties  []*propertiesExtractor.FileProperties
 					filesErrors []propertiesExtractor.FileError
 					errors      []error
@@ -204,17 +203,16 @@ func test_evaluate_failedRequest() *evaluateTestCase {
 	return &evaluateTestCase{
 		name: "fail",
 		args: struct {
-			pattern           string
+			paths             []string
 			cliId             string
 			evaluationConc    int
 			evaluationRequest cliClient.EvaluationRequest
 		}{
-			pattern:        "*/*",
+			paths:          []string{"path1/path2/file.yaml"},
 			cliId:          "cliId-test",
 			evaluationConc: 1,
 			evaluationRequest: cliClient.EvaluationRequest{
-				Pattern: "*/*",
-				CliId:   "cliId-test",
+				CliId: "cliId-test",
 				Metadata: cliClient.Metadata{
 					CliVersion:      "0.0.1",
 					Os:              "darwin",
@@ -231,7 +229,7 @@ func test_evaluate_failedRequest() *evaluateTestCase {
 			cliClient           cliClientMockTestCase
 		}{
 			propertiesExtractor: propertiesExtractorMockTestCase{
-				readFilesFromPattern: struct {
+				readFilesFromPaths: struct {
 					properties  []*propertiesExtractor.FileProperties
 					filesErrors []propertiesExtractor.FileError
 					errors      []error

@@ -118,9 +118,8 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 			evaluationRequest *EvaluationRequest
 		}{
 			evaluationRequest: &EvaluationRequest{
-				CliId:   "cli-id-test",
-				Pattern: "pattern",
-				Files:   castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
+				CliId: "cli-id-test",
+				Files: castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
 				Metadata: Metadata{
 					CliVersion:      "0.0.1",
 					Os:              "darwin",
@@ -161,9 +160,8 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 				method: http.MethodPost,
 				uri:    "/cli/evaluate",
 				body: &EvaluationRequest{
-					CliId:   "cli-id-test",
-					Pattern: "pattern",
-					Files:   castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
+					CliId: "cli-id-test",
+					Files: castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
 					Metadata: Metadata{
 						CliVersion:      "0.0.1",
 						Os:              "darwin",

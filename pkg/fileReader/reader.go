@@ -65,12 +65,12 @@ func (fr *FileReader) ReadFileContent(filepath string) (string, error) {
 	return string(dat), nil
 }
 
-func (fr *FileReader) GetFilesPaths(pattern string) (chan string, chan error) {
+func (fr *FileReader) GetFilesPaths(paths []string) (chan string, chan error) {
 	errorChan := make(chan error, 100)
 	filePathsChan := make(chan string, 100)
 
 	go func() {
-		matches, err := fr.glob(pattern)
+		var err error
 
 	iterateMatches:
 		for {
@@ -79,7 +79,7 @@ func (fr *FileReader) GetFilesPaths(pattern string) (chan string, chan error) {
 				break iterateMatches
 			}
 
-			for _, match := range matches {
+			for _, match := range paths {
 				file, err := fr.stat(match)
 				if err != nil {
 					errorChan <- err
