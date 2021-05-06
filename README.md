@@ -27,8 +27,8 @@ In your command line, you’ll see something like this:
 <img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree" width="600" height="400">  
 
 #### Playground
-[![katakoda-logo](https://raw.githubusercontent.com/datreeio/datree/main/images/katakoda-logo.png)](#)  
-You can also checkout our [interactive demo scenario](https://www.katacoda.com/datree/scenarios/datree-demo) on Katakoda without having to install anything on your machine.  
+[![katacoda-logo](https://raw.githubusercontent.com/datreeio/datree/main/images/katacoda-logo.png)](#)  
+You can also checkout our [interactive demo scenario](https://www.katacoda.com/datree/scenarios/datree-demo) on Katacoda without having to install anything on your machine.  
 
 #### Ready to review our "Getting Started" guide?
 All the information needed to get started, as well as a bunch of other cool features (including how to set up your policy), can be found in [**our docs**](https://hub.datree.io/getting-started/?utm_source=github&utm_medium=organic_oss).
