@@ -30,15 +30,15 @@ type Warning struct {
 
 func (p *Printer) PrintWarnings(warnings []Warning) {
 	for _, warning := range warnings {
-		p.printInColor(warning.Title, p.theme.Colors.Warning)
+		p.printInColor(warning.Title, p.theme.Colors.Yello)
 
 		fmt.Println()
 
 		for _, d := range warning.Details {
 			formattedOccurrences := fmt.Sprintf(" [%d occurrences]", d.Occurrences)
-			occurrences := p.theme.Colors.Plain.Sprintf(formattedOccurrences)
+			occurrences := p.theme.Colors.White.Sprintf(formattedOccurrences)
 
-			caption := p.theme.Colors.Error.Sprint(d.Caption)
+			caption := p.theme.Colors.Red.Sprint(d.Caption)
 
 			fmt.Printf("%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
 			fmt.Printf("%v %v\n", p.theme.Emoji.Suggestion, d.Suggestion)
@@ -94,6 +94,24 @@ func (p *Printer) PrintSummaryTable(summary Summary) {
 }
 
 func (p *Printer) printInColor(title string, color *color.Color) {
-	warningColorPrintFn := color.PrintfFunc()
-	warningColorPrintFn(title)
+	colorPrintFn := color.PrintfFunc()
+	colorPrintFn(title)
+}
+
+func (p *Printer) createNewColor(clr string) *color.Color {
+	switch clr {
+	case "red":
+		return p.theme.Colors.Red
+	case "yello":
+		return p.theme.Colors.Yello
+	case "green":
+		return p.theme.Colors.Green
+	default:
+		return p.theme.Colors.White
+	}
+}
+
+func (p *Printer) PrintVersionMessage(messageText string, messageColor string) {
+	colorPrintFn := p.createNewColor(messageColor)
+	p.printInColor(messageText, colorPrintFn)
 }

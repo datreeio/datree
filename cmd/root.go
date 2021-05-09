@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/datreeio/datree/bl"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
@@ -34,10 +32,8 @@ func init() {
 	rootCmd.AddCommand(version.NewVersionCommand(CliVersion))
 }
 
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
-	}
+func Execute() error {
+	return rootCmd.Execute()
 }
 
 type app struct {

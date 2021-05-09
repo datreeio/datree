@@ -45,6 +45,29 @@ type RequestEvaluationTestCase struct {
 	}
 }
 
+type GetVersionMessageTestCase struct {
+	name string
+	args struct {
+		messageChannel chan VersionMessage
+		cliVersion     string
+	}
+	mock struct {
+		response struct {
+			status int
+			body   *VersionMessage
+		}
+	}
+	expected struct {
+		request struct {
+			method  string
+			uri     string
+			body    interface{}
+			headers map[string]string
+		}
+		response *VersionMessage
+	}
+}
+
 func TestRequestEvaluation(t *testing.T) {
 	tests := []*RequestEvaluationTestCase{
 		test_requestEvaluation_success(),
@@ -66,6 +89,33 @@ func TestRequestEvaluation(t *testing.T) {
 			res, _ := client.RequestEvaluation(*tt.args.evaluationRequest)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, *tt.expected.request.body, tt.expected.request.headers)
+			assert.Equal(t, *tt.expected.response, res)
+
+		})
+	}
+}
+
+func TestGetVersionMessage(t *testing.T) {
+	tests := []*GetVersionMessageTestCase{
+		test_getVersionMessage_success(),
+	}
+	httpClientMock := mockHTTPClient{}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, _ := json.Marshal(tt.mock.response.body)
+			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
+			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
+
+			client := &CliClient{
+				baseUrl:    "http://cli-service.test.io",
+				httpClient: &httpClientMock,
+			}
+
+			messageChannel := make(chan VersionMessage, 1)
+			client.GetVersionMessage(messageChannel, tt.args.cliVersion)
+			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
+			res := <-messageChannel
 			assert.Equal(t, *tt.expected.response, res)
 
 		})
@@ -111,6 +161,54 @@ func castPropertiesPointersMock(fileName string, path string) []*extractor.FileP
 
 }
 
+func test_getVersionMessage_success() *GetVersionMessageTestCase {
+	return &GetVersionMessageTestCase{
+		name: "success - get version message",
+		args: struct {
+			messageChannel chan VersionMessage
+			cliVersion     string
+		}{
+			messageChannel: make(chan VersionMessage, 1),
+			cliVersion:     "0.0.1",
+		},
+		mock: struct {
+			response struct {
+				status int
+				body   *VersionMessage
+			}
+		}{
+			response: struct {
+				status int
+				body   *VersionMessage
+			}{
+				status: http.StatusOK,
+				body:   &VersionMessage{},
+			},
+		},
+		expected: struct {
+			request struct {
+				method  string
+				uri     string
+				body    interface{}
+				headers map[string]string
+			}
+			response *VersionMessage
+		}{
+			request: struct {
+				method  string
+				uri     string
+				body    interface{}
+				headers map[string]string
+			}{
+				method:  http.MethodGet,
+				uri:     "/cli/messages/versions/0.0.1",
+				body:    nil,
+				headers: nil,
+			},
+			response: &VersionMessage{},
+		},
+	}
+}
 func test_requestEvaluation_success() *RequestEvaluationTestCase {
 	return &RequestEvaluationTestCase{
 		name: "success - request evaluation",
