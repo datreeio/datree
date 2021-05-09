@@ -63,6 +63,12 @@ type EvaluationResponse struct {
 	Status       string             `json:"status"`
 }
 
+type VersionMessage struct {
+	CliVersion   string `json:"cliVersion"`
+	MessageText  string `json:"messageText"`
+	MessageColor string `json:"messageColor"`
+}
+
 func (c *CliClient) RequestEvaluation(request EvaluationRequest) (EvaluationResponse, error) {
 	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate", request, nil)
 	if err != nil {
@@ -76,4 +82,19 @@ func (c *CliClient) RequestEvaluation(request EvaluationRequest) (EvaluationResp
 	}
 
 	return *evaluationResponse, nil
+}
+
+func (c *CliClient) GetVersionMessage(ch chan VersionMessage, cliVersion string) {
+	defer close(ch)
+	res, err := c.httpClient.Request(http.MethodGet, "/cli/messages/versions/"+cliVersion, nil, nil)
+	if err != nil {
+		ch <- VersionMessage{}
+	}
+
+	var response = &VersionMessage{}
+	err = json.Unmarshal(res.Body, &response)
+	if err != nil {
+		ch <- VersionMessage{}
+	}
+	ch <- *response
 }
