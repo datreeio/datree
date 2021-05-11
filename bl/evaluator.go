@@ -19,6 +19,7 @@ type Printer interface {
 type CLIClient interface {
 	RequestEvaluation(cliClient.EvaluationRequest) (cliClient.EvaluationResponse, error)
 }
+
 type PropertiesExtractor interface {
 	ReadFilesFromPaths(paths []string, conc int) ([]*propertiesExtractor.FileProperties, []propertiesExtractor.FileError, []error)
 }

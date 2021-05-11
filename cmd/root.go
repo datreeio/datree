@@ -27,9 +27,13 @@ func init() {
 		CliVersion:  CliVersion,
 		Evaluator:   app.Context.Evaluator,
 		LocalConfig: app.Context.LocalConfig,
+		CliClient:   app.Context.CliClient,
 	}))
 
-	rootCmd.AddCommand(version.NewVersionCommand(CliVersion))
+	rootCmd.AddCommand(version.NewVersionCommand(&version.VersionCommandContext{
+		CliVersion: CliVersion,
+		CliClient:  app.Context.CliClient,
+	}))
 }
 
 func Execute() error {
@@ -40,6 +44,7 @@ type app struct {
 	Context struct {
 		LocalConfig *localConfig.LocalConfiguration
 		Evaluator   *bl.Evaluator
+		CliClient   *cliClient.CliClient
 	}
 }
 
@@ -48,14 +53,16 @@ func startup() *app {
 		Context: struct {
 			LocalConfig *localConfig.LocalConfiguration
 			Evaluator   *bl.Evaluator
+			CliClient   *cliClient.CliClient
 		}{},
 	}
 
-	client := cliClient.NewCliClient(deploymentConfig.URL)
+	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
 	extractor := propertiesExtractor.NewPropertiesExtractor(nil)
 	printer := printer.CreateNewPrinter()
-	evaluator := bl.CreateNewEvaluator(extractor, client, printer)
+	evaluator := bl.CreateNewEvaluator(extractor, cliClient, printer)
 
+	app.Context.CliClient = cliClient
 	app.Context.LocalConfig = &localConfig.LocalConfiguration{}
 	app.Context.Evaluator = evaluator
 
