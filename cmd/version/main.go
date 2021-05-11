@@ -7,14 +7,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewVersionCommand(cliVersion string) *cobra.Command {
+type VersionCommandContext struct {
+	CliVersion string
+	CliClient  bl.VersionMessageClient
+}
+
+func NewVersionCommand(ctx *VersionCommandContext) *cobra.Command {
 	var versionCmd = &cobra.Command{
 		Use:   "version",
 		Short: "Print the version number",
 		Long:  "Print the version number",
 		Run: func(cmd *cobra.Command, args []string) {
-			messageChannel := bl.PopulateVersionMessageChan(cliVersion)
-			fmt.Println(cliVersion)
+			messageChannel := bl.PopulateVersionMessageChan(ctx.CliClient, ctx.CliVersion)
+			fmt.Println(ctx.CliVersion)
 			bl.HandleVersionMessage(messageChannel)
 		},
 	}

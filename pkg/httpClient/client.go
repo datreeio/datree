@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 const (
@@ -34,6 +35,17 @@ func NewClient(baseURL string, defaultHeaders map[string]string) *Client {
 		defaultHeaders = make(map[string]string)
 	}
 	return &Client{httpClient: &http.Client{}, baseURL: url, defaultHeaders: defaultHeaders}
+}
+
+// NewClient creates new Client
+func NewClientTimeout(baseURL string, defaultHeaders map[string]string, timeout time.Duration) *Client {
+	url, _ := url.Parse(baseURL)
+	if defaultHeaders == nil {
+		defaultHeaders = make(map[string]string)
+	}
+	return &Client{httpClient: &http.Client{
+		Timeout: timeout,
+	}, baseURL: url, defaultHeaders: defaultHeaders}
 }
 
 // Request creates httpRequest and returns response
