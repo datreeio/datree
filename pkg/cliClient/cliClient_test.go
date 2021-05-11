@@ -113,7 +113,7 @@ func TestGetVersionMessage(t *testing.T) {
 
 			res, _ := client.GetVersionMessage(tt.args.cliVersion)
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
-			assert.Equal(t, *tt.expected.response, res)
+			assert.Equal(t, tt.expected.response, res)
 
 		})
 	}
