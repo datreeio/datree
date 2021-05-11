@@ -48,8 +48,7 @@ type RequestEvaluationTestCase struct {
 type GetVersionMessageTestCase struct {
 	name string
 	args struct {
-		messageChannel chan VersionMessage
-		cliVersion     string
+		cliVersion string
 	}
 	mock struct {
 		response struct {
@@ -112,10 +111,8 @@ func TestGetVersionMessage(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			messageChannel := make(chan VersionMessage, 1)
-			client.GetVersionMessage(messageChannel, tt.args.cliVersion)
+			res, _ := client.GetVersionMessage(tt.args.cliVersion)
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
-			res := <-messageChannel
 			assert.Equal(t, *tt.expected.response, res)
 
 		})
@@ -165,11 +162,9 @@ func test_getVersionMessage_success() *GetVersionMessageTestCase {
 	return &GetVersionMessageTestCase{
 		name: "success - get version message",
 		args: struct {
-			messageChannel chan VersionMessage
-			cliVersion     string
+			cliVersion string
 		}{
-			messageChannel: make(chan VersionMessage, 1),
-			cliVersion:     "0.0.1",
+			cliVersion: "0.0.1",
 		},
 		mock: struct {
 			response struct {

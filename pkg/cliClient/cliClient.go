@@ -84,17 +84,16 @@ func (c *CliClient) RequestEvaluation(request EvaluationRequest) (EvaluationResp
 	return *evaluationResponse, nil
 }
 
-func (c *CliClient) GetVersionMessage(ch chan VersionMessage, cliVersion string) {
-	defer close(ch)
+func (c *CliClient) GetVersionMessage(cliVersion string) (*VersionMessage, error) {
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/messages/versions/"+cliVersion, nil, nil)
 	if err != nil {
-		ch <- VersionMessage{}
+		return nil, err
 	}
 
 	var response = &VersionMessage{}
 	err = json.Unmarshal(res.Body, &response)
 	if err != nil {
-		ch <- VersionMessage{}
+		return nil, err
 	}
-	ch <- *response
+	return response, nil
 }
