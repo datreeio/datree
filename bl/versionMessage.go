@@ -1,6 +1,8 @@
 package bl
 
 import (
+	"time"
+
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/printer"
@@ -20,9 +22,13 @@ func PopulateVersionMessageChan(cliVersion string) chan *cliClient.VersionMessag
 }
 
 func HandleVersionMessage(messageChannel chan *cliClient.VersionMessage) {
-	msg := <-messageChannel
-	if msg != nil {
-		p := printer.CreateNewPrinter()
-		p.PrintVersionMessage(msg.MessageText+"\n", msg.MessageColor)
+	select {
+	case msg := <-messageChannel:
+		if msg != nil {
+			p := printer.CreateNewPrinter()
+			p.PrintVersionMessage(msg.MessageText+"\n", msg.MessageColor)
+		}
+	case <-time.After(10 * time.Second):
+		break
 	}
 }
