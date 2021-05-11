@@ -30,7 +30,7 @@ type Warning struct {
 
 func (p *Printer) PrintWarnings(warnings []Warning) {
 	for _, warning := range warnings {
-		p.printInColor(warning.Title, p.theme.Colors.Yello)
+		p.printInColor(warning.Title, p.theme.Colors.Yellow)
 
 		fmt.Println()
 
@@ -102,8 +102,8 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 	switch clr {
 	case "red":
 		return p.theme.Colors.Red
-	case "yello":
-		return p.theme.Colors.Yello
+	case "yellow":
+		return p.theme.Colors.Yellow
 	case "green":
 		return p.theme.Colors.Green
 	default:
