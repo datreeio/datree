@@ -28,7 +28,7 @@ func HandleVersionMessage(messageChannel chan *cliClient.VersionMessage) {
 			p := printer.CreateNewPrinter()
 			p.PrintVersionMessage(msg.MessageText+"\n", msg.MessageColor)
 		}
-	case <-time.After(10 * time.Second):
+	case <-time.After(600 * time.Millisecond):
 		break
 	}
 }
