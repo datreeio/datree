@@ -81,8 +81,11 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	if evaluationResponse == nil {
 		err := fmt.Errorf("no response received")
 		return err
-
 	}
 
-	return ctx.Evaluator.PrintResults(evaluationResponse, config.CliId, flags.Output)
+	messageChannel := bl.PopulateVersionMessageChan(ctx.CliVersion)
+	err = ctx.Evaluator.PrintResults(evaluationResponse, config.CliId, flags.Output)
+	bl.HandleVersionMessage(messageChannel)
+
+	return err
 }
