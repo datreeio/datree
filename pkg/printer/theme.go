@@ -9,10 +9,10 @@ import (
 
 type theme struct {
 	Colors struct {
-		Green *color.Color
-		Yello *color.Color
-		Red   *color.Color
-		White *color.Color
+		Green  *color.Color
+		Yellow *color.Color
+		Red    *color.Color
+		White  *color.Color
 	}
 	Spacing struct {
 		Default string
@@ -26,15 +26,15 @@ type theme struct {
 func createTheme() *theme {
 	return &theme{
 		Colors: struct {
-			Green *color.Color
-			Yello *color.Color
-			Red   *color.Color
-			White *color.Color
+			Green  *color.Color
+			Yellow *color.Color
+			Red    *color.Color
+			White  *color.Color
 		}{
-			Green: color.New(color.FgGreen),
-			Yello: color.New(color.FgYellow),
-			Red:   color.New(color.FgHiRed, color.Bold),
-			White: color.New(color.FgHiWhite),
+			Green:  color.New(color.FgGreen),
+			Yellow: color.New(color.FgYellow),
+			Red:    color.New(color.FgHiRed, color.Bold),
+			White:  color.New(color.FgHiWhite),
 		},
 		Spacing: struct{ Default string }{
 			Default: strings.Join([]string{" "}, ""),
