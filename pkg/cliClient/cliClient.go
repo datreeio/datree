@@ -25,6 +25,19 @@ func NewCliClient(url string) *CliClient {
 	}
 }
 
+type VersionMessageClient struct {
+	baseUrl    string
+	httpClient HTTPClient
+}
+
+func NewVersionMessageClient(url string) VersionMessageClient {
+	httpClient := httpClient.NewClientTimeout(url, nil, 900*time.Millisecond)
+	return VersionMessageClient{
+		baseUrl:    url,
+		httpClient: httpClient,
+	}
+}
+
 type Metadata struct {
 	CliVersion      string `json:"cliVersion"`
 	Os              string `json:"os"`
@@ -85,9 +98,8 @@ type VersionMessage struct {
 	MessageColor string `json:"messageColor"`
 }
 
-func (c *CliClient) GetVersionMessage(cliVersion string) (*VersionMessage, error) {
-	httpClient := httpClient.NewClientTimeout(c.baseUrl, nil, 1500*time.Millisecond)
-	res, err := httpClient.Request(http.MethodGet, "/cli/messages/versions/"+cliVersion, nil, nil)
+func (c VersionMessageClient) GetVersionMessage(cliVersion string) (*VersionMessage, error) {
+	res, err := c.httpClient.Request(http.MethodGet, "/cli/messages/versions/"+cliVersion, nil, nil)
 	if err != nil {
 		return nil, err
 	}

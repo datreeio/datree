@@ -37,7 +37,7 @@ func NewClient(baseURL string, defaultHeaders map[string]string) *Client {
 	return &Client{httpClient: &http.Client{}, baseURL: url, defaultHeaders: defaultHeaders}
 }
 
-// NewClient creates new Client
+// NewClientTimeout creates new Client with predefined timeout
 func NewClientTimeout(baseURL string, defaultHeaders map[string]string, timeout time.Duration) *Client {
 	url, _ := url.Parse(baseURL)
 	if defaultHeaders == nil {

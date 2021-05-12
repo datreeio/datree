@@ -8,8 +8,14 @@ import (
 )
 
 type VersionCommandContext struct {
-	CliVersion string
-	CliClient  bl.VersionMessageClient
+	CliVersion           string
+	VersionMessageClient bl.VersionMessageClient
+}
+
+func version(ctx *VersionCommandContext) {
+	messageChannel := bl.PopulateVersionMessageChan(ctx.VersionMessageClient, ctx.CliVersion)
+	fmt.Println(ctx.CliVersion)
+	bl.HandleVersionMessage(messageChannel)
 }
 
 func NewVersionCommand(ctx *VersionCommandContext) *cobra.Command {
@@ -18,9 +24,7 @@ func NewVersionCommand(ctx *VersionCommandContext) *cobra.Command {
 		Short: "Print the version number",
 		Long:  "Print the version number",
 		Run: func(cmd *cobra.Command, args []string) {
-			messageChannel := bl.PopulateVersionMessageChan(ctx.CliClient, ctx.CliVersion)
-			fmt.Println(ctx.CliVersion)
-			bl.HandleVersionMessage(messageChannel)
+			version(ctx)
 		},
 	}
 	return versionCmd

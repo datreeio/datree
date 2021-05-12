@@ -106,7 +106,7 @@ func TestGetVersionMessage(t *testing.T) {
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
 			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
 
-			client := &CliClient{
+			client := &VersionMessageClient{
 				baseUrl:    "http://cli-service.test.io",
 				httpClient: &httpClientMock,
 			}
