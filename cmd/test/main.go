@@ -22,10 +22,10 @@ type Evaluator interface {
 }
 
 type TestCommandContext struct {
-	CliVersion  string
-	LocalConfig LocalConfigManager
-	Evaluator   Evaluator
-	CliClient   bl.VersionMessageClient
+	CliVersion           string
+	LocalConfig          LocalConfigManager
+	Evaluator            Evaluator
+	VersionMessageClient bl.VersionMessageClient
 }
 
 type TestCommandFlags struct {
@@ -62,7 +62,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	s.Color("cyan")
 	s.Start()
 
-	messageChannel := bl.PopulateVersionMessageChan(ctx.CliClient, ctx.CliVersion)
+	messageChannel := bl.PopulateVersionMessageChan(ctx.VersionMessageClient, ctx.CliVersion)
 
 	config, err := ctx.LocalConfig.GetConfiguration()
 	if err != nil {

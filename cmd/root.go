@@ -24,15 +24,15 @@ func init() {
 	app := startup()
 
 	rootCmd.AddCommand(test.NewTestCommand(&test.TestCommandContext{
-		CliVersion:  CliVersion,
-		Evaluator:   app.Context.Evaluator,
-		LocalConfig: app.Context.LocalConfig,
-		CliClient:   app.Context.CliClient,
+		CliVersion:           CliVersion,
+		Evaluator:            app.Context.Evaluator,
+		LocalConfig:          app.Context.LocalConfig,
+		VersionMessageClient: app.Context.VersionMessageClient,
 	}))
 
 	rootCmd.AddCommand(version.NewVersionCommand(&version.VersionCommandContext{
-		CliVersion: CliVersion,
-		CliClient:  app.Context.CliClient,
+		CliVersion:           CliVersion,
+		VersionMessageClient: app.Context.VersionMessageClient,
 	}))
 }
 
@@ -42,29 +42,32 @@ func Execute() error {
 
 type app struct {
 	Context struct {
-		LocalConfig *localConfig.LocalConfiguration
-		Evaluator   *bl.Evaluator
-		CliClient   *cliClient.CliClient
+		LocalConfig          *localConfig.LocalConfiguration
+		Evaluator            *bl.Evaluator
+		CliClient            *cliClient.CliClient
+		VersionMessageClient cliClient.VersionMessageClient
 	}
 }
 
 func startup() *app {
 	app := &app{
 		Context: struct {
-			LocalConfig *localConfig.LocalConfiguration
-			Evaluator   *bl.Evaluator
-			CliClient   *cliClient.CliClient
+			LocalConfig          *localConfig.LocalConfiguration
+			Evaluator            *bl.Evaluator
+			CliClient            *cliClient.CliClient
+			VersionMessageClient cliClient.VersionMessageClient
 		}{},
 	}
 
-	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
+	client := cliClient.NewCliClient(deploymentConfig.URL)
+	versionMessageClient := cliClient.NewVersionMessageClient(deploymentConfig.URL)
 	extractor := propertiesExtractor.NewPropertiesExtractor(nil)
 	printer := printer.CreateNewPrinter()
-	evaluator := bl.CreateNewEvaluator(extractor, cliClient, printer)
+	evaluator := bl.CreateNewEvaluator(extractor, client, printer)
 
-	app.Context.CliClient = cliClient
 	app.Context.LocalConfig = &localConfig.LocalConfiguration{}
 	app.Context.Evaluator = evaluator
+	app.Context.VersionMessageClient = versionMessageClient
 
 	return app
 }
