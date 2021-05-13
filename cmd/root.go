@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/datreeio/datree/bl"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
@@ -26,42 +24,50 @@ func init() {
 	app := startup()
 
 	rootCmd.AddCommand(test.NewTestCommand(&test.TestCommandContext{
-		CliVersion:  CliVersion,
-		Evaluator:   app.Context.Evaluator,
-		LocalConfig: app.Context.LocalConfig,
+		CliVersion:           CliVersion,
+		Evaluator:            app.Context.Evaluator,
+		LocalConfig:          app.Context.LocalConfig,
+		VersionMessageClient: app.Context.VersionMessageClient,
 	}))
 
-	rootCmd.AddCommand(version.NewVersionCommand(CliVersion))
+	rootCmd.AddCommand(version.NewVersionCommand(&version.VersionCommandContext{
+		CliVersion:           CliVersion,
+		VersionMessageClient: app.Context.VersionMessageClient,
+	}))
 }
 
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
-	}
+func Execute() error {
+	return rootCmd.Execute()
 }
 
 type app struct {
 	Context struct {
-		LocalConfig *localConfig.LocalConfiguration
-		Evaluator   *bl.Evaluator
+		LocalConfig          *localConfig.LocalConfiguration
+		Evaluator            *bl.Evaluator
+		CliClient            *cliClient.CliClient
+		VersionMessageClient cliClient.VersionMessageClient
 	}
 }
 
 func startup() *app {
 	app := &app{
 		Context: struct {
-			LocalConfig *localConfig.LocalConfiguration
-			Evaluator   *bl.Evaluator
+			LocalConfig          *localConfig.LocalConfiguration
+			Evaluator            *bl.Evaluator
+			CliClient            *cliClient.CliClient
+			VersionMessageClient cliClient.VersionMessageClient
 		}{},
 	}
 
 	client := cliClient.NewCliClient(deploymentConfig.URL)
+	versionMessageClient := cliClient.NewVersionMessageClient(deploymentConfig.URL)
 	extractor := propertiesExtractor.NewPropertiesExtractor(nil)
 	printer := printer.CreateNewPrinter()
 	evaluator := bl.CreateNewEvaluator(extractor, client, printer)
 
 	app.Context.LocalConfig = &localConfig.LocalConfiguration{}
 	app.Context.Evaluator = evaluator
+	app.Context.VersionMessageClient = versionMessageClient
 
 	return app
 }

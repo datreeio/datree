@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/datreeio/datree/bl"
+	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/propertiesExtractor"
 	"github.com/stretchr/testify/mock"
@@ -35,6 +36,15 @@ func (m *mockEvaluator) Evaluate(paths []string, cliId string, evaluationConc in
 	args := m.Called(paths, cliId, evaluationConc)
 	return args.Get(0).(*bl.EvaluationResults), args.Get(1).([]propertiesExtractor.FileError), args.Error(2)
 }
+
+type mockVersionMessageClient struct {
+	mock.Mock
+}
+
+func (m *mockVersionMessageClient) GetVersionMessage(cliVersion string) (*cliClient.VersionMessage, error) {
+	args := m.Called(cliVersion)
+	return args.Get(0).(*cliClient.VersionMessage), nil
+}
 func TestTestCommand(t *testing.T) {
 	evaluator := &mockEvaluator{}
 	mockedEvaluateResponse := &bl.EvaluationResults{
@@ -51,9 +61,18 @@ func TestTestCommand(t *testing.T) {
 	localConfigManager := &mockLocalConfigManager{}
 	localConfigManager.On("GetConfiguration").Return(localConfig.LocalConfiguration{CliId: "134kh"}, nil)
 
+	versionMessageClient := &mockVersionMessageClient{}
+	versionMessageClient.On("GetVersionMessage", mock.Anything).Return(
+		&cliClient.VersionMessage{
+			CliVersion:   "1.2.3",
+			MessageText:  "version message mock",
+			MessageColor: "green"},
+	)
+
 	ctx := &TestCommandContext{
-		Evaluator:   evaluator,
-		LocalConfig: localConfigManager,
+		Evaluator:            evaluator,
+		LocalConfig:          localConfigManager,
+		VersionMessageClient: versionMessageClient,
 	}
 
 	test_testCommand_no_flags(t, localConfigManager, evaluator, mockedEvaluateResponse, ctx)

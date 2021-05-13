@@ -9,9 +9,10 @@ import (
 
 type theme struct {
 	Colors struct {
-		Warning *color.Color
-		Error   *color.Color
-		Plain   *color.Color
+		Green  *color.Color
+		Yellow *color.Color
+		Red    *color.Color
+		White  *color.Color
 	}
 	Spacing struct {
 		Default string
@@ -25,13 +26,15 @@ type theme struct {
 func createTheme() *theme {
 	return &theme{
 		Colors: struct {
-			Warning *color.Color
-			Error   *color.Color
-			Plain   *color.Color
+			Green  *color.Color
+			Yellow *color.Color
+			Red    *color.Color
+			White  *color.Color
 		}{
-			Warning: color.New(color.FgYellow),
-			Error:   color.New(color.FgHiRed, color.Bold),
-			Plain:   color.New(color.FgHiWhite),
+			Green:  color.New(color.FgGreen),
+			Yellow: color.New(color.FgYellow),
+			Red:    color.New(color.FgHiRed, color.Bold),
+			White:  color.New(color.FgHiWhite),
 		},
 		Spacing: struct{ Default string }{
 			Default: strings.Join([]string{" "}, ""),
