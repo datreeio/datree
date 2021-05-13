@@ -45,6 +45,28 @@ type RequestEvaluationTestCase struct {
 	}
 }
 
+type CreateEvaluationTestCase struct {
+	name string
+	args struct {
+		createEvaluationRequest *CreateEvaluationRequest
+	}
+	mock struct {
+		response struct {
+			status int
+			body   *CreateEvaluationResponse
+		}
+	}
+	expected struct {
+		request struct {
+			method  string
+			uri     string
+			body    *CreateEvaluationRequest
+			headers map[string]string
+		}
+		response *CreateEvaluationResponse
+	}
+}
+
 type GetVersionMessageTestCase struct {
 	name string
 	args struct {
@@ -89,6 +111,33 @@ func TestRequestEvaluation(t *testing.T) {
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, *tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, *tt.expected.response, res)
+
+		})
+	}
+}
+
+func TestCreateRequestEvaluation(t *testing.T) {
+	tests := []*CreateEvaluationTestCase{
+		test_createEvaluation_success(),
+	}
+
+	httpClientMock := mockHTTPClient{}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, _ := json.Marshal(tt.mock.response.body)
+			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
+			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
+
+			client := &CliClient{
+				baseUrl:    "http://cli-service.test.io",
+				httpClient: &httpClientMock,
+			}
+
+			actualEvaluationId, _ := client.CreateEvaluation(*tt.args.createEvaluationRequest)
+
+			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, *tt.expected.request.body, tt.expected.request.headers)
+			assert.Equal(t, tt.expected.response.EvaluationId, actualEvaluationId)
 
 		})
 	}
@@ -204,6 +253,7 @@ func test_getVersionMessage_success() *GetVersionMessageTestCase {
 		},
 	}
 }
+
 func test_requestEvaluation_success() *RequestEvaluationTestCase {
 	return &RequestEvaluationTestCase{
 		name: "success - request evaluation",
@@ -211,14 +261,8 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 			evaluationRequest *EvaluationRequest
 		}{
 			evaluationRequest: &EvaluationRequest{
-				CliId: "cli-id-test",
-				Files: castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
-				Metadata: Metadata{
-					CliVersion:      "0.0.1",
-					Os:              "darwin",
-					PlatformVersion: "1.2.3",
-					KernelVersion:   "4.5.6",
-				},
+				EvaluationId: 321,
+				Files:        castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
 			},
 		},
 		mock: struct {
@@ -253,8 +297,67 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 				method: http.MethodPost,
 				uri:    "/cli/evaluate",
 				body: &EvaluationRequest{
-					CliId: "cli-id-test",
-					Files: castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
+					EvaluationId: 321,
+					Files:        castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
+				},
+				headers: nil,
+			},
+			response: &EvaluationResponse{},
+		},
+	}
+}
+
+func test_createEvaluation_success() *CreateEvaluationTestCase {
+	return &CreateEvaluationTestCase{
+		name: "success - create evaluation",
+		args: struct {
+			createEvaluationRequest *CreateEvaluationRequest
+		}{
+			createEvaluationRequest: &CreateEvaluationRequest{
+				CliId: "cli_id",
+				Metadata: Metadata{
+					CliVersion:      "0.0.1",
+					Os:              "darwin",
+					PlatformVersion: "1.2.3",
+					KernelVersion:   "4.5.6",
+				},
+			},
+		},
+		mock: struct {
+			response struct {
+				status int
+				body   *CreateEvaluationResponse
+			}
+		}{
+			response: struct {
+				status int
+				body   *CreateEvaluationResponse
+			}{
+				status: http.StatusOK,
+				body:   &CreateEvaluationResponse{
+					EvaluationId: 123,
+				},
+			},
+		},
+		expected: struct {
+			request struct {
+				method  string
+				uri     string
+				body    *CreateEvaluationRequest
+				headers map[string]string
+			}
+			response *CreateEvaluationResponse
+		}{
+			request: struct {
+				method  string
+				uri     string
+				body    *CreateEvaluationRequest
+				headers map[string]string
+			}{
+				method: http.MethodPost,
+				uri:    "/cli/evaluate/create",
+				body: &CreateEvaluationRequest{
+					CliId: "cli_id",
 					Metadata: Metadata{
 						CliVersion:      "0.0.1",
 						Os:              "darwin",
@@ -264,7 +367,9 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 				},
 				headers: nil,
 			},
-			response: &EvaluationResponse{},
+			response: &CreateEvaluationResponse{
+				EvaluationId: 123,
+			},
 		},
 	}
 }

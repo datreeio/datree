@@ -18,6 +18,7 @@ type Printer interface {
 }
 type CLIClient interface {
 	RequestEvaluation(cliClient.EvaluationRequest) (cliClient.EvaluationResponse, error)
+	CreateEvaluation(request cliClient.CreateEvaluationRequest) (int, error)
 }
 
 type PropertiesExtractor interface {
@@ -71,7 +72,7 @@ func (e *Evaluator) Evaluate(paths []string, cliId string, evaluationConc int, c
 		filesProperties = append(filesProperties, *file)
 	}
 
-	evaluationRequest := cliClient.EvaluationRequest{
+	createEvaluationRequest := cliClient.CreateEvaluationRequest{
 		CliId: cliId,
 		Metadata: cliClient.Metadata{
 			CliVersion:      cliVersion,
@@ -79,6 +80,16 @@ func (e *Evaluator) Evaluate(paths []string, cliId string, evaluationConc int, c
 			PlatformVersion: e.osInfo.PlatformVersion,
 			KernelVersion:   e.osInfo.KernelVersion,
 		},
+	}
+
+	evaluationId, err := e.cliClient.CreateEvaluation(createEvaluationRequest)
+	if err != nil {
+		return nil, fileErrors, err
+	}
+
+
+	evaluationRequest := cliClient.EvaluationRequest{
+		EvaluationId: evaluationId,
 		Files: filesProperties,
 	}
 

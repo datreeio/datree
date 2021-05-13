@@ -46,9 +46,8 @@ type Metadata struct {
 }
 
 type EvaluationRequest struct {
-	CliId    string                     `json:"cliId"`
-	Metadata Metadata                   `json:"metadata"`
-	Files    []extractor.FileProperties `json:"files"`
+	EvaluationId int                        `json:"evaluationId"`
+	Files        []extractor.FileProperties `json:"files"`
 }
 
 type Match struct {
@@ -72,9 +71,38 @@ type EvaluationResult struct {
 }
 
 type EvaluationResponse struct {
-	EvaluationId int                `json:"evaluationId"`
-	Results      []EvaluationResult `json:"results"`
-	Status       string             `json:"status"`
+	Results []EvaluationResult `json:"results"`
+	Status  string             `json:"status"`
+}
+
+type CreateEvaluationRequest struct {
+	CliId    string   `json:"cliId"`
+	Metadata Metadata `json:"metadata"`
+}
+
+type CreateEvaluationResponse struct {
+	EvaluationId int `json:"evaluationId"`
+}
+
+func (c *CliClient) CreateEvaluation(request CreateEvaluationRequest) (int, error) {
+	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate/create", request, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	var createEvaluationResponse = &CreateEvaluationResponse{}
+	err = json.Unmarshal(res.Body, &createEvaluationResponse)
+	if err != nil {
+		return 0, err
+	}
+
+	return createEvaluationResponse.EvaluationId, nil
+}
+
+type VersionMessage struct {
+	CliVersion   string `json:"cliVersion"`
+	MessageText  string `json:"messageText"`
+	MessageColor string `json:"messageColor"`
 }
 
 func (c *CliClient) RequestEvaluation(request EvaluationRequest) (EvaluationResponse, error) {
@@ -90,12 +118,6 @@ func (c *CliClient) RequestEvaluation(request EvaluationRequest) (EvaluationResp
 	}
 
 	return *evaluationResponse, nil
-}
-
-type VersionMessage struct {
-	CliVersion   string `json:"cliVersion"`
-	MessageText  string `json:"messageText"`
-	MessageColor string `json:"messageColor"`
 }
 
 func (c VersionMessageClient) GetVersionMessage(cliVersion string) (*VersionMessage, error) {
