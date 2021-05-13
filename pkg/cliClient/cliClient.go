@@ -3,6 +3,7 @@ package cliClient
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/datreeio/datree/pkg/httpClient"
 	extractor "github.com/datreeio/datree/pkg/propertiesExtractor"
@@ -19,6 +20,19 @@ type CliClient struct {
 func NewCliClient(url string) *CliClient {
 	httpClient := httpClient.NewClient(url, nil)
 	return &CliClient{
+		baseUrl:    url,
+		httpClient: httpClient,
+	}
+}
+
+type VersionMessageClient struct {
+	baseUrl    string
+	httpClient HTTPClient
+}
+
+func NewVersionMessageClient(url string) VersionMessageClient {
+	httpClient := httpClient.NewClientTimeout(url, nil, 900*time.Millisecond)
+	return VersionMessageClient{
 		baseUrl:    url,
 		httpClient: httpClient,
 	}
@@ -76,4 +90,26 @@ func (c *CliClient) RequestEvaluation(request EvaluationRequest) (EvaluationResp
 	}
 
 	return *evaluationResponse, nil
+}
+
+type VersionMessage struct {
+	CliVersion   string `json:"cliVersion"`
+	MessageText  string `json:"messageText"`
+	MessageColor string `json:"messageColor"`
+}
+
+func (c VersionMessageClient) GetVersionMessage(cliVersion string) (*VersionMessage, error) {
+	res, err := c.httpClient.Request(http.MethodGet, "/cli/messages/versions/"+cliVersion, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var response = &VersionMessage{}
+	err = json.Unmarshal(res.Body, &response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
 }

@@ -1,7 +1,13 @@
 package main
 
-import "github.com/datreeio/datree/cmd"
+import (
+	"os"
+
+	"github.com/datreeio/datree/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	if err := cmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
