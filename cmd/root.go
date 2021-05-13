@@ -24,12 +24,16 @@ func init() {
 	app := startup()
 
 	rootCmd.AddCommand(test.NewTestCommand(&test.TestCommandContext{
-		CliVersion:  CliVersion,
-		Evaluator:   app.Context.Evaluator,
-		LocalConfig: app.Context.LocalConfig,
+		CliVersion:           CliVersion,
+		Evaluator:            app.Context.Evaluator,
+		LocalConfig:          app.Context.LocalConfig,
+		VersionMessageClient: app.Context.VersionMessageClient,
 	}))
 
-	rootCmd.AddCommand(version.NewVersionCommand(CliVersion))
+	rootCmd.AddCommand(version.NewVersionCommand(&version.VersionCommandContext{
+		CliVersion:           CliVersion,
+		VersionMessageClient: app.Context.VersionMessageClient,
+	}))
 }
 
 func Execute() error {
@@ -38,26 +42,32 @@ func Execute() error {
 
 type app struct {
 	Context struct {
-		LocalConfig *localConfig.LocalConfiguration
-		Evaluator   *bl.Evaluator
+		LocalConfig          *localConfig.LocalConfiguration
+		Evaluator            *bl.Evaluator
+		CliClient            *cliClient.CliClient
+		VersionMessageClient cliClient.VersionMessageClient
 	}
 }
 
 func startup() *app {
 	app := &app{
 		Context: struct {
-			LocalConfig *localConfig.LocalConfiguration
-			Evaluator   *bl.Evaluator
+			LocalConfig          *localConfig.LocalConfiguration
+			Evaluator            *bl.Evaluator
+			CliClient            *cliClient.CliClient
+			VersionMessageClient cliClient.VersionMessageClient
 		}{},
 	}
 
 	client := cliClient.NewCliClient(deploymentConfig.URL)
+	versionMessageClient := cliClient.NewVersionMessageClient(deploymentConfig.URL)
 	extractor := propertiesExtractor.NewPropertiesExtractor(nil)
 	printer := printer.CreateNewPrinter()
 	evaluator := bl.CreateNewEvaluator(extractor, client, printer)
 
 	app.Context.LocalConfig = &localConfig.LocalConfiguration{}
 	app.Context.Evaluator = evaluator
+	app.Context.VersionMessageClient = versionMessageClient
 
 	return app
 }
