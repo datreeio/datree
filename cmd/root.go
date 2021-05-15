@@ -1,8 +1,9 @@
 package cmd
 
 import (
+	"github.com/datreeio/datree/bl/evaluator"
+	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validator"
-	"github.com/datreeio/datree/bl"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -24,16 +25,16 @@ var CliVersion string
 func init() {
 	app := startup()
 
-	rootCmd.AddCommand(test.NewTestCommand(&test.TestCommandContext{
-		CliVersion:           CliVersion,
-		Evaluator:            app.Context.Evaluator,
-		LocalConfig:          app.Context.LocalConfig,
-		VersionMessageClient: app.Context.VersionMessageClient,
+	rootCmd.AddCommand(test.NewCommand(&test.TestCommandContext{
+		CliVersion:  CliVersion,
+		Evaluator:   app.context.Evaluator,
+		LocalConfig: app.context.LocalConfig,
+		Messager:    app.context.Messager,
 	}))
 
-	rootCmd.AddCommand(version.NewVersionCommand(&version.VersionCommandContext{
-		CliVersion:           CliVersion,
-		VersionMessageClient: app.Context.VersionMessageClient,
+	rootCmd.AddCommand(version.NewCommand(&version.VersionCommandContext{
+		CliVersion: CliVersion,
+		Messager:   app.context.Messager,
 	}))
 }
 
@@ -41,36 +42,28 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
+type context struct {
+	LocalConfig *localConfig.LocalConfiguration
+	Evaluator   *evaluator.Evaluator
+	CliClient   *cliClient.CliClient
+	Messager    *messager.Messager
+}
 type app struct {
-	Context struct {
-		LocalConfig          *localConfig.LocalConfiguration
-		Evaluator            *bl.Evaluator
-		CliClient            *cliClient.CliClient
-		VersionMessageClient cliClient.VersionMessageClient
-	}
+	context *context
 }
 
 func startup() *app {
-	app := &app{
-		Context: struct {
-			LocalConfig          *localConfig.LocalConfiguration
-			Evaluator            *bl.Evaluator
-			CliClient            *cliClient.CliClient
-			VersionMessageClient cliClient.VersionMessageClient
-		}{},
-	}
-
-	client := cliClient.NewCliClient(deploymentConfig.URL)
-	versionMessageClient := cliClient.NewVersionMessageClient(deploymentConfig.URL)
+	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
 	extractor := propertiesExtractor.NewPropertiesExtractor(nil)
 	printer := printer.CreateNewPrinter()
-	kubeconformClient, _ := validator.NewKubconformClient()
-	validator := validator.New(kubeconformClient)
-	evaluator := bl.CreateNewEvaluator(extractor, client, printer, validator)
+	validator := validator.New("1.18.0")
 
-	app.Context.LocalConfig = &localConfig.LocalConfiguration{}
-	app.Context.Evaluator = evaluator
-	app.Context.VersionMessageClient = versionMessageClient
-
-	return app
+	return &app{
+		context: &context{
+			LocalConfig: &localConfig.LocalConfiguration{},
+			Evaluator:   evaluator.New(extractor, cliClient, printer, validator),
+			CliClient:   cliClient,
+			Messager:    messager.New(cliClient, printer),
+		},
+	}
 }
