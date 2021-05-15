@@ -9,15 +9,6 @@ import (
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 )
 
-func NewKubconformClient() (ValidationClient, error) {
-	v, err := kubeconformValidator.New(nil, kubeconformValidator.Opts{Strict: true})
-	if err != nil {
-		return nil, fmt.Errorf("failed initializing validator: %s", err)
-	}
-
-	return v, nil
-}
-
 type ValidationClient interface {
 	Validate(filename string, r io.ReadCloser) []kubeconformValidator.Result
 }
@@ -26,9 +17,10 @@ type Validator struct {
 	validationClient ValidationClient
 }
 
-func New(val ValidationClient) *Validator {
+func New(k8sVersion string) *Validator {
+	kubconformClient, _ := kubeconformValidator.New(nil, kubeconformValidator.Opts{Strict: true, KubernetesVersion: k8sVersion})
 	return &Validator{
-		validationClient: val,
+		validationClient: kubconformClient,
 	}
 }
 
@@ -53,8 +45,12 @@ func (val *Validator) validateFile(filepath string) (bool, error) {
 	return true, nil
 }
 
+type ValidateResponse struct {
+	ValidFilesPaths   <-chan string
+	InvalidFilesPaths <-chan string
+}
 
-func (val *Validator) Validate(paths <-chan string) (<-chan string, <-chan string, <-chan error) {
+func (val *Validator) Validate(paths <-chan string) (*ValidateResponse, <-chan error) {
 	errorChan := make(chan error, 100)
 	invalidFilesPathsChan := make(chan string, 100)
 	validFilesPathChan := make(chan string, 100)
@@ -62,15 +58,16 @@ func (val *Validator) Validate(paths <-chan string) (<-chan string, <-chan strin
 	conc := 10
 	wg := sync.WaitGroup{}
 	wg.Add(conc)
+
 	go func() {
 		for i := 0; i < conc; i++ {
 			go func() {
 				for {
-					path, ok := <- paths
+					path, ok := <-paths
 					if !ok {
 						break
 					}
-					
+
 					isValid, err := val.validateFile(path)
 					if err != nil {
 						errorChan <- err
@@ -80,16 +77,20 @@ func (val *Validator) Validate(paths <-chan string) (<-chan string, <-chan strin
 					} else {
 						invalidFilesPathsChan <- path
 					}
-					
+
 				}
 			}()
 			wg.Done()
 		}
+
 		wg.Wait()
 		close(invalidFilesPathsChan)
 		close(validFilesPathChan)
 		close(errorChan)
 	}()
 
-	return validFilesPathChan, invalidFilesPathsChan, errorChan
+	return &ValidateResponse{
+		ValidFilesPaths:   validFilesPathChan,
+		InvalidFilesPaths: invalidFilesPathsChan,
+	}, errorChan
 }

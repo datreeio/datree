@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
-	"github.com/datreeio/datree/bl"
+	"github.com/datreeio/datree/bl/evaluator"
+	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/propertiesExtractor"
 	"github.com/spf13/cobra"
@@ -16,23 +17,28 @@ type LocalConfigManager interface {
 }
 
 type Evaluator interface {
-	PrintResults(results *bl.EvaluationResults, cliId string, output string) error
+	PrintResults(results *evaluator.EvaluationResults, cliId string, output string) error
 	PrintFileParsingErrors(errors []propertiesExtractor.FileError)
-	Evaluate(paths []string, cliId string, evaluationConc int, cliVersion string) (*bl.EvaluationResults, []propertiesExtractor.FileError, error)
+	Evaluate(paths []string, cliId string, evaluationConc int, cliVersion string) (*evaluator.EvaluationResults, []propertiesExtractor.FileError, error)
+}
+
+type Messager interface {
+	PopulateVersionMessageChan(cliVersion string) <-chan *messager.VersionMessage
+	HandleVersionMessage(messageChannel <-chan *messager.VersionMessage)
 }
 
 type TestCommandContext struct {
-	CliVersion           string
-	LocalConfig          LocalConfigManager
-	Evaluator            Evaluator
-	VersionMessageClient bl.VersionMessageClient
+	CliVersion  string
+	LocalConfig LocalConfigManager
+	Evaluator   Evaluator
+	Messager    Messager
 }
 
 type TestCommandFlags struct {
 	Output string
 }
 
-func NewTestCommand(ctx *TestCommandContext) *cobra.Command {
+func NewCommand(ctx *TestCommandContext) *cobra.Command {
 	testCommand := &cobra.Command{
 		Use:   "test",
 		Short: "Execute static analysis for pattern",
@@ -62,7 +68,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	s.Color("cyan")
 	s.Start()
 
-	messageChannel := bl.PopulateVersionMessageChan(ctx.VersionMessageClient, ctx.CliVersion)
+	messageChannel := ctx.Messager.PopulateVersionMessageChan(ctx.CliVersion)
 
 	config, err := ctx.LocalConfig.GetConfiguration()
 	if err != nil {
@@ -87,7 +93,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	err = ctx.Evaluator.PrintResults(evaluationResponse, config.CliId, flags.Output)
-	bl.HandleVersionMessage(messageChannel)
+	ctx.Messager.HandleVersionMessage(messageChannel)
 
 	return err
 }

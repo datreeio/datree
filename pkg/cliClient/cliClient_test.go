@@ -155,12 +155,12 @@ func TestGetVersionMessage(t *testing.T) {
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
 			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
 
-			client := &VersionMessageClient{
+			client := &CliClient{
 				baseUrl:    "http://cli-service.test.io",
 				httpClient: &httpClientMock,
 			}
 
-			res, _ := client.GetVersionMessage(tt.args.cliVersion)
+			res, _ := client.GetVersionMessage(tt.args.cliVersion, 1000)
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.response, res)
 
@@ -183,28 +183,17 @@ func readMock(path string, data interface{}) error {
 	return nil
 }
 
-func castPropertiesMock(fileName string, path string) []extractor.FileProperties {
+func castPropertiesMock(fileName string, path string) []*extractor.FileProperties {
 	var fileProperties map[string]interface{}
 	_ = readMock(path, &fileProperties)
 
-	properties := []extractor.FileProperties{
+	properties := []*extractor.FileProperties{
 		{
 			FileName:       fileName,
 			Configurations: []extractor.K8sConfiguration{fileProperties},
 		}}
 
 	return properties
-}
-
-func castPropertiesPointersMock(fileName string, path string) []*extractor.FileProperties {
-	var filesProperties []*extractor.FileProperties
-	props := castPropertiesMock("service_mock", "mocks/service_mock.yaml")
-	for _, p := range props {
-		filesProperties = append(filesProperties, &p)
-	}
-
-	return filesProperties
-
 }
 
 func test_getVersionMessage_success() *GetVersionMessageTestCase {
