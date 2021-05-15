@@ -25,17 +25,28 @@ func NewCliClient(url string) *CliClient {
 	}
 }
 
-type VersionMessageClient struct {
-	baseUrl    string
-	httpClient HTTPClient
+type CreateEvaluationRequest struct {
+	CliId    string   `json:"cliId"`
+	Metadata Metadata `json:"metadata"`
 }
 
-func NewVersionMessageClient(url string) VersionMessageClient {
-	httpClient := httpClient.NewClientTimeout(url, nil, 900*time.Millisecond)
-	return VersionMessageClient{
-		baseUrl:    url,
-		httpClient: httpClient,
+type CreateEvaluationResponse struct {
+	EvaluationId int `json:"evaluationId"`
+}
+
+func (c *CliClient) CreateEvaluation(request CreateEvaluationRequest) (int, error) {
+	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate/create", request, nil)
+	if err != nil {
+		return 0, err
 	}
+
+	var res = &CreateEvaluationResponse{}
+	err = json.Unmarshal(httpRes.Body, &res)
+	if err != nil {
+		return 0, err
+	}
+
+	return res.EvaluationId, nil
 }
 
 type Metadata struct {
@@ -46,8 +57,8 @@ type Metadata struct {
 }
 
 type EvaluationRequest struct {
-	EvaluationId int                        `json:"evaluationId"`
-	Files        []extractor.FileProperties `json:"files"`
+	EvaluationId int                         `json:"evaluationId"`
+	Files        []*extractor.FileProperties `json:"files"`
 }
 
 type Match struct {
@@ -75,36 +86,6 @@ type EvaluationResponse struct {
 	Status  string             `json:"status"`
 }
 
-type CreateEvaluationRequest struct {
-	CliId    string   `json:"cliId"`
-	Metadata Metadata `json:"metadata"`
-}
-
-type CreateEvaluationResponse struct {
-	EvaluationId int `json:"evaluationId"`
-}
-
-func (c *CliClient) CreateEvaluation(request CreateEvaluationRequest) (int, error) {
-	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate/create", request, nil)
-	if err != nil {
-		return 0, err
-	}
-
-	var createEvaluationResponse = &CreateEvaluationResponse{}
-	err = json.Unmarshal(res.Body, &createEvaluationResponse)
-	if err != nil {
-		return 0, err
-	}
-
-	return createEvaluationResponse.EvaluationId, nil
-}
-
-type VersionMessage struct {
-	CliVersion   string `json:"cliVersion"`
-	MessageText  string `json:"messageText"`
-	MessageColor string `json:"messageColor"`
-}
-
 func (c *CliClient) RequestEvaluation(request EvaluationRequest) (EvaluationResponse, error) {
 	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate", request, nil)
 	if err != nil {
@@ -118,6 +99,25 @@ func (c *CliClient) RequestEvaluation(request EvaluationRequest) (EvaluationResp
 	}
 
 	return *evaluationResponse, nil
+}
+
+type VersionMessage struct {
+	CliVersion   string `json:"cliVersion"`
+	MessageText  string `json:"messageText"`
+	MessageColor string `json:"messageColor"`
+}
+
+type VersionMessageClient struct {
+	baseUrl    string
+	httpClient HTTPClient
+}
+
+func NewVersionMessageClient(url string) VersionMessageClient {
+	httpClient := httpClient.NewClientTimeout(url, nil, 900*time.Millisecond)
+	return VersionMessageClient{
+		baseUrl:    url,
+		httpClient: httpClient,
+	}
 }
 
 func (c VersionMessageClient) GetVersionMessage(cliVersion string) (*VersionMessage, error) {
