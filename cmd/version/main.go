@@ -3,22 +3,26 @@ package version
 import (
 	"fmt"
 
-	"github.com/datreeio/datree/bl"
+	"github.com/datreeio/datree/bl/messager"
 	"github.com/spf13/cobra"
 )
 
+type Messager interface {
+	PopulateVersionMessageChan(cliVersion string) <-chan *messager.VersionMessage
+	HandleVersionMessage(messageChannel <-chan *messager.VersionMessage)
+}
 type VersionCommandContext struct {
-	CliVersion           string
-	VersionMessageClient bl.VersionMessageClient
+	CliVersion string
+	Messager   Messager
 }
 
 func version(ctx *VersionCommandContext) {
-	messageChannel := bl.PopulateVersionMessageChan(ctx.VersionMessageClient, ctx.CliVersion)
+	messageChannel := ctx.Messager.PopulateVersionMessageChan(ctx.CliVersion)
 	fmt.Println(ctx.CliVersion)
-	bl.HandleVersionMessage(messageChannel)
+	ctx.Messager.HandleVersionMessage(messageChannel)
 }
 
-func NewVersionCommand(ctx *VersionCommandContext) *cobra.Command {
+func NewCommand(ctx *VersionCommandContext) *cobra.Command {
 	var versionCmd = &cobra.Command{
 		Use:   "version",
 		Short: "Print the version number",

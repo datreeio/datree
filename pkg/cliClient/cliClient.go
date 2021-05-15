@@ -107,21 +107,11 @@ type VersionMessage struct {
 	MessageColor string `json:"messageColor"`
 }
 
-type VersionMessageClient struct {
-	baseUrl    string
-	httpClient HTTPClient
-}
+func (c CliClient) GetVersionMessage(cliVersion string, timeout int) (*VersionMessage, error) {
+	_timeout := time.Duration(timeout) * time.Millisecond
 
-func NewVersionMessageClient(url string) VersionMessageClient {
-	httpClient := httpClient.NewClientTimeout(url, nil, 900*time.Millisecond)
-	return VersionMessageClient{
-		baseUrl:    url,
-		httpClient: httpClient,
-	}
-}
-
-func (c VersionMessageClient) GetVersionMessage(cliVersion string) (*VersionMessage, error) {
-	res, err := c.httpClient.Request(http.MethodGet, "/cli/messages/versions/"+cliVersion, nil, nil)
+	httpClient := httpClient.NewClientTimeout(c.baseUrl, nil, _timeout)
+	res, err := httpClient.Request(http.MethodGet, "/cli/messages/versions/"+cliVersion, nil, nil)
 	if err != nil {
 		return nil, err
 	}

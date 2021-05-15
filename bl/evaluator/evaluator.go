@@ -1,4 +1,4 @@
-package bl
+package evaluator
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/datreeio/datree/bl/files"
+	"github.com/datreeio/datree/bl/validator"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/datreeio/datree/pkg/propertiesExtractor"
@@ -27,7 +28,7 @@ type PropertiesExtractor interface {
 }
 
 type Validator interface {
-	Validate(paths <-chan string) (<-chan string, <-chan string, <-chan error)
+	Validate(paths <-chan string) (*validator.ValidateResponse, <-chan error)
 }
 
 type Evaluator struct {
@@ -35,16 +36,16 @@ type Evaluator struct {
 	cliClient           CLIClient
 	printer             Printer
 	osInfo              *OSInfo
-	validator 			Validator
+	validator           Validator
 }
 
-func CreateNewEvaluator(pe PropertiesExtractor, c CLIClient, p Printer, v Validator) *Evaluator {
+func New(pe PropertiesExtractor, c CLIClient, p Printer, v Validator) *Evaluator {
 	return &Evaluator{
 		propertiesExtractor: pe,
 		cliClient:           c,
 		printer:             p,
 		osInfo:              NewOsInfo(),
-		validator: 			 v,
+		validator:           v,
 	}
 }
 
@@ -65,7 +66,7 @@ type UserAgent struct {
 
 func (e *Evaluator) Evaluate(paths []string, cliId string, evaluationConc int, cliVersion string) (*EvaluationResults, []propertiesExtractor.FileError, error) {
 	absPathsChan, _ := files.ToAbsolutePaths(paths)
-	_, _, _ = e.validator.Validate(absPathsChan)
+	e.validator.Validate(absPathsChan)
 
 	filesProperties, fileErrors, errors := e.propertiesExtractor.ReadFilesFromPaths(paths, evaluationConc)
 	if len(errors) > 0 {
