@@ -64,7 +64,7 @@ func (e *PropertiesExtractor) ReadFilesFromPaths(paths []string, conc int) ([]*F
 	return files, fileErrors, errors
 }
 
-func (e *PropertiesExtractor) extractFilesProperties(filePathsChan chan string, conc int) (chan *FileProperties, chan FileError) {
+func (e *PropertiesExtractor) extractFilesProperties(filePathsChan <-chan string, conc int) (chan *FileProperties, chan FileError) {
 	filesPropertiesChan := make(chan *FileProperties, 100)
 	errorsChan := make(chan FileError, 100)
 

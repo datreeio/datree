@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/datreeio/datree/bl/validator"
 	"github.com/datreeio/datree/bl"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
@@ -63,7 +64,9 @@ func startup() *app {
 	versionMessageClient := cliClient.NewVersionMessageClient(deploymentConfig.URL)
 	extractor := propertiesExtractor.NewPropertiesExtractor(nil)
 	printer := printer.CreateNewPrinter()
-	evaluator := bl.CreateNewEvaluator(extractor, client, printer)
+	kubeconformClient, _ := validator.NewKubconformClient()
+	validator := validator.New(kubeconformClient)
+	evaluator := bl.CreateNewEvaluator(extractor, client, printer, validator)
 
 	app.Context.LocalConfig = &localConfig.LocalConfiguration{}
 	app.Context.Evaluator = evaluator

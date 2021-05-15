@@ -334,7 +334,7 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 				body   *CreateEvaluationResponse
 			}{
 				status: http.StatusOK,
-				body:   &CreateEvaluationResponse{
+				body: &CreateEvaluationResponse{
 					EvaluationId: 123,
 				},
 			},
