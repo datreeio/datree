@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/datreeio/datree/pkg/propertiesExtractor"
@@ -25,19 +26,25 @@ type PropertiesExtractor interface {
 	ReadFilesFromPaths(paths []string, conc int) ([]*propertiesExtractor.FileProperties, []propertiesExtractor.FileError, []error)
 }
 
+type Validator interface {
+	Validate(paths <-chan string) (<-chan string, <-chan string, <-chan error)
+}
+
 type Evaluator struct {
 	propertiesExtractor PropertiesExtractor
 	cliClient           CLIClient
 	printer             Printer
 	osInfo              *OSInfo
+	validator 			Validator
 }
 
-func CreateNewEvaluator(pe PropertiesExtractor, c CLIClient, p Printer) *Evaluator {
+func CreateNewEvaluator(pe PropertiesExtractor, c CLIClient, p Printer, v Validator) *Evaluator {
 	return &Evaluator{
 		propertiesExtractor: pe,
 		cliClient:           c,
 		printer:             p,
 		osInfo:              NewOsInfo(),
+		validator: 			 v,
 	}
 }
 
@@ -57,22 +64,19 @@ type UserAgent struct {
 }
 
 func (e *Evaluator) Evaluate(paths []string, cliId string, evaluationConc int, cliVersion string) (*EvaluationResults, []propertiesExtractor.FileError, error) {
-	files, fileErrors, errors := e.propertiesExtractor.ReadFilesFromPaths(paths, evaluationConc)
+	absPathsChan, _ := files.ToAbsolutePaths(paths)
+	_, _, _ = e.validator.Validate(absPathsChan)
+
+	filesProperties, fileErrors, errors := e.propertiesExtractor.ReadFilesFromPaths(paths, evaluationConc)
 	if len(errors) > 0 {
 		return nil, fileErrors, fmt.Errorf("failed evaluation with the following errors: %s", errors)
 	}
 
-	if len(files) == 0 {
+	if len(filesProperties) == 0 {
 		return nil, fileErrors, fmt.Errorf("no files detected")
 	}
 
-	var filesProperties []propertiesExtractor.FileProperties
-
-	for _, file := range files {
-		filesProperties = append(filesProperties, *file)
-	}
-
-	createEvaluationRequest := cliClient.CreateEvaluationRequest{
+	evaluationId, err := e.cliClient.CreateEvaluation(cliClient.CreateEvaluationRequest{
 		CliId: cliId,
 		Metadata: cliClient.Metadata{
 			CliVersion:      cliVersion,
@@ -80,25 +84,20 @@ func (e *Evaluator) Evaluate(paths []string, cliId string, evaluationConc int, c
 			PlatformVersion: e.osInfo.PlatformVersion,
 			KernelVersion:   e.osInfo.KernelVersion,
 		},
-	}
-
-	evaluationId, err := e.cliClient.CreateEvaluation(createEvaluationRequest)
+	})
 	if err != nil {
 		return nil, fileErrors, err
 	}
 
-
-	evaluationRequest := cliClient.EvaluationRequest{
+	res, err := e.cliClient.RequestEvaluation(cliClient.EvaluationRequest{
 		EvaluationId: evaluationId,
-		Files: filesProperties,
-	}
-
-	res, err := e.cliClient.RequestEvaluation(evaluationRequest)
+		Files:        filesProperties,
+	})
 	if err != nil {
 		return nil, fileErrors, err
 	}
 
-	results := e.aggregateEvaluationResults(res.Results, len(files))
+	results := e.aggregateEvaluationResults(res.Results, len(filesProperties))
 
 	return results, fileErrors, nil
 }
