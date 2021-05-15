@@ -1,4 +1,4 @@
-package bl
+package evaluator
 
 import "github.com/shirou/gopsutil/host"
 

@@ -1,9 +1,10 @@
-package bl
+package evaluator
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/datreeio/datree/bl/validator"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/datreeio/datree/pkg/propertiesExtractor"
@@ -46,6 +47,15 @@ func (c *mockPrinter) PrintSummaryTable(summary printer.Summary) {
 	c.Called(summary)
 }
 
+type mockValidator struct {
+	mock.Mock
+}
+
+func (c *mockValidator) Validate(paths <-chan string) (*validator.ValidateResponse, <-chan error) {
+	args := c.Called(paths)
+	return args.Get(0).(*validator.ValidateResponse), args.Get(1).(<-chan error)
+}
+
 type propertiesExtractorMockTestCase struct {
 	readFilesFromPaths struct {
 		properties  []*propertiesExtractor.FileProperties
@@ -65,6 +75,13 @@ type cliClientMockTestCase struct {
 	}
 }
 
+type validatorMockTestCase struct {
+	validate struct {
+		validationResponse *validator.ValidateResponse
+		errors             <-chan error
+	}
+}
+
 type evaluateTestCase struct {
 	name string
 	args struct {
@@ -77,6 +94,7 @@ type evaluateTestCase struct {
 	mock struct {
 		propertiesExtractor propertiesExtractorMockTestCase
 		cliClient           cliClientMockTestCase
+		validator           validatorMockTestCase
 	}
 	expected struct {
 		response   *EvaluationResults
@@ -88,18 +106,20 @@ type evaluateTestCase struct {
 func TestEvaluate(t *testing.T) {
 	tests := []*evaluateTestCase{
 		test_create_evaluation_failedRequest(),
-		//test_evaluate_failedRequest(),
-		//test_evaluate_success(),
+		test_evaluate_failedRequest(),
+		test_evaluate_success(),
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			propertiesExtractor := &mockPropertiesExtractor{}
 			cliClient := &mockCliClient{}
 			printer := &mockPrinter{}
+			validator := &mockValidator{}
 
 			propertiesExtractor.On("ReadFilesFromPaths", mock.Anything, mock.Anything).Return(tt.mock.propertiesExtractor.readFilesFromPaths.properties, tt.mock.propertiesExtractor.readFilesFromPaths.filesErrors, tt.mock.propertiesExtractor.readFilesFromPaths.errors)
 			cliClient.On("RequestEvaluation", mock.Anything).Return(tt.mock.cliClient.requestEvaluation.response, tt.mock.cliClient.requestEvaluation.errors)
 			cliClient.On("CreateEvaluation", mock.Anything).Return(tt.mock.cliClient.createEvaluation.EvaluationId, tt.mock.cliClient.createEvaluation.errors)
+			validator.On("Validate", mock.Anything).Return(tt.mock.validator.validate.validationResponse, tt.mock.validator.validate.errors)
 
 			evaluator := &Evaluator{
 				propertiesExtractor: propertiesExtractor,
@@ -110,6 +130,7 @@ func TestEvaluate(t *testing.T) {
 					PlatformVersion: "1.2.3",
 					KernelVersion:   "4.5.6",
 				},
+				validator: validator,
 			}
 
 			actualResponse, actualFilesErrs, actualErr := evaluator.Evaluate(tt.args.paths, tt.args.cliId, tt.args.evaluationConc, "0.0.1")
@@ -159,7 +180,7 @@ func test_evaluate_success() *evaluateTestCase {
 			evaluationConc: 1,
 			evaluationRequest: cliClient.EvaluationRequest{
 				EvaluationId: createEvaluationResponse.EvaluationId,
-				Files: []propertiesExtractor.FileProperties{{
+				Files: []*propertiesExtractor.FileProperties{{
 					FileName:       "path1/path2/file.yaml",
 					Configurations: []propertiesExtractor.K8sConfiguration{{"apiVersion": "extensions/v1beta1"}},
 				}},
@@ -177,6 +198,7 @@ func test_evaluate_success() *evaluateTestCase {
 		mock: struct {
 			propertiesExtractor propertiesExtractorMockTestCase
 			cliClient           cliClientMockTestCase
+			validator           validatorMockTestCase
 		}{
 			propertiesExtractor: propertiesExtractorMockTestCase{
 				readFilesFromPaths: struct {
@@ -205,6 +227,15 @@ func test_evaluate_success() *evaluateTestCase {
 					errors       error
 				}{
 					EvaluationId: createEvaluationResponse.EvaluationId,
+				},
+			},
+			validator: validatorMockTestCase{
+				validate: struct {
+					validationResponse *validator.ValidateResponse
+					errors             <-chan error
+				}{
+					validationResponse: mockedMessagesChannel(),
+					errors:             make(<-chan error),
 				},
 			},
 		},
@@ -245,7 +276,7 @@ func test_evaluate_failedRequest() *evaluateTestCase {
 			evaluationConc: 1,
 			evaluationRequest: cliClient.EvaluationRequest{
 				EvaluationId: createEvaluationResponse.EvaluationId,
-				Files: []propertiesExtractor.FileProperties{{
+				Files: []*propertiesExtractor.FileProperties{{
 					FileName:       "path1/path2/file.yaml",
 					Configurations: []propertiesExtractor.K8sConfiguration{{"apiVersion": "extensions/v1beta1"}},
 				}},
@@ -263,6 +294,7 @@ func test_evaluate_failedRequest() *evaluateTestCase {
 		mock: struct {
 			propertiesExtractor propertiesExtractorMockTestCase
 			cliClient           cliClientMockTestCase
+			validator           validatorMockTestCase
 		}{
 			propertiesExtractor: propertiesExtractorMockTestCase{
 				readFilesFromPaths: struct {
@@ -291,6 +323,15 @@ func test_evaluate_failedRequest() *evaluateTestCase {
 				}{
 					EvaluationId: createEvaluationResponse.EvaluationId,
 					errors:       nil,
+				},
+			},
+			validator: validatorMockTestCase{
+				validate: struct {
+					validationResponse *validator.ValidateResponse
+					errors             <-chan error
+				}{
+					validationResponse: mockedMessagesChannel(),
+					errors:             make(<-chan error),
 				},
 			},
 		},
@@ -323,7 +364,7 @@ func test_create_evaluation_failedRequest() *evaluateTestCase {
 			evaluationConc: 1,
 			evaluationRequest: cliClient.EvaluationRequest{
 				EvaluationId: createEvaluationResponse.EvaluationId,
-				Files: []propertiesExtractor.FileProperties{{
+				Files: []*propertiesExtractor.FileProperties{{
 					FileName:       "path1/path2/file.yaml",
 					Configurations: []propertiesExtractor.K8sConfiguration{{"apiVersion": "extensions/v1beta1"}},
 				}},
@@ -341,6 +382,7 @@ func test_create_evaluation_failedRequest() *evaluateTestCase {
 		mock: struct {
 			propertiesExtractor propertiesExtractorMockTestCase
 			cliClient           cliClientMockTestCase
+			validator           validatorMockTestCase
 		}{
 			propertiesExtractor: propertiesExtractorMockTestCase{
 				readFilesFromPaths: struct {
@@ -368,6 +410,15 @@ func test_create_evaluation_failedRequest() *evaluateTestCase {
 					errors       error
 				}{
 					errors: fmt.Errorf("create evaluation error"),
+				},
+			},
+			validator: validatorMockTestCase{
+				validate: struct {
+					validationResponse *validator.ValidateResponse
+					errors             <-chan error
+				}{
+					validationResponse: mockedMessagesChannel(),
+					errors:             make(<-chan error),
 				},
 			},
 		},
@@ -447,4 +498,8 @@ func TestPrintResults(t *testing.T) {
 
 	printerSpy.AssertCalled(t, "PrintSummaryTable", expectedPrinterSummary)
 
+}
+
+func mockedMessagesChannel() *validator.ValidateResponse {
+	return &validator.ValidateResponse{ValidFilesPaths: make(<-chan string), InvalidFilesPaths: make(<-chan string)}
 }
