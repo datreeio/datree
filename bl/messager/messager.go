@@ -8,21 +8,15 @@ type MessagesClient interface {
 	GetVersionMessage(cliVersion string, timeout int) (*cliClient.VersionMessage, error)
 }
 
-type Printer interface {
-	PrintVersionMessage(messageText string, messageColor string)
-}
-
 type Messager struct {
 	defaultTimeout int
 	messagesClient MessagesClient
-	printer        Printer
 }
 
-func New(c MessagesClient, p Printer) *Messager {
+func New(c MessagesClient) *Messager {
 	return &Messager{
 		defaultTimeout: 900,
 		messagesClient: c,
-		printer:        p,
 	}
 }
 
@@ -40,10 +34,6 @@ func (m *Messager) LoadVersionMessages(messages chan *VersionMessage, cliVersion
 		}
 	}()
 
-}
-
-func (m *Messager) HandleVersionMessage(messageChannel <-chan *VersionMessage, printer) {
-	
 }
 
 func (m *Messager) toVersionMessage(msg *cliClient.VersionMessage) *VersionMessage {

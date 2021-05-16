@@ -24,16 +24,17 @@ var CliVersion string
 func init() {
 	app := startup()
 
-	rootCmd.AddCommand(test.NewCommand(&test.TestCommandContext{
+	rootCmd.AddCommand(test.New(&test.TestCommandContext{
 		CliVersion:  CliVersion,
 		Evaluator:   app.context.Evaluator,
 		LocalConfig: app.context.LocalConfig,
 		Messager:    app.context.Messager,
 	}))
 
-	rootCmd.AddCommand(version.NewCommand(&version.VersionCommandContext{
+	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
 		CliVersion: CliVersion,
 		Messager:   app.context.Messager,
+		Printer:    app.context.Printer,
 	}))
 }
 
@@ -63,7 +64,7 @@ func startup() *app {
 			LocalConfig: config,
 			Evaluator:   evaluation.New(cliClient),
 			CliClient:   cliClient,
-			Messager:    messager.New(cliClient, printer),
+			Messager:    messager.New(cliClient),
 			Validator:   validator.New("1.18.0"),
 			Printer:     printer,
 		},
