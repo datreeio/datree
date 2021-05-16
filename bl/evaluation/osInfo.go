@@ -1,4 +1,4 @@
-package evaluator
+package evaluation
 
 import "github.com/shirou/gopsutil/host"
 
@@ -8,7 +8,7 @@ type OSInfo struct {
 	KernelVersion   string
 }
 
-func NewOsInfo() *OSInfo {
+func NewOSInfo() *OSInfo {
 	infoStat, _ := host.Info()
 	return &OSInfo{
 		OS:              infoStat.OS,
