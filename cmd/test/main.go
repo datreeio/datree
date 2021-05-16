@@ -13,12 +13,12 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(paths <-chan string, cliId string, cliVersion string) (*evaluation.EvaluationResults, []*evaluation.Error, error)
+	Evaluate(validFilesChan <-chan string, invalidFilesChan <-chan string, evaluationId int) (*evaluation.EvaluationResults, []*evaluation.Error, error)
+	CreateEvaluation(cliId string, cliVersion string) (int, error)
 }
 
 type Messager interface {
-	LoadVersionMessages(cliVersion string, messages chan *messager.VersionMessage)
-	HandleVersionMessage(message *messager.VersionMessage)
+	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
 }
 
 type Validator interface {
@@ -71,10 +71,17 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	s.Start()
 
 	messages := make(chan *messager.VersionMessage, 1)
-	go ctx.Messager.LoadVersionMessages(ctx.CliVersion, messages)
+	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 
-	validPaths, _, _ := ctx.Validator.Validate(paths)
-	results, errors, err := ctx.Evaluator.Evaluate(validPaths, ctx.LocalConfig.CliId, ctx.CliVersion)
+	validPaths, invalidPaths, _ := ctx.Validator.Validate(paths)
+
+	evaluationId, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion)
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
+
+	results, errors, err := ctx.Evaluator.Evaluate(validPaths, invalidPaths, evaluationId)
 
 	s.Stop()
 
