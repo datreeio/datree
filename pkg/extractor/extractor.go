@@ -40,13 +40,13 @@ func ExtractConfiguration(path string) (*FileConfiguration, *Error) {
 }
 
 func yamlToK8sConfigurations(content string) ([]*map[string]interface{}, error) {
-	var configurations []*K8sConfiguration
+	var configurations []*map[string]interface{}
 
 	yamlDecoder := yaml.NewDecoder(bytes.NewReader([]byte(content)))
 
 	var err error
 	for {
-		var doc = &K8sConfiguration{}
+		var doc = &map[string]interface{}{}
 		err = yamlDecoder.Decode(&doc)
 		if err != nil {
 			break
