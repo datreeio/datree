@@ -19,13 +19,15 @@ func CreateNewPrinter() *Printer {
 	}
 }
 
+type WarningInfo struct {
+	Caption     string
+	Occurrences int
+	Suggestion  string
+}
+
 type Warning struct {
 	Title   string
-	Details []struct {
-		Caption     string
-		Occurrences int
-		Suggestion  string
-	}
+	Details []WarningInfo
 }
 
 func (p *Printer) PrintWarnings(warnings []Warning) {
@@ -111,7 +113,7 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 	}
 }
 
-func (p *Printer) PrintVersionMessage(messageText string, messageColor string) {
+func (p *Printer) PrintMessage(messageText string, messageColor string) {
 	colorPrintFn := p.createNewColor(messageColor)
 	p.printInColor(messageText, colorPrintFn)
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/datreeio/datree/bl/files"
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 )
 
@@ -17,8 +18,13 @@ type Validator struct {
 	validationClient ValidationClient
 }
 
+func NewKubconformValidator(k8sVersion string) ValidationClient {
+	v, _ := kubeconformValidator.New(nil, kubeconformValidator.Opts{Strict: true, KubernetesVersion: k8sVersion})
+	return v
+}
+
 func New(k8sVersion string) *Validator {
-	kubconformClient, _ := kubeconformValidator.New(nil, kubeconformValidator.Opts{Strict: true, KubernetesVersion: k8sVersion})
+	kubconformClient := NewKubconformValidator(k8sVersion)
 	return &Validator{
 		validationClient: kubconformClient,
 	}
@@ -45,12 +51,9 @@ func (val *Validator) validateFile(filepath string) (bool, error) {
 	return true, nil
 }
 
-type ValidateResponse struct {
-	ValidFilesPaths   <-chan string
-	InvalidFilesPaths <-chan string
-}
+func (val *Validator) Validate(paths []string) (<-chan string, <-chan string, <-chan error) {
+	pathsChan, _ := files.ToAbsolutePaths(paths)
 
-func (val *Validator) Validate(paths <-chan string) (*ValidateResponse, <-chan error) {
 	errorChan := make(chan error, 100)
 	invalidFilesPathsChan := make(chan string, 100)
 	validFilesPathChan := make(chan string, 100)
@@ -63,7 +66,7 @@ func (val *Validator) Validate(paths <-chan string) (*ValidateResponse, <-chan e
 		for i := 0; i < conc; i++ {
 			go func() {
 				for {
-					path, ok := <-paths
+					path, ok := <-pathsChan
 					if !ok {
 						break
 					}
@@ -89,8 +92,5 @@ func (val *Validator) Validate(paths <-chan string) (*ValidateResponse, <-chan e
 		close(errorChan)
 	}()
 
-	return &ValidateResponse{
-		ValidFilesPaths:   validFilesPathChan,
-		InvalidFilesPaths: invalidFilesPathsChan,
-	}, errorChan
+	return validFilesPathChan, invalidFilesPathsChan, errorChan
 }

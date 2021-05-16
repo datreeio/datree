@@ -42,7 +42,7 @@ type mockMessager struct {
 	mock.Mock
 }
 
-func (m *mockMessager) PopulateVersionMessageChan(cliVersion string) <-chan *messager.VersionMessage {
+func (m *mockMessager) LoadVersionMessages(cliVersion string) <-chan *messager.VersionMessage {
 	args := m.Called(cliVersion)
 	return args.Get(0).(<-chan *messager.VersionMessage)
 }
@@ -69,7 +69,7 @@ func TestTestCommand(t *testing.T) {
 	localConfigManager.On("GetConfiguration").Return(localConfig.LocalConfiguration{CliId: "134kh"}, nil)
 
 	messager := &mockMessager{}
-	messager.On("PopulateVersionMessageChan", mock.Anything).Return(mockedMessagesChannel())
+	messager.On("LoadVersionMessages", mock.Anything).Return(mockedMessagesChannel())
 
 	ctx := &TestCommandContext{
 		Evaluator:   mockedEvaluator,
