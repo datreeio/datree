@@ -8,7 +8,7 @@ import (
 )
 
 type Messager interface {
-	PopulateVersionMessageChan(cliVersion string) <-chan *messager.VersionMessage
+	LoadVersionMessages(cliVersion string) <-chan *messager.VersionMessage
 	HandleVersionMessage(messageChannel <-chan *messager.VersionMessage)
 }
 type VersionCommandContext struct {
@@ -17,7 +17,7 @@ type VersionCommandContext struct {
 }
 
 func version(ctx *VersionCommandContext) {
-	messageChannel := ctx.Messager.PopulateVersionMessageChan(ctx.CliVersion)
+	messageChannel := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
 	fmt.Println(ctx.CliVersion)
 	ctx.Messager.HandleVersionMessage(messageChannel)
 }

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/datreeio/datree/bl/evaluator"
+	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validator"
 	"github.com/datreeio/datree/cmd/test"
@@ -10,7 +10,6 @@ import (
 	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
-	"github.com/datreeio/datree/pkg/propertiesExtractor"
 	"github.com/spf13/cobra"
 )
 
@@ -44,26 +43,29 @@ func Execute() error {
 
 type context struct {
 	LocalConfig *localConfig.LocalConfiguration
-	Evaluator   *evaluator.Evaluator
+	Evaluator   *evaluation.Evaluator
 	CliClient   *cliClient.CliClient
 	Messager    *messager.Messager
+	Validator   *validator.Validator
+	Printer     *printer.Printer
 }
 type app struct {
 	context *context
 }
 
 func startup() *app {
+	config, _ := localConfig.GetLocalConfiguration()
 	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
-	extractor := propertiesExtractor.NewPropertiesExtractor(nil)
 	printer := printer.CreateNewPrinter()
-	validator := validator.New("1.18.0")
 
 	return &app{
 		context: &context{
-			LocalConfig: &localConfig.LocalConfiguration{},
-			Evaluator:   evaluator.New(extractor, cliClient, printer, validator),
+			LocalConfig: config,
+			Evaluator:   evaluation.New(cliClient),
 			CliClient:   cliClient,
 			Messager:    messager.New(cliClient, printer),
+			Validator:   validator.New("1.18.0"),
+			Printer:     printer,
 		},
 	}
 }

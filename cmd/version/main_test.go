@@ -14,7 +14,7 @@ type mockMessager struct {
 	mock.Mock
 }
 
-func (m *mockMessager) PopulateVersionMessageChan(cliVersion string) <-chan *messager.VersionMessage {
+func (m *mockMessager) LoadVersionMessages(cliVersion string) <-chan *messager.VersionMessage {
 	args := m.Called(cliVersion)
 	return args.Get(0).(<-chan *messager.VersionMessage)
 }
@@ -25,7 +25,7 @@ func (m *mockMessager) HandleVersionMessage(messageChannel <-chan *messager.Vers
 
 func Test_ExecuteCommand(t *testing.T) {
 	messager := &mockMessager{}
-	messager.On("PopulateVersionMessageChan", mock.Anything).Return(mockedMessagesChannel())
+	messager.On("LoadVersionMessages", mock.Anything).Return(mockedMessagesChannel())
 
 	cmd := NewCommand(&VersionCommandContext{
 		CliVersion: "1.2.3",

@@ -32,24 +32,18 @@ type VersionMessage struct {
 	MessageColor string
 }
 
-func (m *Messager) PopulateVersionMessageChan(cliVersion string) <-chan *VersionMessage {
-	messageChannel := make(chan *VersionMessage)
+func (m *Messager) LoadVersionMessages(messages chan *VersionMessage, cliVersion string) {
 	go func() {
 		msg, _ := m.messagesClient.GetVersionMessage(cliVersion, 900)
 		if msg != nil {
-			messageChannel <- m.toVersionMessage(msg)
+			messages <- m.toVersionMessage(msg)
 		}
-		close(messageChannel)
 	}()
 
-	return messageChannel
 }
 
-func (m *Messager) HandleVersionMessage(messageChannel <-chan *VersionMessage) {
-	msg, ok := <-messageChannel
-	if ok {
-		m.printer.PrintVersionMessage(msg.MessageText+"\n", msg.MessageColor)
-	}
+func (m *Messager) HandleVersionMessage(messageChannel <-chan *VersionMessage, printer) {
+	
 }
 
 func (m *Messager) toVersionMessage(msg *cliClient.VersionMessage) *VersionMessage {
