@@ -5,40 +5,45 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
-	"github.com/datreeio/datree/bl/evaluator"
+	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/localConfig"
-	"github.com/datreeio/datree/pkg/propertiesExtractor"
+	"github.com/datreeio/datree/pkg/printer"
 	"github.com/spf13/cobra"
 )
 
-type LocalConfigManager interface {
-	GetConfiguration() (localConfig.LocalConfiguration, error)
-}
-
 type Evaluator interface {
-	PrintResults(results *evaluator.EvaluationResults, cliId string, output string) error
-	PrintFileParsingErrors(errors []propertiesExtractor.FileError)
-	Evaluate(paths []string, cliId string, evaluationConc int, cliVersion string) (*evaluator.EvaluationResults, []propertiesExtractor.FileError, error)
+	Evaluate(paths <-chan string, cliId string, cliVersion string) (*evaluation.EvaluationResults, []*evaluation.Error, error)
 }
 
 type Messager interface {
-	PopulateVersionMessageChan(cliVersion string) <-chan *messager.VersionMessage
-	HandleVersionMessage(messageChannel <-chan *messager.VersionMessage)
+	LoadVersionMessages(cliVersion string, messages chan *messager.VersionMessage)
+	HandleVersionMessage(message *messager.VersionMessage)
 }
 
-type TestCommandContext struct {
-	CliVersion  string
-	LocalConfig LocalConfigManager
-	Evaluator   Evaluator
-	Messager    Messager
+type Validator interface {
+	Validate(paths []string) (<-chan string, <-chan string, <-chan error)
 }
 
 type TestCommandFlags struct {
 	Output string
 }
 
-func NewCommand(ctx *TestCommandContext) *cobra.Command {
+type EvaluationPrinter interface {
+	PrintWarnings(warnings []printer.Warning)
+	PrintSummaryTable(summary printer.Summary)
+	PrintMessage(messageText string, messageColor string)
+}
+type TestCommandContext struct {
+	CliVersion  string
+	LocalConfig *localConfig.LocalConfiguration
+	Evaluator   Evaluator
+	Messager    Messager
+	Validator   Validator
+	Printer     EvaluationPrinter
+}
+
+func New(ctx *TestCommandContext) *cobra.Command {
 	testCommand := &cobra.Command{
 		Use:   "test",
 		Short: "Execute static analysis for pattern",
@@ -62,38 +67,49 @@ func NewCommand(ctx *TestCommandContext) *cobra.Command {
 }
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
-
-	s.Suffix = " Loading..."
-	s.Color("cyan")
+	s := createSpinner(" Loading...", "cyan")
 	s.Start()
 
-	messageChannel := ctx.Messager.PopulateVersionMessageChan(ctx.CliVersion)
+	messages := make(chan *messager.VersionMessage, 1)
+	go ctx.Messager.LoadVersionMessages(ctx.CliVersion, messages)
 
-	config, err := ctx.LocalConfig.GetConfiguration()
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
+	validPaths, _, _ := ctx.Validator.Validate(paths)
+	results, errors, err := ctx.Evaluator.Evaluate(validPaths, ctx.LocalConfig.CliId, ctx.CliVersion)
 
-	evaluationResponse, fileParsingErrors, err := ctx.Evaluator.Evaluate(paths, config.CliId, 50, ctx.CliVersion)
 	s.Stop()
 
 	if err != nil {
-		if len(fileParsingErrors) > 0 {
-			ctx.Evaluator.PrintFileParsingErrors(fileParsingErrors)
-		}
 		fmt.Println(err.Error())
 		return err
 	}
 
-	if evaluationResponse == nil {
-		err := fmt.Errorf("no response received")
-		return err
+	if results == nil {
+		return fmt.Errorf("no response received")
 	}
 
-	err = ctx.Evaluator.PrintResults(evaluationResponse, config.CliId, flags.Output)
-	ctx.Messager.HandleVersionMessage(messageChannel)
+	if len(errors) > 0 {
+		printEvaluationErrors(errors)
+	}
+
+	evaluation.PrintResults(results, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer)
+	msg, ok := <-messages
+	if ok {
+		ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+	}
 
 	return err
+}
+
+func createSpinner(text string, color string) *spinner.Spinner {
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+	s.Suffix = text
+	s.Color(color)
+	return s
+}
+
+func printEvaluationErrors(errors []*evaluation.Error) {
+	fmt.Println("The following files failed:")
+	for _, fileError := range errors {
+		fmt.Printf("\n\tFilename: %s\n\tError: %s\n\t---------------------", fileError.Filename, fileError.Message)
+	}
 }
