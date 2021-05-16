@@ -8,21 +8,29 @@ import (
 )
 
 type Messager interface {
-	LoadVersionMessages(cliVersion string) <-chan *messager.VersionMessage
-	HandleVersionMessage(messageChannel <-chan *messager.VersionMessage)
+	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
+}
+
+type Printer interface {
+	PrintMessage(messageText string, messageColor string)
 }
 type VersionCommandContext struct {
 	CliVersion string
 	Messager   Messager
+	Printer    Printer
 }
 
 func version(ctx *VersionCommandContext) {
-	messageChannel := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
+	messages := make(chan *messager.VersionMessage, 1)
+	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 	fmt.Println(ctx.CliVersion)
-	ctx.Messager.HandleVersionMessage(messageChannel)
+	msg, ok := <-messages
+	if ok {
+		ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+	}
 }
 
-func NewCommand(ctx *VersionCommandContext) *cobra.Command {
+func New(ctx *VersionCommandContext) *cobra.Command {
 	var versionCmd = &cobra.Command{
 		Use:   "version",
 		Short: "Print the version number",
