@@ -67,11 +67,39 @@ func TestEvaluate(t *testing.T) {
 
 			evaluator := &Evaluator{
 				cliClient: mockedCliClient,
-				osInfo: &OSInfo{
-					OS:              "darwin",
-					PlatformVersion: "1.2.3",
-					KernelVersion:   "4.5.6",
-				},
+				osInfo:    tt.args.osInfo,
+			}
+
+			actualResponse, _, _ := evaluator.Evaluate(tt.args.validFilesChan, tt.args.invalidFilesChan, tt.args.evaluationId)
+
+			if tt.expected.isRequestEvaluationCalled {
+				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
+			}
+
+			if tt.expected.isUpdateEvaluationValidationCalled {
+				mockedCliClient.AssertCalled(t, "UpdateEvaluationValidation")
+			}
+
+			assert.Equal(t, tt.expected.response.Summary, actualResponse.Summary)
+			assert.Equal(t, tt.expected.response.FileNameRuleMapper, actualResponse.FileNameRuleMapper)
+		})
+	}
+}
+
+func TestCreateEvaluation(t *testing.T) {
+	tests := []*evaluateTestCase{
+		happy_flow_test(),
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockedCliClient := &mockCliClient{}
+
+			mockedCliClient.On("RequestEvaluation", mock.Anything).Return(tt.mock.cliClient.requestEvaluation.response, tt.mock.cliClient.requestEvaluation.err)
+			mockedCliClient.On("UpdateEvaluationValidation", mock.Anything).Return(nil)
+
+			evaluator := &Evaluator{
+				cliClient: mockedCliClient,
+				osInfo:    tt.args.osInfo,
 			}
 
 			actualResponse, _, _ := evaluator.Evaluate(tt.args.validFilesChan, tt.args.invalidFilesChan, tt.args.evaluationId)
@@ -94,6 +122,7 @@ type evaluateArgs struct {
 	validFilesChan   <-chan string
 	invalidFilesChan <-chan string
 	evaluationId     int
+	osInfo           *OSInfo
 }
 
 type evaluateExpected struct {
@@ -115,11 +144,16 @@ type evaluateTestCase struct {
 
 func happy_flow_test() *evaluateTestCase {
 	return &evaluateTestCase{
-		name: "happy flow",
+		name: "should",
 		args: &evaluateArgs{
 			validFilesChan:   newFilesChan(),
 			invalidFilesChan: newInvalidFilesChan(),
 			evaluationId:     1,
+			osInfo: &OSInfo{
+				OS:              "darwin",
+				PlatformVersion: "1.2.3",
+				KernelVersion:   "4.5.6",
+			},
 		},
 		mock: &evaluatorMock{
 			cliClient: &cliClientMockTestCase{
