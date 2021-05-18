@@ -32,14 +32,18 @@ func (m *Messager) LoadVersionMessages(messages chan *VersionMessage, cliVersion
 		if msg != nil {
 			messages <- m.toVersionMessage(msg)
 		}
+		close(messages)
 	}()
-
 }
 
 func (m *Messager) toVersionMessage(msg *cliClient.VersionMessage) *VersionMessage {
-	return &VersionMessage{
-		CliVersion:   msg.CliVersion,
-		MessageText:  msg.MessageText,
-		MessageColor: msg.MessageColor,
+	if msg != nil {
+		return &VersionMessage{
+			CliVersion:   msg.CliVersion,
+			MessageText:  msg.MessageText,
+			MessageColor: msg.MessageColor,
+		}
 	}
+
+	return nil
 }

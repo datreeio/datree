@@ -19,6 +19,10 @@ func (m *mockValidationClient) Validate(filename string, r io.ReadCloser) []kube
 }
 
 func TestValidateResources(t *testing.T) {
+	test_valid_nultiple_resources(t)
+}
+
+func test_valid_nultiple_resources(t *testing.T) {
 	validationClient := &mockValidationClient{}
 	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
 		{Status: kubeconformValidator.Valid},
