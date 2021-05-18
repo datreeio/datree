@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -73,14 +74,18 @@ func TestEvaluate(t *testing.T) {
 				},
 			}
 
-			evaluator.Evaluate(tt.args.validFilesChan, tt.args.invalidFilesChan, tt.args.evaluationId)
+			actualResponse, _, _ := evaluator.Evaluate(tt.args.validFilesChan, tt.args.invalidFilesChan, tt.args.evaluationId)
 
 			if tt.expected.isRequestEvaluationCalled {
-				mockedCliClient.AssertCalled(t, "RequestEvaluation")
+				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
 			}
-			// assert.Equal(t, tt.expected.response, actualResponse)
-			// assert.Equal(t, tt.expected.errors, actualErrs)
-			// assert.Equal(t, tt.expected.err, actualErr)
+
+			if tt.expected.isUpdateEvaluationValidationCalled {
+				mockedCliClient.AssertCalled(t, "UpdateEvaluationValidation")
+			}
+
+			assert.Equal(t, tt.expected.response.Summary, actualResponse.Summary)
+			assert.Equal(t, tt.expected.response.FileNameRuleMapper, actualResponse.FileNameRuleMapper)
 		})
 	}
 }
@@ -147,7 +152,18 @@ func happy_flow_test() *evaluateTestCase {
 			},
 		},
 		expected: &evaluateExpected{
-			response:                           &EvaluationResults{},
+			response: &EvaluationResults{
+				FileNameRuleMapper: make(map[string]map[int]*Rule),
+				Summary: struct {
+					RulesCount       int
+					TotalFailedRules int
+					FilesCount       int
+				}{
+					RulesCount:       0,
+					TotalFailedRules: 0,
+					FilesCount:       1,
+				},
+			},
 			errors:                             []*Error{},
 			err:                                nil,
 			isRequestEvaluationCalled:          true,
