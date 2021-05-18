@@ -25,7 +25,7 @@ func Test_ExecuteCommand(t *testing.T) {
 		Messager:   messager,
 	})
 
-	// TODO: ask yishay
+	// TODO: ask yishay wtf
 	b := bytes.NewBufferString("1.2.3")
 	cmd.SetOut(b)
 	cmd.Execute()
