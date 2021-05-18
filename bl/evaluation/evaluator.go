@@ -12,8 +12,9 @@ type CLIClient interface {
 }
 
 type Evaluator struct {
-	cliClient CLIClient
-	osInfo    *OSInfo
+	cliClient             CLIClient
+	osInfo                *OSInfo
+	extractConfigurations func(path string) (*extractor.FileConfiguration, *extractor.Error)
 }
 
 func New(c CLIClient) *Evaluator {
@@ -56,7 +57,7 @@ func (e *Evaluator) Evaluate(validFilesChan <-chan string, invalidFilesChan <-ch
 	stopEvaluation := len(validFiles) == 0
 
 	if len(invalidFiles) > 0 {
-		e.cliClient.UpdateEvaluationValidation(&cliClient.UpdateEvaluationValidationRequest{
+		_ = e.cliClient.UpdateEvaluationValidation(&cliClient.UpdateEvaluationValidationRequest{
 			EvaluationId:   evaluationId,
 			InvalidFiles:   invalidFiles,
 			StopEvaluation: stopEvaluation,
@@ -84,20 +85,20 @@ func (e *Evaluator) aggregateFiles(validFilesChan <-chan string, invalidFilesCha
 	var invalidFiles []*string
 	var errors []*Error
 
+	validDone, invalidDone := false, false
 	for {
-		validDone, invalidDone := false, false
 		select {
 		case validFile, ok := <-validFilesChan:
 			if !ok {
 				validDone = true
 			} else {
-				go e.appendValidFileConfiguration(validFile, validFiles, errors)
+				e.appendValidFileConfiguration(validFile, &validFiles, &errors)
 			}
 		case invalidFile, ok := <-invalidFilesChan:
 			if !ok {
 				invalidDone = true
 			} else {
-				go e.appendInvalidFile(invalidFile, invalidFiles)
+				e.appendInvalidFile(invalidFile, invalidFiles)
 			}
 		}
 		if invalidDone && validDone {
@@ -108,17 +109,17 @@ func (e *Evaluator) aggregateFiles(validFilesChan <-chan string, invalidFilesCha
 	return validFiles, invalidFiles, errors
 }
 
-func (e *Evaluator) appendValidFileConfiguration(path string, files []*cliClient.FileConfiguration, errors []*Error) {
+func (e *Evaluator) appendValidFileConfiguration(path string, files *[]*cliClient.FileConfiguration, errors *[]*Error) {
 	file, err := extractor.ExtractConfiguration(path)
 	if file != nil {
-		files = append(files, &cliClient.FileConfiguration{
+		*files = append(*files, &cliClient.FileConfiguration{
 			FileName:       file.FileName,
 			Configurations: file.Configurations,
 		})
 	}
 
 	if err != nil {
-		errors = append(errors, &Error{
+		*errors = append(*errors, &Error{
 			Message:  err.Message,
 			Filename: err.Filename,
 		})
