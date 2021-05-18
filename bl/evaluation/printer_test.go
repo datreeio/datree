@@ -33,7 +33,6 @@ type printResultsTestCase struct {
 	expected error
 }
 
-// TODO: think about printer tests
 func TestPrintResults(t *testing.T) {
 	tests := []*printResultsTestCase{}
 	for _, tt := range tests {
