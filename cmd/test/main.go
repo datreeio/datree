@@ -13,7 +13,7 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(validFilesChan <-chan string, invalidFilesChan <-chan string, evaluationId int) (*evaluation.EvaluationResults, []*evaluation.Error, error)
+	Evaluate(validFilesPathsChan <-chan string, invalidFilesPaths []*string, evaluationId int) (*evaluation.EvaluationResults, []*evaluation.Error, error)
 	CreateEvaluation(cliId string, cliVersion string) (int, error)
 }
 
@@ -21,8 +21,8 @@ type Messager interface {
 	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
 }
 
-type Validator interface {
-	Validate(paths []string) (<-chan string, <-chan string, <-chan error)
+type K8sValidator interface {
+	ValidateResources(paths []string) (<-chan string, []*string, <-chan error)
 }
 
 type TestCommandFlags struct {
@@ -35,12 +35,12 @@ type EvaluationPrinter interface {
 	PrintMessage(messageText string, messageColor string)
 }
 type TestCommandContext struct {
-	CliVersion  string
-	LocalConfig *localConfig.LocalConfiguration
-	Evaluator   Evaluator
-	Messager    Messager
-	Validator   Validator
-	Printer     EvaluationPrinter
+	CliVersion   string
+	LocalConfig  *localConfig.LocalConfiguration
+	Evaluator    Evaluator
+	Messager     Messager
+	K8sValidator K8sValidator
+	Printer      EvaluationPrinter
 }
 
 func New(ctx *TestCommandContext) *cobra.Command {
@@ -73,7 +73,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	messages := make(chan *messager.VersionMessage, 1)
 	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 
-	validPaths, invalidPaths, _ := ctx.Validator.Validate(paths)
+	validFilesPaths, invalidFilesPaths, _ := ctx.K8sValidator.ValidateResources(paths)
 
 	evaluationId, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion)
 	if err != nil {
@@ -81,7 +81,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	results, errors, err := ctx.Evaluator.Evaluate(validPaths, invalidPaths, evaluationId)
+	results, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFilesPaths, evaluationId)
 
 	s.Stop()
 
