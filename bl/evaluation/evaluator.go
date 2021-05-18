@@ -52,85 +52,71 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string) (int, erro
 	return evaluationId, err
 }
 
-func (e *Evaluator) Evaluate(validFilesChan <-chan string, invalidFilesChan <-chan string, evaluationId int) (*EvaluationResults, []*Error, error) {
-	validFiles, invalidFiles, errors := e.aggregateFiles(validFilesChan, invalidFilesChan)
-	stopEvaluation := len(validFiles) == 0
+func (e *Evaluator) Evaluate(validFilesPathsChan <-chan string, invalidFilesPaths []*string, evaluationId int) (*EvaluationResults, []*Error, error) {
+	filesConfigurations, errors := e.extractFilesConfigurations(validFilesPathsChan)
 
-	if len(invalidFiles) > 0 {
-		_ = e.cliClient.UpdateEvaluationValidation(&cliClient.UpdateEvaluationValidationRequest{
+	if len(invalidFilesPaths) > 0 {
+		stopEvaluation := len(validFilesPathsChan) == 0 // NOTICE: validFilesPathsChan surely closed and empty
+		err := e.cliClient.UpdateEvaluationValidation(&cliClient.UpdateEvaluationValidationRequest{
 			EvaluationId:   evaluationId,
-			InvalidFiles:   invalidFiles,
+			InvalidFiles:   invalidFilesPaths,
 			StopEvaluation: stopEvaluation,
 		})
+
+		return nil, errors, err
 	}
 
-	if !stopEvaluation {
+	if len(filesConfigurations) > 0 {
 		res, err := e.cliClient.RequestEvaluation(&cliClient.EvaluationRequest{
 			EvaluationId: evaluationId,
-			Files:        validFiles,
+			Files:        filesConfigurations,
 		})
 		if err != nil {
 			return nil, errors, err
 		}
 
-		results := e.aggregateEvaluationResults(res.Results, len(validFiles))
+		results := e.formatEvaluationResults(res.Results, len(filesConfigurations))
 		return results, errors, nil
 	}
 
 	return nil, errors, nil
 }
 
-func (e *Evaluator) aggregateFiles(validFilesChan <-chan string, invalidFilesChan <-chan string) ([]*cliClient.FileConfiguration, []*string, []*Error) {
-	var validFiles []*cliClient.FileConfiguration
-	var invalidFiles []*string
+func (e *Evaluator) extractFilesConfigurations(filesPathsChan <-chan string) ([]*cliClient.FileConfiguration, []*Error) {
+	var files []*cliClient.FileConfiguration
 	var errors []*Error
 
-	validDone, invalidDone := false, false
+	done := false
 	for {
-		select {
-		case validFile, ok := <-validFilesChan:
-			if !ok {
-				validDone = true
-			} else {
-				e.appendValidFileConfiguration(validFile, &validFiles, &errors)
+		path, ok := <-filesPathsChan
+		if !ok {
+			done = true
+		} else {
+			file, err := extractor.ExtractConfiguration(path)
+			if file != nil {
+				files = append(files, &cliClient.FileConfiguration{
+					FileName:       file.FileName,
+					Configurations: file.Configurations,
+				})
 			}
-		case invalidFile, ok := <-invalidFilesChan:
-			if !ok {
-				invalidDone = true
-			} else {
-				e.appendInvalidFile(invalidFile, invalidFiles)
+
+			if err != nil {
+				errors = append(errors, &Error{
+					Message:  err.Message,
+					Filename: err.Filename,
+				})
 			}
 		}
-		if invalidDone && validDone {
+
+		if done {
 			break
 		}
 	}
 
-	return validFiles, invalidFiles, errors
+	return files, errors
 }
 
-func (e *Evaluator) appendValidFileConfiguration(path string, files *[]*cliClient.FileConfiguration, errors *[]*Error) {
-	file, err := extractor.ExtractConfiguration(path)
-	if file != nil {
-		*files = append(*files, &cliClient.FileConfiguration{
-			FileName:       file.FileName,
-			Configurations: file.Configurations,
-		})
-	}
-
-	if err != nil {
-		*errors = append(*errors, &Error{
-			Message:  err.Message,
-			Filename: err.Filename,
-		})
-	}
-}
-
-func (e *Evaluator) appendInvalidFile(path string, files []*string) {
-	files = append(files, &path)
-}
-
-func (e *Evaluator) aggregateEvaluationResults(evaluationResults []*cliClient.EvaluationResult, filesCount int) *EvaluationResults {
+func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.EvaluationResult, filesCount int) *EvaluationResults {
 	mapper := make(map[string]map[int]*Rule)
 
 	totalRulesCount := len(evaluationResults)
