@@ -55,14 +55,12 @@ type evaluatorMock struct {
 }
 
 func TestEvaluate(t *testing.T) {
-	tests := []*evaluateTestCase{
-		happy_flow_test(),
-	}
+	tests := []*evaluateTestCase{}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockedCliClient := &mockCliClient{}
 
-			mockedCliClient.On("RequestEvaluation", mock.Anything).Return(tt.mock.cliClient.requestEvaluation.response, tt.mock.cliClient.requestEvaluation.err)
+			mockedCliClient.On("CreateEvaluation", mock.Anything).Return(tt.mock.cliClient.createEvaluation.evaluationId, tt.mock.cliClient.createEvaluation.err)
 			mockedCliClient.On("UpdateEvaluationValidation", mock.Anything).Return(nil)
 
 			evaluator := &Evaluator{
@@ -74,21 +72,22 @@ func TestEvaluate(t *testing.T) {
 
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
+				assert.Equal(t, tt.expected.response.Summary, actualResponse.Summary)
+				assert.Equal(t, tt.expected.response.FileNameRuleMapper, actualResponse.FileNameRuleMapper)
 			}
 
 			if tt.expected.isUpdateEvaluationValidationCalled {
-				mockedCliClient.AssertCalled(t, "UpdateEvaluationValidation")
+				mockedCliClient.AssertCalled(t, "UpdateEvaluationValidation", mock.Anything)
 			}
 
-			assert.Equal(t, tt.expected.response.Summary, actualResponse.Summary)
-			assert.Equal(t, tt.expected.response.FileNameRuleMapper, actualResponse.FileNameRuleMapper)
 		})
 	}
 }
 
 func TestCreateEvaluation(t *testing.T) {
 	tests := []*evaluateTestCase{
-		happy_flow_test(),
+		request_evaluation_all_invalid(),
+		request_evaluation_all_valid(),
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -106,21 +105,21 @@ func TestCreateEvaluation(t *testing.T) {
 
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
+				assert.Equal(t, tt.expected.response.Summary, actualResponse.Summary)
+				assert.Equal(t, tt.expected.response.FileNameRuleMapper, actualResponse.FileNameRuleMapper)
 			}
 
 			if tt.expected.isUpdateEvaluationValidationCalled {
-				mockedCliClient.AssertCalled(t, "UpdateEvaluationValidation")
+				mockedCliClient.AssertCalled(t, "UpdateEvaluationValidation", mock.Anything)
 			}
 
-			assert.Equal(t, tt.expected.response.Summary, actualResponse.Summary)
-			assert.Equal(t, tt.expected.response.FileNameRuleMapper, actualResponse.FileNameRuleMapper)
 		})
 	}
 }
 
 type evaluateArgs struct {
 	validFilesChan   <-chan string
-	invalidFilesChan <-chan string
+	invalidFilesChan []*string
 	evaluationId     int
 	osInfo           *OSInfo
 }
@@ -142,12 +141,12 @@ type evaluateTestCase struct {
 	expected *evaluateExpected
 }
 
-func happy_flow_test() *evaluateTestCase {
+func request_evaluation_all_valid() *evaluateTestCase {
 	return &evaluateTestCase{
-		name: "should",
+		name: "should request validation without invalid files",
 		args: &evaluateArgs{
 			validFilesChan:   newFilesChan(),
-			invalidFilesChan: newInvalidFilesChan(),
+			invalidFilesChan: []*string{},
 			evaluationId:     1,
 			osInfo: &OSInfo{
 				OS:              "darwin",
@@ -206,17 +205,75 @@ func happy_flow_test() *evaluateTestCase {
 	}
 }
 
+func request_evaluation_all_invalid() *evaluateTestCase {
+	invalidPath := "path/path1/service.yaml"
+	return &evaluateTestCase{
+		name: "should request validation all files are invalid",
+		args: &evaluateArgs{
+			validFilesChan:   newFilesChan(),
+			invalidFilesChan: []*string{&invalidPath},
+			evaluationId:     1,
+			osInfo: &OSInfo{
+				OS:              "darwin",
+				PlatformVersion: "1.2.3",
+				KernelVersion:   "4.5.6",
+			},
+		},
+		mock: &evaluatorMock{
+			cliClient: &cliClientMockTestCase{
+				createEvaluation: struct {
+					evaluationId int
+					err          error
+				}{
+					evaluationId: 1,
+					err:          nil,
+				},
+				requestEvaluation: struct {
+					response *cliClient.EvaluationResponse
+					err      error
+				}{
+					response: &cliClient.EvaluationResponse{
+						Results: []*cliClient.EvaluationResult{},
+					},
+					err: nil,
+				},
+				updateEvaluationValidation: struct{ err error }{
+					err: nil,
+				},
+				getVersionMessage: struct {
+					response *cliClient.VersionMessage
+					err      error
+				}{
+					response: nil,
+					err:      nil,
+				},
+			},
+		},
+		expected: &evaluateExpected{
+			response: &EvaluationResults{
+				FileNameRuleMapper: make(map[string]map[int]*Rule),
+				Summary: struct {
+					RulesCount       int
+					TotalFailedRules int
+					FilesCount       int
+				}{
+					RulesCount:       0,
+					TotalFailedRules: 0,
+					FilesCount:       1,
+				},
+			},
+			errors:                             []*Error{},
+			err:                                nil,
+			isRequestEvaluationCalled:          false,
+			isUpdateEvaluationValidationCalled: true,
+		},
+	}
+}
+
 func newFilesChan() chan string {
 	files := make(chan string, 1)
 	p, _ := filepath.Abs("../../internal/fixtures/kube/pass-all.yaml")
 	files <- p
-	close(files)
-	return files
-}
-
-func newInvalidFilesChan() chan string {
-	files := make(chan string, 1)
-	files <- "path/path1/service.yaml"
 	close(files)
 	return files
 }
