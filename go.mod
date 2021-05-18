@@ -20,6 +20,7 @@ require (
 	github.com/tklauser/go-sysconf v0.3.5 // indirect
 	github.com/yannh/kubeconform v0.4.7
 	golang.org/x/text v0.3.3
+	golang.org/x/tools v0.0.0-20191112195655-aa38f8e97acc
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
