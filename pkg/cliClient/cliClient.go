@@ -85,7 +85,7 @@ type CreateEvaluationResponse struct {
 }
 
 func (c *CliClient) CreateEvaluation(request CreateEvaluationRequest) (int, error) {
-	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate/create", request, nil)
+	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/create", request, nil)
 	if err != nil {
 		return 0, err
 	}
