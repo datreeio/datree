@@ -19,15 +19,15 @@ type Printer interface {
 func PrintResults(results *EvaluationResults, loginURL string, outputFormat string, printer Printer) error {
 	switch {
 	case outputFormat == "json":
-		return JSONOutput(results)
+		return jsonOutput(results)
 	case outputFormat == "yaml":
-		return YAMLOutput(results)
+		return yamlOutput(results)
 	default:
-		return TextOutput(results, loginURL, printer)
+		return textOutput(results, loginURL, printer)
 	}
 }
 
-func JSONOutput(results *EvaluationResults) error {
+func jsonOutput(results *EvaluationResults) error {
 	jsonOutput, err := json.Marshal(results)
 	if err != nil {
 		fmt.Println(err)
@@ -38,7 +38,7 @@ func JSONOutput(results *EvaluationResults) error {
 	return nil
 }
 
-func YAMLOutput(results *EvaluationResults) error {
+func yamlOutput(results *EvaluationResults) error {
 	yamlOutput, err := yaml.Marshal(results)
 	if err != nil {
 		fmt.Println(err)
@@ -49,7 +49,7 @@ func YAMLOutput(results *EvaluationResults) error {
 	return nil
 }
 
-func TextOutput(results *EvaluationResults, url string, printer Printer) error {
+func textOutput(results *EvaluationResults, url string, printer Printer) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
