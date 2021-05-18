@@ -9,10 +9,10 @@ import (
 func toAbsolutePath(path string) (string, error) {
 	absolutePath, err := filepath.Abs(path)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
-	fileInfo, err := os.Stat(absolutePath)
+	fileInfo, _ := os.Stat(absolutePath)
 	if fileInfo != nil && !fileInfo.IsDir() {
 		return filepath.Abs(absolutePath)
 	}
@@ -20,7 +20,7 @@ func toAbsolutePath(path string) (string, error) {
 	return "", fmt.Errorf("failed parsing absolute path %s", path)
 }
 
-func ToAbsolutePaths(paths []string) (<-chan string, <-chan error) {
+func ToAbsolutePaths(paths []string) (chan string, <-chan error) {
 	errorChan := make(chan error, 100)
 	pathsChan := make(chan string, 100)
 
@@ -29,8 +29,7 @@ func ToAbsolutePaths(paths []string) (<-chan string, <-chan error) {
 			absolutePath, err := toAbsolutePath(p)
 			if err != nil {
 				errorChan <- err
-				continue
-			} else {
+			} else if absolutePath != "" {
 				pathsChan <- absolutePath
 			}
 		}

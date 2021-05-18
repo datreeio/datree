@@ -31,7 +31,8 @@ func test_not_existed_file(t *testing.T) {
 func test_directory_file(t *testing.T) {
 	paths := []string{"../../internal/fixtures/kube"}
 	pathsChan, errors := ToAbsolutePaths(paths)
-	assert.Equal(t, "", <-pathsChan)
+	_, ok := <-pathsChan
+	assert.Equal(t, false, ok)
 	err := <-errors
 	assert.Equal(t, fmt.Errorf("failed parsing absolute path ../../internal/fixtures/kube"), err)
 }
