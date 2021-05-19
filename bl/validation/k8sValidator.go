@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sync"
 
 	"github.com/datreeio/datree/bl/files"
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
@@ -25,40 +24,37 @@ func New(k8sVersion string) *K8sValidator {
 	}
 }
 
-func (val *K8sValidator) ValidateResources(paths []string) (<-chan string, []*string, <-chan error) {
-	pathsChan, _ := files.ToAbsolutePaths(paths)
+func (val *K8sValidator) ValidateResources(paths []string) (chan string, []*string, chan error) {
+	pathsChan := files.ToAbsolutePaths(paths)
 
-	errorChan := make(chan error)
 	var invalidFilesPaths = []*string{}
+	errorChan := make(chan error)
 	validFilesPathChan := make(chan string)
 
-	conc := 1
-	wg := sync.WaitGroup{}
-	wg.Add(conc)
-
 	go func() {
-		for i := 0; i < conc; i++ {
-			go func() {
-				for {
-					path, ok := <-pathsChan
-					if !ok {
-						break
-					}
-
-					isValid, err := val.validateResource(path)
-					if err != nil {
-						errorChan <- err
-					}
-					if isValid {
-						validFilesPathChan <- path
-					} else {
-						invalidFilesPaths = append(invalidFilesPaths, &path)
-					}
-				}
-				wg.Done()
-			}()
+		for path := range pathsChan {
+			// done := false
+			// for {
+			// 	select {
+			// 	case path, ok := <-pathsChan:
+			// 		if !ok {
+			// 			done = true
+			// 		} else {
+			isValid, err := val.validateResource(path)
+			if isValid {
+				validFilesPathChan <- path
+			} else {
+				invalidFilesPaths = append(invalidFilesPaths, &path)
+			}
+			if err != nil {
+				errorChan <- err
+			}
+			// 	}
+			// }
+			// if done {
+			// 	break
+			// }
 		}
-		wg.Wait()
 		close(validFilesPathChan)
 		close(errorChan)
 	}()
@@ -72,7 +68,8 @@ func (val *K8sValidator) validateResource(filepath string) (bool, error) {
 		return false, fmt.Errorf("failed opening %s: %s", filepath, err)
 	}
 
-	for i, res := range val.validationClient.Validate(filepath, f) {
+	results := val.validationClient.Validate(filepath, f)
+	for i, res := range results {
 		// A file might contain multiple resources
 		// File starts with ---, the parser assumes a first empty resource
 		if res.Status == kubeconformValidator.Invalid {

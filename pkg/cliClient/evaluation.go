@@ -60,8 +60,8 @@ type EvaluationResponse struct {
 }
 
 type FileConfiguration struct {
-	FileName       string                    `json:"fileName"`
-	Configurations []*map[string]interface{} `json:"configurations"`
+	FileName       string                   `json:"fileName"`
+	Configurations []map[string]interface{} `json:"configurations"`
 }
 
 type EvaluationRequest struct {

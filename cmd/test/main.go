@@ -13,7 +13,7 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(validFilesPathsChan <-chan string, invalidFilesPaths []*string, evaluationId int) (*evaluation.EvaluationResults, []*evaluation.Error, error)
+	Evaluate(validFilesPathsChan chan string, invalidFilesPaths []*string, evaluationId int) (*evaluation.EvaluationResults, []*evaluation.Error, error)
 	CreateEvaluation(cliId string, cliVersion string) (int, error)
 }
 
@@ -22,7 +22,7 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(paths []string) (<-chan string, []*string, <-chan error)
+	ValidateResources(paths []string) (chan string, []*string, chan error)
 }
 
 type TestCommandFlags struct {
@@ -67,13 +67,18 @@ func New(ctx *TestCommandContext) *cobra.Command {
 }
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
-	s := createSpinner(" Loading...", "cyan")
-	s.Start()
+	// s := createSpinner(" Loading...", "cyan")
+	// s.Start()
 
 	messages := make(chan *messager.VersionMessage, 1)
 	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 
-	validFilesPaths, invalidFilesPaths, _ := ctx.K8sValidator.ValidateResources(paths)
+	validFilesPaths, invalidFilesPaths, errorsChan := ctx.K8sValidator.ValidateResources(paths)
+	go func() {
+		for err := range errorsChan {
+			fmt.Print(err)
+		}
+	}()
 
 	evaluationId, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion)
 	if err != nil {
@@ -83,7 +88,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	results, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFilesPaths, evaluationId)
 
-	s.Stop()
+	// s.Stop()
 
 	if err != nil {
 		fmt.Println(err.Error())

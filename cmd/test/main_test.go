@@ -23,7 +23,7 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(validFilesPathsChan <-chan string, invalidFilesPaths []*string, evaluationId int) (*evaluation.EvaluationResults, []*evaluation.Error, error) {
+func (m *mockEvaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPaths []*string, evaluationId int) (*evaluation.EvaluationResults, []*evaluation.Error, error) {
 	args := m.Called(validFilesPathsChan, invalidFilesPaths, evaluationId)
 	return args.Get(0).(*evaluation.EvaluationResults), args.Get(1).([]*evaluation.Error), args.Error(2)
 }

@@ -20,23 +20,18 @@ func toAbsolutePath(path string) (string, error) {
 	return "", fmt.Errorf("failed parsing absolute path %s", path)
 }
 
-func ToAbsolutePaths(paths []string) (chan string, <-chan error) {
-	errorChan := make(chan error, 100)
-	pathsChan := make(chan string, 100)
+func ToAbsolutePaths(paths []string) chan string {
+	pathsChan := make(chan string)
 
 	go func() {
 		for _, p := range paths {
 			absolutePath, err := toAbsolutePath(p)
-			if err != nil {
-				errorChan <- err
-			} else if absolutePath != "" {
+			if err == nil {
 				pathsChan <- absolutePath
 			}
 		}
-
 		close(pathsChan)
-		close(errorChan)
 	}()
 
-	return pathsChan, errorChan
+	return pathsChan
 }
