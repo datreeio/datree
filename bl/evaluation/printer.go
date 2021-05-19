@@ -15,6 +15,7 @@ import (
 type Printer interface {
 	PrintWarnings(warnings []printer.Warning)
 	PrintSummaryTable(summary printer.Summary)
+	PrintEvaluationSummary(summary printer.EvaluationSummary)
 }
 
 // func PrintAllResults(results *EvaluationResults /*, invalidFiles*/) {
@@ -22,14 +23,14 @@ type Printer interface {
 // }
 
 // url := "https://app.datree.io/login?cliId=" + cliId
-func PrintResults(results *EvaluationResults, invalidFiles []*validation.InvalidFile, loginURL string, outputFormat string, printer Printer) error {
+func PrintResults(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer) error {
 	switch {
 	case outputFormat == "json":
 		return jsonOutput(results)
 	case outputFormat == "yaml":
 		return yamlOutput(results)
 	default:
-		return textOutput(results, invalidFiles, loginURL, printer)
+		return textOutput(results, invalidFiles, evaluationSummary, loginURL, printer)
 	}
 }
 
@@ -55,7 +56,7 @@ func yamlOutput(results *EvaluationResults) error {
 	return nil
 }
 
-func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFile, url string, printer Printer) error {
+func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -68,7 +69,10 @@ func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFi
 	}
 
 	printer.PrintWarnings(warnings)
+
 	summary := parseEvaluationResultsToSummary(results, url)
+
+	printer.PrintEvaluationSummary(evaluationSummary)
 
 	printer.PrintSummaryTable(summary)
 
@@ -81,10 +85,16 @@ func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFi
 func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validation.InvalidFile, pwd string) ([]printer.Warning, error) {
 	var warnings = []printer.Warning{}
 
-	var invalidFilesByPath = make(map[string]validation.InvalidFile)
-
 	for _, invalidFile := range invalidFiles {
-		invalidFilesByPath[invalidFile.Path] = *invalidFile
+		warnings = append(warnings, printer.Warning{
+			Title:   fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
+			Details: []printer.WarningInfo{},
+			ValidationInfo: printer.ValidationInfo{
+				IsValid:          false,
+				ValidationErrors: invalidFile.ValidationErrors,
+				K8sVersion:       "1.18.0",
+			},
+		})
 	}
 
 	for fileName, rules := range results.FileNameRuleMapper {
@@ -101,21 +111,14 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validati
 
 		relativePath, _ := filepath.Rel(pwd, fileName)
 
-		validationInfo := printer.ValidationInfo{
-			IsValid:          true,
-			ValidationErrors: []error{},
-			K8sVersion:       "1.18.0",
-		}
-
-		if invalidFile, ok := invalidFilesByPath[fileName]; ok {
-			validationInfo.IsValid = false
-			validationInfo.ValidationErrors = invalidFile.ValidationErrors
-		}
-
 		warnings = append(warnings, printer.Warning{
-			Title:          fmt.Sprintf(">>  File: %s\n", relativePath),
-			Details:        warningDetails,
-			ValidationInfo: validationInfo,
+			Title:   fmt.Sprintf(">>  File: %s\n", relativePath),
+			Details: warningDetails,
+			ValidationInfo: printer.ValidationInfo{
+				IsValid:          true,
+				ValidationErrors: []error{},
+				K8sVersion:       "1.18.0",
+			},
 		})
 	}
 

@@ -31,6 +31,7 @@ type EvaluationResults struct {
 		RulesCount       int
 		TotalFailedRules int
 		FilesCount       int
+		TotalPassedCount int
 	}
 }
 
@@ -53,17 +54,16 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string) (int, erro
 	return evaluationId, err
 }
 
-func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile, evaluationId int) (*EvaluationResults, []*validation.InvalidFile, []*Error, error) {
+func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile, evaluationId int) (*EvaluationResults, []*validation.InvalidFile, []*cliClient.FileConfiguration, []*Error, error) {
 	filesConfigurations, invalidFiles, errors := e.extractFilesConfigurations(validFilesPathsChan, invalidFilesPathsChan)
 
 	invalidFilesPaths := []*string{}
-	for file := range invalidFilesPathsChan {
+	for _, file := range invalidFiles {
 		invalidFilesPaths = append(invalidFilesPaths, &file.Path)
-		invalidFiles = append(invalidFiles, file)
 	}
 
 	if len(invalidFiles) > 0 {
-		stopEvaluation := len(validFilesPathsChan) == 0 // NOTICE: validFilesPathsChan surely closed and empty
+		stopEvaluation := len(filesConfigurations) == 0 // NOTICE: validFilesPathsChan surely closed and empty
 		err := e.cliClient.UpdateEvaluationValidation(&cliClient.UpdateEvaluationValidationRequest{
 			EvaluationId:   evaluationId,
 			InvalidFiles:   invalidFilesPaths,
@@ -71,7 +71,7 @@ func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsC
 		})
 
 		if stopEvaluation {
-			return nil, invalidFiles, errors, err
+			return nil, invalidFiles, filesConfigurations, errors, err
 		}
 	}
 
@@ -81,14 +81,14 @@ func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsC
 			Files:        filesConfigurations,
 		})
 		if err != nil {
-			return nil, invalidFiles, errors, err
+			return nil, invalidFiles, filesConfigurations, errors, err
 		}
 
 		results := e.formatEvaluationResults(res.Results, len(filesConfigurations))
-		return results, invalidFiles, errors, nil
+		return results, invalidFiles, filesConfigurations, errors, nil
 	}
 
-	return nil, invalidFiles, errors, nil
+	return nil, invalidFiles, filesConfigurations, errors, nil
 }
 
 func (e *Evaluator) extractFilesConfigurations(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile) ([]*cliClient.FileConfiguration, []*validation.InvalidFile, []*Error) {
@@ -138,12 +138,14 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.Evalu
 
 	totalRulesCount := len(evaluationResults)
 	totalFailedCount := 0
+	totalPassedCount := filesCount
 
 	for _, result := range evaluationResults {
 		for _, match := range result.Results.Matches {
 			// file not already exists in mapper
 			if _, exists := mapper[match.FileName]; !exists {
 				mapper[match.FileName] = make(map[int]*Rule)
+				totalPassedCount = totalPassedCount - 1
 			}
 
 			// file and rule not already exists in mapper
@@ -162,10 +164,12 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.Evalu
 			RulesCount       int
 			TotalFailedRules int
 			FilesCount       int
+			TotalPassedCount int
 		}{
 			RulesCount:       totalRulesCount,
 			TotalFailedRules: totalFailedCount,
 			FilesCount:       filesCount,
+			TotalPassedCount: totalPassedCount,
 		},
 	}
 
