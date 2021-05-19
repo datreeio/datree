@@ -29,12 +29,12 @@ type InvalidFile struct {
 	ValidationErrors []error
 }
 
-func (val *K8sValidator) ValidateResources(paths []string) (chan string, []InvalidFile, chan error) {
+func (val *K8sValidator) ValidateResources(paths []string) (chan string, chan *InvalidFile, chan error) {
 	pathsChan := files.ToAbsolutePaths(paths)
 
-	var invalidFiles []InvalidFile
 	errorChan := make(chan error)
 	validFilesPathChan := make(chan string)
+	invalidFilesPathsChan := make(chan *InvalidFile)
 
 	go func() {
 		for path := range pathsChan {
@@ -42,20 +42,22 @@ func (val *K8sValidator) ValidateResources(paths []string) (chan string, []Inval
 			if isValid {
 				validFilesPathChan <- path
 			} else {
-				invalidFiles = append(invalidFiles, InvalidFile{
+				invalidFilesPathsChan <- &InvalidFile{
 					Path:             path,
 					ValidationErrors: validationErrors,
-				})
+				}
 			}
 			if err != nil {
 				errorChan <- err
 			}
 		}
+
+		close(invalidFilesPathsChan)
 		close(validFilesPathChan)
 		close(errorChan)
 	}()
 
-	return validFilesPathChan, invalidFiles, errorChan
+	return validFilesPathChan, invalidFilesPathsChan, errorChan
 }
 
 func (val *K8sValidator) validateResource(filepath string) (bool, []error, error) {
