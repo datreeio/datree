@@ -2,6 +2,7 @@ package validation
 
 import (
 	"io"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,10 +20,10 @@ func (m *mockValidationClient) Validate(filename string, r io.ReadCloser) []kube
 }
 
 func TestValidateResources(t *testing.T) {
-	test_valid_nultiple_resources(t)
+	test_valid_multiple_resources(t)
 }
 
-func test_valid_nultiple_resources(t *testing.T) {
+func test_valid_multiple_resources(t *testing.T) {
 	validationClient := &mockValidationClient{}
 	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
 		{Status: kubeconformValidator.Valid},
@@ -32,10 +33,13 @@ func test_valid_nultiple_resources(t *testing.T) {
 	}
 
 	path := "../../internal/fixtures/kube/pass-all.yaml"
+
 	valid, _, errors := k8sValidator.ValidateResources([]string{path})
+	expectedPath, _ := filepath.Abs(path)
 
 	for p := range valid {
-		assert.Equal(t, "/Users/noaabarki/Dev/datree/internal/fixtures/kube/pass-all.yaml", p)
+		assert.Equal(t, expectedPath, p)
 	}
+
 	assert.Equal(t, nil, <-errors)
 }
