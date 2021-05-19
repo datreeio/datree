@@ -344,7 +344,7 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 				headers map[string]string
 			}{
 				method: http.MethodPost,
-				uri:    "/cli/evaluate/create",
+				uri:    "/cli/evaluation/create",
 				body: &CreateEvaluationRequest{
 					CliId: "cli_id",
 					Metadata: Metadata{
