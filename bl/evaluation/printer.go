@@ -15,6 +15,10 @@ type Printer interface {
 	PrintSummaryTable(summary printer.Summary)
 }
 
+// func PrintAllResults(results *EvaluationResults /*, invalidFiles*/) {
+// 	// TODO: foreach invalid file
+// }
+
 // url := "https://app.datree.io/login?cliId=" + cliId
 func PrintResults(results *EvaluationResults, loginURL string, outputFormat string, printer Printer) error {
 	switch {
@@ -91,6 +95,11 @@ func parseToPrinterWarnings(results *EvaluationResults, pwd string) ([]printer.W
 		warnings = append(warnings, printer.Warning{
 			Title:   fmt.Sprintf(">>  File: %s\n", relativePath),
 			Details: warningDetails,
+			ValidationInfo: printer.ValidationInfo{
+				IsValid:    true,
+				ErrMsgStr:  "",
+				K8sVersion: "1.18.0",
+			},
 		})
 	}
 

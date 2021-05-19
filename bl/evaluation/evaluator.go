@@ -1,6 +1,7 @@
 package evaluation
 
 import (
+	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 )
@@ -52,10 +53,14 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string) (int, erro
 	return evaluationId, err
 }
 
-func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPaths []*string, evaluationId int) (*EvaluationResults, []*Error, error) {
+func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFiles []validation.InvalidFile, evaluationId int) (*EvaluationResults, []*Error, error) {
 	filesConfigurations, errors := e.extractFilesConfigurations(validFilesPathsChan)
 
-	if len(invalidFilesPaths) > 0 {
+	if len(invalidFiles) > 0 {
+		var invalidFilesPaths []*string
+		for _, file := range invalidFiles {
+			invalidFilesPaths = append(invalidFilesPaths, &file.Path)
+		}
 		stopEvaluation := len(validFilesPathsChan) == 0 // NOTICE: validFilesPathsChan surely closed and empty
 		err := e.cliClient.UpdateEvaluationValidation(&cliClient.UpdateEvaluationValidationRequest{
 			EvaluationId:   evaluationId,
@@ -63,7 +68,9 @@ func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPaths 
 			StopEvaluation: stopEvaluation,
 		})
 
-		return nil, errors, err
+		if stopEvaluation {
+			return nil, errors, err
+		}
 	}
 
 	if len(filesConfigurations) > 0 {

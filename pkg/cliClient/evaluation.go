@@ -87,7 +87,7 @@ func (c *CliClient) RequestEvaluation(request *EvaluationRequest) (*EvaluationRe
 type UpdateEvaluationValidationRequest struct {
 	EvaluationId   int       `json:"evaluationId"`
 	InvalidFiles   []*string `json:"failedFiles"`
-	StopEvaluation bool
+	StopEvaluation bool      `json:"stopEvaluation"`
 }
 
 func (c *CliClient) UpdateEvaluationValidation(request *UpdateEvaluationValidationRequest) error {

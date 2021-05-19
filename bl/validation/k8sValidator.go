@@ -24,55 +24,58 @@ func New(k8sVersion string) *K8sValidator {
 	}
 }
 
-func (val *K8sValidator) ValidateResources(paths []string) (chan string, []*string, chan error) {
+type InvalidFile struct {
+	Path             string
+	ValidationErrors []error
+}
+
+func (val *K8sValidator) ValidateResources(paths []string) (chan string, []InvalidFile, chan error) {
 	pathsChan := files.ToAbsolutePaths(paths)
 
-	var invalidFilesPaths = []*string{}
+	var invalidFiles []InvalidFile
 	errorChan := make(chan error)
 	validFilesPathChan := make(chan string)
 
-	go func() {
-		for path := range pathsChan {
-			isValid, err := val.validateResource(path)
-			if isValid {
-				validFilesPathChan <- path
-			} else {
-				invalidFilesPaths = append(invalidFilesPaths, &path)
-			}
-			if err != nil {
-				errorChan <- err
-			}
+	for path := range pathsChan {
+		isValid, validationErrors, err := val.validateResource(path)
+		if isValid {
+			validFilesPathChan <- path
+		} else {
+			invalidFiles = append(invalidFiles, InvalidFile{
+				Path:             path,
+				ValidationErrors: validationErrors,
+			})
 		}
-		close(validFilesPathChan)
-		close(errorChan)
-	}()
+		if err != nil {
+			errorChan <- err
+		}
+	}
+	close(validFilesPathChan)
+	close(errorChan)
 
-	return validFilesPathChan, invalidFilesPaths, errorChan
+	return validFilesPathChan, invalidFiles, errorChan
 }
 
-func (val *K8sValidator) validateResource(filepath string) (bool, error) {
+func (val *K8sValidator) validateResource(filepath string) (bool, []error, error) {
 	f, err := os.Open(filepath)
 	if err != nil {
-		return false, fmt.Errorf("failed opening %s: %s", filepath, err)
+		return false, []error{}, fmt.Errorf("failed opening %s: %s", filepath, err)
 	}
 
 	results := val.validationClient.Validate(filepath, f)
-	isValid := false
-	for i, res := range results {
-		if res.Status == kubeconformValidator.Valid {
-			isValid = true
-		}
+	isValid := true
+	var validationErrors []error
+	for _, res := range results {
+
 		// A file might contain multiple resources
 		// File starts with ---, the parser assumes a first empty resource
-		if res.Status == kubeconformValidator.Invalid {
-			fmt.Errorf("resource %d in file %s is not valid: %s", i, filepath, res.Err)
-		}
-		if res.Status == kubeconformValidator.Error {
-			fmt.Errorf("error while processing resource %d in file %s: %s", i, filepath, res.Err)
+		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
+			isValid = false
+			validationErrors = append(validationErrors, res.Err)
 		}
 	}
 
-	return isValid, nil
+	return isValid, validationErrors, nil
 }
 
 func newKubconformValidator(k8sVersion string) ValidationClient {
