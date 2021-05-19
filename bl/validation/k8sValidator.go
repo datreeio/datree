@@ -28,11 +28,11 @@ func New(k8sVersion string) *K8sValidator {
 func (val *K8sValidator) ValidateResources(paths []string) (<-chan string, []*string, <-chan error) {
 	pathsChan, _ := files.ToAbsolutePaths(paths)
 
-	errorChan := make(chan error, 100)
+	errorChan := make(chan error)
 	var invalidFilesPaths = []*string{}
-	validFilesPathChan := make(chan string, 100)
+	validFilesPathChan := make(chan string)
 
-	conc := 10
+	conc := 1
 	wg := sync.WaitGroup{}
 	wg.Add(conc)
 
@@ -55,10 +55,9 @@ func (val *K8sValidator) ValidateResources(paths []string) (<-chan string, []*st
 						invalidFilesPaths = append(invalidFilesPaths, &path)
 					}
 				}
+				wg.Done()
 			}()
-			wg.Done()
 		}
-
 		wg.Wait()
 		close(validFilesPathChan)
 		close(errorChan)
