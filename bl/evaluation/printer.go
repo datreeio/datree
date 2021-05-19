@@ -3,6 +3,7 @@ package evaluation
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/datreeio/datree/bl/validation"
 	"os"
 	"path/filepath"
 
@@ -20,14 +21,14 @@ type Printer interface {
 // }
 
 // url := "https://app.datree.io/login?cliId=" + cliId
-func PrintResults(results *EvaluationResults, loginURL string, outputFormat string, printer Printer) error {
+func PrintResults(results *EvaluationResults, invalidFiles []validation.InvalidFile, loginURL string, outputFormat string, printer Printer) error {
 	switch {
 	case outputFormat == "json":
 		return jsonOutput(results)
 	case outputFormat == "yaml":
 		return yamlOutput(results)
 	default:
-		return textOutput(results, loginURL, printer)
+		return textOutput(results, invalidFiles, loginURL, printer)
 	}
 }
 
@@ -53,13 +54,13 @@ func yamlOutput(results *EvaluationResults) error {
 	return nil
 }
 
-func textOutput(results *EvaluationResults, url string, printer Printer) error {
+func textOutput(results *EvaluationResults, invalidFiles []validation.InvalidFile, url string, printer Printer) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	warnings, err := parseToPrinterWarnings(results, pwd)
+	warnings, err := parseToPrinterWarnings(results, invalidFiles, pwd)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -76,8 +77,14 @@ func textOutput(results *EvaluationResults, url string, printer Printer) error {
 	return nil
 }
 
-func parseToPrinterWarnings(results *EvaluationResults, pwd string) ([]printer.Warning, error) {
+func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []validation.InvalidFile, pwd string) ([]printer.Warning, error) {
 	var warnings = []printer.Warning{}
+
+	var invalidFilesByPath = make(map[string]validation.InvalidFile)
+
+	for _, invalidFile := range invalidFiles {
+		invalidFilesByPath[invalidFile.Path] = invalidFile
+	}
 
 	for fileName, rules := range results.FileNameRuleMapper {
 		var warningDetails = []printer.WarningInfo{}
@@ -92,14 +99,22 @@ func parseToPrinterWarnings(results *EvaluationResults, pwd string) ([]printer.W
 		}
 
 		relativePath, _ := filepath.Rel(pwd, fileName)
+
+		validationInfo := printer.ValidationInfo{
+			IsValid:          true,
+			ValidationErrors: []error{},
+			K8sVersion:       "1.18.0",
+		}
+
+		if invalidFile, ok := invalidFilesByPath[fileName]; ok {
+			validationInfo.IsValid = false
+			validationInfo.ValidationErrors = invalidFile.ValidationErrors
+		}
+
 		warnings = append(warnings, printer.Warning{
-			Title:   fmt.Sprintf(">>  File: %s\n", relativePath),
-			Details: warningDetails,
-			ValidationInfo: printer.ValidationInfo{
-				IsValid:    true,
-				ErrMsgStr:  "",
-				K8sVersion: "1.18.0",
-			},
+			Title:          fmt.Sprintf(">>  File: %s\n", relativePath),
+			Details:        warningDetails,
+			ValidationInfo: validationInfo,
 		})
 	}
 

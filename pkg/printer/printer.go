@@ -26,9 +26,9 @@ type WarningInfo struct {
 }
 
 type ValidationInfo struct {
-	IsValid    bool
-	ErrMsgStr  string
-	K8sVersion string
+	IsValid          bool
+	ValidationErrors []error
+	K8sVersion       string
 }
 type Warning struct {
 	Title          string
@@ -40,18 +40,27 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 	for _, warning := range warnings {
 		p.printInColor(warning.Title, p.theme.Colors.Yellow)
 		fmt.Println()
+
+		if warning.ValidationInfo.IsValid != true {
+			p.printInColor("[X] Kubernetes schema validation\n", p.theme.Colors.Green)
+			for _, validationError := range warning.ValidationInfo.ValidationErrors {
+				validationError := p.theme.Colors.Red.Sprint(validationError.Error())
+				fmt.Printf("%v\n", validationError)
+			}
+		}
+
 		p.printInColor("[V] Kubernetes schema validation\n", p.theme.Colors.Green)
 		p.printInColor("[X] Policy check\n", p.theme.Colors.White)
 		fmt.Println()
 
-		for _, d := range warning.Details {
-			formattedOccurrences := fmt.Sprintf(" [%d occurrences]", d.Occurrences)
+		for _, details := range warning.Details {
+			formattedOccurrences := fmt.Sprintf(" [%d occurrences]", details.Occurrences)
 			occurrences := p.theme.Colors.White.Sprintf(formattedOccurrences)
 
-			caption := p.theme.Colors.Red.Sprint(d.Caption)
+			caption := p.theme.Colors.Red.Sprint(details.Caption)
 
 			fmt.Printf("%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
-			fmt.Printf("%v %v\n", p.theme.Emoji.Suggestion, d.Suggestion)
+			fmt.Printf("%v %v\n", p.theme.Emoji.Suggestion, details.Suggestion)
 
 			fmt.Println()
 		}
