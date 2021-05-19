@@ -33,13 +33,6 @@ func (val *K8sValidator) ValidateResources(paths []string) (chan string, []*stri
 
 	go func() {
 		for path := range pathsChan {
-			// done := false
-			// for {
-			// 	select {
-			// 	case path, ok := <-pathsChan:
-			// 		if !ok {
-			// 			done = true
-			// 		} else {
 			isValid, err := val.validateResource(path)
 			if isValid {
 				validFilesPathChan <- path
@@ -49,11 +42,6 @@ func (val *K8sValidator) ValidateResources(paths []string) (chan string, []*stri
 			if err != nil {
 				errorChan <- err
 			}
-			// 	}
-			// }
-			// if done {
-			// 	break
-			// }
 		}
 		close(validFilesPathChan)
 		close(errorChan)
