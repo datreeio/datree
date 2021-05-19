@@ -25,15 +25,23 @@ type WarningInfo struct {
 	Suggestion  string
 }
 
+type ValidationInfo struct {
+	IsValid    bool
+	ErrMsgStr  string
+	K8sVersion string
+}
 type Warning struct {
-	Title   string
-	Details []WarningInfo
+	Title          string
+	Details        []WarningInfo
+	ValidationInfo ValidationInfo
 }
 
 func (p *Printer) PrintWarnings(warnings []Warning) {
 	for _, warning := range warnings {
 		p.printInColor(warning.Title, p.theme.Colors.Yellow)
-
+		fmt.Println()
+		p.printInColor("[V] Kubernetes schema validation\n", p.theme.Colors.Green)
+		p.printInColor("[X] Policy check\n", p.theme.Colors.White)
 		fmt.Println()
 
 		for _, d := range warning.Details {

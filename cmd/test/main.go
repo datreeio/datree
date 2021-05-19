@@ -7,13 +7,14 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
+	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/spf13/cobra"
 )
 
 type Evaluator interface {
-	Evaluate(validFilesPathsChan chan string, invalidFilesPaths []*string, evaluationId int) (*evaluation.EvaluationResults, []*evaluation.Error, error)
+	Evaluate(validFilesPathsChan chan string, invalidFilesPaths []validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*evaluation.Error, error)
 	CreateEvaluation(cliId string, cliVersion string) (int, error)
 }
 
@@ -22,7 +23,7 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(paths []string) (chan string, []*string, chan error)
+	ValidateResources(paths []string) (chan string, []validation.InvalidFile, chan error)
 }
 
 type TestCommandFlags struct {
@@ -73,10 +74,10 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	messages := make(chan *messager.VersionMessage, 1)
 	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 
-	validFilesPaths, invalidFilesPaths, errorsChan := ctx.K8sValidator.ValidateResources(paths)
+	validFilesPaths, invalidFiles, errorsChan := ctx.K8sValidator.ValidateResources(paths)
 	go func() {
 		for err := range errorsChan {
-			fmt.Print(err)
+			fmt.Println(err)
 		}
 	}()
 
@@ -86,7 +87,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	results, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFilesPaths, evaluationId)
+	results, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFiles, evaluationId)
 
 	spinner.Stop()
 
