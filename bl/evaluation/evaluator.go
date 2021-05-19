@@ -52,7 +52,7 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string) (int, erro
 	return evaluationId, err
 }
 
-func (e *Evaluator) Evaluate(validFilesPathsChan <-chan string, invalidFilesPaths []*string, evaluationId int) (*EvaluationResults, []*Error, error) {
+func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPaths []*string, evaluationId int) (*EvaluationResults, []*Error, error) {
 	filesConfigurations, errors := e.extractFilesConfigurations(validFilesPathsChan)
 
 	if len(invalidFilesPaths) > 0 {
@@ -82,34 +82,24 @@ func (e *Evaluator) Evaluate(validFilesPathsChan <-chan string, invalidFilesPath
 	return nil, errors, nil
 }
 
-func (e *Evaluator) extractFilesConfigurations(filesPathsChan <-chan string) ([]*cliClient.FileConfiguration, []*Error) {
+func (e *Evaluator) extractFilesConfigurations(filesPathsChan chan string) ([]*cliClient.FileConfiguration, []*Error) {
 	var files []*cliClient.FileConfiguration
 	var errors []*Error
 
-	done := false
-	for {
-		path, ok := <-filesPathsChan
-		if !ok {
-			done = true
-		} else {
-			file, err := extractor.ExtractConfiguration(path)
-			if file != nil {
-				files = append(files, &cliClient.FileConfiguration{
-					FileName:       file.FileName,
-					Configurations: file.Configurations,
-				})
-			}
-
-			if err != nil {
-				errors = append(errors, &Error{
-					Message:  err.Message,
-					Filename: err.Filename,
-				})
-			}
+	for path := range filesPathsChan {
+		file, err := extractor.ExtractConfiguration(path)
+		if file != nil {
+			files = append(files, &cliClient.FileConfiguration{
+				FileName:       file.FileName,
+				Configurations: file.Configurations,
+			})
 		}
 
-		if done {
-			break
+		if err != nil {
+			errors = append(errors, &Error{
+				Message:  err.Message,
+				Filename: err.Filename,
+			})
 		}
 	}
 
