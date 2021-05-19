@@ -2,6 +2,7 @@ package files
 
 import (
 	"fmt"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -35,6 +36,7 @@ func TestToAbsolutePaths(t *testing.T) {
 }
 
 func test_existed_file() *toAbsolutePathsTestCase {
+	p, _ := filepath.Abs("../../internal/fixtures/kube/pass-all.yaml")
 	return &toAbsolutePathsTestCase{
 		name: "existed file, should return abs path with no errors",
 		args: struct{ paths []string }{
@@ -44,7 +46,7 @@ func test_existed_file() *toAbsolutePathsTestCase {
 			path string
 			err  error
 		}{
-			path: "/Users/noaabarki/Dev/datree/internal/fixtures/kube/pass-all.yaml",
+			path: p,
 			err:  nil,
 		},
 	}
