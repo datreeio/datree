@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/datreeio/datree/pkg/cliClient"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -14,7 +15,7 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*evaluation.Error, error)
+	Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*cliClient.FileConfiguration, []*evaluation.Error, error)
 	CreateEvaluation(cliId string, cliVersion string) (int, error)
 }
 
@@ -34,6 +35,7 @@ type EvaluationPrinter interface {
 	PrintWarnings(warnings []printer.Warning)
 	PrintSummaryTable(summary printer.Summary)
 	PrintMessage(messageText string, messageColor string)
+	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary)
 }
 type TestCommandContext struct {
 	CliVersion   string
@@ -88,7 +90,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	results, invalidFiles, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFilesPathsChan, evaluationId)
+	results, invalidFiles, filesConfigurations, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFilesPathsChan, evaluationId)
 
 	spinner.Stop()
 
@@ -105,7 +107,14 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		printEvaluationErrors(errors)
 	}
 
-	evaluation.PrintResults(results, invalidFiles, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer)
+	evaluationSummary := printer.EvaluationSummary{
+		FilesCount:                len(paths),
+		PassedYamlValidationCount: len(paths),
+		PassedK8sValidationCount:  len(filesConfigurations),
+		PassedPolicyCheckCount:    results.Summary.TotalPassedCount,
+	}
+
+	evaluation.PrintResults(results, invalidFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer)
 	msg, ok := <-messages
 	if ok {
 		ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
