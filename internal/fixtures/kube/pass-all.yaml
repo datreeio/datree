@@ -1,49 +1,3 @@
-apiVersion: v1
-kind: Deployment
-metadata:
-  name: static-web
-  namespace: test
-  labels:
-    owner: test-at-datree.io
-    role: myrole
-    env: yishay
-spec:
-  hostPID: false
-  hostIPC: false
-  hostNetwork: false
-  volumes:
-    - name: docker-sock
-      hostPath:
-        path: /var/run/docker
-  containers:
-    - name: web
-      image: aa/nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2
-      securityContext:
-        runAsUser: 10001
-      livenessProbe:
-        httpGet:
-          path: /healthz
-          port: 8080
-          httpHeaders:
-          - name: Custom-Header
-            value: Awesome
-      readinessProbe:
-        tcpSocket:
-          port: 8080
-        initialDelaySeconds: 5
-        periodSeconds: 10
-      resources:
-        requests:
-          memory: "64Mi"
-          cpu: "64m"
-        limits:
-          memory: "128Mi"
-          cpu: "500m"
-      ports:
-        - name: web
-          containerPort: 80
-          protocol: TCP
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -126,7 +80,7 @@ spec:
           ports:
             - containerPort: 88
 ---
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: ingress-wildcard-host
