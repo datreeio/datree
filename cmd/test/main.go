@@ -75,6 +75,8 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 
 	validFilesPaths, invalidFiles, errorsChan := ctx.K8sValidator.ValidateResources(paths)
+
+
 	go func() {
 		for err := range errorsChan {
 			fmt.Println(err)
@@ -104,7 +106,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		printEvaluationErrors(errors)
 	}
 
-	evaluation.PrintResults(results, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer)
+	evaluation.PrintResults(results, invalidFiles, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer)
 	msg, ok := <-messages
 	if ok {
 		ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)

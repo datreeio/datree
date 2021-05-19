@@ -36,22 +36,24 @@ func (val *K8sValidator) ValidateResources(paths []string) (chan string, []Inval
 	errorChan := make(chan error)
 	validFilesPathChan := make(chan string)
 
-	for path := range pathsChan {
-		isValid, validationErrors, err := val.validateResource(path)
-		if isValid {
-			validFilesPathChan <- path
-		} else {
-			invalidFiles = append(invalidFiles, InvalidFile{
-				Path:             path,
-				ValidationErrors: validationErrors,
-			})
+	go func() {
+		for path := range pathsChan {
+			isValid, validationErrors, err := val.validateResource(path)
+			if isValid {
+				validFilesPathChan <- path
+			} else {
+				invalidFiles = append(invalidFiles, InvalidFile{
+					Path:             path,
+					ValidationErrors: validationErrors,
+				})
+			}
+			if err != nil {
+				errorChan <- err
+			}
 		}
-		if err != nil {
-			errorChan <- err
-		}
-	}
-	close(validFilesPathChan)
-	close(errorChan)
+		close(validFilesPathChan)
+		close(errorChan)
+	}()
 
 	return validFilesPathChan, invalidFiles, errorChan
 }
