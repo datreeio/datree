@@ -14,7 +14,7 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(validFilesPathsChan chan string, invalidFilesPaths []validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*evaluation.Error, error)
+	Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*evaluation.Error, error)
 	CreateEvaluation(cliId string, cliVersion string) (int, error)
 }
 
@@ -23,7 +23,7 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(paths []string) (chan string, []validation.InvalidFile, chan error)
+	ValidateResources(paths []string) (chan string, chan *validation.InvalidFile, chan error)
 }
 
 type TestCommandFlags struct {
@@ -74,8 +74,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	messages := make(chan *messager.VersionMessage, 1)
 	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 
-	validFilesPaths, invalidFiles, errorsChan := ctx.K8sValidator.ValidateResources(paths)
-
+	validFilesPaths, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
 
 	go func() {
 		for err := range errorsChan {
@@ -89,7 +88,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	results, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFiles, evaluationId)
+	results, invalidFiles, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFilesPathsChan, evaluationId)
 
 	spinner.Stop()
 

@@ -3,9 +3,10 @@ package evaluation
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/datreeio/datree/bl/validation"
 	"os"
 	"path/filepath"
+
+	"github.com/datreeio/datree/bl/validation"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"gopkg.in/yaml.v2"
@@ -21,7 +22,7 @@ type Printer interface {
 // }
 
 // url := "https://app.datree.io/login?cliId=" + cliId
-func PrintResults(results *EvaluationResults, invalidFiles []validation.InvalidFile, loginURL string, outputFormat string, printer Printer) error {
+func PrintResults(results *EvaluationResults, invalidFiles []*validation.InvalidFile, loginURL string, outputFormat string, printer Printer) error {
 	switch {
 	case outputFormat == "json":
 		return jsonOutput(results)
@@ -54,7 +55,7 @@ func yamlOutput(results *EvaluationResults) error {
 	return nil
 }
 
-func textOutput(results *EvaluationResults, invalidFiles []validation.InvalidFile, url string, printer Printer) error {
+func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFile, url string, printer Printer) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -77,13 +78,13 @@ func textOutput(results *EvaluationResults, invalidFiles []validation.InvalidFil
 	return nil
 }
 
-func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []validation.InvalidFile, pwd string) ([]printer.Warning, error) {
+func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validation.InvalidFile, pwd string) ([]printer.Warning, error) {
 	var warnings = []printer.Warning{}
 
 	var invalidFilesByPath = make(map[string]validation.InvalidFile)
 
 	for _, invalidFile := range invalidFiles {
-		invalidFilesByPath[invalidFile.Path] = invalidFile
+		invalidFilesByPath[invalidFile.Path] = *invalidFile
 	}
 
 	for fileName, rules := range results.FileNameRuleMapper {
