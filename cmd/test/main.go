@@ -67,8 +67,8 @@ func New(ctx *TestCommandContext) *cobra.Command {
 }
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
-	// s := createSpinner(" Loading...", "cyan")
-	// s.Start()
+	spinner := createSpinner(" Loading...", "cyan")
+	spinner.Start()
 
 	messages := make(chan *messager.VersionMessage, 1)
 	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
@@ -88,7 +88,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	results, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFilesPaths, evaluationId)
 
-	// s.Stop()
+	spinner.Stop()
 
 	if err != nil {
 		fmt.Println(err.Error())
