@@ -57,18 +57,22 @@ func (val *K8sValidator) validateResource(filepath string) (bool, error) {
 	}
 
 	results := val.validationClient.Validate(filepath, f)
+	isValid := false
 	for i, res := range results {
+		if res.Status == kubeconformValidator.Valid {
+			isValid = true
+		}
 		// A file might contain multiple resources
 		// File starts with ---, the parser assumes a first empty resource
 		if res.Status == kubeconformValidator.Invalid {
-			return false, fmt.Errorf("resource %d in file %s is not valid: %s", i, filepath, res.Err)
+			fmt.Errorf("resource %d in file %s is not valid: %s", i, filepath, res.Err)
 		}
 		if res.Status == kubeconformValidator.Error {
-			return false, fmt.Errorf("error while processing resource %d in file %s: %s", i, filepath, res.Err)
+			fmt.Errorf("error while processing resource %d in file %s: %s", i, filepath, res.Err)
 		}
 	}
 
-	return true, nil
+	return isValid, nil
 }
 
 func newKubconformValidator(k8sVersion string) ValidationClient {
