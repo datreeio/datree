@@ -36,6 +36,7 @@ type printResultsTestCase struct {
 	expected error
 }
 
+// TODO: write actual tests, what is this even?
 func TestPrintResults(t *testing.T) {
 	tests := []*printResultsTestCase{}
 	for _, tt := range tests {
