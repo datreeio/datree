@@ -75,7 +75,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	}
 
 	testCommand.Flags().StringP("output", "o", "", "Define output format")
-	testCommand.Flags().StringP("k8s-version", "k", "1.18.0", "Set kubernetes version to validate against. Defaults to 1.18.0")
+	testCommand.Flags().StringP("schema-version", "s", "1.18.0", "Set kubernetes version to validate against. Defaults to 1.18.0")
 	return testCommand
 }
 
