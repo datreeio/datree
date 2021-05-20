@@ -168,55 +168,6 @@ type getFilesPathsTestCase struct {
 	}
 }
 
-func TestGetFilesPaths(t *testing.T) {
-	tests := []getFilesPathsTestCase{
-		getFilesPaths_noMatchesTestCase(),
-		getFilesPaths_withMatchesTestCase(),
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			glob := globMock{}
-			stat := statMock{}
-			abs := absMock{}
-
-			abs.On("Abs", mock.Anything).Return(tt.mock.abs.response, tt.mock.abs.err)
-			stat.On("Stat", mock.Anything).Return(tt.mock.stat.response, tt.mock.stat.err)
-
-			fileReader := &FileReader{
-				glob:     glob.Glob,
-				readFile: nil,
-				stat:     stat.Stat,
-				abs:      abs.Abs,
-			}
-
-			res, err := fileReader.GetFilesPaths(tt.args.paths)
-
-			var actualRes []string
-			for m := range res {
-				actualRes = append(actualRes, m)
-			}
-
-			var actualErrs []error
-			for e := range err {
-				actualErrs = append(actualErrs, e)
-			}
-
-			assert.Equal(t, tt.expected.response, actualRes)
-			assert.Equal(t, tt.expected.err, actualErrs)
-
-			if tt.expected.abs.isCalled {
-				abs.AssertCalled(t, "Abs", tt.expected.abs.calledWith)
-			}
-
-			if tt.expected.stat.isCalled {
-				stat.AssertCalled(t, "Stat", tt.expected.stat.calledWith)
-			}
-
-		})
-	}
-}
-
 func getFilesPaths_noMatchesTestCase() getFilesPathsTestCase {
 	return getFilesPathsTestCase{
 		name: "success no matches",
