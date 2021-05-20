@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"github.com/datreeio/datree/bl"
+	"github.com/datreeio/datree/bl/evaluation"
+	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
-	"github.com/datreeio/datree/pkg/propertiesExtractor"
 	"github.com/spf13/cobra"
 )
 
@@ -23,16 +23,18 @@ var CliVersion string
 func init() {
 	app := startup()
 
-	rootCmd.AddCommand(test.NewTestCommand(&test.TestCommandContext{
-		CliVersion:           CliVersion,
-		Evaluator:            app.Context.Evaluator,
-		LocalConfig:          app.Context.LocalConfig,
-		VersionMessageClient: app.Context.VersionMessageClient,
+	rootCmd.AddCommand(test.New(&test.TestCommandContext{
+		CliVersion:  CliVersion,
+		Evaluator:   app.context.Evaluator,
+		LocalConfig: app.context.LocalConfig,
+		Messager:    app.context.Messager,
+		Printer:     app.context.Printer,
 	}))
 
-	rootCmd.AddCommand(version.NewVersionCommand(&version.VersionCommandContext{
-		CliVersion:           CliVersion,
-		VersionMessageClient: app.Context.VersionMessageClient,
+	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
+		CliVersion: CliVersion,
+		Messager:   app.context.Messager,
+		Printer:    app.context.Printer,
 	}))
 }
 
@@ -40,34 +42,29 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
+type context struct {
+	LocalConfig *localConfig.LocalConfiguration
+	Evaluator   *evaluation.Evaluator
+	CliClient   *cliClient.CliClient
+	Messager    *messager.Messager
+	Printer     *printer.Printer
+}
 type app struct {
-	Context struct {
-		LocalConfig          *localConfig.LocalConfiguration
-		Evaluator            *bl.Evaluator
-		CliClient            *cliClient.CliClient
-		VersionMessageClient cliClient.VersionMessageClient
-	}
+	context *context
 }
 
 func startup() *app {
-	app := &app{
-		Context: struct {
-			LocalConfig          *localConfig.LocalConfiguration
-			Evaluator            *bl.Evaluator
-			CliClient            *cliClient.CliClient
-			VersionMessageClient cliClient.VersionMessageClient
-		}{},
-	}
-
-	client := cliClient.NewCliClient(deploymentConfig.URL)
-	versionMessageClient := cliClient.NewVersionMessageClient(deploymentConfig.URL)
-	extractor := propertiesExtractor.NewPropertiesExtractor(nil)
+	config, _ := localConfig.GetLocalConfiguration()
+	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
 	printer := printer.CreateNewPrinter()
-	evaluator := bl.CreateNewEvaluator(extractor, client, printer)
 
-	app.Context.LocalConfig = &localConfig.LocalConfiguration{}
-	app.Context.Evaluator = evaluator
-	app.Context.VersionMessageClient = versionMessageClient
-
-	return app
+	return &app{
+		context: &context{
+			LocalConfig: config,
+			Evaluator:   evaluation.New(cliClient),
+			CliClient:   cliClient,
+			Messager:    messager.New(cliClient),
+			Printer:     printer,
+		},
+	}
 }
