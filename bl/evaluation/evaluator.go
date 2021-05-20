@@ -55,7 +55,7 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion
 	return evaluationId, err
 }
 
-func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile, evaluationId int) (*EvaluationResults, []*validation.InvalidFile, []*cliClient.FileConfiguration, []*Error, error) {
+func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile, evaluationId int) (*EvaluationResults, []*validation.InvalidFile, []*extractor.FileConfiguration, []*Error, error) {
 	filesConfigurations, invalidFiles, errors := e.extractFilesConfigurations(validFilesPathsChan, invalidFilesPathsChan)
 
 	invalidFilesPaths := []*string{}
@@ -92,9 +92,9 @@ func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsC
 	return nil, invalidFiles, filesConfigurations, errors, nil
 }
 
-func (e *Evaluator) extractFilesConfigurations(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile) ([]*cliClient.FileConfiguration, []*validation.InvalidFile, []*Error) {
+func (e *Evaluator) extractFilesConfigurations(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile) ([]*extractor.FileConfiguration, []*validation.InvalidFile, []*Error) {
 	invalidFiles := []*validation.InvalidFile{}
-	var files []*cliClient.FileConfiguration
+	var files []*extractor.FileConfiguration
 	var errors []*Error
 
 	readFromValidDone := false
@@ -107,7 +107,7 @@ func (e *Evaluator) extractFilesConfigurations(validFilesPathsChan chan string, 
 			} else {
 				file, err := extractor.ExtractConfiguration(path)
 				if file != nil {
-					files = append(files, &cliClient.FileConfiguration{
+					files = append(files, &extractor.FileConfiguration{
 						FileName:       file.FileName,
 						Configurations: file.Configurations,
 					})
