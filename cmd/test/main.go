@@ -60,7 +60,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			k8sVersion, err := cmd.Flags().GetString("k8s-version")
+			k8sVersion, err := cmd.Flags().GetString("schema-version")
 			if err != nil {
 				fmt.Println(err)
 				return err
