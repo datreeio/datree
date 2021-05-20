@@ -104,7 +104,7 @@ func (p *Printer) PrintEvaluationSummary(summary EvaluationSummary) {
 
 	fmt.Printf("- Passing YAML validation: %v/%v\n", summary.PassedYamlValidationCount, summary.FilesCount)
 	fmt.Println()
-	fmt.Printf("- Passing Kubernetes (1.18) schema validation:: %v/%v\n", summary.PassedK8sValidationCount, summary.FilesCount)
+	fmt.Printf("- Passing Kubernetes (1.18) schema validation: %v/%v\n", summary.PassedK8sValidationCount, summary.FilesCount)
 	fmt.Println()
 	fmt.Printf("- Passing policy check: %v/%v\n", summary.PassedPolicyCheckCount, summary.FilesCount)
 	fmt.Println()
