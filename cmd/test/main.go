@@ -99,19 +99,20 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	if results == nil {
-		return fmt.Errorf("no response received")
-	}
-
 	if len(errors) > 0 {
 		printEvaluationErrors(errors)
+	}
+
+	passedPolicyCheckCount := 0
+	if results != nil {
+		passedPolicyCheckCount = results.Summary.TotalPassedCount
 	}
 
 	evaluationSummary := printer.EvaluationSummary{
 		FilesCount:                len(paths),
 		PassedYamlValidationCount: len(paths),
 		PassedK8sValidationCount:  len(filesConfigurations),
-		PassedPolicyCheckCount:    results.Summary.TotalPassedCount,
+		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
 	evaluation.PrintResults(results, invalidFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer)
