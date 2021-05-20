@@ -2,8 +2,9 @@ package test
 
 import (
 	"fmt"
-	"github.com/datreeio/datree/pkg/cliClient"
 	"time"
+
+	"github.com/datreeio/datree/pkg/cliClient"
 
 	"github.com/briandowns/spinner"
 	"github.com/datreeio/datree/bl/evaluation"
@@ -16,7 +17,7 @@ import (
 
 type Evaluator interface {
 	Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*cliClient.FileConfiguration, []*evaluation.Error, error)
-	CreateEvaluation(cliId string, cliVersion string) (int, error)
+	CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (int, error)
 }
 
 type Messager interface {
@@ -28,7 +29,8 @@ type K8sValidator interface {
 }
 
 type TestCommandFlags struct {
-	Output string
+	Output     string
+	K8sVersion string
 }
 
 type EvaluationPrinter interface {
@@ -58,7 +60,14 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			testCommandFlags := TestCommandFlags{Output: outputFlag}
+			k8sVersion, err := cmd.Flags().GetString("k8s-version")
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+
+			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion}
+			ctx.K8sValidator = validation.New(k8sVersion)
 			return test(ctx, args, testCommandFlags)
 		},
 		SilenceUsage:  true,
@@ -66,6 +75,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	}
 
 	testCommand.Flags().StringP("output", "o", "", "Define output format")
+	testCommand.Flags().StringP("schema-version", "s", "1.18.0", "Set kubernetes version to validate against. Defaults to 1.18.0")
 	return testCommand
 }
 
@@ -76,19 +86,18 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	messages := make(chan *messager.VersionMessage, 1)
 	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 
-	validFilesPaths, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
+	evaluationId, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion, flags.K8sVersion)
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
 
+	validFilesPaths, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
 	go func() {
 		for err := range errorsChan {
 			fmt.Println(err)
 		}
 	}()
-
-	evaluationId, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion)
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
 
 	results, invalidFiles, filesConfigurations, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFilesPathsChan, evaluationId)
 

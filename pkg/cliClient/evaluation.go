@@ -13,8 +13,9 @@ type Metadata struct {
 }
 
 type CreateEvaluationRequest struct {
-	CliId    string    `json:"cliId"`
-	Metadata *Metadata `json:"metadata"`
+	CliId      string    `json:"cliId"`
+	Metadata   *Metadata `json:"metadata"`
+	K8sVersion string    `json:"k8sVersion"`
 }
 
 func (c *CliClient) CreateEvaluation(request *CreateEvaluationRequest) (int, error) {

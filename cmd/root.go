@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
-	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -25,12 +24,11 @@ func init() {
 	app := startup()
 
 	rootCmd.AddCommand(test.New(&test.TestCommandContext{
-		CliVersion:   CliVersion,
-		Evaluator:    app.context.Evaluator,
-		LocalConfig:  app.context.LocalConfig,
-		Messager:     app.context.Messager,
-		K8sValidator: app.context.Validator,
-		Printer:      app.context.Printer,
+		CliVersion:  CliVersion,
+		Evaluator:   app.context.Evaluator,
+		LocalConfig: app.context.LocalConfig,
+		Messager:    app.context.Messager,
+		Printer:     app.context.Printer,
 	}))
 
 	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
@@ -49,7 +47,6 @@ type context struct {
 	Evaluator   *evaluation.Evaluator
 	CliClient   *cliClient.CliClient
 	Messager    *messager.Messager
-	Validator   *validation.K8sValidator
 	Printer     *printer.Printer
 }
 type app struct {
@@ -67,7 +64,6 @@ func startup() *app {
 			Evaluator:   evaluation.New(cliClient),
 			CliClient:   cliClient,
 			Messager:    messager.New(cliClient),
-			Validator:   validation.New("1.18.0"),
 			Printer:     printer,
 		},
 	}
