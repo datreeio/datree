@@ -18,15 +18,17 @@ type CreateEvaluationRequest struct {
 	K8sVersion string    `json:"k8sVersion"`
 }
 
+type CreateEvaluationResponse struct {
+	EvaluationId int `json:"evaluationId"`
+}
+
 func (c *CliClient) CreateEvaluation(request *CreateEvaluationRequest) (int, error) {
 	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/create", request, nil)
 	if err != nil {
 		return 0, err
 	}
 
-	var res = &struct {
-		EvaluationId int `json:"evaluationId"`
-	}{}
+	var res = &CreateEvaluationResponse{}
 	err = json.Unmarshal(httpRes.Body, &res)
 	if err != nil {
 		return 0, err
