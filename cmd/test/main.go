@@ -101,14 +101,14 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	validFilesPaths, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(filePaths)
+	validFilesPaths, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
 	go func() {
 		for err := range errorsChan {
 			fmt.Println(err)
 		}
 	}()
 
-	results, invalidFiles, filesConfigurations, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFilesPathsChan, evaluationId)
+	results, invalidFiles, filesConfigurations, errors, err := ctx.Evaluator.Evaluate(validFilesPathsChan, invalidFilesPathsChan, evaluationId)
 
 	spinner.Stop()
 
@@ -141,6 +141,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	return err
 }
+
 
 func createSpinner(text string, color string) *spinner.Spinner {
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
