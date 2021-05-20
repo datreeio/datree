@@ -40,9 +40,10 @@ type Error struct {
 	Filename string
 }
 
-func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string) (int, error) {
+func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (int, error) {
 	evaluationId, err := e.cliClient.CreateEvaluation(&cliClient.CreateEvaluationRequest{
-		CliId: cliId,
+		K8sVersion: k8sVersion,
+		CliId:      cliId,
 		Metadata: &cliClient.Metadata{
 			CliVersion:      cliVersion,
 			Os:              e.osInfo.OS,

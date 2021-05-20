@@ -4,6 +4,9 @@ run:
 test:
 	go test ./...
 
+build:
+	go build -tags staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go
+
 create-bin:
 	goreleaser --snapshot --skip-publish --rm-dist
 
