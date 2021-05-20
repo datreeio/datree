@@ -56,7 +56,7 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion
 }
 
 func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile, evaluationId int) (*EvaluationResults, []*validation.InvalidFile, []*extractor.FileConfiguration, []*Error, error) {
-	filesConfigurations, invalidFiles, errors := e.extractFilesConfigurations(validFilesPathsChan, invalidFilesPathsChan)
+	filesConfigurations, invalidFiles, extractionErrors := e.extractFilesConfigurations(validFilesPathsChan, invalidFilesPathsChan)
 
 	invalidFilesPaths := []*string{}
 	for _, file := range invalidFiles {
@@ -72,7 +72,7 @@ func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsC
 		})
 
 		if stopEvaluation {
-			return nil, invalidFiles, filesConfigurations, errors, err
+			return nil, invalidFiles, filesConfigurations, extractionErrors, err
 		}
 	}
 
@@ -82,14 +82,14 @@ func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsC
 			Files:        filesConfigurations,
 		})
 		if err != nil {
-			return nil, invalidFiles, filesConfigurations, errors, err
+			return nil, invalidFiles, filesConfigurations, extractionErrors, err
 		}
 
 		results := e.formatEvaluationResults(res.Results, len(filesConfigurations))
-		return results, invalidFiles, filesConfigurations, errors, nil
+		return results, invalidFiles, filesConfigurations, extractionErrors, nil
 	}
 
-	return nil, invalidFiles, filesConfigurations, errors, nil
+	return nil, invalidFiles, filesConfigurations, extractionErrors, nil
 }
 
 func (e *Evaluator) extractFilesConfigurations(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile) ([]*extractor.FileConfiguration, []*validation.InvalidFile, []*Error) {
