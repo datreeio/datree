@@ -3,10 +3,9 @@ package evaluation
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/datreeio/datree/bl/validation"
 	"os"
 	"path/filepath"
-
-	"github.com/datreeio/datree/bl/validation"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"gopkg.in/yaml.v2"
@@ -70,15 +69,12 @@ func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFi
 
 	printer.PrintWarnings(warnings)
 
-	summary := parseEvaluationResultsToSummary(results, url)
+	summary := parseEvaluationResultsToSummary(results, evaluationSummary, url)
 
 	printer.PrintEvaluationSummary(evaluationSummary)
 
 	printer.PrintSummaryTable(summary)
 
-	if results.Summary.TotalFailedRules > 0 {
-		return fmt.Errorf("failed rules count is %d (>0)", results.Summary.TotalFailedRules)
-	}
 	return nil
 }
 
@@ -97,29 +93,31 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validati
 		})
 	}
 
-	for fileName, rules := range results.FileNameRuleMapper {
-		var warningDetails = []printer.WarningInfo{}
-		for _, rule := range rules {
-			details := printer.WarningInfo{
-				Caption:     rule.Name,
-				Occurrences: rule.Count,
-				Suggestion:  rule.FailSuggestion,
+	if results != nil {
+		for fileName, rules := range results.FileNameRuleMapper {
+			var warningDetails = []printer.WarningInfo{}
+			for _, rule := range rules {
+				details := printer.WarningInfo{
+					Caption:     rule.Name,
+					Occurrences: rule.Count,
+					Suggestion:  rule.FailSuggestion,
+				}
+
+				warningDetails = append(warningDetails, details)
 			}
 
-			warningDetails = append(warningDetails, details)
+			relativePath, _ := filepath.Rel(pwd, fileName)
+
+			warnings = append(warnings, printer.Warning{
+				Title:   fmt.Sprintf(">>  File: %s\n", relativePath),
+				Details: warningDetails,
+				ValidationInfo: printer.ValidationInfo{
+					IsValid:          true,
+					ValidationErrors: []error{},
+					K8sVersion:       "1.18.0",
+				},
+			})
 		}
-
-		relativePath, _ := filepath.Rel(pwd, fileName)
-
-		warnings = append(warnings, printer.Warning{
-			Title:   fmt.Sprintf(">>  File: %s\n", relativePath),
-			Details: warningDetails,
-			ValidationInfo: printer.ValidationInfo{
-				IsValid:          true,
-				ValidationErrors: []error{},
-				K8sVersion:       "1.18.0",
-			},
-		})
 	}
 
 	return warnings, nil
@@ -145,17 +143,29 @@ func (t OutputTitle) String() string {
 		"Total rules passed",
 		"Total rules failed"}[t]
 }
-func parseEvaluationResultsToSummary(results *EvaluationResults, loginURL string) printer.Summary {
-	totalRulesEvaluated := results.Summary.RulesCount * results.Summary.FilesCount
+func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSummary printer.EvaluationSummary, loginURL string) printer.Summary {
+	filesCount := evaluationSummary.FilesCount
+	rulesCount := 21
+	totalRulesEvaluated := 0
+	totalFailedRules := 0
+	totalPassedRules := 0
+
+	if results != nil {
+		rulesCount = results.Summary.RulesCount
+		totalRulesEvaluated = results.Summary.RulesCount * results.Summary.FilesCount
+		totalFailedRules = results.Summary.TotalFailedRules
+		totalPassedRules = totalRulesEvaluated - totalFailedRules
+	}
+
 	plainRows := []printer.SummaryItem{
-		{LeftCol: EnabledRules.String(), RightCol: fmt.Sprint(results.Summary.RulesCount), RowIndex: 0},
-		{LeftCol: EvaluatedConfigurations.String(), RightCol: fmt.Sprint(results.Summary.FilesCount), RowIndex: 1},
+		{LeftCol: EnabledRules.String(), RightCol: fmt.Sprint(rulesCount), RowIndex: 0},
+		{LeftCol: EvaluatedConfigurations.String(), RightCol: fmt.Sprint(filesCount), RowIndex: 1},
 		{LeftCol: TotalRulesEvaluated.String(), RightCol: fmt.Sprint(totalRulesEvaluated), RowIndex: 2},
 		{LeftCol: SeeAll.String(), RightCol: loginURL, RowIndex: 5},
 	}
 
-	successRow := printer.SummaryItem{LeftCol: TotalRulesPassed.String(), RightCol: fmt.Sprint(totalRulesEvaluated - results.Summary.TotalFailedRules), RowIndex: 4}
-	errorRow := printer.SummaryItem{LeftCol: TotalRulesFailed.String(), RightCol: fmt.Sprint(results.Summary.TotalFailedRules), RowIndex: 3}
+	successRow := printer.SummaryItem{LeftCol: TotalRulesPassed.String(), RightCol: fmt.Sprint(totalPassedRules), RowIndex: 4}
+	errorRow := printer.SummaryItem{LeftCol: TotalRulesFailed.String(), RightCol: fmt.Sprint(totalFailedRules), RowIndex: 3}
 
 	summary := &printer.Summary{
 		ErrorRow:   errorRow,
