@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/fileReader"
 
 	"github.com/briandowns/spinner"
 	"github.com/datreeio/datree/bl/evaluation"
@@ -46,6 +47,7 @@ type TestCommandContext struct {
 	Messager     Messager
 	K8sValidator K8sValidator
 	Printer      EvaluationPrinter
+	Reader       *fileReader.FileReader
 }
 
 func New(ctx *TestCommandContext) *cobra.Command {
@@ -80,6 +82,13 @@ func New(ctx *TestCommandContext) *cobra.Command {
 }
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
+	filePaths := ctx.Reader.FilterFiles(paths)
+	if len(filePaths) == 0 {
+		noFilesErr := fmt.Errorf("No files detected")
+		fmt.Println(noFilesErr.Error())
+		return noFilesErr
+	}
+
 	spinner := createSpinner(" Loading...", "cyan")
 	spinner.Start()
 
@@ -92,7 +101,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	validFilesPaths, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
+	validFilesPaths, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(filePaths)
 	go func() {
 		for err := range errorsChan {
 			fmt.Println(err)
