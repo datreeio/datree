@@ -2,10 +2,8 @@ package test
 
 import (
 	"fmt"
+	"github.com/datreeio/datree/pkg/extractor"
 	"time"
-
-	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/fileReader"
 
 	"github.com/briandowns/spinner"
 	"github.com/datreeio/datree/bl/evaluation"
@@ -17,7 +15,7 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*cliClient.FileConfiguration, []*evaluation.Error, error)
+	Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*extractor.FileConfiguration, []*evaluation.Error, error)
 	CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (int, error)
 }
 
@@ -40,6 +38,11 @@ type EvaluationPrinter interface {
 	PrintMessage(messageText string, messageColor string)
 	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary)
 }
+
+type Reader interface {
+	FilterFiles(paths []string) []string
+}
+
 type TestCommandContext struct {
 	CliVersion   string
 	LocalConfig  *localConfig.LocalConfiguration
@@ -47,7 +50,7 @@ type TestCommandContext struct {
 	Messager     Messager
 	K8sValidator K8sValidator
 	Printer      EvaluationPrinter
-	Reader       *fileReader.FileReader
+	Reader       Reader
 }
 
 func New(ctx *TestCommandContext) *cobra.Command {
@@ -108,14 +111,14 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	validFilesPaths, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(filePaths)
+	validFilesPathsChan, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
 	go func() {
 		for err := range errorsChan {
 			fmt.Println(err)
 		}
 	}()
 
-	results, invalidFiles, filesConfigurations, errors, err := ctx.Evaluator.Evaluate(validFilesPaths, invalidFilesPathsChan, evaluationId)
+	results, invalidFiles, filesConfigurations, errors, err := ctx.Evaluator.Evaluate(validFilesPathsChan, invalidFilesPathsChan, evaluationId)
 
 	spinner.Stop()
 

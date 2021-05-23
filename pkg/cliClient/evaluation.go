@@ -2,6 +2,7 @@ package cliClient
 
 import (
 	"encoding/json"
+	"github.com/datreeio/datree/pkg/extractor"
 	"net/http"
 )
 
@@ -62,14 +63,9 @@ type EvaluationResponse struct {
 	Status  string              `json:"status"`
 }
 
-type FileConfiguration struct {
-	FileName       string                   `json:"fileName"`
-	Configurations []map[string]interface{} `json:"configurations"`
-}
-
 type EvaluationRequest struct {
-	EvaluationId int                  `json:"evaluationId"`
-	Files        []*FileConfiguration `json:"files"`
+	EvaluationId int                            `json:"evaluationId"`
+	Files        []*extractor.FileConfiguration `json:"files"`
 }
 
 func (c *CliClient) RequestEvaluation(request *EvaluationRequest) (*EvaluationResponse, error) {

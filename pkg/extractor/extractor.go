@@ -12,9 +12,11 @@ type FileReader interface {
 	ReadFileContent(filepath string) (string, error)
 }
 
+type K8sConfiguration map[string]interface{}
+
 type FileConfiguration struct {
-	FileName       string
-	Configurations []map[string]interface{}
+	FileName       string             `json:"fileName"`
+	Configurations []K8sConfiguration `json:"configurations"`
 }
 
 type Error struct {
@@ -40,8 +42,8 @@ func ExtractConfiguration(path string) (*FileConfiguration, *Error) {
 	}
 }
 
-func yamlToK8sConfigurations(content string) (*[]map[string]interface{}, error) {
-	var configurations []map[string]interface{}
+func yamlToK8sConfigurations(content string) (*[]K8sConfiguration, error) {
+	var configurations []K8sConfiguration
 
 	yamlDecoder := yaml.NewDecoder(bytes.NewReader([]byte(content)))
 
