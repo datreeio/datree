@@ -13,7 +13,7 @@ type LocalConfiguration struct {
 	CliId string
 }
 
-func (l *LocalConfiguration) GetConfiguration() (LocalConfiguration, error) {
+func GetLocalConfiguration() (*LocalConfiguration, error) {
 	viper.SetEnvPrefix("datree")
 	viper.AutomaticEnv()
 	token := viper.GetString("token")
@@ -21,7 +21,7 @@ func (l *LocalConfiguration) GetConfiguration() (LocalConfiguration, error) {
 	if token == "" {
 		usr, err := user.Current()
 		if err != nil {
-			return LocalConfiguration{}, err
+			return &LocalConfiguration{}, err
 		}
 
 		homedir := usr.HomeDir
@@ -58,5 +58,5 @@ func (l *LocalConfiguration) GetConfiguration() (LocalConfiguration, error) {
 		}
 	}
 
-	return LocalConfiguration{CliId: token}, nil
+	return &LocalConfiguration{CliId: token}, nil
 }

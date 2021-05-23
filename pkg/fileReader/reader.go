@@ -56,6 +56,20 @@ func CreateFileReader(opts *FileReaderOptions) *FileReader {
 	return fileReader
 }
 
+func (fr *FileReader) FilterFiles(paths []string) []string {
+	var filePaths []string
+
+	for _, path := range paths {
+		stat, _ := fr.stat(path)
+
+		if !stat.IsDir() {
+			filePaths = append(filePaths, path)
+		}
+	}
+
+	return filePaths
+}
+
 func (fr *FileReader) ReadFileContent(filepath string) (string, error) {
 	dat, err := fr.readFile(filepath)
 	if err != nil {
@@ -63,47 +77,4 @@ func (fr *FileReader) ReadFileContent(filepath string) (string, error) {
 	}
 
 	return string(dat), nil
-}
-
-func (fr *FileReader) GetFilesPaths(paths []string) (chan string, chan error) {
-	errorChan := make(chan error, 100)
-	filePathsChan := make(chan string, 100)
-
-	go func() {
-		var err error
-
-	iterateMatches:
-		for {
-			if err != nil {
-				errorChan <- err
-				break iterateMatches
-			}
-
-			for _, match := range paths {
-				file, err := fr.stat(match)
-				if err != nil {
-					errorChan <- err
-					continue
-				}
-
-				if !file.IsDir() {
-					absolutePath, err := fr.abs(match)
-					if err != nil {
-						errorChan <- err
-						continue
-					} else {
-						filePathsChan <- absolutePath
-					}
-
-				}
-			}
-
-			break
-		}
-
-		close(filePathsChan)
-		close(errorChan)
-	}()
-
-	return filePathsChan, errorChan
 }

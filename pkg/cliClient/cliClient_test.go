@@ -1,14 +1,16 @@
 package cliClient
 
 import (
+	"bytes"
 	"encoding/json"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/httpClient"
-	extractor "github.com/datreeio/datree/pkg/propertiesExtractor"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -21,6 +23,10 @@ func (c *mockHTTPClient) Request(method string, resourceURI string, body interfa
 	args := c.Called(method, resourceURI, body, headers)
 
 	return args.Get(0).(httpClient.Response), args.Error(1)
+}
+
+func (c *mockHTTPClient) name()  {
+
 }
 
 type RequestEvaluationTestCase struct {
@@ -107,10 +113,10 @@ func TestRequestEvaluation(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			res, _ := client.RequestEvaluation(*tt.args.evaluationRequest)
+			res, _ := client.RequestEvaluation(tt.args.evaluationRequest)
 
-			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, *tt.expected.request.body, tt.expected.request.headers)
-			assert.Equal(t, *tt.expected.response, res)
+			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
+			assert.Equal(t, tt.expected.response, res)
 
 		})
 	}
@@ -134,9 +140,9 @@ func TestCreateRequestEvaluation(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			actualEvaluationId, _ := client.CreateEvaluation(*tt.args.createEvaluationRequest)
+			actualEvaluationId, _ := client.CreateEvaluation(tt.args.createEvaluationRequest)
 
-			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, *tt.expected.request.body, tt.expected.request.headers)
+			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.response.EvaluationId, actualEvaluationId)
 
 		})
@@ -155,12 +161,13 @@ func TestGetVersionMessage(t *testing.T) {
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
 			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
 
-			client := &VersionMessageClient{
+
+			client := &CliClient{
 				baseUrl:    "http://cli-service.test.io",
-				httpClient: &httpClientMock,
+				timeoutClient: &httpClientMock,
 			}
 
-			res, _ := client.GetVersionMessage(tt.args.cliVersion)
+			res, _ := client.GetVersionMessage(tt.args.cliVersion, 1000)
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.response, res)
 
@@ -168,43 +175,40 @@ func TestGetVersionMessage(t *testing.T) {
 	}
 }
 
-func readMock(path string, data interface{}) error {
+func readMock(path string) ([]extractor.K8sConfiguration, error) {
+	var configurations []extractor.K8sConfiguration
+
 	absPath, _ := filepath.Abs(path)
-	f, err := ioutil.ReadFile(absPath)
+	content, err := ioutil.ReadFile(absPath)
 
 	if err != nil {
-		return err
+		return []extractor.K8sConfiguration{}, err
 	}
 
-	err = json.Unmarshal(f, data)
-	if err != nil {
-		return err
+	yamlDecoder := yaml.NewDecoder(bytes.NewReader(content))
+
+	for {
+		var doc = map[string]interface{}{}
+		err = yamlDecoder.Decode(&doc)
+		if err != nil {
+			break
+		}
+		configurations = append(configurations, doc)
 	}
-	return nil
+
+	return configurations, nil
 }
 
-func castPropertiesMock(fileName string, path string) []extractor.FileProperties {
-	var fileProperties map[string]interface{}
-	_ = readMock(path, &fileProperties)
+func castPropertiesMock(fileName string, path string) []*extractor.FileConfiguration {
+	configurations, _ := readMock(path)
 
-	properties := []extractor.FileProperties{
+	properties := []*extractor.FileConfiguration{
 		{
 			FileName:       fileName,
-			Configurations: []extractor.K8sConfiguration{fileProperties},
+			Configurations: configurations,
 		}}
 
 	return properties
-}
-
-func castPropertiesPointersMock(fileName string, path string) []*extractor.FileProperties {
-	var filesProperties []*extractor.FileProperties
-	props := castPropertiesMock("service_mock", "mocks/service_mock.yaml")
-	for _, p := range props {
-		filesProperties = append(filesProperties, &p)
-	}
-
-	return filesProperties
-
 }
 
 func test_getVersionMessage_success() *GetVersionMessageTestCase {
@@ -315,7 +319,7 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 		}{
 			createEvaluationRequest: &CreateEvaluationRequest{
 				CliId: "cli_id",
-				Metadata: Metadata{
+				Metadata: &Metadata{
 					CliVersion:      "0.0.1",
 					Os:              "darwin",
 					PlatformVersion: "1.2.3",
@@ -358,7 +362,7 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 				uri:    "/cli/evaluation/create",
 				body: &CreateEvaluationRequest{
 					CliId: "cli_id",
-					Metadata: Metadata{
+					Metadata: &Metadata{
 						CliVersion:      "0.0.1",
 						Os:              "darwin",
 						PlatformVersion: "1.2.3",

@@ -2,37 +2,58 @@ package test
 
 import (
 	"fmt"
+	"github.com/datreeio/datree/pkg/extractor"
 	"time"
 
 	"github.com/briandowns/spinner"
-	"github.com/datreeio/datree/bl"
+	"github.com/datreeio/datree/bl/evaluation"
+	"github.com/datreeio/datree/bl/messager"
+	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/localConfig"
-	"github.com/datreeio/datree/pkg/propertiesExtractor"
+	"github.com/datreeio/datree/pkg/printer"
 	"github.com/spf13/cobra"
 )
 
-type LocalConfigManager interface {
-	GetConfiguration() (localConfig.LocalConfiguration, error)
-}
-
 type Evaluator interface {
-	PrintResults(results *bl.EvaluationResults, cliId string, output string) error
-	PrintFileParsingErrors(errors []propertiesExtractor.FileError)
-	Evaluate(paths []string, cliId string, evaluationConc int, cliVersion string) (*bl.EvaluationResults, []propertiesExtractor.FileError, error)
+	Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*extractor.FileConfiguration, []*evaluation.Error, error)
+	CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (int, error)
 }
 
-type TestCommandContext struct {
-	CliVersion           string
-	LocalConfig          LocalConfigManager
-	Evaluator            Evaluator
-	VersionMessageClient bl.VersionMessageClient
+type Messager interface {
+	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
+}
+
+type K8sValidator interface {
+	ValidateResources(paths []string) (chan string, chan *validation.InvalidFile, chan error)
 }
 
 type TestCommandFlags struct {
-	Output string
+	Output     string
+	K8sVersion string
 }
 
-func NewTestCommand(ctx *TestCommandContext) *cobra.Command {
+type EvaluationPrinter interface {
+	PrintWarnings(warnings []printer.Warning)
+	PrintSummaryTable(summary printer.Summary)
+	PrintMessage(messageText string, messageColor string)
+	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary)
+}
+
+type Reader interface {
+	FilterFiles(paths []string) []string
+}
+
+type TestCommandContext struct {
+	CliVersion   string
+	LocalConfig  *localConfig.LocalConfiguration
+	Evaluator    Evaluator
+	Messager     Messager
+	K8sValidator K8sValidator
+	Printer      EvaluationPrinter
+	Reader       Reader
+}
+
+func New(ctx *TestCommandContext) *cobra.Command {
 	testCommand := &cobra.Command{
 		Use:   "test",
 		Short: "Execute static analysis for pattern",
@@ -44,7 +65,14 @@ func NewTestCommand(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			testCommandFlags := TestCommandFlags{Output: outputFlag}
+			k8sVersion, err := cmd.Flags().GetString("schema-version")
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+
+			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion}
+			ctx.K8sValidator = validation.New(k8sVersion)
 			return test(ctx, args, testCommandFlags)
 		},
 		SilenceUsage:  true,
@@ -52,42 +80,87 @@ func NewTestCommand(ctx *TestCommandContext) *cobra.Command {
 	}
 
 	testCommand.Flags().StringP("output", "o", "", "Define output format")
+	testCommand.Flags().StringP("schema-version", "s", "1.18.0", "Set kubernetes version to validate against. Defaults to 1.18.0")
 	return testCommand
 }
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
-
-	s.Suffix = " Loading..."
-	s.Color("cyan")
-	s.Start()
-
-	messageChannel := bl.PopulateVersionMessageChan(ctx.VersionMessageClient, ctx.CliVersion)
-
-	config, err := ctx.LocalConfig.GetConfiguration()
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
-
-	evaluationResponse, fileParsingErrors, err := ctx.Evaluator.Evaluate(paths, config.CliId, 50, ctx.CliVersion)
-	s.Stop()
-
-	if err != nil {
-		if len(fileParsingErrors) > 0 {
-			ctx.Evaluator.PrintFileParsingErrors(fileParsingErrors)
+	messages := make(chan *messager.VersionMessage, 1)
+	defer func() {
+		msg, ok := <-messages
+		if ok {
+			ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
 		}
+	}()
+
+	filePaths := ctx.Reader.FilterFiles(paths)
+	if len(filePaths) == 0 {
+		noFilesErr := fmt.Errorf("No files detected")
+		fmt.Println(noFilesErr.Error())
+		return noFilesErr
+	}
+
+	spinner := createSpinner(" Loading...", "cyan")
+	spinner.Start()
+
+	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
+
+	evaluationId, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion, flags.K8sVersion)
+	if err != nil {
 		fmt.Println(err.Error())
 		return err
 	}
 
-	if evaluationResponse == nil {
-		err := fmt.Errorf("no response received")
-		return err
+	validFilesPathsChan, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
+	go func() {
+		for err := range errorsChan {
+			fmt.Println(err)
+		}
+	}()
+
+	results, invalidFiles, filesConfigurations, errors, err := ctx.Evaluator.Evaluate(validFilesPathsChan, invalidFilesPathsChan, evaluationId)
+
+	spinner.Stop()
+
+	passedPolicyCheckCount := 0
+	if results != nil {
+		passedPolicyCheckCount = results.Summary.TotalPassedCount
 	}
 
-	err = ctx.Evaluator.PrintResults(evaluationResponse, config.CliId, flags.Output)
-	bl.HandleVersionMessage(messageChannel)
+	evaluationSummary := printer.EvaluationSummary{
+		FilesCount:                len(paths),
+		PassedYamlValidationCount: len(paths),
+		PassedK8sValidationCount:  len(filesConfigurations),
+		PassedPolicyCheckCount:    passedPolicyCheckCount,
+	}
 
-	return err
+	err = evaluation.PrintResults(results, invalidFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer)
+
+	var invocationFailedErr error = nil
+
+	if err != nil {
+		fmt.Println(err.Error())
+		invocationFailedErr = err
+	} else if len(errors) > 0 {
+		printEvaluationErrors(errors)
+		invocationFailedErr = fmt.Errorf("Invocation failed")
+	} else if len(invalidFiles) > 0 || results.Summary.TotalFailedRules > 0 {
+		invocationFailedErr = fmt.Errorf("Invocation failed")
+	}
+
+	return invocationFailedErr
+}
+
+func createSpinner(text string, color string) *spinner.Spinner {
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+	s.Suffix = text
+	s.Color(color)
+	return s
+}
+
+func printEvaluationErrors(errors []*evaluation.Error) {
+	fmt.Println("The following files failed:")
+	for _, fileError := range errors {
+		fmt.Printf("\n\tFilename: %s\n\tError: %s\n\t---------------------", fileError.Filename, fileError.Message)
+	}
 }
