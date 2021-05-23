@@ -3,9 +3,10 @@ package evaluation
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/datreeio/datree/bl/validation"
 	"os"
 	"path/filepath"
+
+	"github.com/datreeio/datree/bl/validation"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"gopkg.in/yaml.v2"
@@ -14,7 +15,7 @@ import (
 type Printer interface {
 	PrintWarnings(warnings []printer.Warning)
 	PrintSummaryTable(summary printer.Summary)
-	PrintEvaluationSummary(summary printer.EvaluationSummary)
+	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 }
 
 // func PrintAllResults(results *EvaluationResults /*, invalidFiles*/) {
@@ -22,14 +23,14 @@ type Printer interface {
 // }
 
 // url := "https://app.datree.io/login?cliId=" + cliId
-func PrintResults(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer) error {
+func PrintResults(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string) error {
 	switch {
 	case outputFormat == "json":
 		return jsonOutput(results)
 	case outputFormat == "yaml":
 		return yamlOutput(results)
 	default:
-		return textOutput(results, invalidFiles, evaluationSummary, loginURL, printer)
+		return textOutput(results, invalidFiles, evaluationSummary, loginURL, printer, k8sVersion)
 	}
 }
 
@@ -55,13 +56,13 @@ func yamlOutput(results *EvaluationResults) error {
 	return nil
 }
 
-func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer) error {
+func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	warnings, err := parseToPrinterWarnings(results, invalidFiles, pwd)
+	warnings, err := parseToPrinterWarnings(results, invalidFiles, pwd, k8sVersion)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -71,14 +72,14 @@ func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFi
 
 	summary := parseEvaluationResultsToSummary(results, evaluationSummary, url)
 
-	printer.PrintEvaluationSummary(evaluationSummary)
+	printer.PrintEvaluationSummary(evaluationSummary, k8sVersion)
 
 	printer.PrintSummaryTable(summary)
 
 	return nil
 }
 
-func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validation.InvalidFile, pwd string) ([]printer.Warning, error) {
+func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validation.InvalidFile, pwd string, k8sVersion string) ([]printer.Warning, error) {
 	var warnings = []printer.Warning{}
 
 	for _, invalidFile := range invalidFiles {
@@ -88,7 +89,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validati
 			ValidationInfo: printer.ValidationInfo{
 				IsValid:          false,
 				ValidationErrors: invalidFile.ValidationErrors,
-				K8sVersion:       "1.18.0",
+				K8sVersion:       k8sVersion,
 			},
 		})
 	}
@@ -114,7 +115,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validati
 				ValidationInfo: printer.ValidationInfo{
 					IsValid:          true,
 					ValidationErrors: []error{},
-					K8sVersion:       "1.18.0",
+					K8sVersion:       k8sVersion,
 				},
 			})
 		}

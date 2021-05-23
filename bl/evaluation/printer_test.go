@@ -1,9 +1,10 @@
 package evaluation
 
 import (
-	"github.com/datreeio/datree/bl/validation"
 	"os"
 	"testing"
+
+	"github.com/datreeio/datree/bl/validation"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/stretchr/testify/mock"
@@ -44,7 +45,7 @@ func TestPrintResults(t *testing.T) {
 		mockedPrinter.On("PrintWarnings", mock.Anything)
 		mockedPrinter.On("PrintSummaryTable", mock.Anything)
 		t.Run(tt.name, func(t *testing.T) {
-			PrintResults(tt.args.results, tt.args.invalidFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, tt.args.printer)
+			PrintResults(tt.args.results, tt.args.invalidFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, tt.args.printer, "1.18.0")
 
 			if tt.args.outputFormat == "json" {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
@@ -55,7 +56,7 @@ func TestPrintResults(t *testing.T) {
 
 			} else {
 				pwd, _ := os.Getwd()
-				warnings, _ := parseToPrinterWarnings(tt.args.results, tt.args.invalidFiles, pwd)
+				warnings, _ := parseToPrinterWarnings(tt.args.results, tt.args.invalidFiles, pwd, "1.18.0")
 				mockedPrinter.AssertCalled(t, "PrintWarnings", warnings)
 				mockedPrinter.AssertCalled(t, "PrintSummaryTable", tt.args.results, tt.args.loginURL)
 			}
