@@ -5,8 +5,6 @@ import (
 	"github.com/datreeio/datree/pkg/extractor"
 	"time"
 
-	"github.com/datreeio/datree/pkg/fileReader"
-
 	"github.com/briandowns/spinner"
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
@@ -40,6 +38,11 @@ type EvaluationPrinter interface {
 	PrintMessage(messageText string, messageColor string)
 	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary)
 }
+
+type Reader interface {
+	FilterFiles(paths []string) []string
+}
+
 type TestCommandContext struct {
 	CliVersion   string
 	LocalConfig  *localConfig.LocalConfiguration
@@ -47,7 +50,7 @@ type TestCommandContext struct {
 	Messager     Messager
 	K8sValidator K8sValidator
 	Printer      EvaluationPrinter
-	Reader       *fileReader.FileReader
+	Reader       Reader
 }
 
 func New(ctx *TestCommandContext) *cobra.Command {
@@ -101,7 +104,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	validFilesPaths, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
+	validFilesPathsChan, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
 	go func() {
 		for err := range errorsChan {
 			fmt.Println(err)
@@ -141,7 +144,6 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	return err
 }
-
 
 func createSpinner(text string, color string) *spinner.Spinner {
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)

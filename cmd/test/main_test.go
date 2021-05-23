@@ -75,6 +75,15 @@ func (p *PrinterMock) PrintEvaluationSummary(evaluationSummary printer.Evaluatio
 	p.Called(evaluationSummary)
 }
 
+type ReaderMock struct {
+	mock.Mock
+}
+
+func (rm *ReaderMock) FilterFiles(paths []string) []string {
+	args := rm.Called(paths)
+	return args.Get(0).([]string)
+}
+
 func TestTestCommand(t *testing.T) {
 	evaluationId := 444
 
@@ -111,12 +120,17 @@ func TestTestCommand(t *testing.T) {
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 	printerMock.On("PrintEvaluationSummary", mock.Anything)
 
+	readerMock := &ReaderMock{}
+
+	readerMock.On("FilterFiles", mock.Anything).Return([]string{"file/path"})
+
 	ctx := &TestCommandContext{
 		K8sValidator: k8sValidatorMock,
 		Evaluator:    mockedEvaluator,
 		LocalConfig:  &localConfig.LocalConfiguration{CliId: "134kh"},
 		Messager:     messager,
 		Printer:      printerMock,
+		Reader:       readerMock,
 	}
 
 	test_testCommand_no_flags(t, mockedEvaluator, validFilesPathChan, invalidFilesChan, evaluationId, ctx)
