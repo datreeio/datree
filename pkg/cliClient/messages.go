@@ -17,8 +17,14 @@ type VersionMessage struct {
 func (c *CliClient) GetVersionMessage(cliVersion string, timeout int) (*VersionMessage, error) {
 	_timeout := time.Duration(timeout) * time.Millisecond
 
-	httpClient := httpClient.NewClientTimeout(c.baseUrl, nil, _timeout)
-	res, err := httpClient.Request(http.MethodGet, "/cli/messages/versions/"+cliVersion, nil, nil)
+	var timeoutClient HTTPClient
+	if c.timeoutClient != nil {
+		timeoutClient = c.timeoutClient
+	} else {
+		timeoutClient = httpClient.NewClientTimeout(c.baseUrl, nil, _timeout)
+	}
+
+	res, err := timeoutClient.Request(http.MethodGet, "/cli/messages/versions/"+cliVersion, nil, nil)
 	if err != nil {
 		return nil, err
 	}
