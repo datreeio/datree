@@ -83,21 +83,18 @@ spec:
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: ingress-wildcard-host
-  labels:
-    owner: test-at-datree.io
+  name: ingress-myservicea
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
-  - host: "*.example.com"
+  - host: myservicea.foo.org
     http:
       paths:
-      - pathType: Prefix
-        path: "/bar"
+      - path: /
         backend:
-          service:
-            name: service1
-            port:
-              number: 80
+          serviceName: myservicea
+          servicePort: 80
 ---
 apiVersion: v1
 kind: Service
