@@ -3,3 +3,4 @@ vendor
 datree
 .DS_STORE
 .vscode
+.idea
