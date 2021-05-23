@@ -18,11 +18,6 @@ type Printer interface {
 	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 }
 
-// func PrintAllResults(results *EvaluationResults /*, invalidFiles*/) {
-// 	// TODO: foreach invalid file
-// }
-
-// url := "https://app.datree.io/login?cliId=" + cliId
 func PrintResults(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string) error {
 	switch {
 	case outputFormat == "json":
