@@ -85,6 +85,14 @@ func New(ctx *TestCommandContext) *cobra.Command {
 }
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
+	messages := make(chan *messager.VersionMessage, 1)
+	defer func() {
+		msg, ok := <-messages
+		if ok {
+			ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+		}
+	}()
+
 	filePaths := ctx.Reader.FilterFiles(paths)
 	if len(filePaths) == 0 {
 		noFilesErr := fmt.Errorf("No files detected")
@@ -95,7 +103,6 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	spinner := createSpinner(" Loading...", "cyan")
 	spinner.Start()
 
-	messages := make(chan *messager.VersionMessage, 1)
 	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 
 	evaluationId, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion, flags.K8sVersion)
@@ -115,15 +122,6 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	spinner.Stop()
 
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
-
-	if len(errors) > 0 {
-		printEvaluationErrors(errors)
-	}
-
 	passedPolicyCheckCount := 0
 	if results != nil {
 		passedPolicyCheckCount = results.Summary.TotalPassedCount
@@ -136,13 +134,21 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	evaluation.PrintResults(results, invalidFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer)
-	msg, ok := <-messages
-	if ok {
-		ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+	err = evaluation.PrintResults(results, invalidFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer)
+
+	var invocationFailedErr error = nil
+
+	if err != nil {
+		fmt.Println(err.Error())
+		invocationFailedErr = err
+	} else if len(errors) > 0 {
+		printEvaluationErrors(errors)
+		invocationFailedErr = fmt.Errorf("Invocation failed")
+	} else if len(invalidFiles) > 0 || results.Summary.TotalFailedRules > 0 {
+		invocationFailedErr = fmt.Errorf("Invocation failed")
 	}
 
-	return err
+	return invocationFailedErr
 }
 
 func createSpinner(text string, color string) *spinner.Spinner {
