@@ -7,6 +7,7 @@ import (
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/deploymentConfig"
+	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/spf13/cobra"
@@ -29,6 +30,7 @@ func init() {
 		LocalConfig: app.context.LocalConfig,
 		Messager:    app.context.Messager,
 		Printer:     app.context.Printer,
+		Reader:      app.context.Reader,
 	}))
 
 	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
@@ -48,7 +50,9 @@ type context struct {
 	CliClient   *cliClient.CliClient
 	Messager    *messager.Messager
 	Printer     *printer.Printer
+	Reader      *fileReader.FileReader
 }
+
 type app struct {
 	context *context
 }
@@ -65,6 +69,7 @@ func startup() *app {
 			CliClient:   cliClient,
 			Messager:    messager.New(cliClient),
 			Printer:     printer,
+			Reader:      fileReader.CreateFileReader(nil),
 		},
 	}
 }
