@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: v1
 kind: Pod
 metadata:
   name: static-web
@@ -38,7 +38,7 @@ spec:
           containerPort: 80
           protocol: TCP
 ---
-apiVersion: kubeadm.k8s.io/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rss-site
@@ -110,13 +110,12 @@ spec:
           ports:
             - containerPort: 88
 ---
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: ingress-wildcard-host
-  labels:
-    owner: test@datree.io
-    environment: prod
+  name: example-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
     - host: "*"
@@ -177,6 +176,7 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: php-apache
 spec:
+  maxReplicas: 10
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
@@ -190,7 +190,14 @@ spec:
           averageUtilization: 50
 ---
 apiVersion: rbac.authorization.k8s.io/v1alpha1
-kind: InitConfiguration
----
-apiVersion: apps/v1beta2
-kind: Deployment
+kind: ClusterRoleBinding
+metadata:
+    name: privilegedPSP
+subjects:
+- kind: Group
+  apiVersion: rbac.authorization.k8s.io/v1alpha1
+  name: privileged
+roleRef:
+   apiGroup: rbac.authorization.k8s.io
+   kind: ClusterRole
+   name: privilegedPSP
