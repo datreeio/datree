@@ -19,31 +19,60 @@ func CreateNewPrinter() *Printer {
 	}
 }
 
+type WarningInfo struct {
+	Caption     string
+	Occurrences int
+	Suggestion  string
+}
+
+type ValidationInfo struct {
+	IsValid          bool
+	ValidationErrors []error
+	K8sVersion       string
+}
 type Warning struct {
-	Title   string
-	Details []struct {
-		Caption     string
-		Occurrences int
-		Suggestion  string
-	}
+	Title          string
+	Details        []WarningInfo
+	ValidationInfo ValidationInfo
 }
 
 func (p *Printer) PrintWarnings(warnings []Warning) {
 	for _, warning := range warnings {
 		p.printInColor(warning.Title, p.theme.Colors.Yellow)
-
 		fmt.Println()
 
-		for _, d := range warning.Details {
-			formattedOccurrences := fmt.Sprintf(" [%d occurrences]", d.Occurrences)
-			occurrences := p.theme.Colors.White.Sprintf(formattedOccurrences)
+		p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
 
-			caption := p.theme.Colors.Red.Sprint(d.Caption)
-
-			fmt.Printf("%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
-			fmt.Printf("%v %v\n", p.theme.Emoji.Suggestion, d.Suggestion)
-
+		if warning.ValidationInfo.IsValid != true {
+			p.printInColor("[X] Kubernetes schema validation\n", p.theme.Colors.White)
 			fmt.Println()
+
+			for _, validationError := range warning.ValidationInfo.ValidationErrors {
+				validationError := p.theme.Colors.Red.Sprint(validationError.Error())
+				fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
+			}
+			fmt.Println()
+			p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
+			fmt.Println()
+			fmt.Println()
+
+		} else {
+			p.printInColor("[V] Kubernetes schema validation\n", p.theme.Colors.Green)
+			fmt.Println()
+			p.printInColor("[X] Policy check\n", p.theme.Colors.White)
+			fmt.Println()
+
+			for _, details := range warning.Details {
+				formattedOccurrences := fmt.Sprintf(" [%d occurrences]", details.Occurrences)
+				occurrences := p.theme.Colors.White.Sprintf(formattedOccurrences)
+
+				caption := p.theme.Colors.Red.Sprint(details.Caption)
+
+				fmt.Printf("%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
+				fmt.Printf("%v %v\n", p.theme.Emoji.Suggestion, details.Suggestion)
+
+				fmt.Println()
+			}
 		}
 	}
 
@@ -60,6 +89,25 @@ type Summary struct {
 	PlainRows  []SummaryItem
 	ErrorRow   SummaryItem
 	SuccessRow SummaryItem
+}
+
+type EvaluationSummary struct {
+	FilesCount                int
+	PassedYamlValidationCount int
+	PassedK8sValidationCount  int
+	PassedPolicyCheckCount    int
+}
+
+func (p *Printer) PrintEvaluationSummary(summary EvaluationSummary) {
+	p.printInColor("(Summary)\n", p.theme.Colors.White)
+	fmt.Println()
+
+	fmt.Printf("- Passing YAML validation: %v/%v\n", summary.PassedYamlValidationCount, summary.FilesCount)
+	fmt.Println()
+	fmt.Printf("- Passing Kubernetes (1.18) schema validation: %v/%v\n", summary.PassedK8sValidationCount, summary.FilesCount)
+	fmt.Println()
+	fmt.Printf("- Passing policy check: %v/%v\n", summary.PassedPolicyCheckCount, summary.FilesCount)
+	fmt.Println()
 }
 
 func (p *Printer) PrintSummaryTable(summary Summary) {
@@ -111,7 +159,7 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 	}
 }
 
-func (p *Printer) PrintVersionMessage(messageText string, messageColor string) {
+func (p *Printer) PrintMessage(messageText string, messageColor string) {
 	colorPrintFn := p.createNewColor(messageColor)
 	p.printInColor(messageText, colorPrintFn)
 }

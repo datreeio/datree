@@ -5,32 +5,49 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/bl/messager"
 	"github.com/stretchr/testify/mock"
 )
 
-type mockVersionMessageClient struct {
+type printerMock struct {
 	mock.Mock
 }
 
-func (m *mockVersionMessageClient) GetVersionMessage(cliVersion string) (*cliClient.VersionMessage, error) {
-	args := m.Called(cliVersion)
-	return args.Get(0).(*cliClient.VersionMessage), nil
+type mockMessager struct {
+	mock.Mock
+}
+
+func (p *printerMock) PrintMessage(messageText string, messageColor string) {
+	p.Called(messageText, messageColor)
+}
+
+func (m *mockMessager) LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string) {
+	go func() {
+		messages <- &messager.VersionMessage{
+			CliVersion:   "0.0.1",
+			MessageText:  "message text",
+			MessageColor: "White",
+		}
+
+		close(messages)
+	}()
+
+	m.Called(messages, cliVersion)
 }
 
 func Test_ExecuteCommand(t *testing.T) {
-	versionMessageClient := &mockVersionMessageClient{}
-	versionMessageClient.On("GetVersionMessage", mock.Anything).Return(
-		&cliClient.VersionMessage{
-			CliVersion:   "1.2.3",
-			MessageText:  "version message mock",
-			MessageColor: "green"},
-	)
+	messager := &mockMessager{}
+	messager.On("LoadVersionMessages", mock.Anything, mock.Anything).Return(nil)
 
-	cmd := NewVersionCommand(&VersionCommandContext{
-		CliVersion:           "1.2.3",
-		VersionMessageClient: versionMessageClient,
+	printer := &printerMock{}
+	printer.On("PrintMessage", mock.Anything, mock.Anything).Return(nil)
+
+	cmd := New(&VersionCommandContext{
+		CliVersion: "1.2.3",
+		Messager:   messager,
+		Printer: printer,
 	})
+
 	b := bytes.NewBufferString("1.2.3")
 	cmd.SetOut(b)
 	cmd.Execute()
