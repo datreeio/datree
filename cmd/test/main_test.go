@@ -80,9 +80,9 @@ type ReaderMock struct {
 	mock.Mock
 }
 
-func (rm *ReaderMock) FilterFiles(paths []string) []string {
+func (rm *ReaderMock) FilterFiles(paths []string) ([]string, error) {
 	args := rm.Called(paths)
-	return args.Get(0).([]string)
+	return args.Get(0).([]string), nil
 }
 
 func TestTestCommand(t *testing.T) {
@@ -123,7 +123,7 @@ func TestTestCommand(t *testing.T) {
 
 	readerMock := &ReaderMock{}
 
-	readerMock.On("FilterFiles", mock.Anything).Return([]string{"file/path"})
+	readerMock.On("FilterFiles", mock.Anything).Return([]string{"file/path"}, nil)
 
 	ctx := &TestCommandContext{
 		K8sValidator: k8sValidatorMock,
