@@ -15,11 +15,11 @@ The CLI integration provides a policy enforcement solution for Kubernetes to run
 
 ## Quick start in two steps
 #### 1. Install the latest release on your CLI  
-**Linux & MacOS:** ``curl https://get.datree.io | /bin/bash``  
-**Windows:** ``not supported yet :(``  
+**Linux & MacOS:** `curl https://get.datree.io | /bin/bash`  
+**Windows:** `not supported yet :(`  
 
 #### 2. Pass datree a Kuberntes manifest file to scan
-``datree test <k8s-manifest-file>``  
+`datree test <k8s-manifest-file>`  
 
 ...and voilà, you just ran your first invocation! 🥳    
 
@@ -32,6 +32,11 @@ You can also checkout our [interactive demo scenario](https://www.katacoda.com/d
 
 #### Ready to review our "Getting Started" guide?
 All the information needed to get started, as well as a bunch of other cool features (including how to set up your policy), can be found in [**our docs**](https://hub.datree.io/getting-started/?utm_source=github&utm_medium=organic_oss).
+
+## Helm plugin
+[Datree's Helm plugin](https://hub.datree.io/helm-plugin/?utm_source=github&utm_medium=organic_oss) can be accessed through the helm CLI, to provide a seamless experience to Helm users:  
+
+`helm plugin install https://github.com/datreeio/helm-datree`  
 
 ## Built-in rules
 Right now, there are 30 battle-tested rules for you to choose from.    
