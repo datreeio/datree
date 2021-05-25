@@ -26,12 +26,13 @@ func init() {
 	app := startup()
 
 	rootCmd.AddCommand(test.New(&test.TestCommandContext{
-		CliVersion:  CliVersion,
-		Evaluator:   app.context.Evaluator,
-		LocalConfig: app.context.LocalConfig,
-		Messager:    app.context.Messager,
-		Printer:     app.context.Printer,
-		Reader:      app.context.Reader,
+		CliVersion:   CliVersion,
+		Evaluator:    app.context.Evaluator,
+		LocalConfig:  app.context.LocalConfig,
+		Messager:     app.context.Messager,
+		Printer:      app.context.Printer,
+		Reader:       app.context.Reader,
+		K8sValidator: app.context.K8sValidator,
 	}))
 
 	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
