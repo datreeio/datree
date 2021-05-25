@@ -8,7 +8,7 @@ import (
 
 type CLIClient interface {
 	RequestEvaluation(request *cliClient.EvaluationRequest) (*cliClient.EvaluationResponse, error)
-	CreateEvaluation(request *cliClient.CreateEvaluationRequest) (int, error)
+	CreateEvaluation(request *cliClient.CreateEvaluationRequest) (*cliClient.CreateEvaluationResponse, error)
 	UpdateEvaluationValidation(request *cliClient.UpdateEvaluationValidationRequest) error
 }
 
@@ -40,9 +40,9 @@ type Error struct {
 	Filename string
 }
 
-func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (int, error) {
-	evaluationId, err := e.cliClient.CreateEvaluation(&cliClient.CreateEvaluationRequest{
-		K8sVersion: k8sVersion,
+func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error) {
+	createEvaluationResponse, err := e.cliClient.CreateEvaluation(&cliClient.CreateEvaluationRequest{
+		K8sVersion: &k8sVersion,
 		CliId:      cliId,
 		Metadata: &cliClient.Metadata{
 			CliVersion:      cliVersion,
@@ -52,7 +52,7 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion
 		},
 	})
 
-	return evaluationId, err
+	return createEvaluationResponse, err
 }
 
 func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile, evaluationId int) (*EvaluationResults, []*validation.InvalidFile, []*extractor.FileConfiguration, []*Error, error) {
