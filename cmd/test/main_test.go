@@ -1,10 +1,11 @@
 package test
 
 import (
+	"testing"
+
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/printer"
-	"testing"
 
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
@@ -71,7 +72,7 @@ func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {
 	p.Called(messageText, messageColor)
 }
 
-func (p *PrinterMock) PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary) {
+func (p *PrinterMock) PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string) {
 	p.Called(evaluationSummary)
 }
 
@@ -118,7 +119,7 @@ func TestTestCommand(t *testing.T) {
 	printerMock.On("PrintWarnings", mock.Anything)
 	printerMock.On("PrintSummaryTable", mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
-	printerMock.On("PrintEvaluationSummary", mock.Anything)
+	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 
 	readerMock := &ReaderMock{}
 
