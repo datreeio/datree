@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/briandowns/spinner"
@@ -17,7 +18,7 @@ import (
 
 type Evaluator interface {
 	Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*extractor.FileConfiguration, []*evaluation.Error, error)
-	CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (int, error)
+	CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error)
 }
 
 type Messager interface {
@@ -26,6 +27,7 @@ type Messager interface {
 
 type K8sValidator interface {
 	ValidateResources(paths []string) (chan string, chan *validation.InvalidFile, chan error)
+	InitClient(k8sVersion string)
 }
 
 type TestCommandFlags struct {
@@ -73,7 +75,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			}
 
 			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion}
-			ctx.K8sValidator = validation.New(k8sVersion)
 			return test(ctx, args, testCommandFlags)
 		},
 		SilenceUsage:  true,
@@ -81,7 +82,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	}
 
 	testCommand.Flags().StringP("output", "o", "", "Define output format")
-	testCommand.Flags().StringP("schema-version", "s", "1.18.0", "Set kubernetes version to validate against. Defaults to 1.18.0")
+	testCommand.Flags().StringP("schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
 	return testCommand
 }
 
@@ -109,12 +110,13 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	spinner := createSpinner(" Loading...", "cyan")
 	spinner.Start()
 
-	evaluationId, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion, flags.K8sVersion)
+	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion, flags.K8sVersion)
 	if err != nil {
 		fmt.Println(err.Error())
 		return err
 	}
 
+	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion)
 	validFilesPathsChan, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
 	go func() {
 		for err := range errorsChan {
@@ -122,7 +124,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		}
 	}()
 
-	results, invalidFiles, filesConfigurations, errors, err := ctx.Evaluator.Evaluate(validFilesPathsChan, invalidFilesPathsChan, evaluationId)
+	results, invalidFiles, filesConfigurations, errors, err := ctx.Evaluator.Evaluate(validFilesPathsChan, invalidFilesPathsChan, createEvaluationResponse.EvaluationId)
 
 	spinner.Stop()
 
@@ -138,7 +140,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, invalidFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer, flags.K8sVersion)
+	err = evaluation.PrintResults(results, invalidFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion)
 
 	var invocationFailedErr error = nil
 

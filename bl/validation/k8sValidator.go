@@ -17,16 +17,17 @@ type K8sValidator struct {
 	validationClient ValidationClient
 }
 
-func New(k8sVersion string) *K8sValidator {
-	kubconformClient := newKubconformValidator(k8sVersion)
-	return &K8sValidator{
-		validationClient: kubconformClient,
-	}
+func New() *K8sValidator {
+	return &K8sValidator{}
 }
 
 type InvalidFile struct {
 	Path             string
 	ValidationErrors []error
+}
+
+func (val *K8sValidator) InitClient(k8sVersion string) {
+	val.validationClient = newKubconformValidator(k8sVersion)
 }
 
 func (val *K8sValidator) ValidateResources(paths []string) (chan string, chan *InvalidFile, chan error) {
