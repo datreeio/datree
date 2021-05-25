@@ -56,18 +56,21 @@ func CreateFileReader(opts *FileReaderOptions) *FileReader {
 	return fileReader
 }
 
-func (fr *FileReader) FilterFiles(paths []string) []string {
+func (fr *FileReader) FilterFiles(paths []string) ([]string, error) {
 	var filePaths []string
 
 	for _, path := range paths {
-		stat, _ := fr.stat(path)
+		stat, err := fr.stat(path)
+		if err != nil {
+			return []string{}, err
+		}
 
 		if !stat.IsDir() {
 			filePaths = append(filePaths, path)
 		}
 	}
 
-	return filePaths
+	return filePaths, nil
 }
 
 func (fr *FileReader) ReadFileContent(filepath string) (string, error) {

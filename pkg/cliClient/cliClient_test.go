@@ -3,11 +3,12 @@ package cliClient
 import (
 	"bytes"
 	"encoding/json"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/httpClient"
@@ -25,7 +26,7 @@ func (c *mockHTTPClient) Request(method string, resourceURI string, body interfa
 	return args.Get(0).(httpClient.Response), args.Error(1)
 }
 
-func (c *mockHTTPClient) name()  {
+func (c *mockHTTPClient) name() {
 
 }
 
@@ -140,11 +141,10 @@ func TestCreateRequestEvaluation(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			actualEvaluationId, _ := client.CreateEvaluation(tt.args.createEvaluationRequest)
+			res, _ := client.CreateEvaluation(tt.args.createEvaluationRequest)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
-			assert.Equal(t, tt.expected.response.EvaluationId, actualEvaluationId)
-
+			assert.Equal(t, tt.expected.response, res)
 		})
 	}
 }
@@ -161,9 +161,8 @@ func TestGetVersionMessage(t *testing.T) {
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
 			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
 
-
 			client := &CliClient{
-				baseUrl:    "http://cli-service.test.io",
+				baseUrl:       "http://cli-service.test.io",
 				timeoutClient: &httpClientMock,
 			}
 
@@ -312,13 +311,16 @@ func test_requestEvaluation_success() *RequestEvaluationTestCase {
 }
 
 func test_createEvaluation_success() *CreateEvaluationTestCase {
+	k8sVersion := "1.18.0"
+
 	return &CreateEvaluationTestCase{
 		name: "success - create evaluation",
 		args: struct {
 			createEvaluationRequest *CreateEvaluationRequest
 		}{
 			createEvaluationRequest: &CreateEvaluationRequest{
-				CliId: "cli_id",
+				K8sVersion: &k8sVersion,
+				CliId:      "cli_id",
 				Metadata: &Metadata{
 					CliVersion:      "0.0.1",
 					Os:              "darwin",
@@ -340,6 +342,7 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 				status: http.StatusOK,
 				body: &CreateEvaluationResponse{
 					EvaluationId: 123,
+					K8sVersion:   k8sVersion,
 				},
 			},
 		},
@@ -361,7 +364,8 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 				method: http.MethodPost,
 				uri:    "/cli/evaluation/create",
 				body: &CreateEvaluationRequest{
-					CliId: "cli_id",
+					K8sVersion: &k8sVersion,
+					CliId:      "cli_id",
 					Metadata: &Metadata{
 						CliVersion:      "0.0.1",
 						Os:              "darwin",
@@ -373,6 +377,7 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 			},
 			response: &CreateEvaluationResponse{
 				EvaluationId: 123,
+				K8sVersion:   k8sVersion,
 			},
 		},
 	}

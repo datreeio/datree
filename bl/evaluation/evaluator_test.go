@@ -1,9 +1,10 @@
 package evaluation
 
 import (
-	"github.com/datreeio/datree/bl/validation"
 	"path/filepath"
 	"testing"
+
+	"github.com/datreeio/datree/bl/validation"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/stretchr/testify/assert"
@@ -14,9 +15,9 @@ type mockCliClient struct {
 	mock.Mock
 }
 
-func (m *mockCliClient) CreateEvaluation(createEvaluationRequest *cliClient.CreateEvaluationRequest) (int, error) {
+func (m *mockCliClient) CreateEvaluation(createEvaluationRequest *cliClient.CreateEvaluationRequest) (*cliClient.CreateEvaluationResponse, error) {
 	args := m.Called(createEvaluationRequest)
-	return args.Get(0).(int), args.Error(1)
+	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
 }
 
 func (m *mockCliClient) RequestEvaluation(evaluationRequest *cliClient.EvaluationRequest) (*cliClient.EvaluationResponse, error) {
@@ -37,6 +38,7 @@ func (m *mockCliClient) GetVersionMessage(cliVersion string, timeout int) (*cliC
 type cliClientMockTestCase struct {
 	createEvaluation struct {
 		evaluationId int
+		k8sVersion   string
 		err          error
 	}
 	requestEvaluation struct {
@@ -62,7 +64,7 @@ func TestEvaluate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockedCliClient := &mockCliClient{}
 
-			mockedCliClient.On("CreateEvaluation", mock.Anything).Return(tt.mock.cliClient.createEvaluation.evaluationId, tt.mock.cliClient.createEvaluation.err)
+			mockedCliClient.On("CreateEvaluation", mock.Anything).Return(tt.mock.cliClient.createEvaluation, tt.mock.cliClient.createEvaluation.err)
 			mockedCliClient.On("UpdateEvaluationValidation", mock.Anything).Return(nil)
 
 			evaluator := &Evaluator{
@@ -163,6 +165,7 @@ func request_evaluation_all_valid() *evaluateTestCase {
 			cliClient: &cliClientMockTestCase{
 				createEvaluation: struct {
 					evaluationId int
+					k8sVersion   string
 					err          error
 				}{
 					evaluationId: 1,
@@ -230,6 +233,7 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 			cliClient: &cliClientMockTestCase{
 				createEvaluation: struct {
 					evaluationId int
+					k8sVersion   string
 					err          error
 				}{
 					evaluationId: 1,
