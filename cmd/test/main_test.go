@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/printer"
 
@@ -22,9 +23,9 @@ func (m *mockEvaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPa
 	return args.Get(0).(*evaluation.EvaluationResults), args.Get(1).([]*validation.InvalidFile), args.Get(2).([]*extractor.FileConfiguration), args.Get(3).([]*evaluation.Error), args.Error(4)
 }
 
-func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (int, error) {
+func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error) {
 	args := m.Called(cliId, cliVersion, k8sVersion)
-	return args.Get(0).(int), args.Error(1)
+	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
 }
 
 type mockMessager struct {
@@ -54,6 +55,9 @@ type K8sValidatorMock struct {
 func (kv *K8sValidatorMock) ValidateResources(paths []string) (chan string, chan *validation.InvalidFile, chan error) {
 	args := kv.Called(paths)
 	return args.Get(0).(chan string), args.Get(1).(chan *validation.InvalidFile), args.Get(2).(chan error)
+}
+
+func (kv *K8sValidatorMock) InitClient(k8sVersion string) {
 }
 
 type PrinterMock struct {
@@ -103,8 +107,7 @@ func TestTestCommand(t *testing.T) {
 
 	mockedEvaluator := &mockEvaluator{}
 	mockedEvaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything).Return(evaluationResults, invalidFiles, fileConfigurations, evaluationErrors, nil)
-	mockedEvaluator.On("CreateEvaluation", mock.Anything, mock.Anything, mock.Anything).Return(evaluationId, nil)
-
+	mockedEvaluator.On("CreateEvaluation", mock.Anything, mock.Anything, mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0"}, nil)
 	messager := &mockMessager{}
 	messager.On("LoadVersionMessages", mock.Anything, mock.Anything)
 
@@ -114,6 +117,7 @@ func TestTestCommand(t *testing.T) {
 	invalidFilesChan := newInvalidFilesChan()
 
 	k8sValidatorMock.On("ValidateResources", mock.Anything).Return(validFilesPathChan, invalidFilesChan, newErrorsChan())
+	k8sValidatorMock.On("InitClient", mock.Anything).Return()
 
 	printerMock := &PrinterMock{}
 	printerMock.On("PrintWarnings", mock.Anything)
@@ -140,7 +144,7 @@ func TestTestCommand(t *testing.T) {
 }
 
 func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, validFilesPathChan chan string, invalidFilesChan chan *validation.InvalidFile, evaluationId int, ctx *TestCommandContext) {
-	test(ctx, []string{"8/*"}, TestCommandFlags{})
+	test(ctx, []string{"8/*"}, TestCommandFlags{K8sVersion: "", Output: ""})
 
 	evaluator.AssertCalled(t, "Evaluate", validFilesPathChan, invalidFilesChan, evaluationId)
 	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")

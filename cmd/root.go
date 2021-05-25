@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
+	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -25,12 +26,13 @@ func init() {
 	app := startup()
 
 	rootCmd.AddCommand(test.New(&test.TestCommandContext{
-		CliVersion:  CliVersion,
-		Evaluator:   app.context.Evaluator,
-		LocalConfig: app.context.LocalConfig,
-		Messager:    app.context.Messager,
-		Printer:     app.context.Printer,
-		Reader:      app.context.Reader,
+		CliVersion:   CliVersion,
+		Evaluator:    app.context.Evaluator,
+		LocalConfig:  app.context.LocalConfig,
+		Messager:     app.context.Messager,
+		Printer:      app.context.Printer,
+		Reader:       app.context.Reader,
+		K8sValidator: app.context.K8sValidator,
 	}))
 
 	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
@@ -45,12 +47,13 @@ func Execute() error {
 }
 
 type context struct {
-	LocalConfig *localConfig.LocalConfiguration
-	Evaluator   *evaluation.Evaluator
-	CliClient   *cliClient.CliClient
-	Messager    *messager.Messager
-	Printer     *printer.Printer
-	Reader      *fileReader.FileReader
+	LocalConfig  *localConfig.LocalConfiguration
+	Evaluator    *evaluation.Evaluator
+	CliClient    *cliClient.CliClient
+	Messager     *messager.Messager
+	Printer      *printer.Printer
+	Reader       *fileReader.FileReader
+	K8sValidator *validation.K8sValidator
 }
 
 type app struct {
@@ -64,12 +67,13 @@ func startup() *app {
 
 	return &app{
 		context: &context{
-			LocalConfig: config,
-			Evaluator:   evaluation.New(cliClient),
-			CliClient:   cliClient,
-			Messager:    messager.New(cliClient),
-			Printer:     printer,
-			Reader:      fileReader.CreateFileReader(nil),
+			LocalConfig:  config,
+			Evaluator:    evaluation.New(cliClient),
+			CliClient:    cliClient,
+			Messager:     messager.New(cliClient),
+			Printer:      printer,
+			Reader:       fileReader.CreateFileReader(nil),
+			K8sValidator: validation.New(),
 		},
 	}
 }

@@ -2,8 +2,9 @@ package cliClient
 
 import (
 	"encoding/json"
-	"github.com/datreeio/datree/pkg/extractor"
 	"net/http"
+
+	"github.com/datreeio/datree/pkg/extractor"
 )
 
 type Metadata struct {
@@ -16,26 +17,27 @@ type Metadata struct {
 type CreateEvaluationRequest struct {
 	CliId      string    `json:"cliId"`
 	Metadata   *Metadata `json:"metadata"`
-	K8sVersion string    `json:"k8sVersion"`
+	K8sVersion *string   `json:"k8sVersion"`
 }
 
 type CreateEvaluationResponse struct {
-	EvaluationId int `json:"evaluationId"`
+	EvaluationId int    `json:"evaluationId"`
+	K8sVersion   string `json:"k8sVersion"`
 }
 
-func (c *CliClient) CreateEvaluation(request *CreateEvaluationRequest) (int, error) {
+func (c *CliClient) CreateEvaluation(request *CreateEvaluationRequest) (*CreateEvaluationResponse, error) {
 	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/create", request, nil)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	var res = &CreateEvaluationResponse{}
 	err = json.Unmarshal(httpRes.Body, &res)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return res.EvaluationId, nil
+	return res, nil
 }
 
 type Match struct {
