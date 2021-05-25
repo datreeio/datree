@@ -42,7 +42,7 @@ type EvaluationPrinter interface {
 }
 
 type Reader interface {
-	FilterFiles(paths []string) []string
+	FilterFiles(paths []string) ([]string, error)
 }
 
 type TestCommandContext struct {
@@ -87,6 +87,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
 	messages := make(chan *messager.VersionMessage, 1)
+	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 	defer func() {
 		msg, ok := <-messages
 		if ok {
@@ -94,7 +95,11 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		}
 	}()
 
-	filePaths := ctx.Reader.FilterFiles(paths)
+	filePaths, err := ctx.Reader.FilterFiles(paths)
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
 	if len(filePaths) == 0 {
 		noFilesErr := fmt.Errorf("No files detected")
 		fmt.Println(noFilesErr.Error())
@@ -103,8 +108,6 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	spinner := createSpinner(" Loading...", "cyan")
 	spinner.Start()
-
-	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 
 	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion, flags.K8sVersion)
 	if err != nil {
@@ -116,7 +119,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	validFilesPathsChan, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
 	go func() {
 		for err := range errorsChan {
-			fmt.Println(err)
+			fmt.Println(err.Error())
 		}
 	}()
 
