@@ -27,6 +27,7 @@ type Messager interface {
 
 type K8sValidator interface {
 	ValidateResources(paths []string) (chan string, chan *validation.InvalidFile, chan error)
+	InitClient(k8sVersion string)
 }
 
 type TestCommandFlags struct {
@@ -115,7 +116,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	ctx.K8sValidator = validation.New(createEvaluationResponse.K8sVersion)
+	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion)
 	validFilesPathsChan, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
 	go func() {
 		for err := range errorsChan {
