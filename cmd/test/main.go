@@ -2,8 +2,9 @@ package test
 
 import (
 	"fmt"
-	"github.com/datreeio/datree/pkg/extractor"
 	"time"
+
+	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/briandowns/spinner"
 	"github.com/datreeio/datree/bl/evaluation"
@@ -36,7 +37,7 @@ type EvaluationPrinter interface {
 	PrintWarnings(warnings []printer.Warning)
 	PrintSummaryTable(summary printer.Summary)
 	PrintMessage(messageText string, messageColor string)
-	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary)
+	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
 }
 
 type Reader interface {
@@ -134,7 +135,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, invalidFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer)
+	err = evaluation.PrintResults(results, invalidFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer, flags.K8sVersion)
 
 	var invocationFailedErr error = nil
 

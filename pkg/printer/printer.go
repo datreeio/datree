@@ -98,13 +98,13 @@ type EvaluationSummary struct {
 	PassedPolicyCheckCount    int
 }
 
-func (p *Printer) PrintEvaluationSummary(summary EvaluationSummary) {
+func (p *Printer) PrintEvaluationSummary(summary EvaluationSummary, k8sVersion string) {
 	p.printInColor("(Summary)\n", p.theme.Colors.White)
 	fmt.Println()
 
 	fmt.Printf("- Passing YAML validation: %v/%v\n", summary.PassedYamlValidationCount, summary.FilesCount)
 	fmt.Println()
-	fmt.Printf("- Passing Kubernetes (1.18) schema validation: %v/%v\n", summary.PassedK8sValidationCount, summary.FilesCount)
+	fmt.Printf("- Passing Kubernetes (%s) schema validation: %v/%v\n", k8sVersion, summary.PassedK8sValidationCount, summary.FilesCount)
 	fmt.Println()
 	fmt.Printf("- Passing policy check: %v/%v\n", summary.PassedPolicyCheckCount, summary.FilesCount)
 	fmt.Println()
