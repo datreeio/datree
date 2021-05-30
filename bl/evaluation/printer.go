@@ -18,19 +18,24 @@ type Printer interface {
 	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 }
 
+type FormattedOutput struct {
+	Results           *EvaluationResults
+	EvaluationSummary printer.EvaluationSummary
+}
+
 func PrintResults(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string) error {
 	switch {
 	case outputFormat == "json":
-		return jsonOutput(results)
+		return jsonOutput(&FormattedOutput{Results: results, EvaluationSummary: evaluationSummary})
 	case outputFormat == "yaml":
-		return yamlOutput(results)
+		return yamlOutput(&FormattedOutput{Results: results, EvaluationSummary: evaluationSummary})
 	default:
 		return textOutput(results, invalidFiles, evaluationSummary, loginURL, printer, k8sVersion)
 	}
 }
 
-func jsonOutput(results *EvaluationResults) error {
-	jsonOutput, err := json.Marshal(results)
+func jsonOutput(formattedOutput *FormattedOutput) error {
+	jsonOutput, err := json.Marshal(formattedOutput)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -40,8 +45,8 @@ func jsonOutput(results *EvaluationResults) error {
 	return nil
 }
 
-func yamlOutput(results *EvaluationResults) error {
-	yamlOutput, err := yaml.Marshal(results)
+func yamlOutput(formattedOutput *FormattedOutput) error {
+	yamlOutput, err := yaml.Marshal(formattedOutput)
 	if err != nil {
 		fmt.Println(err)
 		return err
