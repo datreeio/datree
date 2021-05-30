@@ -87,14 +87,18 @@ func New(ctx *TestCommandContext) *cobra.Command {
 }
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
-	messages := make(chan *messager.VersionMessage, 1)
-	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
-	defer func() {
-		msg, ok := <-messages
-		if ok {
-			ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
-		}
-	}()
+	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml")
+
+	if isInteractiveMode == true {
+		messages := make(chan *messager.VersionMessage, 1)
+		go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
+		defer func() {
+			msg, ok := <-messages
+			if ok {
+				ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+			}
+		}()
+	}
 
 	filePaths, err := ctx.Reader.FilterFiles(paths)
 	if err != nil {
@@ -107,8 +111,11 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return noFilesErr
 	}
 
-	spinner := createSpinner(" Loading...", "cyan")
-	spinner.Start()
+	var _spinner *spinner.Spinner
+	if isInteractiveMode == true {
+		_spinner = createSpinner(" Loading...", "cyan")
+		_spinner.Start()
+	}
 
 	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion, flags.K8sVersion)
 	if err != nil {
@@ -126,7 +133,9 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	results, invalidFiles, filesConfigurations, errors, err := ctx.Evaluator.Evaluate(validFilesPathsChan, invalidFilesPathsChan, createEvaluationResponse.EvaluationId)
 
-	spinner.Stop()
+	if _spinner != nil && isInteractiveMode == true {
+		_spinner.Stop()
+	}
 
 	passedPolicyCheckCount := 0
 	if results != nil {
