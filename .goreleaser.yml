@@ -30,6 +30,8 @@ builds:
       - -tags={{.Env.DATREE_DEPLOYMENT}}
     ldflags:
       - -X github.com/datreeio/datree/cmd.CliVersion={{.Env.DATREE_BUILD_VERSION}}
+    hooks:
+      post: gon gon.hcl
 archives:
   - replacements:
       darwin: Darwin
@@ -48,8 +50,7 @@ changelog:
       - "^test:"
 blobs:
   # You can have multiple blob config
-  -
-    # Template for the cloud provider name
+  - # Template for the cloud provider name
     # s3 for AWS S3 Storage
     provider: s3
 
@@ -68,4 +69,4 @@ blobs:
 
     # Template for the path/name inside the bucket.
     # Default is `{{ .ProjectName }}/{{ .Tag }}`
-    folder: "test-upload"
+    folder: test-upload-{{.Env.DATREE_BUILD_VERSION}}
