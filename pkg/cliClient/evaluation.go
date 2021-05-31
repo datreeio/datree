@@ -66,8 +66,8 @@ type EvaluationResponse struct {
 }
 
 type EvaluationRequest struct {
-	EvaluationId int                            `json:"evaluationId"`
-	Files        []*extractor.FileConfiguration `json:"files"`
+	EvaluationId int                             `json:"evaluationId"`
+	Files        []*extractor.FileConfigurations `json:"files"`
 }
 
 func (c *CliClient) RequestEvaluation(request *EvaluationRequest) (*EvaluationResponse, error) {
@@ -91,7 +91,16 @@ type UpdateEvaluationValidationRequest struct {
 	StopEvaluation bool      `json:"stopEvaluation"`
 }
 
-func (c *CliClient) UpdateEvaluationValidation(request *UpdateEvaluationValidationRequest) error {
+func (c *CliClient) SendFailedYamlValidation(request *UpdateEvaluationValidationRequest) error {
+	_, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/validation/yaml", request, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *CliClient) SendFailedK8sValidation(request *UpdateEvaluationValidationRequest) error {
 	_, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/validation/k8s", request, nil)
 	if err != nil {
 		return err

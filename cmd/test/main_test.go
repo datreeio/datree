@@ -18,9 +18,9 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*extractor.FileConfiguration, []*evaluation.Error, error) {
+func (m *mockEvaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*extractor.FileConfigurations, []*evaluation.Error, error) {
 	args := m.Called(validFilesPathsChan, invalidFilesPaths, evaluationId)
-	return args.Get(0).(*evaluation.EvaluationResults), args.Get(1).([]*validation.InvalidFile), args.Get(2).([]*extractor.FileConfiguration), args.Get(3).([]*evaluation.Error), args.Error(4)
+	return args.Get(0).(*evaluation.EvaluationResults), args.Get(1).([]*validation.InvalidFile), args.Get(2).([]*extractor.FileConfigurations), args.Get(3).([]*evaluation.Error), args.Error(4)
 }
 
 func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error) {
@@ -102,7 +102,7 @@ func TestTestCommand(t *testing.T) {
 	}
 
 	invalidFiles := []*validation.InvalidFile{}
-	var fileConfigurations []*extractor.FileConfiguration
+	var fileConfigurations []*extractor.FileConfigurations
 	var evaluationErrors []*evaluation.Error
 
 	mockedEvaluator := &mockEvaluator{}

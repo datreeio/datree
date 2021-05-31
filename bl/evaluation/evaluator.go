@@ -1,6 +1,7 @@
 package evaluation
 
 import (
+	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -9,13 +10,13 @@ import (
 type CLIClient interface {
 	RequestEvaluation(request *cliClient.EvaluationRequest) (*cliClient.EvaluationResponse, error)
 	CreateEvaluation(request *cliClient.CreateEvaluationRequest) (*cliClient.CreateEvaluationResponse, error)
-	UpdateEvaluationValidation(request *cliClient.UpdateEvaluationValidationRequest) error
+	SendFailedYamlValidation(request *cliClient.UpdateEvaluationValidationRequest) error
+	SendFailedK8sValidation(request *cliClient.UpdateEvaluationValidationRequest) error
 }
 
 type Evaluator struct {
-	cliClient             CLIClient
-	osInfo                *OSInfo
-	extractConfigurations func(path string) (*extractor.FileConfiguration, *extractor.Error)
+	cliClient CLIClient
+	osInfo    *OSInfo
 }
 
 func New(c CLIClient) *Evaluator {
@@ -55,83 +56,92 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion
 	return createEvaluationResponse, err
 }
 
-func (e *Evaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile, evaluationId int) (*EvaluationResults, []*validation.InvalidFile, []*extractor.FileConfiguration, []*Error, error) {
-	filesConfigurations, invalidFiles, extractionErrors := e.extractFilesConfigurations(validFilesPathsChan, invalidFilesPathsChan)
-
+func (e *Evaluator) UpdateFailedYamlValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error {
 	invalidFilesPaths := []*string{}
 	for _, file := range invalidFiles {
 		invalidFilesPaths = append(invalidFilesPaths, &file.Path)
 	}
-
-	if len(invalidFiles) > 0 {
-		stopEvaluation := len(filesConfigurations) == 0 // NOTICE: validFilesPathsChan surely closed and empty
-		err := e.cliClient.UpdateEvaluationValidation(&cliClient.UpdateEvaluationValidationRequest{
-			EvaluationId:   evaluationId,
-			InvalidFiles:   invalidFilesPaths,
-			StopEvaluation: stopEvaluation,
-		})
-
-		if stopEvaluation {
-			return nil, invalidFiles, filesConfigurations, extractionErrors, err
-		}
-	}
-
-	if len(filesConfigurations) > 0 {
-		res, err := e.cliClient.RequestEvaluation(&cliClient.EvaluationRequest{
-			EvaluationId: evaluationId,
-			Files:        filesConfigurations,
-		})
-		if err != nil {
-			return nil, invalidFiles, filesConfigurations, extractionErrors, err
-		}
-
-		results := e.formatEvaluationResults(res.Results, len(filesConfigurations))
-		return results, invalidFiles, filesConfigurations, extractionErrors, nil
-	}
-
-	return nil, invalidFiles, filesConfigurations, extractionErrors, nil
+	err := e.cliClient.SendFailedYamlValidation(&cliClient.UpdateEvaluationValidationRequest{
+		EvaluationId:   evaluationId,
+		InvalidFiles:   invalidFilesPaths,
+		StopEvaluation: stopEvaluation,
+	})
+	return err
 }
 
-func (e *Evaluator) extractFilesConfigurations(validFilesPathsChan chan string, invalidFilesPathsChan chan *validation.InvalidFile) ([]*extractor.FileConfiguration, []*validation.InvalidFile, []*Error) {
-	invalidFiles := []*validation.InvalidFile{}
-	var files []*extractor.FileConfiguration
-	var errors []*Error
+func (e *Evaluator) UpdateFailedK8sValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error {
+	invalidFilesPaths := []*string{}
+	for _, file := range invalidFiles {
+		invalidFilesPaths = append(invalidFilesPaths, &file.Path)
+	}
+	err := e.cliClient.SendFailedK8sValidation(&cliClient.UpdateEvaluationValidationRequest{
+		EvaluationId:   evaluationId,
+		InvalidFiles:   invalidFilesPaths,
+		StopEvaluation: stopEvaluation,
+	})
+	return err
+}
 
-	readFromValidDone := false
-	readFromInvalidDone := false
-	for {
-		select {
-		case path, ok := <-validFilesPathsChan:
-			if !ok {
-				readFromValidDone = true
-			} else {
-				file, err := extractor.ExtractConfiguration(path)
-				if file != nil {
-					files = append(files, &extractor.FileConfiguration{
-						FileName:       file.FileName,
-						Configurations: file.Configurations,
-					})
-				}
-				if err != nil {
-					errors = append(errors, &Error{
-						Message:  err.Message,
-						Filename: err.Filename,
-					})
-				}
-			}
-		case file, ok := <-invalidFilesPathsChan:
-			if !ok {
-				readFromInvalidDone = true
-			} else {
-				invalidFiles = append(invalidFiles, file)
-			}
-		}
-		if readFromValidDone && readFromInvalidDone {
-			break
-		}
+func (e *Evaluator) Evaluate(filesConfigurationsChan chan *extractor.FileConfigurations, evaluationId int) (*EvaluationResults, error) {
+
+	var filesConfigurations []*extractor.FileConfigurations
+
+	for fileConfigurations := range filesConfigurationsChan {
+		filesConfigurations = append(filesConfigurations, fileConfigurations)
 	}
 
-	return files, invalidFiles, errors
+	if len(filesConfigurations) == 0 {
+		return &EvaluationResults{}, nil
+	}
+
+	res, err := e.cliClient.RequestEvaluation(&cliClient.EvaluationRequest{
+		EvaluationId: evaluationId,
+		Files:        filesConfigurations,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	results := e.formatEvaluationResults(res.Results, len(filesConfigurations))
+	return results, nil
+}
+
+func (e *Evaluator) ExtractFilesConfigurations(paths []string, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidFile) {
+
+	filesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
+	invalidFilesChan := make(chan *validation.InvalidFile, concurrency)
+
+	go func() {
+		defer func() {
+			close(filesConfigurationsChan)
+			close(invalidFilesChan)
+		}()
+
+		for _, path := range paths {
+
+			absolutePath, err := files.ToAbsolutePath(path)
+			if err != nil {
+				invalidFilesChan <- &validation.InvalidFile{Path: path, ValidationErrors: []error{err}}
+				continue
+			}
+
+			content, err := extractor.ReadFileContent(absolutePath)
+			if err != nil {
+				invalidFilesChan <- &validation.InvalidFile{Path: absolutePath, ValidationErrors: []error{err}}
+				continue
+			}
+
+			configurations, err := extractor.ParseYaml(content)
+			if err != nil {
+				invalidFilesChan <- &validation.InvalidFile{Path: absolutePath, ValidationErrors: []error{err}}
+				continue
+			}
+
+			filesConfigurationsChan <- &extractor.FileConfigurations{FileName: absolutePath, Configurations: *configurations}
+		}
+	}()
+
+	return filesConfigurationsChan, invalidFilesChan
 }
 
 func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.EvaluationResult, filesCount int) *EvaluationResults {
