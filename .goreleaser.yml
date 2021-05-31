@@ -56,7 +56,7 @@ blobs:
     # Sets the bucket region.
     # Requires provider to be `s3`
     # Defaults to empty.
-    region: us-west-1
+    region: us-east-1
 
     # Disables SSL
     # Requires provider to be `s3`
