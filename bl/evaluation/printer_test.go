@@ -22,13 +22,16 @@ func (c *mockPrinter) PrintSummaryTable(summary printer.Summary) {
 	c.Called(summary)
 }
 
+func (c *mockPrinter) PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string) {
+	c.Called(summary, k8sVersion)
+}
+
 type printResultsTestCaseArgs struct {
 	results           *EvaluationResults
 	invalidFiles      []*validation.InvalidFile
 	evaluationSummary printer.EvaluationSummary
 	loginURL          string
 	outputFormat      string
-	printer           Printer
 }
 
 type printResultsTestCase struct {
@@ -37,29 +40,59 @@ type printResultsTestCase struct {
 	expected error
 }
 
-// TODO: write actual tests, what is this even?
+// TODO: fill missing call assertions
 func TestPrintResults(t *testing.T) {
-	tests := []*printResultsTestCase{}
+	tests := []*printResultsTestCase{
+		print_resultst(""),
+		print_resultst("json"),
+		print_resultst("yaml"),
+	}
 	for _, tt := range tests {
 		mockedPrinter := &mockPrinter{}
 		mockedPrinter.On("PrintWarnings", mock.Anything)
 		mockedPrinter.On("PrintSummaryTable", mock.Anything)
+		mockedPrinter.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
+
 		t.Run(tt.name, func(t *testing.T) {
-			PrintResults(tt.args.results, tt.args.invalidFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, tt.args.printer, "1.18.0")
+			_ = PrintResults(tt.args.results, tt.args.invalidFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0")
 
 			if tt.args.outputFormat == "json" {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
-				mockedPrinter.AssertCalled(t, "PrintSummaryTable")
 			} else if tt.args.outputFormat == "yaml" {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
-				mockedPrinter.AssertCalled(t, "PrintSummaryTable")
 
 			} else {
 				pwd, _ := os.Getwd()
 				warnings, _ := parseToPrinterWarnings(tt.args.results, tt.args.invalidFiles, pwd, "1.18.0")
 				mockedPrinter.AssertCalled(t, "PrintWarnings", warnings)
-				mockedPrinter.AssertCalled(t, "PrintSummaryTable", tt.args.results, tt.args.loginURL)
 			}
 		})
+	}
+}
+
+func print_resultst(outputFormat string) *printResultsTestCase {
+	return &printResultsTestCase{
+		name: "Print Results Text",
+		args: &printResultsTestCaseArgs{
+			results: &EvaluationResults{
+				FileNameRuleMapper: map[string]map[int]*Rule{},
+				Summary: struct {
+					RulesCount       int
+					TotalFailedRules int
+					FilesCount       int
+					TotalPassedCount int
+				}{
+					RulesCount:       0,
+					TotalFailedRules: 0,
+					FilesCount:       0,
+					TotalPassedCount: 0,
+				},
+			},
+			invalidFiles:      []*validation.InvalidFile{},
+			evaluationSummary: printer.EvaluationSummary{},
+			loginURL:          "login/url",
+			outputFormat: outputFormat,
+		},
+		expected: nil,
 	}
 }
