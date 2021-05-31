@@ -46,3 +46,26 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+blobs:
+  # You can have multiple blob config
+  -
+    # Template for the cloud provider name
+    # s3 for AWS S3 Storage
+    provider: s3
+
+    # Sets the bucket region.
+    # Requires provider to be `s3`
+    # Defaults to empty.
+    region: us-west-1
+
+    # Disables SSL
+    # Requires provider to be `s3`
+    # Defaults to false
+    disableSSL: true
+
+    # Template for the bucket name
+    bucket: yishay-test
+
+    # Template for the path/name inside the bucket.
+    # Default is `{{ .ProjectName }}/{{ .Tag }}`
+    folder: "test-upload"
