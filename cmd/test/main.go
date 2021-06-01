@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 
+	"github.com/briandowns/spinner"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 
@@ -88,14 +89,18 @@ func New(ctx *TestCommandContext) *cobra.Command {
 }
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
-	messages := make(chan *messager.VersionMessage, 1)
-	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
-	defer func() {
-		msg, ok := <-messages
-		if ok {
-			ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
-		}
-	}()
+	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml")
+
+	if isInteractiveMode == true {
+		messages := make(chan *messager.VersionMessage, 1)
+		go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
+		defer func() {
+			msg, ok := <-messages
+			if ok {
+				ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+			}
+		}()
+	}
 
 	filesPaths, err := ctx.Reader.FilterFiles(paths)
 	if err != nil {
@@ -109,8 +114,11 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return noFilesErr
 	}
 
-	spinner := createSpinner(" Loading...", "cyan")
-	spinner.Start()
+	var _spinner *spinner.Spinner
+	if isInteractiveMode == true {
+		_spinner = createSpinner(" Loading...", "cyan")
+		_spinner.Start()
+	}
 
 	concurrency := 100
 
@@ -151,10 +159,8 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	results, err := ctx.Evaluator.Evaluate(validK8sFilesConfigurationsChan, createEvaluationResponse.EvaluationId)
 
-	spinner.Stop()
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
+	if _spinner != nil && isInteractiveMode == true {
+		_spinner.Stop()
 	}
 
 	passedPolicyCheckCount := 0
