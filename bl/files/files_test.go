@@ -10,14 +10,14 @@ import (
 type toAbsolutePathsTestCase struct {
 	name string
 	args struct {
-		paths []string
+		path string
 	}
 	expected struct {
 		path string
 	}
 }
 
-func TestToAbsolutePaths(t *testing.T) {
+func TestToAbsolutePath(t *testing.T) {
 	tests := []*toAbsolutePathsTestCase{
 		test_existed_file(),
 		test_directory_file(),
@@ -25,8 +25,8 @@ func TestToAbsolutePaths(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			pathsChan := ToAbsolutePaths(tt.args.paths)
-			assert.Equal(t, tt.expected.path, <-pathsChan)
+			absolutePath, _ := ToAbsolutePath(tt.args.path)
+			assert.Equal(t, tt.expected.path, absolutePath)
 		})
 	}
 
@@ -36,8 +36,8 @@ func test_existed_file() *toAbsolutePathsTestCase {
 	p, _ := filepath.Abs("../../internal/fixtures/kube/pass-all.yaml")
 	return &toAbsolutePathsTestCase{
 		name: "existed file, should return abs path with no errors",
-		args: struct{ paths []string }{
-			paths: []string{"../../internal/fixtures/kube/pass-all.yaml"},
+		args: struct{ path string }{
+			path: "../../internal/fixtures/kube/pass-all.yaml",
 		},
 		expected: struct {
 			path string
@@ -50,8 +50,8 @@ func test_existed_file() *toAbsolutePathsTestCase {
 func test_not_existed_file() *toAbsolutePathsTestCase {
 	return &toAbsolutePathsTestCase{
 		name: "test not existed file, should return an error",
-		args: struct{ paths []string }{
-			paths: []string{"../../internal/fixtures/kube/bla.yaml"},
+		args: struct{ path string }{
+			path: "../../internal/fixtures/kube/bla.yaml",
 		},
 		expected: struct {
 			path string
@@ -63,8 +63,8 @@ func test_not_existed_file() *toAbsolutePathsTestCase {
 
 func test_directory_file() *toAbsolutePathsTestCase {
 	return &toAbsolutePathsTestCase{
-		args: struct{ paths []string }{
-			paths: []string{"../../internal/fixtures/kube"},
+		args: struct{ path string }{
+			path: "../../internal/fixtures/kube",
 		},
 		expected: struct {
 			path string
