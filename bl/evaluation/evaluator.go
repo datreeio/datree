@@ -1,7 +1,6 @@
 package evaluation
 
 import (
-	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -99,44 +98,6 @@ func (e *Evaluator) Evaluate(filesConfigurationsChan chan *extractor.FileConfigu
 
 	results := e.formatEvaluationResults(res.Results, len(filesConfigurations))
 	return results, nil
-}
-
-func (e *Evaluator) ExtractFilesConfigurations(paths []string, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidFile) {
-
-	filesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
-	invalidFilesChan := make(chan *validation.InvalidFile, concurrency)
-
-	go func() {
-		defer func() {
-			close(filesConfigurationsChan)
-			close(invalidFilesChan)
-		}()
-
-		for _, path := range paths {
-
-			absolutePath, err := files.ToAbsolutePath(path)
-			if err != nil {
-				invalidFilesChan <- &validation.InvalidFile{Path: path, ValidationErrors: []error{err}}
-				continue
-			}
-
-			content, err := extractor.ReadFileContent(absolutePath)
-			if err != nil {
-				invalidFilesChan <- &validation.InvalidFile{Path: absolutePath, ValidationErrors: []error{err}}
-				continue
-			}
-
-			configurations, err := extractor.ParseYaml(content)
-			if err != nil {
-				invalidFilesChan <- &validation.InvalidFile{Path: absolutePath, ValidationErrors: []error{err}}
-				continue
-			}
-
-			filesConfigurationsChan <- &extractor.FileConfigurations{FileName: absolutePath, Configurations: *configurations}
-		}
-	}()
-
-	return filesConfigurationsChan, invalidFilesChan
 }
 
 func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.EvaluationResult, filesCount int) *EvaluationResults {
