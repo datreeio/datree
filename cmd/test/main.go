@@ -27,7 +27,7 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidFile, chan error)
+	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidFile)
 	InitClient(k8sVersion string)
 }
 
@@ -87,20 +87,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	return testCommand
 }
 
-// step 0 - create evaluation
-// step 1 - extact files (validate yaml)
-// step 1.1 -> cliClient send invalid yaml files
-// step 2 - validate k8s
-// step 2.1 -> cliClient send invalid k8s files
-// evaluate valid files
-// print results
-
-// evaluation flow:
-// step 0 -> Evaluator -> clliClient -  create evaluation
-// step 2 -> K8sVlidator - validate k8s schema
-// step ? -> Evaluate -> cliClient - send invalid k8sSchmas
-// step ?1 -> Evaluate -> send evaluation - send invalid k8sSchmas
-
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
 	messages := make(chan *messager.VersionMessage, 1)
 	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
@@ -126,39 +112,42 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	spinner := createSpinner(" Loading...", "cyan")
 	spinner.Start()
 
+	concurrency := 100
+
+	validYamlFilesConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(filesPaths, concurrency)
+
 	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion, flags.K8sVersion)
 	if err != nil {
 		fmt.Println(err.Error())
 		return err
 	}
 
-	concurrency := 100
+	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion)
+	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlFilesConfigurationsChan, concurrency)
 
-	validYamlFilesConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(paths, concurrency)
-
-	invalidYamlFiles := handleInvalidFiles(invalidYamlFilesChan)
+	invalidYamlFiles := aggregateInvalidFiles(invalidYamlFilesChan)
 
 	invalidYamlFilesLen := len(invalidYamlFiles)
 
 	stopEvaluation := invalidYamlFilesLen == filesPathsLen
 	err = ctx.Evaluator.UpdateFailedYamlValidation(invalidYamlFiles, createEvaluationResponse.EvaluationId, stopEvaluation)
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
 
-	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion)
-	validK8sFilesConfigurationsChan, invalidK8sFilesChan, errorsChan := ctx.K8sValidator.ValidateResources(validYamlFilesConfigurationsChan, concurrency)
+	invalidK8sFiles := aggregateInvalidFiles(invalidK8sFilesChan)
 
-	invalidK8sFiles := handleInvalidFiles(invalidK8sFilesChan)
 	invalidK8sFilesLen := len(invalidK8sFiles)
 	stopEvaluation = invalidYamlFilesLen+invalidK8sFilesLen == filesPathsLen
 
 	if len(invalidK8sFiles) > 0 {
 		err = ctx.Evaluator.UpdateFailedK8sValidation(invalidK8sFiles, createEvaluationResponse.EvaluationId, stopEvaluation)
-	}
-
-	go func() {
-		for err := range errorsChan {
+		if err != nil {
 			fmt.Println(err.Error())
+			return err
 		}
-	}()
+	}
 
 	results, err := ctx.Evaluator.Evaluate(validK8sFilesConfigurationsChan, createEvaluationResponse.EvaluationId)
 

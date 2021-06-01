@@ -36,11 +36,6 @@ type EvaluationResults struct {
 	}
 }
 
-type Error struct {
-	Message  string
-	Filename string
-}
-
 func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error) {
 	createEvaluationResponse, err := e.cliClient.CreateEvaluation(&cliClient.CreateEvaluationRequest{
 		K8sVersion: &k8sVersion,

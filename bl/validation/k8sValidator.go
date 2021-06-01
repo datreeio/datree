@@ -42,8 +42,7 @@ func (val *K8sValidator) InitClient(k8sVersion string) {
 	val.validationClient = newKubconformValidator(k8sVersion)
 }
 
-func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *InvalidFile, chan error) {
-	errorChan := make(chan error)
+func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *InvalidFile) {
 	validK8sFilesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
 	invalidK8sFilesChan := make(chan *InvalidFile, concurrency)
 
@@ -51,14 +50,17 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 		defer func() {
 			close(invalidK8sFilesChan)
 			close(validK8sFilesConfigurationsChan)
-			close(errorChan)
 		}()
 
 		for fileConfigurations := range filesConfigurationsChan {
 
 			isValid, validationErrors, err := val.validateResource(fileConfigurations.FileName)
 			if err != nil {
-				errorChan <- err
+				invalidK8sFilesChan <- &InvalidFile{
+					Path:             fileConfigurations.FileName,
+					ValidationStatus: InvalidK8sFile,
+					ValidationErrors: []error{err},
+				}
 				continue
 			}
 			if isValid {
@@ -72,7 +74,7 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 			}
 		}
 	}()
-	return validK8sFilesConfigurationsChan, invalidK8sFilesChan, errorChan
+	return validK8sFilesConfigurationsChan, invalidK8sFilesChan
 }
 
 func (val *K8sValidator) validateResource(filepath string) (bool, []error, error) {
