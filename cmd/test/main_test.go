@@ -18,14 +18,24 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*extractor.FileConfigurations, []*evaluation.Error, error) {
-	args := m.Called(validFilesPathsChan, invalidFilesPaths, evaluationId)
-	return args.Get(0).(*evaluation.EvaluationResults), args.Get(1).([]*validation.InvalidFile), args.Get(2).([]*extractor.FileConfigurations), args.Get(3).([]*evaluation.Error), args.Error(4)
+func (m *mockEvaluator) Evaluate(filesConfigurationsChan chan *extractor.FileConfigurations, evaluationId int) (*evaluation.EvaluationResults, error) {
+	args := m.Called(filesConfigurationsChan, evaluationId)
+	return args.Get(0).(*evaluation.EvaluationResults), args.Error(1)
 }
 
 func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error) {
 	args := m.Called(cliId, cliVersion, k8sVersion)
 	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
+}
+
+func (m *mockEvaluator) UpdateFailedYamlValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error {
+	args := m.Called(invalidFiles, evaluationId, stopEvaluation)
+	return args.Error(0)
+}
+
+func (m *mockEvaluator) UpdateFailedK8sValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error {
+	args := m.Called(invalidFiles, evaluationId, stopEvaluation)
+	return args.Error(0)
 }
 
 type mockMessager struct {
@@ -52,9 +62,9 @@ type K8sValidatorMock struct {
 	mock.Mock
 }
 
-func (kv *K8sValidatorMock) ValidateResources(paths []string) (chan string, chan *validation.InvalidFile, chan error) {
-	args := kv.Called(paths)
-	return args.Get(0).(chan string), args.Get(1).(chan *validation.InvalidFile), args.Get(2).(chan error)
+func (kv *K8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidFile) {
+	args := kv.Called(filesConfigurationsChan, concurrency)
+	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *validation.InvalidFile)
 }
 
 func (kv *K8sValidatorMock) InitClient(k8sVersion string) {
@@ -101,22 +111,20 @@ func TestTestCommand(t *testing.T) {
 		}{RulesCount: 1, TotalFailedRules: 0, FilesCount: 0, TotalPassedCount: 1},
 	}
 
-	invalidFiles := []*validation.InvalidFile{}
-	var fileConfigurations []*extractor.FileConfigurations
-	var evaluationErrors []*evaluation.Error
-
 	mockedEvaluator := &mockEvaluator{}
-	mockedEvaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything).Return(evaluationResults, invalidFiles, fileConfigurations, evaluationErrors, nil)
+	mockedEvaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything).Return(evaluationResults, nil)
 	mockedEvaluator.On("CreateEvaluation", mock.Anything, mock.Anything, mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0"}, nil)
+	mockedEvaluator.On("UpdateFailedYamlValidation", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	mockedEvaluator.On("UpdateFailedK8sValidation", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	messager := &mockMessager{}
 	messager.On("LoadVersionMessages", mock.Anything, mock.Anything)
 
 	k8sValidatorMock := &K8sValidatorMock{}
 
-	validFilesPathChan := newValidFilesPathsChan()
+	filesConfigurationsChan := newFilesConfigurationsChan()
 	invalidFilesChan := newInvalidFilesChan()
 
-	k8sValidatorMock.On("ValidateResources", mock.Anything).Return(validFilesPathChan, invalidFilesChan, newErrorsChan())
+	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidFilesChan, newErrorsChan())
 	k8sValidatorMock.On("InitClient", mock.Anything).Return()
 
 	printerMock := &PrinterMock{}
@@ -138,41 +146,40 @@ func TestTestCommand(t *testing.T) {
 		Reader:       readerMock,
 	}
 
-	test_testCommand_no_flags(t, mockedEvaluator, validFilesPathChan, invalidFilesChan, evaluationId, ctx)
-	test_testCommand_json_output(t, mockedEvaluator, validFilesPathChan, invalidFilesChan, evaluationId, ctx)
-	test_testCommand_yaml_output(t, mockedEvaluator, validFilesPathChan, invalidFilesChan, evaluationId, ctx)
+	test_testCommand_no_flags(t, mockedEvaluator, filesConfigurationsChan, evaluationId, ctx)
+	test_testCommand_json_output(t, mockedEvaluator, filesConfigurationsChan, evaluationId, ctx)
+	test_testCommand_yaml_output(t, mockedEvaluator, filesConfigurationsChan, evaluationId, ctx)
 }
 
-func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, validFilesPathChan chan string, invalidFilesChan chan *validation.InvalidFile, evaluationId int, ctx *TestCommandContext) {
+func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, filesConfigurationsChan chan *extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{K8sVersion: "", Output: ""})
 
-	evaluator.AssertCalled(t, "Evaluate", validFilesPathChan, invalidFilesChan, evaluationId)
-	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurationsChan, evaluationId)
 }
 
-func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, validFilesPathChan chan string, invalidFilesChan chan *validation.InvalidFile, evaluationId int, ctx *TestCommandContext) {
+func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, filesConfigurationsChan chan *extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "json"})
 
-	evaluator.AssertCalled(t, "Evaluate", validFilesPathChan, invalidFilesChan, evaluationId)
-	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurationsChan, evaluationId)
 }
 
-func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, validFilesPathChan chan string, invalidFilesChan chan *validation.InvalidFile, evaluationId int, ctx *TestCommandContext) {
+func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, filesConfigurationsChan chan *extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "yaml"})
 
-	evaluator.AssertCalled(t, "Evaluate", validFilesPathChan, invalidFilesChan, evaluationId)
-	evaluator.AssertNotCalled(t, "PrintFileParsingErrors")
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurationsChan, evaluationId)
 }
 
-func newValidFilesPathsChan() chan string {
-	validFilesChan := make(chan string, 1)
+func newFilesConfigurationsChan() chan *extractor.FileConfigurations {
+	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 
 	go func() {
-		validFilesChan <- "valid/path"
-		close(validFilesChan)
+		filesConfigurationsChan <- &extractor.FileConfigurations{
+			FileName: "valid/path",
+		}
+		close(filesConfigurationsChan)
 	}()
 
-	return validFilesChan
+	return filesConfigurationsChan
 }
 
 func newInvalidFilesChan() chan *validation.InvalidFile {
