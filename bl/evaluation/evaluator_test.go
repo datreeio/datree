@@ -4,9 +4,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/datreeio/datree/bl/validation"
-
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -25,7 +24,12 @@ func (m *mockCliClient) RequestEvaluation(evaluationRequest *cliClient.Evaluatio
 	return args.Get(0).(*cliClient.EvaluationResponse), args.Error(1)
 }
 
-func (m *mockCliClient) UpdateEvaluationValidation(request *cliClient.UpdateEvaluationValidationRequest) error {
+func (m *mockCliClient) SendFailedYamlValidation(request *cliClient.UpdateEvaluationValidationRequest) error {
+	args := m.Called(request)
+	return args.Error(0)
+}
+
+func (m *mockCliClient) SendFailedK8sValidation(request *cliClient.UpdateEvaluationValidationRequest) error {
 	args := m.Called(request)
 	return args.Error(0)
 }
@@ -65,23 +69,20 @@ func TestEvaluate(t *testing.T) {
 			mockedCliClient := &mockCliClient{}
 
 			mockedCliClient.On("CreateEvaluation", mock.Anything).Return(tt.mock.cliClient.createEvaluation, tt.mock.cliClient.createEvaluation.err)
-			mockedCliClient.On("UpdateEvaluationValidation", mock.Anything).Return(nil)
+			mockedCliClient.On("SendFailedYamlValidation", mock.Anything).Return(nil)
+			mockedCliClient.On("SendFailedK8sValidation", mock.Anything).Return(nil)
 
 			evaluator := &Evaluator{
 				cliClient: mockedCliClient,
 				osInfo:    tt.args.osInfo,
 			}
 
-			results, _, _, _, _ := evaluator.Evaluate(tt.args.validFilesChan, tt.args.invalidFilesChan, tt.args.evaluationId)
+			results, _ := evaluator.Evaluate(tt.args.filesConfigurationsChan, tt.args.evaluationId)
 
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
 				assert.Equal(t, tt.expected.response.Summary, results.Summary)
 				assert.Equal(t, tt.expected.response.FileNameRuleMapper, results.FileNameRuleMapper)
-			}
-
-			if tt.expected.isUpdateEvaluationValidationCalled {
-				mockedCliClient.AssertCalled(t, "UpdateEvaluationValidation", mock.Anything)
 			}
 
 		})
@@ -90,7 +91,6 @@ func TestEvaluate(t *testing.T) {
 
 func TestCreateEvaluation(t *testing.T) {
 	tests := []*evaluateTestCase{
-		request_evaluation_all_invalid(),
 		request_evaluation_all_valid(),
 	}
 	for _, tt := range tests {
@@ -98,7 +98,6 @@ func TestCreateEvaluation(t *testing.T) {
 			mockedCliClient := &mockCliClient{}
 
 			mockedCliClient.On("RequestEvaluation", mock.Anything).Return(tt.mock.cliClient.requestEvaluation.response, tt.mock.cliClient.requestEvaluation.err)
-			mockedCliClient.On("UpdateEvaluationValidation", mock.Anything).Return(nil)
 
 			evaluator := &Evaluator{
 				cliClient: mockedCliClient,
@@ -106,37 +105,29 @@ func TestCreateEvaluation(t *testing.T) {
 			}
 
 			// TODO: define and check the rest of the values
-			results, _, _, _, _ := evaluator.Evaluate(tt.args.validFilesChan, tt.args.invalidFilesChan, tt.args.evaluationId)
+			results, _ := evaluator.Evaluate(tt.args.filesConfigurationsChan, tt.args.evaluationId)
 
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
 				assert.Equal(t, tt.expected.response.Summary, results.Summary)
 				assert.Equal(t, tt.expected.response.FileNameRuleMapper, results.FileNameRuleMapper)
 			}
-
-			if tt.expected.isUpdateEvaluationValidationCalled {
-				mockedCliClient.AssertCalled(t, "UpdateEvaluationValidation", mock.Anything)
-			}
-
 		})
 	}
 }
 
 type evaluateArgs struct {
-	validFilesChan   chan string
-	invalidFilesChan chan *validation.InvalidFile
-	evaluationId     int
-	osInfo           *OSInfo
+	filesConfigurationsChan chan *extractor.FileConfigurations
+	evaluationId            int
+	osInfo                  *OSInfo
 }
 
 type evaluateExpected struct {
-	response                           *EvaluationResults
-	errors                             []*Error
-	err                                error
-	isRequestEvaluationCalled          bool
-	isCreateEvaluationCalled           bool
-	isUpdateEvaluationValidationCalled bool
-	isGetVersionMessageCalled          bool
+	response                  *EvaluationResults
+	err                       error
+	isRequestEvaluationCalled bool
+	isCreateEvaluationCalled  bool
+	isGetVersionMessageCalled bool
 }
 
 type evaluateTestCase struct {
@@ -147,14 +138,13 @@ type evaluateTestCase struct {
 }
 
 func request_evaluation_all_valid() *evaluateTestCase {
-	invalidPath := "path/path1/service.yaml"
+	validFilePath := "../../internal/fixtures/kube/pass-all.yaml"
 
 	return &evaluateTestCase{
 		name: "should request validation without invalid files",
 		args: &evaluateArgs{
-			validFilesChan:   newFilesChan(),
-			invalidFilesChan: newInvalidFilesChan(invalidPath),
-			evaluationId:     1,
+			filesConfigurationsChan: newFilesConfigurationsChan(validFilePath),
+			evaluationId:            1,
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
@@ -207,97 +197,18 @@ func request_evaluation_all_valid() *evaluateTestCase {
 					TotalPassedCount: 1,
 				},
 			},
-			errors:                             []*Error{},
-			err:                                nil,
-			isRequestEvaluationCalled:          true,
-			isUpdateEvaluationValidationCalled: false,
+			err:                       nil,
+			isRequestEvaluationCalled: true,
 		},
 	}
 }
 
-func request_evaluation_all_invalid() *evaluateTestCase {
-	invalidPath := "path/path1/service.yaml"
-	return &evaluateTestCase{
-		name: "should request validation all files are invalid",
-		args: &evaluateArgs{
-			validFilesChan:   newFilesChan(),
-			invalidFilesChan: newInvalidFilesChan(invalidPath),
-			evaluationId:     1,
-			osInfo: &OSInfo{
-				OS:              "darwin",
-				PlatformVersion: "1.2.3",
-				KernelVersion:   "4.5.6",
-			},
-		},
-		mock: &evaluatorMock{
-			cliClient: &cliClientMockTestCase{
-				createEvaluation: struct {
-					evaluationId int
-					k8sVersion   string
-					err          error
-				}{
-					evaluationId: 1,
-					err:          nil,
-				},
-				requestEvaluation: struct {
-					response *cliClient.EvaluationResponse
-					err      error
-				}{
-					response: &cliClient.EvaluationResponse{
-						Results: []*cliClient.EvaluationResult{},
-					},
-					err: nil,
-				},
-				updateEvaluationValidation: struct{ err error }{
-					err: nil,
-				},
-				getVersionMessage: struct {
-					response *cliClient.VersionMessage
-					err      error
-				}{
-					response: nil,
-					err:      nil,
-				},
-			},
-		},
-		expected: &evaluateExpected{
-			response: &EvaluationResults{
-				FileNameRuleMapper: make(map[string]map[int]*Rule),
-				Summary: struct {
-					RulesCount       int
-					TotalFailedRules int
-					FilesCount       int
-					TotalPassedCount int
-				}{
-					RulesCount:       0,
-					TotalFailedRules: 0,
-					FilesCount:       1,
-					TotalPassedCount: 1,
-				},
-			},
-			errors:                             []*Error{},
-			err:                                nil,
-			isRequestEvaluationCalled:          false,
-			isUpdateEvaluationValidationCalled: true,
-		},
+func newFilesConfigurationsChan(path string) chan *extractor.FileConfigurations {
+	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
+	absolutePath, _ := filepath.Abs(path)
+	filesConfigurationsChan <- &extractor.FileConfigurations{
+		FileName: absolutePath,
 	}
-}
-
-func newFilesChan() chan string {
-	files := make(chan string, 1)
-	p, _ := filepath.Abs("../../internal/fixtures/kube/pass-all.yaml")
-	files <- p
-	close(files)
-	return files
-}
-
-func newInvalidFilesChan(invalidPath string) chan *validation.InvalidFile {
-	invalidFilesChan := make(chan *validation.InvalidFile, 1)
-
-	invalidFilesChan <- &validation.InvalidFile{
-		Path:             invalidPath,
-		ValidationErrors: []error{},
-	}
-	close(invalidFilesChan)
-	return invalidFilesChan
+	close(filesConfigurationsChan)
+	return filesConfigurationsChan
 }
