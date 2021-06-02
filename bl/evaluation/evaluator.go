@@ -76,13 +76,7 @@ func (e *Evaluator) UpdateFailedK8sValidation(invalidFiles []*validation.Invalid
 	return err
 }
 
-func (e *Evaluator) Evaluate(filesConfigurationsChan chan *extractor.FileConfigurations, evaluationId int) (*EvaluationResults, error) {
-
-	var filesConfigurations []*extractor.FileConfigurations
-
-	for fileConfigurations := range filesConfigurationsChan {
-		filesConfigurations = append(filesConfigurations, fileConfigurations)
-	}
+func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationId int) (*EvaluationResults, error) {
 
 	if len(filesConfigurations) == 0 {
 		return &EvaluationResults{}, nil
