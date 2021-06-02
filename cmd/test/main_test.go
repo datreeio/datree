@@ -18,7 +18,7 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(filesConfigurationsChan chan *extractor.FileConfigurations, evaluationId int) (*evaluation.EvaluationResults, error) {
+func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationId int) (*evaluation.EvaluationResults, error) {
 	args := m.Called(filesConfigurationsChan, evaluationId)
 	return args.Get(0).(*evaluation.EvaluationResults), args.Error(1)
 }
@@ -121,7 +121,10 @@ func TestTestCommand(t *testing.T) {
 
 	k8sValidatorMock := &K8sValidatorMock{}
 
-	filesConfigurationsChan := newFilesConfigurationsChan()
+	path := "valid/path"
+	filesConfigurationsChan := newFilesConfigurationsChan(path)
+	filesConfigurations := newFilesConfigurations(path)
+
 	invalidFilesChan := newInvalidFilesChan()
 
 	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidFilesChan, newErrorsChan())
@@ -146,40 +149,48 @@ func TestTestCommand(t *testing.T) {
 		Reader:       readerMock,
 	}
 
-	test_testCommand_no_flags(t, mockedEvaluator, filesConfigurationsChan, evaluationId, ctx)
-	test_testCommand_json_output(t, mockedEvaluator, filesConfigurationsChan, evaluationId, ctx)
-	test_testCommand_yaml_output(t, mockedEvaluator, filesConfigurationsChan, evaluationId, ctx)
+	test_testCommand_no_flags(t, mockedEvaluator, filesConfigurations, evaluationId, ctx)
+	test_testCommand_json_output(t, mockedEvaluator, filesConfigurations, evaluationId, ctx)
+	test_testCommand_yaml_output(t, mockedEvaluator, filesConfigurations, evaluationId, ctx)
 }
 
-func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, filesConfigurationsChan chan *extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
+func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{K8sVersion: "", Output: ""})
 
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurationsChan, evaluationId)
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
 }
 
-func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, filesConfigurationsChan chan *extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
+func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "json"})
 
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurationsChan, evaluationId)
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
 }
 
-func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, filesConfigurationsChan chan *extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
+func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "yaml"})
 
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurationsChan, evaluationId)
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
 }
 
-func newFilesConfigurationsChan() chan *extractor.FileConfigurations {
+func newFilesConfigurationsChan(path string) chan *extractor.FileConfigurations {
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 
 	go func() {
 		filesConfigurationsChan <- &extractor.FileConfigurations{
-			FileName: "valid/path",
+			FileName: path,
 		}
 		close(filesConfigurationsChan)
 	}()
 
 	return filesConfigurationsChan
+}
+
+func newFilesConfigurations(path string) []*extractor.FileConfigurations {
+	var filesConfigurations []*extractor.FileConfigurations
+	filesConfigurations = append(filesConfigurations, &extractor.FileConfigurations{
+		FileName: path,
+	})
+	return filesConfigurations
 }
 
 func newInvalidFilesChan() chan *validation.InvalidFile {

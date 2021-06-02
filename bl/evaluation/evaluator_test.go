@@ -77,7 +77,7 @@ func TestEvaluate(t *testing.T) {
 				osInfo:    tt.args.osInfo,
 			}
 
-			results, _ := evaluator.Evaluate(tt.args.filesConfigurationsChan, tt.args.evaluationId)
+			results, _ := evaluator.Evaluate(tt.args.filesConfigurations, tt.args.evaluationId)
 
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
@@ -105,7 +105,7 @@ func TestCreateEvaluation(t *testing.T) {
 			}
 
 			// TODO: define and check the rest of the values
-			results, _ := evaluator.Evaluate(tt.args.filesConfigurationsChan, tt.args.evaluationId)
+			results, _ := evaluator.Evaluate(tt.args.filesConfigurations, tt.args.evaluationId)
 
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
@@ -117,9 +117,9 @@ func TestCreateEvaluation(t *testing.T) {
 }
 
 type evaluateArgs struct {
-	filesConfigurationsChan chan *extractor.FileConfigurations
-	evaluationId            int
-	osInfo                  *OSInfo
+	filesConfigurations []*extractor.FileConfigurations
+	evaluationId        int
+	osInfo              *OSInfo
 }
 
 type evaluateExpected struct {
@@ -143,8 +143,8 @@ func request_evaluation_all_valid() *evaluateTestCase {
 	return &evaluateTestCase{
 		name: "should request validation without invalid files",
 		args: &evaluateArgs{
-			filesConfigurationsChan: newFilesConfigurationsChan(validFilePath),
-			evaluationId:            1,
+			filesConfigurations: newFilesConfigurations(validFilePath),
+			evaluationId:        1,
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
@@ -203,12 +203,11 @@ func request_evaluation_all_valid() *evaluateTestCase {
 	}
 }
 
-func newFilesConfigurationsChan(path string) chan *extractor.FileConfigurations {
-	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
+func newFilesConfigurations(path string) []*extractor.FileConfigurations {
+	var filesConfigurations []*extractor.FileConfigurations
 	absolutePath, _ := filepath.Abs(path)
-	filesConfigurationsChan <- &extractor.FileConfigurations{
+	filesConfigurations = append(filesConfigurations, &extractor.FileConfigurations{
 		FileName: absolutePath,
-	}
-	close(filesConfigurationsChan)
-	return filesConfigurationsChan
+	})
+	return filesConfigurations
 }
