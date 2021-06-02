@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/datreeio/datree/bl/validation"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 )
@@ -27,6 +28,7 @@ type WarningInfo struct {
 
 type ValidationInfo struct {
 	IsValid          bool
+	ValidationStatus validation.ValidationStatus
 	ValidationErrors []error
 	K8sVersion       string
 }
@@ -41,23 +43,38 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 		p.printInColor(warning.Title, p.theme.Colors.Yellow)
 		fmt.Println()
 
-		p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
+		if !warning.ValidationInfo.IsValid {
+			if warning.ValidationInfo.ValidationStatus == validation.InvalidYamlFile {
+				p.printInColor("[X] YAML validation\n", p.theme.Colors.White)
+				fmt.Println()
+				for _, validationError := range warning.ValidationInfo.ValidationErrors {
+					validationError := p.theme.Colors.Red.Sprint(validationError.Error())
+					fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
+				}
+				fmt.Println()
 
-		if warning.ValidationInfo.IsValid != true {
-			p.printInColor("[X] Kubernetes schema validation\n", p.theme.Colors.White)
-			fmt.Println()
+				p.printInColor("[?] Kubernetes schema validation\n", p.theme.Colors.White)
+				p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
 
-			for _, validationError := range warning.ValidationInfo.ValidationErrors {
-				validationError := p.theme.Colors.Red.Sprint(validationError.Error())
-				fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
+				fmt.Println()
+
+			} else if warning.ValidationInfo.ValidationStatus == validation.InvalidK8sFile {
+				p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
+				p.printInColor("[X] Kubernetes schema validation\n", p.theme.Colors.White)
+				fmt.Println()
+
+				for _, validationError := range warning.ValidationInfo.ValidationErrors {
+					validationError := p.theme.Colors.Red.Sprint(validationError.Error())
+					fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
+				}
+				fmt.Println()
+				p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
+				fmt.Println()
 			}
-			fmt.Println()
-			p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
-			fmt.Println()
-			fmt.Println()
-
 		} else {
+			p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
 			p.printInColor("[V] Kubernetes schema validation\n", p.theme.Colors.Green)
+
 			fmt.Println()
 			p.printInColor("[X] Policy check\n", p.theme.Colors.White)
 			fmt.Println()
@@ -127,11 +144,11 @@ func (p *Printer) PrintSummaryTable(summary Summary) {
 	}
 
 	errorRow := []string{summary.ErrorRow.LeftCol, summary.ErrorRow.RightCol}
-	summaryTable.Rich(errorRow, []tablewriter.Colors{tablewriter.Colors{tablewriter.FgHiRedColor}, tablewriter.Colors{tablewriter.FgHiRedColor}})
+	summaryTable.Rich(errorRow, []tablewriter.Colors{{tablewriter.FgHiRedColor}, {tablewriter.FgHiRedColor}})
 	rowIndex++
 
 	successRow := []string{summary.SuccessRow.LeftCol, summary.SuccessRow.RightCol}
-	summaryTable.Rich(successRow, []tablewriter.Colors{tablewriter.Colors{tablewriter.Normal, tablewriter.FgGreenColor}, tablewriter.Colors{tablewriter.Normal, tablewriter.FgGreenColor}})
+	summaryTable.Rich(successRow, []tablewriter.Colors{{tablewriter.Normal, tablewriter.FgGreenColor}, {tablewriter.Normal, tablewriter.FgGreenColor}})
 	rowIndex++
 
 	for plainRowsIndex < len(summary.PlainRows) && summary.PlainRows[plainRowsIndex].RowIndex >= rowIndex {
