@@ -12,38 +12,25 @@ type FileReader interface {
 	ReadFileContent(filepath string) (string, error)
 }
 
-type K8sConfiguration map[string]interface{}
+type Configuration map[string]interface{}
 
-type FileConfiguration struct {
-	FileName       string             `json:"fileName"`
-	Configurations []K8sConfiguration `json:"configurations"`
+type FileConfigurations struct {
+	FileName       string          `json:"fileName"`
+	Configurations []Configuration `json:"configurations"`
 }
 
-type Error struct {
-	Message  string
-	Filename string
-}
-
-func ExtractConfiguration(path string) (*FileConfiguration, *Error) {
-	content, err := readFileContent(path)
+func ParseYaml(content string) (*[]Configuration, error) {
+	configurations, err := extractYamlConfigurations(content)
 	if err != nil {
-		return nil, &Error{Filename: path, Message: err.Error()}
-	}
-
-	configurations, err := yamlToK8sConfigurations(content)
-	if err != nil {
-		return nil, &Error{Filename: path, Message: err.Error()}
+		return nil, err
 	} else {
-		f := &FileConfiguration{
-			Configurations: *configurations,
-			FileName:       path,
-		}
-		return f, nil
+
+		return configurations, nil
 	}
 }
 
-func yamlToK8sConfigurations(content string) (*[]K8sConfiguration, error) {
-	var configurations []K8sConfiguration
+func extractYamlConfigurations(content string) (*[]Configuration, error) {
+	var configurations []Configuration
 
 	yamlDecoder := yaml.NewDecoder(bytes.NewReader([]byte(content)))
 
@@ -64,7 +51,7 @@ func yamlToK8sConfigurations(content string) (*[]K8sConfiguration, error) {
 	return &configurations, err
 }
 
-func readFileContent(filepath string) (string, error) {
+func ReadFileContent(filepath string) (string, error) {
 	dat, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return "", err

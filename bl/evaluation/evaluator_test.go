@@ -4,9 +4,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/datreeio/datree/bl/validation"
-
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -25,7 +24,12 @@ func (m *mockCliClient) RequestEvaluation(evaluationRequest *cliClient.Evaluatio
 	return args.Get(0).(*cliClient.EvaluationResponse), args.Error(1)
 }
 
-func (m *mockCliClient) UpdateEvaluationValidation(request *cliClient.UpdateEvaluationValidationRequest) error {
+func (m *mockCliClient) SendFailedYamlValidation(request *cliClient.UpdateEvaluationValidationRequest) error {
+	args := m.Called(request)
+	return args.Error(0)
+}
+
+func (m *mockCliClient) SendFailedK8sValidation(request *cliClient.UpdateEvaluationValidationRequest) error {
 	args := m.Called(request)
 	return args.Error(0)
 }
@@ -57,48 +61,44 @@ type evaluatorMock struct {
 	cliClient *cliClientMockTestCase
 }
 
-func TestEvaluate(t *testing.T) {
-	// TODO: add actual tests
-	tests := []*evaluateTestCase{}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mockedCliClient := &mockCliClient{}
+// TODO: add actual tests
+func TestCreateEvaluation(t *testing.T) {
+	t.Run("CreateEvaluation should succedd", func(t *testing.T) {
+		mockedCliClient := &mockCliClient{}
+		evaluator := &Evaluator{
+			cliClient: mockedCliClient,
+			osInfo: &OSInfo{
+				OS:              "darwin",
+				PlatformVersion: "1.2.3",
+				KernelVersion:   "4.5.6",
+			},
+		}
 
-			mockedCliClient.On("CreateEvaluation", mock.Anything).Return(tt.mock.cliClient.createEvaluation, tt.mock.cliClient.createEvaluation.err)
-			mockedCliClient.On("UpdateEvaluationValidation", mock.Anything).Return(nil)
+		cliId := "test_token"
+		cliVersion := "0.0.7"
+		k8sVersion := "1.18.1"
 
-			evaluator := &Evaluator{
-				cliClient: mockedCliClient,
-				osInfo:    tt.args.osInfo,
-			}
+		mockedCliClient.On("CreateEvaluation", mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: 1, K8sVersion: k8sVersion}, nil)
 
-			results, _, _, _, _ := evaluator.Evaluate(tt.args.validFilesChan, tt.args.invalidFilesChan, tt.args.evaluationId)
+		expectedCreateEvaluationResponse := &cliClient.CreateEvaluationResponse{EvaluationId: 1, K8sVersion: k8sVersion}
+		createEvaluationResponse, _ := evaluator.CreateEvaluation(cliId, cliVersion, k8sVersion)
 
-			if tt.expected.isRequestEvaluationCalled {
-				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
-				assert.Equal(t, tt.expected.response.Summary, results.Summary)
-				assert.Equal(t, tt.expected.response.FileNameRuleMapper, results.FileNameRuleMapper)
-			}
+		mockedCliClient.AssertCalled(t, "CreateEvaluation", mock.Anything)
+		assert.Equal(t, expectedCreateEvaluationResponse, createEvaluationResponse)
 
-			if tt.expected.isUpdateEvaluationValidationCalled {
-				mockedCliClient.AssertCalled(t, "UpdateEvaluationValidation", mock.Anything)
-			}
-
-		})
-	}
+	})
 }
 
-func TestCreateEvaluation(t *testing.T) {
+func TestEvaluate(t *testing.T) {
 	tests := []*evaluateTestCase{
-		request_evaluation_all_invalid(),
 		request_evaluation_all_valid(),
+		request_evaluation_all_invalid(),
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockedCliClient := &mockCliClient{}
 
 			mockedCliClient.On("RequestEvaluation", mock.Anything).Return(tt.mock.cliClient.requestEvaluation.response, tt.mock.cliClient.requestEvaluation.err)
-			mockedCliClient.On("UpdateEvaluationValidation", mock.Anything).Return(nil)
 
 			evaluator := &Evaluator{
 				cliClient: mockedCliClient,
@@ -106,37 +106,31 @@ func TestCreateEvaluation(t *testing.T) {
 			}
 
 			// TODO: define and check the rest of the values
-			results, _, _, _, _ := evaluator.Evaluate(tt.args.validFilesChan, tt.args.invalidFilesChan, tt.args.evaluationId)
+			results, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.evaluationId)
 
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
 				assert.Equal(t, tt.expected.response.Summary, results.Summary)
 				assert.Equal(t, tt.expected.response.FileNameRuleMapper, results.FileNameRuleMapper)
+			} else {
+				mockedCliClient.AssertNotCalled(t, "RequestEvaluation")
 			}
-
-			if tt.expected.isUpdateEvaluationValidationCalled {
-				mockedCliClient.AssertCalled(t, "UpdateEvaluationValidation", mock.Anything)
-			}
-
 		})
 	}
 }
 
 type evaluateArgs struct {
-	validFilesChan   chan string
-	invalidFilesChan chan *validation.InvalidFile
-	evaluationId     int
-	osInfo           *OSInfo
+	validFilesConfigurations []*extractor.FileConfigurations
+	evaluationId             int
+	osInfo                   *OSInfo
 }
 
 type evaluateExpected struct {
-	response                           *EvaluationResults
-	errors                             []*Error
-	err                                error
-	isRequestEvaluationCalled          bool
-	isCreateEvaluationCalled           bool
-	isUpdateEvaluationValidationCalled bool
-	isGetVersionMessageCalled          bool
+	response                  *EvaluationResults
+	err                       error
+	isRequestEvaluationCalled bool
+	isCreateEvaluationCalled  bool
+	isGetVersionMessageCalled bool
 }
 
 type evaluateTestCase struct {
@@ -147,14 +141,13 @@ type evaluateTestCase struct {
 }
 
 func request_evaluation_all_valid() *evaluateTestCase {
-	invalidPath := "path/path1/service.yaml"
+	validFilePath := "../../internal/fixtures/kube/pass-all.yaml"
 
 	return &evaluateTestCase{
 		name: "should request validation without invalid files",
 		args: &evaluateArgs{
-			validFilesChan:   newFilesChan(),
-			invalidFilesChan: newInvalidFilesChan(invalidPath),
-			evaluationId:     1,
+			validFilesConfigurations: newFilesConfigurations(validFilePath),
+			evaluationId:             1,
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
@@ -207,22 +200,18 @@ func request_evaluation_all_valid() *evaluateTestCase {
 					TotalPassedCount: 1,
 				},
 			},
-			errors:                             []*Error{},
-			err:                                nil,
-			isRequestEvaluationCalled:          true,
-			isUpdateEvaluationValidationCalled: false,
+			err:                       nil,
+			isRequestEvaluationCalled: true,
 		},
 	}
 }
 
 func request_evaluation_all_invalid() *evaluateTestCase {
-	invalidPath := "path/path1/service.yaml"
 	return &evaluateTestCase{
-		name: "should request validation all files are invalid",
+		name: "should not request validation if there are no valid files",
 		args: &evaluateArgs{
-			validFilesChan:   newFilesChan(),
-			invalidFilesChan: newInvalidFilesChan(invalidPath),
-			evaluationId:     1,
+			validFilesConfigurations: []*extractor.FileConfigurations{},
+			evaluationId:             1,
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
@@ -272,32 +261,20 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 					RulesCount:       0,
 					TotalFailedRules: 0,
 					FilesCount:       1,
-					TotalPassedCount: 1,
+					TotalPassedCount: 0,
 				},
 			},
-			errors:                             []*Error{},
-			err:                                nil,
-			isRequestEvaluationCalled:          false,
-			isUpdateEvaluationValidationCalled: true,
+			err:                       nil,
+			isRequestEvaluationCalled: false,
 		},
 	}
 }
 
-func newFilesChan() chan string {
-	files := make(chan string, 1)
-	p, _ := filepath.Abs("../../internal/fixtures/kube/pass-all.yaml")
-	files <- p
-	close(files)
-	return files
-}
-
-func newInvalidFilesChan(invalidPath string) chan *validation.InvalidFile {
-	invalidFilesChan := make(chan *validation.InvalidFile, 1)
-
-	invalidFilesChan <- &validation.InvalidFile{
-		Path:             invalidPath,
-		ValidationErrors: []error{},
-	}
-	close(invalidFilesChan)
-	return invalidFilesChan
+func newFilesConfigurations(path string) []*extractor.FileConfigurations {
+	var filesConfigurations []*extractor.FileConfigurations
+	absolutePath, _ := filepath.Abs(path)
+	filesConfigurations = append(filesConfigurations, &extractor.FileConfigurations{
+		FileName: absolutePath,
+	})
+	return filesConfigurations
 }

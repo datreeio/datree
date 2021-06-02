@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/datreeio/datree/bl/files"
+	"github.com/datreeio/datree/pkg/extractor"
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 )
 
@@ -21,8 +21,20 @@ func New() *K8sValidator {
 	return &K8sValidator{}
 }
 
+type ValidationStatus int
+
+const (
+	InvalidYamlFile ValidationStatus = iota + 1
+	InvalidK8sFile
+)
+
+func (validationStatus ValidationStatus) String() string {
+	return [...]string{"InvalidYamlFile", "InvalidK8sFile"}[validationStatus]
+}
+
 type InvalidFile struct {
 	Path             string
+	ValidationStatus ValidationStatus
 	ValidationErrors []error
 }
 
@@ -30,35 +42,39 @@ func (val *K8sValidator) InitClient(k8sVersion string) {
 	val.validationClient = newKubconformValidator(k8sVersion)
 }
 
-func (val *K8sValidator) ValidateResources(paths []string) (chan string, chan *InvalidFile, chan error) {
-	pathsChan := files.ToAbsolutePaths(paths)
-
-	errorChan := make(chan error)
-	validFilesPathChan := make(chan string)
-	invalidFilesPathsChan := make(chan *InvalidFile)
+func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *InvalidFile) {
+	validK8sFilesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
+	invalidK8sFilesChan := make(chan *InvalidFile, concurrency)
 
 	go func() {
-		for path := range pathsChan {
-			isValid, validationErrors, err := val.validateResource(path)
+		defer func() {
+			close(invalidK8sFilesChan)
+			close(validK8sFilesConfigurationsChan)
+		}()
+
+		for fileConfigurations := range filesConfigurationsChan {
+
+			isValid, validationErrors, err := val.validateResource(fileConfigurations.FileName)
+			if err != nil {
+				invalidK8sFilesChan <- &InvalidFile{
+					Path:             fileConfigurations.FileName,
+					ValidationStatus: InvalidK8sFile,
+					ValidationErrors: []error{err},
+				}
+				continue
+			}
 			if isValid {
-				validFilesPathChan <- path
+				validK8sFilesConfigurationsChan <- fileConfigurations
 			} else {
-				invalidFilesPathsChan <- &InvalidFile{
-					Path:             path,
+				invalidK8sFilesChan <- &InvalidFile{
+					Path:             fileConfigurations.FileName,
+					ValidationStatus: InvalidK8sFile,
 					ValidationErrors: validationErrors,
 				}
 			}
-			if err != nil {
-				errorChan <- err
-			}
 		}
-
-		close(invalidFilesPathsChan)
-		close(validFilesPathChan)
-		close(errorChan)
 	}()
-
-	return validFilesPathChan, invalidFilesPathsChan, errorChan
+	return validK8sFilesConfigurationsChan, invalidK8sFilesChan
 }
 
 func (val *K8sValidator) validateResource(filepath string) (bool, []error, error) {
