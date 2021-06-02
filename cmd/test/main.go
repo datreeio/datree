@@ -142,7 +142,9 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		passedPolicyCheckCount = results.Summary.TotalPassedCount
 	}
 
+	configsCount := countConfigurations(filesConfigurations)
 	evaluationSummary := printer.EvaluationSummary{
+		ConfigsCount:              configsCount,
 		FilesCount:                len(paths),
 		PassedYamlValidationCount: len(paths),
 		PassedK8sValidationCount:  len(filesConfigurations),
@@ -164,6 +166,16 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	return invocationFailedErr
+}
+
+func countConfigurations(filesConfigurations []*extractor.FileConfiguration) int {
+	totalConfigs := 0
+
+	for _, fileConfiguration := range filesConfigurations {
+		totalConfigs += len(fileConfiguration.Configurations)
+	}
+
+	return totalConfigs
 }
 
 func createSpinner(text string, color string) *spinner.Spinner {
