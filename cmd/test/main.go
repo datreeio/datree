@@ -17,7 +17,7 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(filesConfigurationsChan chan *extractor.FileConfigurations, evaluationId int) (*evaluation.EvaluationResults, error)
+	Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationId int) (*evaluation.EvaluationResults, error)
 	CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error)
 	UpdateFailedYamlValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error
 	UpdateFailedK8sValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error
@@ -157,7 +157,12 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		}
 	}
 
-	results, err := ctx.Evaluator.Evaluate(validK8sFilesConfigurationsChan, createEvaluationResponse.EvaluationId)
+	var validK8sFilesConfigurations []*extractor.FileConfigurations
+	for fileConfigurations := range validK8sFilesConfigurationsChan {
+		validK8sFilesConfigurations = append(validK8sFilesConfigurations, fileConfigurations)
+	}
+
+	results, err := ctx.Evaluator.Evaluate(validK8sFilesConfigurations, createEvaluationResponse.EvaluationId)
 
 	if _spinner != nil && isInteractiveMode == true {
 		_spinner.Stop()
@@ -170,10 +175,14 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	passedYamlValidationCount := filesPathsLen - invalidYamlFilesLen
 	passedK8sValidationCount := passedYamlValidationCount - invalidK8sFilesLen
+
+	configsCount := countConfigurations(validK8sFilesConfigurations)
+
 	evaluationSummary := printer.EvaluationSummary{
 		FilesCount:                filesPathsLen,
 		PassedYamlValidationCount: passedYamlValidationCount,
 		PassedK8sValidationCount:  passedK8sValidationCount,
+		ConfigsCount:              configsCount,
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
