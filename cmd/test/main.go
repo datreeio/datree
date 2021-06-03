@@ -2,13 +2,13 @@ package test
 
 import (
 	"fmt"
-	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 
-	"github.com/briandowns/spinner"
 	"github.com/datreeio/datree/bl/evaluation"
+	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/localConfig"
@@ -17,8 +17,10 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(validFilesPathsChan chan string, invalidFilesPaths chan *validation.InvalidFile, evaluationId int) (*evaluation.EvaluationResults, []*validation.InvalidFile, []*extractor.FileConfiguration, []*evaluation.Error, error)
+	Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationId int) (*evaluation.EvaluationResults, error)
 	CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error)
+	UpdateFailedYamlValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error
+	UpdateFailedK8sValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error
 }
 
 type Messager interface {
@@ -26,7 +28,7 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(paths []string) (chan string, chan *validation.InvalidFile, chan error)
+	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidFile)
 	InitClient(k8sVersion string)
 }
 
@@ -100,12 +102,13 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		}()
 	}
 
-	filePaths, err := ctx.Reader.FilterFiles(paths)
+	filesPaths, err := ctx.Reader.FilterFiles(paths)
 	if err != nil {
 		fmt.Println(err.Error())
 		return err
 	}
-	if len(filePaths) == 0 {
+	filesPathsLen := len(filesPaths)
+	if filesPathsLen == 0 {
 		noFilesErr := fmt.Errorf("No files detected")
 		fmt.Println(noFilesErr.Error())
 		return noFilesErr
@@ -117,6 +120,10 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		_spinner.Start()
 	}
 
+	concurrency := 100
+
+	validYamlFilesConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(filesPaths, concurrency)
+
 	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion, flags.K8sVersion)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -124,14 +131,38 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion)
-	validFilesPathsChan, invalidFilesPathsChan, errorsChan := ctx.K8sValidator.ValidateResources(paths)
-	go func() {
-		for err := range errorsChan {
-			fmt.Println(err.Error())
-		}
-	}()
+	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlFilesConfigurationsChan, concurrency)
 
-	results, invalidFiles, filesConfigurations, errors, err := ctx.Evaluator.Evaluate(validFilesPathsChan, invalidFilesPathsChan, createEvaluationResponse.EvaluationId)
+	invalidYamlFiles := aggregateInvalidFiles(invalidYamlFilesChan)
+
+	invalidYamlFilesLen := len(invalidYamlFiles)
+
+	stopEvaluation := invalidYamlFilesLen == filesPathsLen
+	err = ctx.Evaluator.UpdateFailedYamlValidation(invalidYamlFiles, createEvaluationResponse.EvaluationId, stopEvaluation)
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
+
+	invalidK8sFiles := aggregateInvalidFiles(invalidK8sFilesChan)
+
+	invalidK8sFilesLen := len(invalidK8sFiles)
+	stopEvaluation = invalidYamlFilesLen+invalidK8sFilesLen == filesPathsLen
+
+	if len(invalidK8sFiles) > 0 {
+		err = ctx.Evaluator.UpdateFailedK8sValidation(invalidK8sFiles, createEvaluationResponse.EvaluationId, stopEvaluation)
+		if err != nil {
+			fmt.Println(err.Error())
+			return err
+		}
+	}
+
+	var validK8sFilesConfigurations []*extractor.FileConfigurations
+	for fileConfigurations := range validK8sFilesConfigurationsChan {
+		validK8sFilesConfigurations = append(validK8sFilesConfigurations, fileConfigurations)
+	}
+
+	results, err := ctx.Evaluator.Evaluate(validK8sFilesConfigurations, createEvaluationResponse.EvaluationId)
 
 	if _spinner != nil && isInteractiveMode == true {
 		_spinner.Stop()
@@ -142,14 +173,20 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		passedPolicyCheckCount = results.Summary.TotalPassedCount
 	}
 
-	configsCount := countConfigurations(filesConfigurations)
+	passedYamlValidationCount := filesPathsLen - invalidYamlFilesLen
+	passedK8sValidationCount := passedYamlValidationCount - invalidK8sFilesLen
+
+	configsCount := countConfigurations(validK8sFilesConfigurations)
+
 	evaluationSummary := printer.EvaluationSummary{
+		FilesCount:                filesPathsLen,
+		PassedYamlValidationCount: passedYamlValidationCount,
+		PassedK8sValidationCount:  passedK8sValidationCount,
 		ConfigsCount:              configsCount,
-		FilesCount:                len(paths),
-		PassedYamlValidationCount: len(paths),
-		PassedK8sValidationCount:  len(filesConfigurations),
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
+
+	invalidFiles := append(invalidYamlFiles, invalidK8sFiles...)
 
 	err = evaluation.PrintResults(results, invalidFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion)
 
@@ -158,36 +195,9 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	if err != nil {
 		fmt.Println(err.Error())
 		invocationFailedErr = err
-	} else if len(errors) > 0 {
-		printEvaluationErrors(errors)
-		invocationFailedErr = fmt.Errorf("Invocation failed")
 	} else if len(invalidFiles) > 0 || results.Summary.TotalFailedRules > 0 {
-		invocationFailedErr = fmt.Errorf("Invocation failed")
+		invocationFailedErr = fmt.Errorf("Evaluation failed")
 	}
 
 	return invocationFailedErr
-}
-
-func countConfigurations(filesConfigurations []*extractor.FileConfiguration) int {
-	totalConfigs := 0
-
-	for _, fileConfiguration := range filesConfigurations {
-		totalConfigs += len(fileConfiguration.Configurations)
-	}
-
-	return totalConfigs
-}
-
-func createSpinner(text string, color string) *spinner.Spinner {
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
-	s.Suffix = text
-	s.Color(color)
-	return s
-}
-
-func printEvaluationErrors(errors []*evaluation.Error) {
-	fmt.Println("The following files failed:")
-	for _, fileError := range errors {
-		fmt.Printf("\n\tFilename: %s\n\tError: %s\n\t---------------------", fileError.Filename, fileError.Message)
-	}
 }

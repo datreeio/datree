@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/extractor"
 )
 
-func toAbsolutePath(path string) (string, error) {
+func ToAbsolutePath(path string) (string, error) {
 	absolutePath, err := filepath.Abs(path)
 	if err != nil {
 		return "", err
@@ -20,18 +23,39 @@ func toAbsolutePath(path string) (string, error) {
 	return "", fmt.Errorf("failed parsing absolute path %s", path)
 }
 
-func ToAbsolutePaths(paths []string) chan string {
-	pathsChan := make(chan string)
+func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidFile) {
+	filesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
+	invalidFilesChan := make(chan *validation.InvalidFile, concurrency)
 
 	go func() {
-		for _, p := range paths {
-			absolutePath, err := toAbsolutePath(p)
-			if err == nil {
-				pathsChan <- absolutePath
+		defer func() {
+			close(filesConfigurationsChan)
+			close(invalidFilesChan)
+		}()
+
+		for _, path := range paths {
+
+			absolutePath, err := ToAbsolutePath(path)
+			if err != nil {
+				invalidFilesChan <- &validation.InvalidFile{Path: path, ValidationStatus: validation.InvalidYamlFile, ValidationErrors: []error{err}}
+				continue
 			}
+
+			content, err := extractor.ReadFileContent(absolutePath)
+			if err != nil {
+				invalidFilesChan <- &validation.InvalidFile{Path: absolutePath, ValidationStatus: validation.InvalidYamlFile, ValidationErrors: []error{err}}
+				continue
+			}
+
+			configurations, err := extractor.ParseYaml(content)
+			if err != nil {
+				invalidFilesChan <- &validation.InvalidFile{Path: absolutePath, ValidationStatus: validation.InvalidYamlFile, ValidationErrors: []error{err}}
+				continue
+			}
+
+			filesConfigurationsChan <- &extractor.FileConfigurations{FileName: absolutePath, Configurations: *configurations}
 		}
-		close(pathsChan)
 	}()
 
-	return pathsChan
+	return filesConfigurationsChan, invalidFilesChan
 }
