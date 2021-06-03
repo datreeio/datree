@@ -88,6 +88,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validati
 			Details: []printer.WarningInfo{},
 			ValidationInfo: printer.ValidationInfo{
 				IsValid:          false,
+				ValidationStatus: invalidFile.ValidationStatus,
 				ValidationErrors: invalidFile.ValidationErrors,
 				K8sVersion:       k8sVersion,
 			},

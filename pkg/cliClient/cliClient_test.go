@@ -174,14 +174,14 @@ func TestGetVersionMessage(t *testing.T) {
 	}
 }
 
-func readMock(path string) ([]extractor.K8sConfiguration, error) {
-	var configurations []extractor.K8sConfiguration
+func readMock(path string) ([]extractor.Configuration, error) {
+	var configurations []extractor.Configuration
 
 	absPath, _ := filepath.Abs(path)
 	content, err := ioutil.ReadFile(absPath)
 
 	if err != nil {
-		return []extractor.K8sConfiguration{}, err
+		return []extractor.Configuration{}, err
 	}
 
 	yamlDecoder := yaml.NewDecoder(bytes.NewReader(content))
@@ -198,10 +198,10 @@ func readMock(path string) ([]extractor.K8sConfiguration, error) {
 	return configurations, nil
 }
 
-func castPropertiesMock(fileName string, path string) []*extractor.FileConfiguration {
+func castPropertiesMock(fileName string, path string) []*extractor.FileConfigurations {
 	configurations, _ := readMock(path)
 
-	properties := []*extractor.FileConfiguration{
+	properties := []*extractor.FileConfigurations{
 		{
 			FileName:       fileName,
 			Configurations: configurations,
