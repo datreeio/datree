@@ -6,7 +6,7 @@
 ![open issues](https://img.shields.io/github/issues-raw/datreeio/datree)
 
 ## What is Datree?
-[Datree](https://datree.io/?utm_source=github&utm_medium=organic_oss) is a CLI solution that supports Kubernetes owners in their roles, by preventing developers from making errors in Kubernetes configurations that can cause clusters to fail in production. Our CLI solution is open source, enabling it to be supported by the Kubernetes community.  
+[Datree](https://datree.io/?utm_source=github&utm_medium=organic_oss) is a CLI tool that supports Kubernetes admins in their roles, by preventing developers from making errors in Kubernetes configurations that can cause clusters to fail in production. Our CLI tool is open source, enabling it to be supported by the Kubernetes community.  
 
 It’s far more effective than manual processes, such as sending an email to a slew of developers, begging them to set various limits, which likely falls on deaf ears because developers are already overwhelmed.
 
