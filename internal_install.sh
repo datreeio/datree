@@ -14,27 +14,28 @@ OUTPUT_BASENAME_WITH_POSTFIX=$OUTPUT_BASENAME.zip
 curl -L $DOWNLOAD_URL -o $OUTPUT_BASENAME_WITH_POSTFIX
 unzip $OUTPUT_BASENAME_WITH_POSTFIX -d $OUTPUT_BASENAME
 
-mkdir -p ~/.datree
+DATREE_CONFIG_PATH=~/.datree
+mkdir -p $DATREE_CONFIG_PATH
 
-TOKEN="internal_$(openssl rand -hex 12)"
 if [[ $osName == "Linux" ]]; then
     # remove all except config.yaml
-    sudo rm -f `ls | grep -v "config.yaml"` 
+    sudo rm -f `ls $DATREE_CONFIG_PATH | grep -v "config.yaml"` 
     # copy but without overwrite
     sudo cp -n $OUTPUT_BASENAME/datree /usr/local/bin
 else
      # remove all except config.yaml
-    sudo rm -f `ls | grep -v "config.yaml"` 
+    sudo rm -f `ls $DATREE_CONFIG_PATH | grep -v "config.yaml"` 
 
     cp $OUTPUT_BASENAME/datree /usr/local/bin
 fi
 
-$TOKEN >> "config.yaml"
+CONFIG_FILE_PATH=$DATREE_CONFIG_PATH/config.yaml
+if [ ! -f "$CONFIG_FILE_PATH" ]; then
+    echo "token: internal_"$(openssl rand -hex 12) >> $CONFIG_FILE_PATH
+fi
 
 rm $OUTPUT_BASENAME_WITH_POSTFIX
 rm -rf $OUTPUT_BASENAME
-
-
 
 curl https://get.datree.io/k8s-demo.yaml > ~/.datree/k8s-demo.yaml
 
