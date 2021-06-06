@@ -17,15 +17,12 @@ unzip $OUTPUT_BASENAME_WITH_POSTFIX -d $OUTPUT_BASENAME
 DATREE_CONFIG_PATH=~/.datree
 mkdir -p $DATREE_CONFIG_PATH
 
-if [[ $osName == "Linux" ]]; then
-    # remove all except config.yaml
-    sudo rm -f `ls $DATREE_CONFIG_PATH | grep -v "config.yaml"` 
-    # copy but without overwrite
-    sudo cp -n $OUTPUT_BASENAME/datree /usr/local/bin
+if [[ $osName == "Linux" ]];
+then
+    sudo rm -f /usr/local/bin/datree
+    sudo cp $OUTPUT_BASENAME/datree /usr/local/bin
 else
-     # remove all except config.yaml
-    sudo rm -f `ls $DATREE_CONFIG_PATH | grep -v "config.yaml"` 
-
+    rm -f /usr/local/bin/datree
     cp $OUTPUT_BASENAME/datree /usr/local/bin
 fi
 
