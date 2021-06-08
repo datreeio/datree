@@ -23,9 +23,9 @@ func ToAbsolutePath(path string) (string, error) {
 	return "", fmt.Errorf("failed parsing absolute path %s", path)
 }
 
-func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidFile) {
+func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidYamlFile) {
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
-	invalidFilesChan := make(chan *validation.InvalidFile, concurrency)
+	invalidFilesChan := make(chan *validation.InvalidYamlFile, concurrency)
 
 	go func() {
 		defer func() {
@@ -37,19 +37,19 @@ func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extracto
 
 			absolutePath, err := ToAbsolutePath(path)
 			if err != nil {
-				invalidFilesChan <- &validation.InvalidFile{Path: path, ValidationStatus: validation.InvalidYamlFile, ValidationErrors: []error{err}}
+				invalidFilesChan <- &validation.InvalidYamlFile{Path: path, ValidationErrors: []error{err}}
 				continue
 			}
 
 			content, err := extractor.ReadFileContent(absolutePath)
 			if err != nil {
-				invalidFilesChan <- &validation.InvalidFile{Path: absolutePath, ValidationStatus: validation.InvalidYamlFile, ValidationErrors: []error{err}}
+				invalidFilesChan <- &validation.InvalidYamlFile{Path: absolutePath, ValidationErrors: []error{err}}
 				continue
 			}
 
 			configurations, err := extractor.ParseYaml(content)
 			if err != nil {
-				invalidFilesChan <- &validation.InvalidFile{Path: absolutePath, ValidationStatus: validation.InvalidYamlFile, ValidationErrors: []error{err}}
+				invalidFilesChan <- &validation.InvalidYamlFile{Path: absolutePath, ValidationErrors: []error{err}}
 				continue
 			}
 

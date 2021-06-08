@@ -13,24 +13,26 @@ import (
 )
 
 type Printer interface {
-	PrintWarnings(warnings []printer.Warning)
+	PrintWarnings(invalidYamlWarnings []printer.Warning, invalidK8sWarnings []printer.Warning, failedEvaluationWarnings []printer.Warning)
 	PrintSummaryTable(summary printer.Summary)
 	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 }
 
 type FormattedOutput struct {
-	Results           *EvaluationResults
+	Evaluationresults *EvaluationResults
 	EvaluationSummary printer.EvaluationSummary
+	InvalidYamlFiles  []*validation.InvalidYamlFile
+	InvalidK8sFiles   []*validation.InvalidK8sFile
 }
 
-func PrintResults(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string) error {
+func PrintResults(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string) error {
 	switch {
 	case outputFormat == "json":
-		return jsonOutput(&FormattedOutput{Results: results, EvaluationSummary: evaluationSummary})
+		return jsonOutput(&FormattedOutput{Evaluationresults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
 	case outputFormat == "yaml":
-		return yamlOutput(&FormattedOutput{Results: results, EvaluationSummary: evaluationSummary})
+		return yamlOutput(&FormattedOutput{Evaluationresults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
 	default:
-		return textOutput(results, invalidFiles, evaluationSummary, loginURL, printer, k8sVersion)
+		return textOutput(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion)
 	}
 }
 
@@ -56,19 +58,19 @@ func yamlOutput(formattedOutput *FormattedOutput) error {
 	return nil
 }
 
-func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string) error {
+func textOutput(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	warnings, err := parseToPrinterWarnings(results, invalidFiles, pwd, k8sVersion)
+	invalidYamlWarnings, invalidK8sWarnings, failedEvaluationWarnings, err := parseToPrinterWarnings(results, invalidYamlFiles, invalidK8sFiles, pwd, k8sVersion)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 
-	printer.PrintWarnings(warnings)
+	printer.PrintWarnings(invalidYamlWarnings, invalidK8sWarnings, failedEvaluationWarnings)
 
 	summary := parseEvaluationResultsToSummary(results, evaluationSummary, url)
 
@@ -79,16 +81,29 @@ func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFi
 	return nil
 }
 
-func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validation.InvalidFile, pwd string, k8sVersion string) ([]printer.Warning, error) {
-	var warnings = []printer.Warning{}
+func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, pwd string, k8sVersion string) ([]printer.Warning, []printer.Warning, []printer.Warning, error) {
+	var invalidYamlWarnings = []printer.Warning{}
+	var invalidK8sWarnings = []printer.Warning{}
+	var failedEvaluationWarnings = []printer.Warning{}
 
-	for _, invalidFile := range invalidFiles {
-		warnings = append(warnings, printer.Warning{
+	for _, invalidFile := range invalidYamlFiles {
+		invalidYamlWarnings = append(invalidYamlWarnings, printer.Warning{
 			Title:   fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
 			Details: []printer.WarningInfo{},
 			ValidationInfo: printer.ValidationInfo{
 				IsValid:          false,
-				ValidationStatus: invalidFile.ValidationStatus,
+				ValidationErrors: invalidFile.ValidationErrors,
+				K8sVersion:       k8sVersion,
+			},
+		})
+	}
+
+	for _, invalidFile := range invalidK8sFiles {
+		invalidK8sWarnings = append(invalidK8sWarnings, printer.Warning{
+			Title:   fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
+			Details: []printer.WarningInfo{},
+			ValidationInfo: printer.ValidationInfo{
+				IsValid:          false,
 				ValidationErrors: invalidFile.ValidationErrors,
 				K8sVersion:       k8sVersion,
 			},
@@ -110,7 +125,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validati
 
 			relativePath, _ := filepath.Rel(pwd, fileName)
 
-			warnings = append(warnings, printer.Warning{
+			failedEvaluationWarnings = append(failedEvaluationWarnings, printer.Warning{
 				Title:   fmt.Sprintf(">>  File: %s\n", relativePath),
 				Details: warningDetails,
 				ValidationInfo: printer.ValidationInfo{
@@ -122,7 +137,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validati
 		}
 	}
 
-	return warnings, nil
+	return invalidYamlWarnings, invalidK8sWarnings, failedEvaluationWarnings, nil
 }
 
 type OutputTitle int

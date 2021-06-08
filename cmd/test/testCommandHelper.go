@@ -15,8 +15,15 @@ func createSpinner(text string, color string) *spinner.Spinner {
 	return s
 }
 
-func aggregateInvalidFiles(invalidFilesChan chan *validation.InvalidFile) []*validation.InvalidFile {
-	var invalidFiles []*validation.InvalidFile
+func aggregateInvalidK8sFiles(invalidFilesChan chan *validation.InvalidK8sFile) []*validation.InvalidK8sFile {
+	var invalidFiles []*validation.InvalidK8sFile
+	for invalidFile := range invalidFilesChan {
+		invalidFiles = append(invalidFiles, invalidFile)
+	}
+	return invalidFiles
+}
+func aggregateInvalidYamlFiles(invalidFilesChan chan *validation.InvalidYamlFile) []*validation.InvalidYamlFile {
+	var invalidFiles []*validation.InvalidYamlFile
 	for invalidFile := range invalidFilesChan {
 		invalidFiles = append(invalidFiles, invalidFile)
 	}
