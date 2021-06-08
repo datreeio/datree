@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/datreeio/datree/bl/validation"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 )
@@ -28,7 +27,6 @@ type WarningInfo struct {
 
 type ValidationInfo struct {
 	IsValid          bool
-	ValidationStatus validation.ValidationStatus
 	ValidationErrors []error
 	K8sVersion       string
 }
@@ -38,40 +36,47 @@ type Warning struct {
 	ValidationInfo ValidationInfo
 }
 
-func (p *Printer) PrintWarnings(warnings []Warning) {
-	for _, warning := range warnings {
+func (p *Printer) PrintWarnings(invalidYamlWarnings []Warning, invalidK8sWarnings []Warning, failedEvaluationWarnings []Warning) {
+	for _, warning := range invalidYamlWarnings {
 		p.printInColor(warning.Title, p.theme.Colors.Yellow)
 		fmt.Println()
 
-		if !warning.ValidationInfo.IsValid {
-			if warning.ValidationInfo.ValidationStatus == validation.InvalidYamlFile {
-				p.printInColor("[X] YAML validation\n", p.theme.Colors.White)
-				fmt.Println()
-				for _, validationError := range warning.ValidationInfo.ValidationErrors {
-					validationError := p.theme.Colors.Red.Sprint(validationError.Error())
-					fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
-				}
-				fmt.Println()
+		p.printInColor("[X] YAML validation\n", p.theme.Colors.White)
+		fmt.Println()
+		for _, validationError := range warning.ValidationInfo.ValidationErrors {
+			validationError := p.theme.Colors.Red.Sprint(validationError.Error())
+			fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
+		}
+		fmt.Println()
 
-				p.printInColor("[?] Kubernetes schema validation\n", p.theme.Colors.White)
-				p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
+		p.printInColor("[?] Kubernetes schema validation\n", p.theme.Colors.White)
+		p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
 
-				fmt.Println()
+		fmt.Println()
+	}
 
-			} else if warning.ValidationInfo.ValidationStatus == validation.InvalidK8sFile {
-				p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
-				p.printInColor("[X] Kubernetes schema validation\n", p.theme.Colors.White)
-				fmt.Println()
+	for _, warning := range invalidK8sWarnings {
+		p.printInColor(warning.Title, p.theme.Colors.Yellow)
+		fmt.Println()
 
-				for _, validationError := range warning.ValidationInfo.ValidationErrors {
-					validationError := p.theme.Colors.Red.Sprint(validationError.Error())
-					fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
-				}
-				fmt.Println()
-				p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
-				fmt.Println()
-			}
-		} else {
+		p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
+		p.printInColor("[X] Kubernetes schema validation\n", p.theme.Colors.White)
+		fmt.Println()
+
+		for _, validationError := range warning.ValidationInfo.ValidationErrors {
+			validationError := p.theme.Colors.Red.Sprint(validationError.Error())
+			fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
+		}
+		fmt.Println()
+		p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
+
+		fmt.Println()
+	}
+	for _, warning := range failedEvaluationWarnings {
+		p.printInColor(warning.Title, p.theme.Colors.Yellow)
+		fmt.Println()
+
+		if warning.ValidationInfo.IsValid {
 			p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
 			p.printInColor("[V] Kubernetes schema validation\n", p.theme.Colors.Green)
 
