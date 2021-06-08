@@ -29,6 +29,14 @@ type InvalidYamlFile InvalidFile
 
 type InvalidK8sFile InvalidFile
 
+type InvalidK8sSchemaError struct {
+	ErrorMessage string
+}
+
+func (e *InvalidK8sSchemaError) Error() string {
+	return fmt.Sprintf("k8s schema validation error: %s\n", e.ErrorMessage)
+}
+
 func (val *K8sValidator) InitClient(k8sVersion string) {
 	val.validationClient = newKubconformValidator(k8sVersion)
 }
@@ -44,7 +52,6 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 		}()
 
 		for fileConfigurations := range filesConfigurationsChan {
-
 			isValid, validationErrors, err := val.validateResource(fileConfigurations.FileName)
 			if err != nil {
 				invalidK8sFilesChan <- &InvalidK8sFile{
@@ -69,7 +76,7 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 func (val *K8sValidator) validateResource(filepath string) (bool, []error, error) {
 	f, err := os.Open(filepath)
 	if err != nil {
-		return false, []error{}, fmt.Errorf("failed opening %s: %s", filepath, err)
+		return false, []error{}, fmt.Errorf("failed opening %s: %s", filepath, &InvalidK8sSchemaError{ErrorMessage: err.Error()})
 	}
 
 	results := val.validationClient.Validate(filepath, f)
@@ -81,7 +88,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, error
 		// File starts with ---, the parser assumes a first empty resource
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
 			isValid = false
-			validationErrors = append(validationErrors, res.Err)
+			validationErrors = append(validationErrors, &InvalidK8sSchemaError{ErrorMessage: res.Err.Error()})
 		}
 	}
 
