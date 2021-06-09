@@ -29,14 +29,6 @@ type InvalidYamlFile InvalidFile
 
 type InvalidK8sFile InvalidFile
 
-type InvalidK8sSchemaError struct {
-	ErrorMessage string
-}
-
-func (e *InvalidK8sSchemaError) Error() string {
-	return fmt.Sprintf("k8s schema validation error: %s\n", e.ErrorMessage)
-}
-
 func (val *K8sValidator) InitClient(k8sVersion string) {
 	val.validationClient = newKubconformValidator(k8sVersion)
 }
