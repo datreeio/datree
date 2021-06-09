@@ -74,8 +74,8 @@ type PrinterMock struct {
 	mock.Mock
 }
 
-func (p *PrinterMock) PrintWarnings(invalidYamlWarnings []printer.Warning, invalidK8sWarnings []printer.Warning, failedEvaluationWarnings []printer.Warning) {
-	p.Called(invalidYamlWarnings, invalidK8sWarnings, failedEvaluationWarnings)
+func (p *PrinterMock) PrintWarnings(warnings []printer.Warning) {
+	p.Called(warnings)
 }
 
 func (p *PrinterMock) PrintSummaryTable(summary printer.Summary) {
@@ -131,7 +131,7 @@ func TestTestCommand(t *testing.T) {
 	k8sValidatorMock.On("InitClient", mock.Anything).Return()
 
 	printerMock := &PrinterMock{}
-	printerMock.On("PrintWarnings", mock.Anything, mock.Anything, mock.Anything)
+	printerMock.On("PrintWarnings", mock.Anything)
 	printerMock.On("PrintSummaryTable", mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
