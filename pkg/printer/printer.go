@@ -53,12 +53,11 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 			}
 			fmt.Println()
 
-			p.printInColor("[?] Kubernetes schema validation\n", p.theme.Colors.White)
-			p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
-
+			p.printInColor("[?] Kubernetes schema validation didn’t run for this file\n", p.theme.Colors.White)
+			p.printSkippedPolicyCheck()
 			fmt.Println()
 		} else if len(warning.InvalidK8sInfo.ValidationErrors) > 0 {
-			p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
+			p.printPassedYamlValidation()
 			p.printInColor("[X] Kubernetes schema validation\n", p.theme.Colors.White)
 			fmt.Println()
 
@@ -67,10 +66,10 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 				fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
 			}
 			fmt.Println()
-			p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
+			p.printSkippedPolicyCheck()
 			fmt.Println()
 		} else {
-			p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
+			p.printPassedYamlValidation()
 			p.printInColor("[V] Kubernetes schema validation\n", p.theme.Colors.Green)
 
 			fmt.Println()
@@ -178,4 +177,12 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 func (p *Printer) PrintMessage(messageText string, messageColor string) {
 	colorPrintFn := p.createNewColor(messageColor)
 	p.printInColor(messageText, colorPrintFn)
+}
+
+func (p *Printer) printPassedYamlValidation() {
+	p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
+}
+
+func (p *Printer) printSkippedPolicyCheck() {
+	p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
 }
