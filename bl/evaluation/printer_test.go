@@ -28,7 +28,8 @@ func (c *mockPrinter) PrintEvaluationSummary(summary printer.EvaluationSummary, 
 
 type printResultsTestCaseArgs struct {
 	results           *EvaluationResults
-	invalidFiles      []*validation.InvalidFile
+	invalidYamlFiles  []*validation.InvalidYamlFile
+	invalidK8sFiles   []*validation.InvalidK8sFile
 	evaluationSummary printer.EvaluationSummary
 	loginURL          string
 	outputFormat      string
@@ -49,12 +50,12 @@ func TestPrintResults(t *testing.T) {
 	}
 	for _, tt := range tests {
 		mockedPrinter := &mockPrinter{}
-		mockedPrinter.On("PrintWarnings", mock.Anything)
+		mockedPrinter.On("PrintWarnings", mock.Anything, mock.Anything, mock.Anything)
 		mockedPrinter.On("PrintSummaryTable", mock.Anything)
 		mockedPrinter.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_ = PrintResults(tt.args.results, tt.args.invalidFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0")
+			_ = PrintResults(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0")
 
 			if tt.args.outputFormat == "json" {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
@@ -63,8 +64,8 @@ func TestPrintResults(t *testing.T) {
 
 			} else {
 				pwd, _ := os.Getwd()
-				warnings, _ := parseToPrinterWarnings(tt.args.results, tt.args.invalidFiles, pwd, "1.18.0")
-				mockedPrinter.AssertCalled(t, "PrintWarnings", warnings)
+				wagnings, _ := parseToPrinterWarnings(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0")
+				mockedPrinter.AssertCalled(t, "PrintWarnings", wagnings)
 			}
 		})
 	}
@@ -88,10 +89,11 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 					TotalPassedCount: 0,
 				},
 			},
-			invalidFiles:      []*validation.InvalidFile{},
+			invalidYamlFiles:  []*validation.InvalidYamlFile{},
+			invalidK8sFiles:   []*validation.InvalidK8sFile{},
 			evaluationSummary: printer.EvaluationSummary{},
 			loginURL:          "login/url",
-			outputFormat: outputFormat,
+			outputFormat:      outputFormat,
 		},
 		expected: nil,
 	}
