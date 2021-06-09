@@ -106,7 +106,7 @@ func TestEvaluate(t *testing.T) {
 			}
 
 			// TODO: define and check the rest of the values
-			results, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.evaluationId)
+			results, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.evaluationId, tt.args.rulesCount)
 
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
@@ -123,6 +123,7 @@ type evaluateArgs struct {
 	validFilesConfigurations []*extractor.FileConfigurations
 	evaluationId             int
 	osInfo                   *OSInfo
+	rulesCount               int
 }
 
 type evaluateExpected struct {
