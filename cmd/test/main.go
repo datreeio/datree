@@ -38,7 +38,7 @@ type TestCommandFlags struct {
 }
 
 type EvaluationPrinter interface {
-	PrintWarnings(invalidYamlWarnings []printer.Warning, invalidK8sWarnings []printer.Warning, failedEvaluationWarnings []printer.Warning)
+	PrintWarnings(warnings []printer.Warning)
 	PrintSummaryTable(summary printer.Summary)
 	PrintMessage(messageText string, messageColor string)
 	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)

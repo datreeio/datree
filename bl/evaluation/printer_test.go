@@ -14,8 +14,8 @@ type mockPrinter struct {
 	mock.Mock
 }
 
-func (m *mockPrinter) PrintWarnings(invalidYamlWarnings []printer.Warning, invalidK8sWarnings []printer.Warning, failedEvaluationWarnings []printer.Warning) {
-	m.Called(invalidYamlWarnings, invalidK8sWarnings, failedEvaluationWarnings)
+func (m *mockPrinter) PrintWarnings(warnings []printer.Warning) {
+	m.Called(warnings)
 }
 
 func (c *mockPrinter) PrintSummaryTable(summary printer.Summary) {
@@ -64,8 +64,8 @@ func TestPrintResults(t *testing.T) {
 
 			} else {
 				pwd, _ := os.Getwd()
-				invalidYamlWarnings, invalidK8sWarnings, failedEvaluationWarnings, _ := parseToPrinterWarnings(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0")
-				mockedPrinter.AssertCalled(t, "PrintWarnings", invalidYamlWarnings, invalidK8sWarnings, failedEvaluationWarnings)
+				wagnings, _ := parseToPrinterWarnings(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0")
+				mockedPrinter.AssertCalled(t, "PrintWarnings", wagnings)
 			}
 		})
 	}
