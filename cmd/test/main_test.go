@@ -28,13 +28,13 @@ func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVer
 	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
 }
 
-func (m *mockEvaluator) UpdateFailedYamlValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error {
-	args := m.Called(invalidFiles, evaluationId, stopEvaluation)
+func (m *mockEvaluator) UpdateFailedYamlValidation(invalidYamlFiles []*validation.InvalidYamlFile, evaluationId int, stopEvaluation bool) error {
+	args := m.Called(invalidYamlFiles, evaluationId, stopEvaluation)
 	return args.Error(0)
 }
 
-func (m *mockEvaluator) UpdateFailedK8sValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error {
-	args := m.Called(invalidFiles, evaluationId, stopEvaluation)
+func (m *mockEvaluator) UpdateFailedK8sValidation(invalidK8sFiles []*validation.InvalidK8sFile, evaluationId int, stopEvaluation bool) error {
+	args := m.Called(invalidK8sFiles, evaluationId, stopEvaluation)
 	return args.Error(0)
 }
 
@@ -62,9 +62,9 @@ type K8sValidatorMock struct {
 	mock.Mock
 }
 
-func (kv *K8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidFile) {
+func (kv *K8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile) {
 	args := kv.Called(filesConfigurationsChan, concurrency)
-	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *validation.InvalidFile)
+	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *validation.InvalidK8sFile)
 }
 
 func (kv *K8sValidatorMock) InitClient(k8sVersion string) {
@@ -125,9 +125,9 @@ func TestTestCommand(t *testing.T) {
 	filesConfigurationsChan := newFilesConfigurationsChan(path)
 	filesConfigurations := newFilesConfigurations(path)
 
-	invalidFilesChan := newInvalidFilesChan()
+	invelidK8sFilesChan := newInvalidK8sFilesChan()
 
-	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidFilesChan, newErrorsChan())
+	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invelidK8sFilesChan, newErrorsChan())
 	k8sValidatorMock.On("InitClient", mock.Anything).Return()
 
 	printerMock := &PrinterMock{}
@@ -193,10 +193,10 @@ func newFilesConfigurations(path string) []*extractor.FileConfigurations {
 	return filesConfigurations
 }
 
-func newInvalidFilesChan() chan *validation.InvalidFile {
-	invalidFilesChan := make(chan *validation.InvalidFile, 1)
+func newInvalidK8sFilesChan() chan *validation.InvalidK8sFile {
+	invalidFilesChan := make(chan *validation.InvalidK8sFile, 1)
 
-	invalidFile := &validation.InvalidFile{
+	invalidFile := &validation.InvalidK8sFile{
 		Path:             "invalid/path",
 		ValidationErrors: []error{},
 	}
