@@ -23,10 +23,12 @@ type CreateEvaluationRequest struct {
 type CreateEvaluationResponse struct {
 	EvaluationId int    `json:"evaluationId"`
 	K8sVersion   string `json:"k8sVersion"`
+	RulesCount   int    `json:"rulesCount"`
 }
 
 func (c *CliClient) CreateEvaluation(request *CreateEvaluationRequest) (*CreateEvaluationResponse, error) {
-	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/create", request, nil)
+	// httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/create", request, nil)
+	httpRes, err := c.httpClient.Request(http.MethodPost, "/evaluation/create", request, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +73,8 @@ type EvaluationRequest struct {
 }
 
 func (c *CliClient) RequestEvaluation(request *EvaluationRequest) (*EvaluationResponse, error) {
-	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate", request, nil)
+	// res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate", request, nil)
+	res, err := c.httpClient.Request(http.MethodPost, "/evaluation/evaluate", request, nil)
 	if err != nil {
 		return &EvaluationResponse{}, err
 	}
@@ -92,7 +95,8 @@ type UpdateEvaluationValidationRequest struct {
 }
 
 func (c *CliClient) SendFailedYamlValidation(request *UpdateEvaluationValidationRequest) error {
-	_, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/validation/yaml", request, nil)
+	// _, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/validation/yaml", request, nil)
+	_, err := c.httpClient.Request(http.MethodPost, "/evaluation/validation/yaml", request, nil)
 	if err != nil {
 		return err
 	}
@@ -101,7 +105,8 @@ func (c *CliClient) SendFailedYamlValidation(request *UpdateEvaluationValidation
 }
 
 func (c *CliClient) SendFailedK8sValidation(request *UpdateEvaluationValidationRequest) error {
-	_, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/validation/k8s", request, nil)
+	// _, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/validation/k8s", request, nil)
+	_, err := c.httpClient.Request(http.MethodPost, "/evaluation/validation/k8s", request, nil)
 	if err != nil {
 		return err
 	}

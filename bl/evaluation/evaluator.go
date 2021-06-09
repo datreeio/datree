@@ -76,10 +76,19 @@ func (e *Evaluator) UpdateFailedK8sValidation(invalidFiles []*validation.Invalid
 	return err
 }
 
-func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationId int) (*EvaluationResults, error) {
+func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationId int, rulesCount int) (*EvaluationResults, error) {
 
 	if len(filesConfigurations) == 0 {
-		return &EvaluationResults{}, nil
+		return &EvaluationResults{
+			Summary: struct {
+				RulesCount       int
+				TotalFailedRules int
+				FilesCount       int
+				TotalPassedCount int
+			}{
+				RulesCount: rulesCount,
+			},
+		}, nil
 	}
 
 	res, err := e.cliClient.RequestEvaluation(&cliClient.EvaluationRequest{
@@ -90,14 +99,13 @@ func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations
 		return nil, err
 	}
 
-	results := e.formatEvaluationResults(res.Results, len(filesConfigurations))
+	results := e.formatEvaluationResults(res.Results, len(filesConfigurations), rulesCount)
 	return results, nil
 }
 
-func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.EvaluationResult, filesCount int) *EvaluationResults {
+func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.EvaluationResult, filesCount int, rulesCount int) *EvaluationResults {
 	mapper := make(map[string]map[int]*Rule)
 
-	totalRulesCount := len(evaluationResults)
 	totalFailedCount := 0
 	totalPassedCount := filesCount
 
@@ -127,7 +135,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.Evalu
 			FilesCount       int
 			TotalPassedCount int
 		}{
-			RulesCount:       totalRulesCount,
+			RulesCount:       rulesCount,
 			TotalFailedRules: totalFailedCount,
 			FilesCount:       filesCount,
 			TotalPassedCount: totalPassedCount,
