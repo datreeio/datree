@@ -37,19 +37,19 @@ func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extracto
 
 			absolutePath, err := ToAbsolutePath(path)
 			if err != nil {
-				invalidFilesChan <- &validation.InvalidYamlFile{Path: path, ValidationErrors: []error{err}}
+				invalidFilesChan <- &validation.InvalidYamlFile{Path: path, ValidationErrors: []error{&validation.InvalidYamlError{ErrorMessage: err.Error()}}}
 				continue
 			}
 
 			content, err := extractor.ReadFileContent(absolutePath)
 			if err != nil {
-				invalidFilesChan <- &validation.InvalidYamlFile{Path: absolutePath, ValidationErrors: []error{err}}
+				invalidFilesChan <- &validation.InvalidYamlFile{Path: absolutePath, ValidationErrors: []error{&validation.InvalidYamlError{ErrorMessage: err.Error()}}}
 				continue
 			}
 
 			configurations, err := extractor.ParseYaml(content)
 			if err != nil {
-				invalidFilesChan <- &validation.InvalidYamlFile{Path: absolutePath, ValidationErrors: []error{err}}
+				invalidFilesChan <- &validation.InvalidYamlFile{Path: absolutePath, ValidationErrors: []error{&validation.InvalidYamlError{ErrorMessage: err.Error()}}}
 				continue
 			}
 
