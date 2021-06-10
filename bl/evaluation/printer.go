@@ -147,27 +147,18 @@ func (t OutputTitle) String() string {
 }
 func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSummary printer.EvaluationSummary, loginURL string) printer.Summary {
 	configsCount := evaluationSummary.ConfigsCount
-	rulesCount := 0
 	totalRulesEvaluated := 0
 	totalFailedRules := 0
 	totalPassedRules := 0
 
 	if results != nil {
-		rulesCount = results.Summary.RulesCount
-		totalRulesEvaluated = results.Summary.RulesCount * results.Summary.FilesCount
+		totalRulesEvaluated = evaluationSummary.RulesCount * results.Summary.FilesCount
 		totalFailedRules = results.Summary.TotalFailedRules
 		totalPassedRules = totalRulesEvaluated - totalFailedRules
 	}
 
-	var rulesCountRightCol string
-	if rulesCount == 0 {
-		rulesCountRightCol = fmt.Sprint("N/A")
-	} else {
-		rulesCountRightCol = fmt.Sprint(rulesCount)
-	}
-
 	plainRows := []printer.SummaryItem{
-		{LeftCol: EnabledRules.String(), RightCol: rulesCountRightCol, RowIndex: 0},
+		{LeftCol: EnabledRules.String(), RightCol: fmt.Sprint(evaluationSummary.RulesCount), RowIndex: 0},
 		{LeftCol: EvaluatedConfigurations.String(), RightCol: fmt.Sprint(configsCount), RowIndex: 1},
 		{LeftCol: TotalRulesEvaluated.String(), RightCol: fmt.Sprint(totalRulesEvaluated), RowIndex: 2},
 		{LeftCol: SeeAll.String(), RightCol: loginURL, RowIndex: 5},

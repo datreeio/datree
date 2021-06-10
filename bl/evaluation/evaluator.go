@@ -28,7 +28,6 @@ func New(c CLIClient) *Evaluator {
 type EvaluationResults struct {
 	FileNameRuleMapper map[string]map[int]*Rule
 	Summary            struct {
-		RulesCount       int
 		TotalFailedRules int
 		FilesCount       int
 		TotalPassedCount int
@@ -76,19 +75,10 @@ func (e *Evaluator) UpdateFailedK8sValidation(invalidFiles []*validation.Invalid
 	return err
 }
 
-func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationId int, rulesCount int) (*EvaluationResults, error) {
+func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationId int) (*EvaluationResults, error) {
 
 	if len(filesConfigurations) == 0 {
-		return &EvaluationResults{
-			Summary: struct {
-				RulesCount       int
-				TotalFailedRules int
-				FilesCount       int
-				TotalPassedCount int
-			}{
-				RulesCount: rulesCount,
-			},
-		}, nil
+		return &EvaluationResults{}, nil
 	}
 
 	res, err := e.cliClient.RequestEvaluation(&cliClient.EvaluationRequest{
@@ -99,11 +89,11 @@ func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations
 		return nil, err
 	}
 
-	results := e.formatEvaluationResults(res.Results, len(filesConfigurations), rulesCount)
+	results := e.formatEvaluationResults(res.Results, len(filesConfigurations))
 	return results, nil
 }
 
-func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.EvaluationResult, filesCount int, rulesCount int) *EvaluationResults {
+func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.EvaluationResult, filesCount int) *EvaluationResults {
 	mapper := make(map[string]map[int]*Rule)
 
 	totalFailedCount := 0
@@ -130,12 +120,10 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.Evalu
 	results := &EvaluationResults{
 		FileNameRuleMapper: mapper,
 		Summary: struct {
-			RulesCount       int
 			TotalFailedRules int
 			FilesCount       int
 			TotalPassedCount int
 		}{
-			RulesCount:       rulesCount,
 			TotalFailedRules: totalFailedCount,
 			FilesCount:       filesCount,
 			TotalPassedCount: totalPassedCount,

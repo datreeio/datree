@@ -18,7 +18,7 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationId int, rulesCount int) (*evaluation.EvaluationResults, error) {
+func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationId int) (*evaluation.EvaluationResults, error) {
 	args := m.Called(filesConfigurationsChan, evaluationId)
 	return args.Get(0).(*evaluation.EvaluationResults), args.Error(1)
 }
@@ -104,11 +104,10 @@ func TestTestCommand(t *testing.T) {
 
 	evaluationResults := &evaluation.EvaluationResults{
 		FileNameRuleMapper: map[string]map[int]*evaluation.Rule{}, Summary: struct {
-			RulesCount       int
 			TotalFailedRules int
 			FilesCount       int
 			TotalPassedCount int
-		}{RulesCount: 1, TotalFailedRules: 0, FilesCount: 0, TotalPassedCount: 1},
+		}{TotalFailedRules: 0, FilesCount: 0, TotalPassedCount: 1},
 	}
 
 	mockedEvaluator := &mockEvaluator{}
