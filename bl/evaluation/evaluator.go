@@ -49,7 +49,7 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion
 	return createEvaluationResponse, err
 }
 
-func (e *Evaluator) UpdateFailedYamlValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error {
+func (e *Evaluator) UpdateFailedYamlValidation(invalidFiles []*validation.InvalidYamlFile, evaluationId int, stopEvaluation bool) error {
 	invalidFilesPaths := []*string{}
 	for _, file := range invalidFiles {
 		invalidFilesPaths = append(invalidFilesPaths, &file.Path)
@@ -62,7 +62,7 @@ func (e *Evaluator) UpdateFailedYamlValidation(invalidFiles []*validation.Invali
 	return err
 }
 
-func (e *Evaluator) UpdateFailedK8sValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error {
+func (e *Evaluator) UpdateFailedK8sValidation(invalidFiles []*validation.InvalidK8sFile, evaluationId int, stopEvaluation bool) error {
 	invalidFilesPaths := []*string{}
 	for _, file := range invalidFiles {
 		invalidFilesPaths = append(invalidFilesPaths, &file.Path)

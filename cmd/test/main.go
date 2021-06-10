@@ -19,8 +19,8 @@ import (
 type Evaluator interface {
 	Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationId int) (*evaluation.EvaluationResults, error)
 	CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error)
-	UpdateFailedYamlValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error
-	UpdateFailedK8sValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error
+	UpdateFailedYamlValidation(invalidFiles []*validation.InvalidYamlFile, evaluationId int, stopEvaluation bool) error
+	UpdateFailedK8sValidation(invalidFiles []*validation.InvalidK8sFile, evaluationId int, stopEvaluation bool) error
 }
 
 type Messager interface {
@@ -28,7 +28,7 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidFile)
+	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile)
 	InitClient(k8sVersion string)
 }
 
@@ -133,7 +133,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion)
 	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlFilesConfigurationsChan, concurrency)
 
-	invalidYamlFiles := aggregateInvalidFiles(invalidYamlFilesChan)
+	invalidYamlFiles := aggregateInvalidYamlFiles(invalidYamlFilesChan)
 
 	invalidYamlFilesLen := len(invalidYamlFiles)
 
@@ -144,7 +144,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	invalidK8sFiles := aggregateInvalidFiles(invalidK8sFilesChan)
+	invalidK8sFiles := aggregateInvalidK8sFiles(invalidK8sFilesChan)
 
 	invalidK8sFilesLen := len(invalidK8sFiles)
 	stopEvaluation = invalidYamlFilesLen+invalidK8sFilesLen == filesPathsLen
@@ -187,16 +187,14 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	invalidFiles := append(invalidYamlFiles, invalidK8sFiles...)
-
-	err = evaluation.PrintResults(results, invalidFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion)
+	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion)
 
 	var invocationFailedErr error = nil
 
 	if err != nil {
 		fmt.Println(err.Error())
 		invocationFailedErr = err
-	} else if len(invalidFiles) > 0 || results.Summary.TotalFailedRules > 0 {
+	} else if len(invalidYamlFiles) > 0 || len(invalidK8sFiles) > 0 || results.Summary.TotalFailedRules > 0 {
 		invocationFailedErr = fmt.Errorf("Evaluation failed")
 	}
 
