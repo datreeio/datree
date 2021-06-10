@@ -107,6 +107,7 @@ type Summary struct {
 
 type EvaluationSummary struct {
 	ConfigsCount              int
+	RulesCount                int
 	FilesCount                int
 	PassedYamlValidationCount int
 	PassedK8sValidationCount  int

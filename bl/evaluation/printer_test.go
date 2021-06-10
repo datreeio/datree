@@ -78,12 +78,10 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 			results: &EvaluationResults{
 				FileNameRuleMapper: map[string]map[int]*Rule{},
 				Summary: struct {
-					RulesCount       int
 					TotalFailedRules int
 					FilesCount       int
 					TotalPassedCount int
 				}{
-					RulesCount:       0,
 					TotalFailedRules: 0,
 					FilesCount:       0,
 					TotalPassedCount: 0,
