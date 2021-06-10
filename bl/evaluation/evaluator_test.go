@@ -106,7 +106,7 @@ func TestEvaluate(t *testing.T) {
 			}
 
 			// TODO: define and check the rest of the values
-			results, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.evaluationId, tt.args.rulesCount)
+			results, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.evaluationId)
 
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
@@ -190,12 +190,10 @@ func request_evaluation_all_valid() *evaluateTestCase {
 			response: &EvaluationResults{
 				FileNameRuleMapper: make(map[string]map[int]*Rule),
 				Summary: struct {
-					RulesCount       int
 					TotalFailedRules int
 					FilesCount       int
 					TotalPassedCount int
 				}{
-					RulesCount:       0,
 					TotalFailedRules: 0,
 					FilesCount:       1,
 					TotalPassedCount: 1,
@@ -254,12 +252,10 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 			response: &EvaluationResults{
 				FileNameRuleMapper: make(map[string]map[int]*Rule),
 				Summary: struct {
-					RulesCount       int
 					TotalFailedRules int
 					FilesCount       int
 					TotalPassedCount int
 				}{
-					RulesCount:       0,
 					TotalFailedRules: 0,
 					FilesCount:       1,
 					TotalPassedCount: 0,
