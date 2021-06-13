@@ -19,18 +19,20 @@ type Printer interface {
 }
 
 type FormattedOutput struct {
-	Results           *EvaluationResults
+	EvaluationResults *EvaluationResults
 	EvaluationSummary printer.EvaluationSummary
+	InvalidYamlFiles  []*validation.InvalidYamlFile
+	InvalidK8sFiles   []*validation.InvalidK8sFile
 }
 
-func PrintResults(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string) error {
+func PrintResults(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string) error {
 	switch {
 	case outputFormat == "json":
-		return jsonOutput(&FormattedOutput{Results: results, EvaluationSummary: evaluationSummary})
+		return jsonOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
 	case outputFormat == "yaml":
-		return yamlOutput(&FormattedOutput{Results: results, EvaluationSummary: evaluationSummary})
+		return yamlOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
 	default:
-		return textOutput(results, invalidFiles, evaluationSummary, loginURL, printer, k8sVersion)
+		return textOutput(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion)
 	}
 }
 
@@ -56,13 +58,13 @@ func yamlOutput(formattedOutput *FormattedOutput) error {
 	return nil
 }
 
-func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string) error {
+func textOutput(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	warnings, err := parseToPrinterWarnings(results, invalidFiles, pwd, k8sVersion)
+	warnings, err := parseToPrinterWarnings(results, invalidYamlFiles, invalidK8sFiles, pwd, k8sVersion)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -79,16 +81,24 @@ func textOutput(results *EvaluationResults, invalidFiles []*validation.InvalidFi
 	return nil
 }
 
-func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validation.InvalidFile, pwd string, k8sVersion string) ([]printer.Warning, error) {
+func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, pwd string, k8sVersion string) ([]printer.Warning, error) {
 	var warnings = []printer.Warning{}
 
-	for _, invalidFile := range invalidFiles {
+	for _, invalidFile := range invalidYamlFiles {
 		warnings = append(warnings, printer.Warning{
 			Title:   fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
 			Details: []printer.WarningInfo{},
-			ValidationInfo: printer.ValidationInfo{
-				IsValid:          false,
-				ValidationStatus: invalidFile.ValidationStatus,
+			InvalidYamlInfo: printer.InvalidYamlInfo{
+				ValidationErrors: invalidFile.ValidationErrors,
+			},
+		})
+	}
+
+	for _, invalidFile := range invalidK8sFiles {
+		warnings = append(warnings, printer.Warning{
+			Title:   fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
+			Details: []printer.WarningInfo{},
+			InvalidK8sInfo: printer.InvalidK8sInfo{
 				ValidationErrors: invalidFile.ValidationErrors,
 				K8sVersion:       k8sVersion,
 			},
@@ -111,13 +121,10 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidFiles []*validati
 			relativePath, _ := filepath.Rel(pwd, fileName)
 
 			warnings = append(warnings, printer.Warning{
-				Title:   fmt.Sprintf(">>  File: %s\n", relativePath),
-				Details: warningDetails,
-				ValidationInfo: printer.ValidationInfo{
-					IsValid:          true,
-					ValidationErrors: []error{},
-					K8sVersion:       k8sVersion,
-				},
+				Title:           fmt.Sprintf(">>  File: %s\n", relativePath),
+				Details:         warningDetails,
+				InvalidYamlInfo: printer.InvalidYamlInfo{},
+				InvalidK8sInfo:  printer.InvalidK8sInfo{},
 			})
 		}
 	}
@@ -147,27 +154,18 @@ func (t OutputTitle) String() string {
 }
 func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSummary printer.EvaluationSummary, loginURL string) printer.Summary {
 	configsCount := evaluationSummary.ConfigsCount
-	rulesCount := 0
 	totalRulesEvaluated := 0
 	totalFailedRules := 0
 	totalPassedRules := 0
 
 	if results != nil {
-		rulesCount = results.Summary.RulesCount
-		totalRulesEvaluated = results.Summary.RulesCount * results.Summary.FilesCount
+		totalRulesEvaluated = evaluationSummary.RulesCount * results.Summary.FilesCount
 		totalFailedRules = results.Summary.TotalFailedRules
 		totalPassedRules = totalRulesEvaluated - totalFailedRules
 	}
 
-	var rulesCountRightCol string
-	if rulesCount == 0 {
-		rulesCountRightCol = fmt.Sprint("N/A")
-	} else {
-		rulesCountRightCol = fmt.Sprint(rulesCount)
-	}
-
 	plainRows := []printer.SummaryItem{
-		{LeftCol: EnabledRules.String(), RightCol: rulesCountRightCol, RowIndex: 0},
+		{LeftCol: EnabledRules.String(), RightCol: fmt.Sprint(evaluationSummary.RulesCount), RowIndex: 0},
 		{LeftCol: EvaluatedConfigurations.String(), RightCol: fmt.Sprint(configsCount), RowIndex: 1},
 		{LeftCol: TotalRulesEvaluated.String(), RightCol: fmt.Sprint(totalRulesEvaluated), RowIndex: 2},
 		{LeftCol: SeeAll.String(), RightCol: loginURL, RowIndex: 5},

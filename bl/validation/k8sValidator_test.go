@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"fmt"
 	"io"
 	"testing"
 
@@ -51,7 +52,7 @@ func test_valid_multiple_configurations(t *testing.T) {
 func test_invalid_file(t *testing.T) {
 	validationClient := &mockValidationClient{}
 	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
-		{Status: kubeconformValidator.Invalid},
+		{Status: kubeconformValidator.Invalid, Err: fmt.Errorf("missing 'apiVersion' key")},
 	})
 	k8sValidator := K8sValidator{
 		validationClient: validationClient,

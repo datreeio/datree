@@ -28,7 +28,6 @@ func New(c CLIClient) *Evaluator {
 type EvaluationResults struct {
 	FileNameRuleMapper map[string]map[int]*Rule
 	Summary            struct {
-		RulesCount       int
 		TotalFailedRules int
 		FilesCount       int
 		TotalPassedCount int
@@ -50,7 +49,7 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion
 	return createEvaluationResponse, err
 }
 
-func (e *Evaluator) UpdateFailedYamlValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error {
+func (e *Evaluator) UpdateFailedYamlValidation(invalidFiles []*validation.InvalidYamlFile, evaluationId int, stopEvaluation bool) error {
 	invalidFilesPaths := []*string{}
 	for _, file := range invalidFiles {
 		invalidFilesPaths = append(invalidFilesPaths, &file.Path)
@@ -63,7 +62,7 @@ func (e *Evaluator) UpdateFailedYamlValidation(invalidFiles []*validation.Invali
 	return err
 }
 
-func (e *Evaluator) UpdateFailedK8sValidation(invalidFiles []*validation.InvalidFile, evaluationId int, stopEvaluation bool) error {
+func (e *Evaluator) UpdateFailedK8sValidation(invalidFiles []*validation.InvalidK8sFile, evaluationId int, stopEvaluation bool) error {
 	invalidFilesPaths := []*string{}
 	for _, file := range invalidFiles {
 		invalidFilesPaths = append(invalidFilesPaths, &file.Path)
@@ -97,7 +96,6 @@ func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations
 func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.EvaluationResult, filesCount int) *EvaluationResults {
 	mapper := make(map[string]map[int]*Rule)
 
-	totalRulesCount := len(evaluationResults)
 	totalFailedCount := 0
 	totalPassedCount := filesCount
 
@@ -122,12 +120,10 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.Evalu
 	results := &EvaluationResults{
 		FileNameRuleMapper: mapper,
 		Summary: struct {
-			RulesCount       int
 			TotalFailedRules int
 			FilesCount       int
 			TotalPassedCount int
 		}{
-			RulesCount:       totalRulesCount,
 			TotalFailedRules: totalFailedCount,
 			FilesCount:       filesCount,
 			TotalPassedCount: totalPassedCount,

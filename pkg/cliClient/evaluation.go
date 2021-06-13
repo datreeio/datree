@@ -23,6 +23,7 @@ type CreateEvaluationRequest struct {
 type CreateEvaluationResponse struct {
 	EvaluationId int    `json:"evaluationId"`
 	K8sVersion   string `json:"k8sVersion"`
+	RulesCount   int    `json:"rulesCount"`
 }
 
 func (c *CliClient) CreateEvaluation(request *CreateEvaluationRequest) (*CreateEvaluationResponse, error) {
