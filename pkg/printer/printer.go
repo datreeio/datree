@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/datreeio/datree/bl/validation"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 )
@@ -26,16 +25,18 @@ type WarningInfo struct {
 	Suggestion  string
 }
 
-type ValidationInfo struct {
-	IsValid          bool
-	ValidationStatus validation.ValidationStatus
+type InvalidYamlInfo struct {
+	ValidationErrors []error
+}
+type InvalidK8sInfo struct {
 	ValidationErrors []error
 	K8sVersion       string
 }
 type Warning struct {
-	Title          string
-	Details        []WarningInfo
-	ValidationInfo ValidationInfo
+	Title           string
+	Details         []WarningInfo
+	InvalidYamlInfo InvalidYamlInfo
+	InvalidK8sInfo  InvalidK8sInfo
 }
 
 func (p *Printer) PrintWarnings(warnings []Warning) {
@@ -43,36 +44,32 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 		p.printInColor(warning.Title, p.theme.Colors.Yellow)
 		fmt.Println()
 
-		if !warning.ValidationInfo.IsValid {
-			if warning.ValidationInfo.ValidationStatus == validation.InvalidYamlFile {
-				p.printInColor("[X] YAML validation\n", p.theme.Colors.White)
-				fmt.Println()
-				for _, validationError := range warning.ValidationInfo.ValidationErrors {
-					validationError := p.theme.Colors.Red.Sprint(validationError.Error())
-					fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
-				}
-				fmt.Println()
-
-				p.printInColor("[?] Kubernetes schema validation\n", p.theme.Colors.White)
-				p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
-
-				fmt.Println()
-
-			} else if warning.ValidationInfo.ValidationStatus == validation.InvalidK8sFile {
-				p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
-				p.printInColor("[X] Kubernetes schema validation\n", p.theme.Colors.White)
-				fmt.Println()
-
-				for _, validationError := range warning.ValidationInfo.ValidationErrors {
-					validationError := p.theme.Colors.Red.Sprint(validationError.Error())
-					fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
-				}
-				fmt.Println()
-				p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
-				fmt.Println()
+		if len(warning.InvalidYamlInfo.ValidationErrors) > 0 {
+			p.printInColor("[X] YAML validation\n", p.theme.Colors.White)
+			fmt.Println()
+			for _, validationError := range warning.InvalidYamlInfo.ValidationErrors {
+				validationError := p.theme.Colors.Red.Sprint(validationError.Error())
+				fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
 			}
+			fmt.Println()
+
+			p.printInColor("[?] Kubernetes schema validation didn’t run for this file\n", p.theme.Colors.White)
+			p.printSkippedPolicyCheck()
+			fmt.Println()
+		} else if len(warning.InvalidK8sInfo.ValidationErrors) > 0 {
+			p.printPassedYamlValidation()
+			p.printInColor("[X] Kubernetes schema validation\n", p.theme.Colors.White)
+			fmt.Println()
+
+			for _, validationError := range warning.InvalidK8sInfo.ValidationErrors {
+				validationError := p.theme.Colors.Red.Sprint(validationError.Error())
+				fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
+			}
+			fmt.Println()
+			p.printSkippedPolicyCheck()
+			fmt.Println()
 		} else {
-			p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
+			p.printPassedYamlValidation()
 			p.printInColor("[V] Kubernetes schema validation\n", p.theme.Colors.Green)
 
 			fmt.Println()
@@ -110,6 +107,7 @@ type Summary struct {
 
 type EvaluationSummary struct {
 	ConfigsCount              int
+	RulesCount                int
 	FilesCount                int
 	PassedYamlValidationCount int
 	PassedK8sValidationCount  int
@@ -180,4 +178,12 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 func (p *Printer) PrintMessage(messageText string, messageColor string) {
 	colorPrintFn := p.createNewColor(messageColor)
 	p.printInColor(messageText, colorPrintFn)
+}
+
+func (p *Printer) printPassedYamlValidation() {
+	p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
+}
+
+func (p *Printer) printSkippedPolicyCheck() {
+	p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
 }

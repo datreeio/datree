@@ -123,6 +123,7 @@ type evaluateArgs struct {
 	validFilesConfigurations []*extractor.FileConfigurations
 	evaluationId             int
 	osInfo                   *OSInfo
+	rulesCount               int
 }
 
 type evaluateExpected struct {
@@ -189,12 +190,10 @@ func request_evaluation_all_valid() *evaluateTestCase {
 			response: &EvaluationResults{
 				FileNameRuleMapper: make(map[string]map[int]*Rule),
 				Summary: struct {
-					RulesCount       int
 					TotalFailedRules int
 					FilesCount       int
 					TotalPassedCount int
 				}{
-					RulesCount:       0,
 					TotalFailedRules: 0,
 					FilesCount:       1,
 					TotalPassedCount: 1,
@@ -253,12 +252,10 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 			response: &EvaluationResults{
 				FileNameRuleMapper: make(map[string]map[int]*Rule),
 				Summary: struct {
-					RulesCount       int
 					TotalFailedRules int
 					FilesCount       int
 					TotalPassedCount int
 				}{
-					RulesCount:       0,
 					TotalFailedRules: 0,
 					FilesCount:       1,
 					TotalPassedCount: 0,

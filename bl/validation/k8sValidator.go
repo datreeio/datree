@@ -21,30 +21,21 @@ func New() *K8sValidator {
 	return &K8sValidator{}
 }
 
-type ValidationStatus int
-
-const (
-	InvalidYamlFile ValidationStatus = iota + 1
-	InvalidK8sFile
-)
-
-func (validationStatus ValidationStatus) String() string {
-	return [...]string{"InvalidYamlFile", "InvalidK8sFile"}[validationStatus]
-}
-
 type InvalidFile struct {
 	Path             string
-	ValidationStatus ValidationStatus
 	ValidationErrors []error
 }
+type InvalidYamlFile InvalidFile
+
+type InvalidK8sFile InvalidFile
 
 func (val *K8sValidator) InitClient(k8sVersion string) {
 	val.validationClient = newKubconformValidator(k8sVersion)
 }
 
-func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *InvalidFile) {
+func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *InvalidK8sFile) {
 	validK8sFilesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
-	invalidK8sFilesChan := make(chan *InvalidFile, concurrency)
+	invalidK8sFilesChan := make(chan *InvalidK8sFile, concurrency)
 
 	go func() {
 		defer func() {
@@ -53,12 +44,10 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 		}()
 
 		for fileConfigurations := range filesConfigurationsChan {
-
 			isValid, validationErrors, err := val.validateResource(fileConfigurations.FileName)
 			if err != nil {
-				invalidK8sFilesChan <- &InvalidFile{
+				invalidK8sFilesChan <- &InvalidK8sFile{
 					Path:             fileConfigurations.FileName,
-					ValidationStatus: InvalidK8sFile,
 					ValidationErrors: []error{err},
 				}
 				continue
@@ -66,9 +55,8 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 			if isValid {
 				validK8sFilesConfigurationsChan <- fileConfigurations
 			} else {
-				invalidK8sFilesChan <- &InvalidFile{
+				invalidK8sFilesChan <- &InvalidK8sFile{
 					Path:             fileConfigurations.FileName,
-					ValidationStatus: InvalidK8sFile,
 					ValidationErrors: validationErrors,
 				}
 			}
@@ -80,7 +68,7 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 func (val *K8sValidator) validateResource(filepath string) (bool, []error, error) {
 	f, err := os.Open(filepath)
 	if err != nil {
-		return false, []error{}, fmt.Errorf("failed opening %s: %s", filepath, err)
+		return false, []error{}, fmt.Errorf("failed opening %s: %s", filepath, &InvalidK8sSchemaError{ErrorMessage: err.Error()})
 	}
 
 	results := val.validationClient.Validate(filepath, f)
@@ -92,7 +80,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, error
 		// File starts with ---, the parser assumes a first empty resource
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
 			isValid = false
-			validationErrors = append(validationErrors, res.Err)
+			validationErrors = append(validationErrors, &InvalidK8sSchemaError{ErrorMessage: res.Err.Error()})
 		}
 	}
 
