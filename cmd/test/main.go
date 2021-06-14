@@ -48,9 +48,13 @@ type Reader interface {
 	FilterFiles(paths []string) ([]string, error)
 }
 
+type LocalConfig interface {
+	GetLocalConfiguration() (*localConfig.ConfigContent, error)
+}
+
 type TestCommandContext struct {
 	CliVersion   string
-	LocalConfig  *localConfig.LocalConfiguration
+	LocalConfig  LocalConfig
 	Evaluator    Evaluator
 	Messager     Messager
 	K8sValidator K8sValidator
@@ -89,6 +93,11 @@ func New(ctx *TestCommandContext) *cobra.Command {
 }
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
+	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
+	if err != nil {
+		return err
+	}
+
 	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml")
 
 	if isInteractiveMode == true {
@@ -124,7 +133,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	validYamlFilesConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(filesPaths, concurrency)
 
-	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(ctx.LocalConfig.CliId, ctx.CliVersion, flags.K8sVersion)
+	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(localConfigContent.CliId, ctx.CliVersion, flags.K8sVersion)
 	if err != nil {
 		fmt.Println(err.Error())
 		return err
@@ -187,7 +196,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", ctx.LocalConfig.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion)
+	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion)
 
 	var invocationFailedErr error = nil
 

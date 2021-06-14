@@ -12,3 +12,6 @@ create-bin:
 
 print-version:
 	go run -tags=staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go version
+
+set-token:
+	go run -tags=staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go config set token testtoken
