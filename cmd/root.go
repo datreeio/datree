@@ -4,6 +4,7 @@ import (
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/cmd/config"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -40,6 +41,13 @@ func init() {
 		Messager:   app.context.Messager,
 		Printer:    app.context.Printer,
 	}))
+
+	rootCmd.AddCommand(config.New(&config.ConfigCommandContext{
+		CliVersion:  CliVersion,
+		Messager:    app.context.Messager,
+		Printer:     app.context.Printer,
+		LocalConfig: app.context.LocalConfig,
+	}))
 }
 
 func Execute() error {
@@ -47,7 +55,7 @@ func Execute() error {
 }
 
 type context struct {
-	LocalConfig  *localConfig.LocalConfiguration
+	LocalConfig  *localConfig.LocalConfig
 	Evaluator    *evaluation.Evaluator
 	CliClient    *cliClient.CliClient
 	Messager     *messager.Messager
@@ -61,13 +69,13 @@ type app struct {
 }
 
 func startup() *app {
-	config, _ := localConfig.GetLocalConfiguration()
+	localConfig := localConfig.NewLocalConfig()
 	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
 	printer := printer.CreateNewPrinter()
 
 	return &app{
 		context: &context{
-			LocalConfig:  config,
+			LocalConfig:  localConfig,
 			Evaluator:    evaluation.New(cliClient),
 			CliClient:    cliClient,
 			Messager:     messager.New(cliClient),

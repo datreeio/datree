@@ -9,30 +9,27 @@ import (
 	"github.com/spf13/viper"
 )
 
-type LocalConfiguration struct {
+type ConfigContent struct {
 	CliId string
 }
 
-func GetLocalConfiguration() (*LocalConfiguration, error) {
+type LocalConfig struct {
+}
+
+func NewLocalConfig() *LocalConfig {
+	return &LocalConfig{}
+}
+
+func (lc *LocalConfig) GetLocalConfiguration() (*ConfigContent, error) {
 	viper.SetEnvPrefix("datree")
 	viper.AutomaticEnv()
 	token := viper.GetString("token")
 
 	if token == "" {
-		usr, err := user.Current()
+		configHome, configName, configType, err := setViperConfig()
 		if err != nil {
-			return &LocalConfiguration{}, err
+			return nil, err
 		}
-
-		homedir := usr.HomeDir
-
-		configHome := filepath.Join(homedir, ".datree")
-		configName := "config"
-		configType := "yaml"
-
-		viper.SetConfigName(configName)
-		viper.SetConfigType(configType)
-		viper.AddConfigPath(configHome)
 
 		// workaround for creating config file when not exist
 		// open issue in viper: https://github.com/spf13/viper/issues/430
@@ -58,5 +55,52 @@ func GetLocalConfiguration() (*LocalConfiguration, error) {
 		}
 	}
 
-	return &LocalConfiguration{CliId: token}, nil
+	return &ConfigContent{CliId: token}, nil
+}
+
+func (lc *LocalConfig) Set(key string, value string) error {
+	_, _, _, err := setViperConfig()
+	if err != nil {
+		return err
+	}
+
+	viper.Set(key, value)
+	viper.WriteConfig()
+	return nil
+}
+
+func getConfigHome() (string, error) {
+	usr, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+
+	homedir := usr.HomeDir
+	configHome := filepath.Join(homedir, ".datree")
+
+	return configHome, nil
+}
+
+func getConfigName() string {
+	return "config"
+}
+
+func getConfigType() string {
+	return "yaml"
+}
+
+func setViperConfig() (string, string, string, error) {
+	configHome, err := getConfigHome()
+	if err != nil {
+		return "", "", "", nil
+	}
+
+	configName := getConfigName()
+	configType := getConfigType()
+
+	viper.SetConfigName(configName)
+	viper.SetConfigType(configType)
+	viper.AddConfigPath(configHome)
+
+	return configHome, configName, configType, nil
 }
