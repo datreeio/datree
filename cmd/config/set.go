@@ -1,7 +1,9 @@
 package config
 
 import (
+	"errors"
 	"fmt"
+	"reflect"
 
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/spf13/cobra"
@@ -26,7 +28,20 @@ func NewSetCommand(ctx *ConfigCommandContext) *cobra.Command {
 				ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
 			}
 		},
-		Args: cobra.ExactArgs(2),
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) != 2 {
+				return errors.New("requires exactly 2 arguments")
+			}
+
+			validKeys := make(map[string]bool)
+			validKeys["token"] = true
+
+			if val, ok := validKeys[args[0]]; !ok || !val {
+				return fmt.Errorf("key must be one of: %s", reflect.ValueOf(validKeys).MapKeys())
+			}
+
+			return nil
+		},
 	}
 
 	return setCommand
