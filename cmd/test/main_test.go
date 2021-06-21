@@ -99,6 +99,15 @@ func (rm *ReaderMock) FilterFiles(paths []string) ([]string, error) {
 	return args.Get(0).([]string), nil
 }
 
+type LocalConfigMock struct {
+	mock.Mock
+}
+
+func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.ConfigContent, error) {
+	lc.Called()
+	return &localConfig.ConfigContent{CliId: "134kh"}, nil
+}
+
 func TestTestCommand(t *testing.T) {
 	evaluationId := 444
 
@@ -136,13 +145,15 @@ func TestTestCommand(t *testing.T) {
 	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 
 	readerMock := &ReaderMock{}
-
 	readerMock.On("FilterFiles", mock.Anything).Return([]string{"file/path"}, nil)
+
+	localConfigMock := &LocalConfigMock{}
+	localConfigMock.On("GetLocalConfiguration").Return(&localConfig.ConfigContent{CliId: "134kh"}, nil)
 
 	ctx := &TestCommandContext{
 		K8sValidator: k8sValidatorMock,
 		Evaluator:    mockedEvaluator,
-		LocalConfig:  &localConfig.LocalConfiguration{CliId: "134kh"},
+		LocalConfig:  localConfigMock,
 		Messager:     messager,
 		Printer:      printerMock,
 		Reader:       readerMock,
