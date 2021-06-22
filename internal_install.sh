@@ -11,8 +11,13 @@ DOWNLOAD_URL=${DOWNLOAD_URL/browser_download_url: /}
 OUTPUT_BASENAME=datree-latest
 OUTPUT_BASENAME_WITH_POSTFIX=$OUTPUT_BASENAME.zip
 
-curl -L $DOWNLOAD_URL -o $OUTPUT_BASENAME_WITH_POSTFIX
-unzip $OUTPUT_BASENAME_WITH_POSTFIX -d $OUTPUT_BASENAME
+echo "Installing Datree (internal)..."
+echo
+
+curl -sL $DOWNLOAD_URL -o $OUTPUT_BASENAME_WITH_POSTFIX
+echo -e "\033[32m[V] Downloaded Datree"
+
+unzip -qq $OUTPUT_BASENAME_WITH_POSTFIX -d $OUTPUT_BASENAME
 
 DATREE_CONFIG_PATH=~/.datree
 mkdir -p $DATREE_CONFIG_PATH
@@ -34,5 +39,13 @@ fi
 rm $OUTPUT_BASENAME_WITH_POSTFIX
 rm -rf $OUTPUT_BASENAME
 
-curl https://get.datree.io/k8s-demo.yaml > ~/.datree/k8s-demo.yaml
+curl -s https://get.datree.io/k8s-demo.yaml > ~/.datree/k8s-demo.yaml
+echo -e "[V] Finished Installation"
 
+echo
+
+echo -e "\033[35m Usage: $ datree test ~/.datree/k8s-demo.yaml"
+
+echo -e " Using Helm? => https://hub.datree.io/helm-plugin"
+
+echo
