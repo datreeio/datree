@@ -29,12 +29,13 @@ type Messager interface {
 
 type K8sValidator interface {
 	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile)
-	InitClient(k8sVersion string)
+	InitClient(k8sVersion string, ignoreMissingSchemas bool)
 }
 
 type TestCommandFlags struct {
-	Output     string
-	K8sVersion string
+	Output               string
+	K8sVersion           string
+	IgnoreMissingSchemas bool
 }
 
 type EvaluationPrinter interface {
@@ -80,7 +81,13 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion}
+			ignoreMissingSchemas, err := cmd.Flags().GetBool("ignore-missing-schemas")
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+
+			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas}
 			return test(ctx, args, testCommandFlags)
 		},
 		SilenceUsage:  true,
@@ -89,6 +96,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 
 	testCommand.Flags().StringP("output", "o", "", "Define output format")
 	testCommand.Flags().StringP("schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
+	testCommand.Flags().BoolP("ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 	return testCommand
 }
 
@@ -139,7 +147,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion)
+	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas)
 	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlFilesConfigurationsChan, concurrency)
 
 	invalidYamlFiles := aggregateInvalidYamlFiles(invalidYamlFilesChan)

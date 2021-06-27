@@ -29,8 +29,8 @@ type InvalidYamlFile InvalidFile
 
 type InvalidK8sFile InvalidFile
 
-func (val *K8sValidator) InitClient(k8sVersion string) {
-	val.validationClient = newKubconformValidator(k8sVersion)
+func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool) {
+	val.validationClient = newKubconformValidator(k8sVersion, ignoreMissingSchemas)
 }
 
 func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *InvalidK8sFile) {
@@ -87,7 +87,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, error
 	return isValid, validationErrors, nil
 }
 
-func newKubconformValidator(k8sVersion string) ValidationClient {
-	v, _ := kubeconformValidator.New(nil, kubeconformValidator.Opts{Strict: true, KubernetesVersion: k8sVersion})
+func newKubconformValidator(k8sVersion string, ignoreMissingSchemas bool) ValidationClient {
+	v, _ := kubeconformValidator.New(nil, kubeconformValidator.Opts{Strict: true, KubernetesVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas})
 	return v
 }
