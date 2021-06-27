@@ -3,7 +3,7 @@ language: go
 go:
 - 1.x
 
-os: osx
+# os: osx
 
 script:
   - go build -tags $DATREE_DEPLOYMENT
