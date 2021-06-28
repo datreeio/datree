@@ -3,6 +3,7 @@ language: go
 go:
 - 1.x
 
+# mac
 os: osx
 
 script:
