@@ -67,7 +67,7 @@ func (kv *K8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extr
 	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *validation.InvalidK8sFile)
 }
 
-func (kv *K8sValidatorMock) InitClient(k8sVersion string) {
+func (kv *K8sValidatorMock) InitClient(k8sVersion string, ignoreMissingSchemas bool) {
 }
 
 type PrinterMock struct {
@@ -136,7 +136,7 @@ func TestTestCommand(t *testing.T) {
 	invelidK8sFilesChan := newInvalidK8sFilesChan()
 
 	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invelidK8sFilesChan, newErrorsChan())
-	k8sValidatorMock.On("InitClient", mock.Anything).Return()
+	k8sValidatorMock.On("InitClient", mock.Anything, mock.Anything).Return()
 
 	printerMock := &PrinterMock{}
 	printerMock.On("PrintWarnings", mock.Anything)
