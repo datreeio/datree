@@ -27,7 +27,7 @@ deploy:
   script: curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
   on:
     all_branches: true
-    condition: $TRAVIS_BRANCH =~ ^(staging | DAT-3096-cicd-signing)$
+    condition: $TRAVIS_BRANCH =~ ^(staging|DAT-3096-cicd-signing)$
 
 env:
   global:
