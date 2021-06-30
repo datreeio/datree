@@ -41,7 +41,10 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 		if err != nil {
 			break
 		}
-		configurations = append(configurations, doc)
+
+		if len(doc) > 0 {
+			configurations = append(configurations, doc)
+		}
 	}
 
 	if err == io.EOF {
