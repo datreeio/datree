@@ -20,8 +20,8 @@ before_deploy:
 # Secure private key
 - openssl aes-256-cbc -K $encrypted_2dfcdd1dc486_key -iv $encrypted_2dfcdd1dc486_iv -in DatreeCli.p12.enc -out DatreeCli.p12 -d
 - sudo security list-keychains
-- sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain DatreeCli.cer
-- sudo security import DatreeCli.p12 -k /Library/Keychains/System.keychain
+- sudo security add-trusted-cert -d -r trustRoot -k /Users/travis/Library/Keychains/login.keychain-db DatreeCli.cer
+- sudo security import DatreeCli.p12 -k /Users/travis/Library/Keychains/login.keychain-db
 - sudo security find-identity -v
 deploy:
 - provider: script
