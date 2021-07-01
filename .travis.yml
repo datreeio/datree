@@ -1,7 +1,7 @@
 language: go
 go:
 - 1.x
-os: osx
+# os: osx
 script:
 - go build -tags $DATREE_DEPLOYMENT
 - go test ./...
@@ -21,7 +21,7 @@ before_deploy:
 - openssl aes-256-cbc -K $encrypted_2dfcdd1dc486_key -iv $encrypted_2dfcdd1dc486_iv -in DatreeCli.p12.enc -out DatreeCli.p12 -d
 - security create-keychain -p test buildagent.keychain
 - security unlock-keychain -p test buildagent.keychain
-# - security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.keychain
+- security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.keychain
 - sudo security list-keychains
 # - sudo security add-trusted-cert -d -r trustRoot -k /Users/travis/Library/Keychains/login.keychain-db DatreeCli.cer
 # - sudo security import DatreeCli.p12 -k /Users/travis/Library/Keychains/login.keychain-db -P password -T /usr/bin/codesign
