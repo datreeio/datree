@@ -19,11 +19,11 @@ before_deploy:
 - openssl aes-256-cbc -K $encrypted_ec650c0356a9_key -iv $encrypted_ec650c0356a9_iv -in DatreeCli.cer.enc -out DatreeCli.cer -d
 # Secure private key
 - openssl aes-256-cbc -K $encrypted_2dfcdd1dc486_key -iv $encrypted_2dfcdd1dc486_iv -in DatreeCli.p12.enc -out DatreeCli.p12 -d
-- security create-keychain -p test buildagent.keychain
-- security unlock-keychain -p test buildagent.keychain
-- sudo security list-keychains -d user -s buildagent.keychain
+- sudo security create-keychain -p test buildagent.keychain
 - sudo security default-keychain -s buildagent.keychain
-- sudo security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.keychain
+- sudo security unlock-keychain -p test buildagent.keychain
+- sudo security list-keychains -d user -s buildagent.keychain
+# - sudo security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.keychain
 # - sudo security add-trusted-cert -d -r trustRoot -k /Users/travis/Library/Keychains/login.keychain-db DatreeCli.cer
 # - sudo security import DatreeCli.p12 -k /Users/travis/Library/Keychains/login.keychain-db -P password -T /usr/bin/codesign
 - sudo security import DatreeCli.p12 -k buildagent.keychain -P test -T /usr/bin/codesign
