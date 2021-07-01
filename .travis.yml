@@ -19,9 +19,13 @@ before_deploy:
 - openssl aes-256-cbc -K $encrypted_ec650c0356a9_key -iv $encrypted_ec650c0356a9_iv -in DatreeCli.cer.enc -out DatreeCli.cer -d
 # Secure private key
 - openssl aes-256-cbc -K $encrypted_2dfcdd1dc486_key -iv $encrypted_2dfcdd1dc486_iv -in DatreeCli.p12.enc -out DatreeCli.p12 -d
+- security create-keychain -p test buildagent.keychain
+- security unlock-keychain -p test buildagent.keychain
+- security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.keychain
 - sudo security list-keychains
-- sudo security add-trusted-cert -d -r trustRoot -k /Users/travis/Library/Keychains/login.keychain-db DatreeCli.cer
-- sudo security import DatreeCli.p12 -k /Users/travis/Library/Keychains/login.keychain-db
+# - sudo security add-trusted-cert -d -r trustRoot -k /Users/travis/Library/Keychains/login.keychain-db DatreeCli.cer
+# - sudo security import DatreeCli.p12 -k /Users/travis/Library/Keychains/login.keychain-db -P password -T /usr/bin/codesign
+- sudo security import DatreeCli.p12 -k buildagent.keychain -P test -T /usr/bin/codesign
 - sudo security find-identity -v
 deploy:
 - provider: script
@@ -41,3 +45,4 @@ env:
   - secure: "eyz1nelBEtNDwYYXPn5X8Fh76q6tXudD7Z6qpu/0I8c4dACg0zK2h2BwzetVoDQZ6+E1nzWS6raaSOpXAzn/ezB7lb0zEWCoSjsuCxN7LiKikQn1rLWg7SNOYF2HJYENJLUVeBElHAcZOVXFa/G4u4Djq1lDNRqQaKlZ8EKhJswMCqa9gyo9oTvWiWuWXbI33aU6fFGpj/BH5ZxQPupA1uFPYLalt2cxB4D7SDGoIdDx5uUedzcPC2vxq9H5Qh0Lj6QdJ6Xq0RHZZw9TEKHJlCM1pyjWsFmAX/SEmsahc2RSExm6biOGjiorzDvtW0nF3MmZfz9k4+M24lSTLh/Lpvc+JAkRIRiv7vegvA9f5am3WbUESzFA5CfZWbn7uH4gtQoguPNQXBKe2a/nkHgQciKTntqrLiiQp+FpxH+u5AAQPkPLhhbPHfGH/CL8GfrCtRBL13GXkfVK093NXWmPqKb7GOIwTkmc9itocdWxLwMJpCnUf0dSRnmBefg2N65Uz0EsdGQMeRmZNcY0F3NvSOxhi1RN84LuiKlXeJa0jNiaSplS/jZNpRvWPlpg5oj5M5AqjF0gL8Mt6BdB7JsbGX9VIE4RjMmkGhshkb5hZk3TqRozAxqLw4q+NePyiKmCzax5KQIj0CuDDqxU2PZYFOG6Mun/f4alU2M86zzcc1M="
   #AC_PASSWORD
   - secure: "KWpsLZ3fPSDa4dZGzVpIQjzhxmhqSYI4dbgFs+NmteBB7hLRpMP6gjLy1BAoVW74jMr8Mo7ThGDRHq9leemrwplJHIrvmoNBl2l96rmOC/+W8IoFThpFIJxNUyqudQkFO0pDMH31F7WGUouzXaMyzM1CZI2lSeBmS9XNKkgWDbVuKb4703GEzfNG8LBn9vMJns4ZYAOSK8aAQi4alo9dR8emNg2o27xshoXG25vCz7hp9N9+1+h1yP7QLLlfD+ZV3IvO8hKYfm9eb36rARsOEt5059gBs2jeVcKxYJn6bWnlgzrSIMbpSGbUvuDkiT6sllPt73GQKQ5k7n7qhYUxc8/qL8xanGutEdyCxoU5MJ1l42T9KoLNmCboS6FDWqEeZ2hLOL9rPQyWOwZlKkviczKNAvtEaqK94GX2ARiKkmIA/sJcCqACFM3HeSOxxlrBl4K07fX8sGheuU1We33PU1IYPmeYqFwECciuGwFgOqVDrmLcFr20C9X0gDx3WQzutmLf5YVia2ItvXbohTe3Cg3y5b4ECZ5YtW9WtSazkY+zfAtMloe3xpRdz7lahSe7YPdfwef61mYcMI9+PzImpN0JL/FCd6kvI+mNocdY4PB7RD5G6ozBa5qJFtEFWlJhqyGOcJRNEJt/UvSaFeKV7XV6PUqyxAdZHcga5VERBSs="
+  
