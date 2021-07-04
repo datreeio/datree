@@ -7,7 +7,7 @@ osx_image: xcode11.3
 script:
   - go build -tags $DATREE_DEPLOYMENT
   - go test ./...
-  - if [ $TRAVIS_BRANCH == "main" ]; then export DATREE_BUILD_VERSION=0.1.$TRAVIS_BUILD_NUMBER; else export DATREE_BUILD_VERSION=0.1.$TRAVIS_BUILD_NUMBER-$TRAVIS_BRANCH; fi
+  - if [ $TRAVIS_BRANCH == "DAT-3096-cicd-signing" ]; then export DATREE_BUILD_VERSION=0.1.$TRAVIS_BUILD_NUMBER; else export DATREE_BUILD_VERSION=0.1.$TRAVIS_BUILD_NUMBER-$TRAVIS_BRANCH; fi
 
 before_deploy:
   - curl -sfL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION sh -s -- check
@@ -37,7 +37,12 @@ deploy:
     script: curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
     on:
       all_branches: true
-      condition: $TRAVIS_BRANCH =~ ^(staging|main)$
+      condition: $TRAVIS_BRANCH =~ ^(staging|DAT-3096-cicd-signing)$
+  - provider: script
+    skip_cleanup: true
+    script: bash ./internal/release/internal.sh 
+    on:
+      branch: DAT-3096-cicd-signing
 env:
   global:
     #GITHUB_TOKEN
