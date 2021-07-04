@@ -7,7 +7,7 @@ script:
 - go test ./...
 - curl -sfL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION sh -s -- check
 - HOMEBREW_NO_AUTO_UPDATE=1 brew install mitchellh/gon/gon
-- sudo xcode-select -r
+- sudo xcode-select -s /Applications/Xcode.app
 - sudo ntpdate -u time.apple.com
 before_deploy:
 - git config --global user.email "builds@travis-ci.com"
