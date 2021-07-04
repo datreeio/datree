@@ -15,7 +15,8 @@ before_deploy:
 
 - git config --global user.email "builds@travis-ci.com"
 - git config --global user.name "Travis CI"
-- export GIT_TAG=0.1.$TRAVIS_BUILD_NUMBER-$TRAVIS_BRANCH
+# - export GIT_TAG=0.1.$TRAVIS_BUILD_NUMBER-$TRAVIS_BRANCH
+- export GIT_TAG=$DATREE_BUILD_VERSION
 - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
 - git push --tags
