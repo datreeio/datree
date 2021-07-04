@@ -7,13 +7,13 @@ script:
 - go test ./...
 - curl -sfL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION sh -s -- check
 before_deploy:
-- git config --global user.email "builds@travis-ci.com"
-- git config --global user.name "Travis CI"
-- export GIT_TAG=0.1.$TRAVIS_BUILD_NUMBER-$TRAVIS_BRANCH
-- git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-- git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
-- git push --tags
-- git stash save --keep-index --include-untracked
+# - git config --global user.email "builds@travis-ci.com"
+# - git config --global user.name "Travis CI"
+# - export GIT_TAG=0.1.$TRAVIS_BUILD_NUMBER-$TRAVIS_BRANCH
+# - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
+# - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
+# - git push --tags
+# - git stash save --keep-index --include-untracked
 # Secure certificate
 - openssl aes-256-cbc -K $encrypted_ec650c0356a9_key -iv $encrypted_ec650c0356a9_iv -in DatreeCli.cer.enc -out DatreeCli.cer -d
 # Secure private key
