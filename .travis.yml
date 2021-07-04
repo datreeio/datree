@@ -7,7 +7,7 @@ osx_image: xcode11.3
 script:
 - go build -tags $DATREE_DEPLOYMENT
 - go test ./...
-- if [[ $TRAVIS_BRANCH != "main" ]]; then
+- if [[ $TRAVIS_BRANCH != "DAT-3096-cicd-signing" ]]; then
     export DATREE_BUILD_VERSION=0.1.$TRAVIS_BUILD_NUMBER-$TRAVIS_BRANCH
   else
     export DATREE_BUILD_VERSION=0.1.$TRAVIS_BUILD_NUMBER
