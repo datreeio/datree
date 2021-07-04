@@ -22,7 +22,7 @@ before_deploy:
 - security default-keychain -s buildagent.keychain
 - security unlock-keychain -p test buildagent.keychain
 - security list-keychains -d user -s buildagent.keychain
-- security import DatreeCli.p12 -k buildagent.keychain -P test -T /usr/bin/codesign
+- security import DatreeCli.p12 -k buildagent.keychain -P 1234 -T /usr/bin/codesign
 - security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.keychain
 # - sudo security add-trusted-cert -d -r trustRoot -k /Users/travis/Library/Keychains/login.keychain-db DatreeCli.cer
 # - sudo security import DatreeCli.p12 -k /Users/travis/Library/Keychains/login.keychain-db -P password -T /usr/bin/codesign
