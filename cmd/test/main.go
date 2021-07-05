@@ -71,7 +71,15 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	testCommand := &cobra.Command{
 		Use:   "test",
 		Short: "Execute static analysis for pattern",
-		Long:  `Execute static analysis for pattern. Input should be glob`,
+		Long:  "Execute static analysis for pattern. Input should be glob or `-` for stdin",
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				errMessage := "requires at least 1 arg"
+				fmt.Println(errMessage)
+				return fmt.Errorf(errMessage)
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error = nil
 			defer func() {
