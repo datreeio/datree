@@ -2,6 +2,10 @@ package test
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"strings"
 
 	"github.com/briandowns/spinner"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -104,6 +108,22 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
 	if err != nil {
 		return err
+	}
+
+	if paths[0] == "-" {
+		if len(paths) > 1 {
+			return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(paths[1:], ",")))
+		}
+		tempFile, err := ioutil.TempFile("", "datree_temp_*.yaml")
+		if err != nil {
+			return err
+		}
+		defer os.Remove(tempFile.Name())
+
+		if _, err := io.Copy(tempFile, os.Stdin); err != nil {
+			return err
+		}
+		paths = []string{tempFile.Name()}
 	}
 
 	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml")
