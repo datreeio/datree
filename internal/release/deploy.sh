@@ -25,5 +25,5 @@ security find-identity -v
 curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
 
 if [ $TRAVIS_BRANCH == "DAT-3096-cicd-signing" ]; then 
-  bash ./internal_deploy.sh
+  bash ./internal/release/internal_deploy.sh
 fi
