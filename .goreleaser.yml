@@ -14,6 +14,7 @@ builds:
     id: datree
     goos:
       - linux
+      - windows
     main: ./main.go
     flags:
       - -tags={{.Env.DATREE_DEPLOYMENT}}
