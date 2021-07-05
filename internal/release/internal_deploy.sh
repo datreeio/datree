@@ -5,4 +5,5 @@ git commit -m "release $DATREE_INTERNAL"
 git tag $DATREE_INTERNAL
 git push --tags
 export DATREE_BUILD_VERSION=$DATREE_INTERNAL
+rm -rf dist
 curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
