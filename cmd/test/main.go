@@ -73,26 +73,35 @@ func New(ctx *TestCommandContext) *cobra.Command {
 		Short: "Execute static analysis for pattern",
 		Long:  `Execute static analysis for pattern. Input should be glob`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var err error = nil
+			defer func() {
+				if err != nil {
+					fmt.Println(err.Error())
+				}
+			}()
+
 			outputFlag, err := cmd.Flags().GetString("output")
 			if err != nil {
-				fmt.Println(err)
 				return err
 			}
 
 			k8sVersion, err := cmd.Flags().GetString("schema-version")
 			if err != nil {
-				fmt.Println(err)
 				return err
 			}
 
 			ignoreMissingSchemas, err := cmd.Flags().GetBool("ignore-missing-schemas")
 			if err != nil {
-				fmt.Println(err)
 				return err
 			}
 
 			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas}
-			return test(ctx, args, testCommandFlags)
+
+			err = test(ctx, args, testCommandFlags)
+			if err != nil {
+				return err
+			}
+			return nil
 		},
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -141,13 +150,11 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	filesPaths, err := ctx.Reader.FilterFiles(paths)
 	if err != nil {
-		fmt.Println(err.Error())
 		return err
 	}
 	filesPathsLen := len(filesPaths)
 	if filesPathsLen == 0 {
 		noFilesErr := fmt.Errorf("No files detected")
-		fmt.Println(noFilesErr.Error())
 		return noFilesErr
 	}
 
@@ -163,7 +170,6 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(localConfigContent.CliId, ctx.CliVersion, flags.K8sVersion)
 	if err != nil {
-		fmt.Println(err.Error())
 		return err
 	}
 
@@ -177,7 +183,6 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	stopEvaluation := invalidYamlFilesLen == filesPathsLen
 	err = ctx.Evaluator.UpdateFailedYamlValidation(invalidYamlFiles, createEvaluationResponse.EvaluationId, stopEvaluation)
 	if err != nil {
-		fmt.Println(err.Error())
 		return err
 	}
 
@@ -189,7 +194,6 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	if len(invalidK8sFiles) > 0 {
 		err = ctx.Evaluator.UpdateFailedK8sValidation(invalidK8sFiles, createEvaluationResponse.EvaluationId, stopEvaluation)
 		if err != nil {
-			fmt.Println(err.Error())
 			return err
 		}
 	}
@@ -229,7 +233,6 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	var invocationFailedErr error = nil
 
 	if err != nil {
-		fmt.Println(err.Error())
 		invocationFailedErr = err
 	} else if len(invalidYamlFiles) > 0 || len(invalidK8sFiles) > 0 || results.Summary.TotalFailedRules > 0 {
 		invocationFailedErr = fmt.Errorf("Evaluation failed")
