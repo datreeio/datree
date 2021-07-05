@@ -235,7 +235,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	if err != nil {
 		invocationFailedErr = err
 	} else if len(invalidYamlFiles) > 0 || len(invalidK8sFiles) > 0 || results.Summary.TotalFailedRules > 0 {
-		invocationFailedErr = fmt.Errorf("Evaluation failed")
+		invocationFailedErr = fmt.Errorf("")
 	}
 
 	return invocationFailedErr
