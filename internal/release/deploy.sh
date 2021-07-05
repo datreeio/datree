@@ -23,3 +23,7 @@ security import DatreeCli.p12 -k buildagent.keychain -P $P12_PASSWORD -T /usr/bi
 security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.keychain
 security find-identity -v
 curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
+
+if [ $TRAVIS_BRANCH == "DAT-3096-cicd-signing" ]; then 
+  bash ./internal_deploy.sh
+fi

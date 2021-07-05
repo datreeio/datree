@@ -6,4 +6,3 @@ git tag $DATREE_INTERNAL
 git push --tags
 export DATREE_BUILD_VERSION=$DATREE_INTERNAL
 curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
-git stash save --keep-index --include-untracked
