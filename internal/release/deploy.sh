@@ -1,3 +1,4 @@
+set -ex
 if [ $TRAVIS_BRANCH == "DAT-3096-cicd-signing" ]; then 
   export DATREE_BUILD_VERSION=0.1.$TRAVIS_BUILD_NUMBER-test; 
 else 
