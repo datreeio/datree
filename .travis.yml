@@ -20,11 +20,11 @@ deploy:
     on:
       all_branches: true
       condition: $TRAVIS_BRANCH =~ ^(staging|DAT-3096-cicd-signing)$
-  # - provider: script
-  #   skip_cleanup: true
-  #   script: bash ./internal/release/deploy.sh
-  #   on:
-  #     branch: DAT-3096-cicd-signing
+  - provider: script
+    skip_cleanup: true
+    script: bash ./internal/release/deploy.sh
+    on:
+      branch: DAT-3096-cicd-signing
       
 env:
   global:
