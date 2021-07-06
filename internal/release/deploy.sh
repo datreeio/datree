@@ -6,7 +6,6 @@ fi
 
 export GIT_TAG=$DATREE_BUILD_VERSION
 git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
 git push --tags
 git stash save --keep-index --include-untracked
 
