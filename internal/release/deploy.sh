@@ -4,8 +4,6 @@ else
   export DATREE_BUILD_VERSION=0.1.$TRAVIS_BUILD_NUMBER-$TRAVIS_BRANCH; 
 fi
 
-git config --global user.email "builds@travis-ci.com"
-git config --global user.name "Travis CI"
 export GIT_TAG=$DATREE_BUILD_VERSION
 git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
@@ -24,6 +22,6 @@ security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.ke
 security find-identity -v
 curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
 
-if [ $TRAVIS_BRANCH == "DAT-3096-cicd-signing" ]; then 
-  bash ./internal/release/internal_deploy.sh
-fi
+# if [ $TRAVIS_BRANCH == "DAT-3096-cicd-signing" ]; then 
+#   bash ./internal/release/internal_deploy.sh
+# fi
