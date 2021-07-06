@@ -4,3 +4,5 @@ datree
 .DS_STORE
 .vscode
 .idea
+DatreeCli.cer
+DatreeCli.p12
