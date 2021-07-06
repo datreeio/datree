@@ -24,5 +24,9 @@ If applicable, add screenshots to help explain your problem.
 **Desktop (please complete the following information):**
  - OS: [e.g. Linux]
 
-**Additional context**
-Add any other context about the problem here.
+**Datree version (run `datree verion`):**
+ - Version: [e.g. 0.1.443]
+
+**Additional context**  
+Add any other context about the problem here.  
+If possible, include a YAML file to reproduce the bug. 
