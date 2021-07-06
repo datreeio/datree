@@ -1,6 +1,6 @@
 set -ex
-if [ $TRAVIS_BRANCH == "DAT-3096-cicd-signing" ]; then 
-  export DATREE_BUILD_VERSION=0.1.$TRAVIS_BUILD_NUMBER-test; 
+if [ $TRAVIS_BRANCH == "main" ]; then 
+  export DATREE_BUILD_VERSION=0.1.$TRAVIS_BUILD_NUMBER; 
 else 
   export DATREE_BUILD_VERSION=0.1.$TRAVIS_BUILD_NUMBER-$TRAVIS_BRANCH; 
 fi
@@ -21,7 +21,3 @@ security import DatreeCli.p12 -k buildagent.keychain -P $P12_PASSWORD -T /usr/bi
 security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.keychain
 security find-identity -v
 curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
-
-# if [ $TRAVIS_BRANCH == "DAT-3096-cicd-signing" ]; then 
-#   bash ./internal/release/internal_deploy.sh
-# fi
