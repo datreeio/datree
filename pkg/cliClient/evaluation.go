@@ -18,6 +18,7 @@ type CreateEvaluationRequest struct {
 	CliId      string    `json:"cliId"`
 	Metadata   *Metadata `json:"metadata"`
 	K8sVersion *string   `json:"k8sVersion"`
+	PolicyName string    `json:"policyName"`
 }
 
 type CreateEvaluationResponse struct {
