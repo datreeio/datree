@@ -23,8 +23,8 @@ func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfig
 	return args.Get(0).(*evaluation.EvaluationResults), args.Error(1)
 }
 
-func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error) {
-	args := m.Called(cliId, cliVersion, k8sVersion)
+func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error) {
+	args := m.Called(cliId, cliVersion, k8sVersion, policyName)
 	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
 }
 
@@ -121,7 +121,7 @@ func TestTestCommand(t *testing.T) {
 
 	mockedEvaluator := &mockEvaluator{}
 	mockedEvaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything).Return(evaluationResults, nil)
-	mockedEvaluator.On("CreateEvaluation", mock.Anything, mock.Anything, mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0", RulesCount: 21}, nil)
+	mockedEvaluator.On("CreateEvaluation", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0", RulesCount: 21}, nil)
 	mockedEvaluator.On("UpdateFailedYamlValidation", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockedEvaluator.On("UpdateFailedK8sValidation", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	messager := &mockMessager{}
