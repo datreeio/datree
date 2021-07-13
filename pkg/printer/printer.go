@@ -164,6 +164,8 @@ func (p *Printer) printInColor(title string, color *color.Color) {
 
 func (p *Printer) createNewColor(clr string) *color.Color {
 	switch clr {
+	case "error":
+		return p.theme.Colors.Error
 	case "red":
 		return p.theme.Colors.Red
 	case "yellow":

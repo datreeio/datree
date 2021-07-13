@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/datreeio/datree/bl/validation"
@@ -24,6 +25,9 @@ func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfig
 }
 
 func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error) {
+	fmt.Println("*****************")
+	fmt.Println(cliId, cliVersion, k8sVersion, policyName)
+	fmt.Println("*****************")
 	args := m.Called(cliId, cliVersion, k8sVersion, policyName)
 	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
 }
@@ -165,8 +169,9 @@ func TestTestCommand(t *testing.T) {
 }
 
 func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
-	test(ctx, []string{"8/*"}, TestCommandFlags{K8sVersion: "", Output: ""})
+	test(ctx, []string{"8/*"}, TestCommandFlags{K8sVersion: "1.18.0", Output: "", PolicyName: "Default"})
 
+	evaluator.AssertCalled(t, "CreateEvaluation", "134kh", "", "1.18.0", "Default")
 	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
 }
 
