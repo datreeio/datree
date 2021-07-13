@@ -85,7 +85,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			var err error = nil
 			defer func() {
 				if err != nil {
-					fmt.Println(err.Error())
+					ctx.Printer.PrintMessage(err.Error(), "error")
 				}
 			}()
 
@@ -243,7 +243,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion)
+	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion, flags.PolicyName)
 
 	var invocationFailedErr error = nil
 
