@@ -85,7 +85,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			var err error = nil
 			defer func() {
 				if err != nil {
-					ctx.Printer.PrintMessage(err.Error(), "error")
+					ctx.Printer.PrintMessage(strings.Join([]string{"\n", err.Error(), "\n"}, ""), "error")
 				}
 			}()
 
