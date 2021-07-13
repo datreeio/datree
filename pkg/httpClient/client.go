@@ -72,7 +72,14 @@ func (c *Client) Request(method string, resourceURI string, body interface{}, he
 	}
 
 	if response.StatusCode > 399 {
-		return responseBody, fmt.Errorf("Error: %v", string(b))
+		var errorJson map[string]string
+		err = json.Unmarshal(b, &errorJson)
+		if err != nil {
+			return responseBody, err
+		}
+
+		errorMessage := strings.Join([]string{"\n", errorJson["message"], "\n"}, "")
+		return responseBody, fmt.Errorf(errorMessage)
 	}
 
 	responseBody = Response{
