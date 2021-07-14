@@ -123,7 +123,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 
 	testCommand.Flags().StringP("output", "o", "", "Define output format")
 	testCommand.Flags().StringP("schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
-	testCommand.Flags().StringP("policy", "p", "Default", "Policy name to run against")
+	testCommand.Flags().StringP("policy", "p", "", "Policy name to run against")
 	testCommand.Flags().BoolP("ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 	return testCommand
 }
@@ -243,7 +243,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion, flags.PolicyName)
+	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion, createEvaluationResponse.PolicyName)
 
 	var invocationFailedErr error = nil
 
