@@ -22,7 +22,7 @@ import (
 
 type Evaluator interface {
 	Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationId int) (*evaluation.EvaluationResults, error)
-	CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error)
+	CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error)
 	UpdateFailedYamlValidation(invalidFiles []*validation.InvalidYamlFile, evaluationId int, stopEvaluation bool) error
 	UpdateFailedK8sValidation(invalidFiles []*validation.InvalidK8sFile, evaluationId int, stopEvaluation bool) error
 }
@@ -40,6 +40,7 @@ type TestCommandFlags struct {
 	Output               string
 	K8sVersion           string
 	IgnoreMissingSchemas bool
+	PolicyName           string
 }
 
 type EvaluationPrinter interface {
@@ -84,7 +85,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			var err error = nil
 			defer func() {
 				if err != nil {
-					fmt.Println(err.Error())
+					ctx.Printer.PrintMessage(strings.Join([]string{"\n", err.Error(), "\n"}, ""), "error")
 				}
 			}()
 
@@ -103,7 +104,12 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas}
+			policy, err := cmd.Flags().GetString("policy")
+			if err != nil {
+				return err
+			}
+
+			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy}
 
 			err = test(ctx, args, testCommandFlags)
 			if err != nil {
@@ -117,6 +123,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 
 	testCommand.Flags().StringP("output", "o", "", "Define output format")
 	testCommand.Flags().StringP("schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
+	testCommand.Flags().StringP("policy", "p", "", "Policy name to run against")
 	testCommand.Flags().BoolP("ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 	return testCommand
 }
@@ -176,7 +183,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	validYamlFilesConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(filesPaths, concurrency)
 
-	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(localConfigContent.CliId, ctx.CliVersion, flags.K8sVersion)
+	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(localConfigContent.CliId, ctx.CliVersion, flags.K8sVersion, flags.PolicyName)
 	if err != nil {
 		return err
 	}
@@ -236,7 +243,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion)
+	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion, createEvaluationResponse.PolicyName)
 
 	var invocationFailedErr error = nil
 

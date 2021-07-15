@@ -34,10 +34,11 @@ type EvaluationResults struct {
 	}
 }
 
-func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string) (*cliClient.CreateEvaluationResponse, error) {
+func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error) {
 	createEvaluationResponse, err := e.cliClient.CreateEvaluation(&cliClient.CreateEvaluationRequest{
 		K8sVersion: &k8sVersion,
 		CliId:      cliId,
+		PolicyName: policyName,
 		Metadata: &cliClient.Metadata{
 			CliVersion:      cliVersion,
 			Os:              e.osInfo.OS,

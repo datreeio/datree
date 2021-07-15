@@ -321,6 +321,7 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 			createEvaluationRequest: &CreateEvaluationRequest{
 				K8sVersion: &k8sVersion,
 				CliId:      "cli_id",
+				PolicyName: "Default",
 				Metadata: &Metadata{
 					CliVersion:      "0.0.1",
 					Os:              "darwin",
@@ -366,6 +367,7 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 				body: &CreateEvaluationRequest{
 					K8sVersion: &k8sVersion,
 					CliId:      "cli_id",
+					PolicyName: "Default",
 					Metadata: &Metadata{
 						CliVersion:      "0.0.1",
 						Os:              "darwin",
