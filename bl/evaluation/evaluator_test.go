@@ -77,11 +77,12 @@ func TestCreateEvaluation(t *testing.T) {
 		cliId := "test_token"
 		cliVersion := "0.0.7"
 		k8sVersion := "1.18.1"
+		policyName := "Default"
 
 		mockedCliClient.On("CreateEvaluation", mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: 1, K8sVersion: k8sVersion}, nil)
 
 		expectedCreateEvaluationResponse := &cliClient.CreateEvaluationResponse{EvaluationId: 1, K8sVersion: k8sVersion}
-		createEvaluationResponse, _ := evaluator.CreateEvaluation(cliId, cliVersion, k8sVersion)
+		createEvaluationResponse, _ := evaluator.CreateEvaluation(cliId, cliVersion, k8sVersion, policyName)
 
 		mockedCliClient.AssertCalled(t, "CreateEvaluation", mock.Anything)
 		assert.Equal(t, expectedCreateEvaluationResponse, createEvaluationResponse)

@@ -18,12 +18,14 @@ type CreateEvaluationRequest struct {
 	CliId      string    `json:"cliId"`
 	Metadata   *Metadata `json:"metadata"`
 	K8sVersion *string   `json:"k8sVersion"`
+	PolicyName string    `json:"policyName"`
 }
 
 type CreateEvaluationResponse struct {
 	EvaluationId int    `json:"evaluationId"`
 	K8sVersion   string `json:"k8sVersion"`
 	RulesCount   int    `json:"rulesCount"`
+	PolicyName   string `json:"policyName"`
 }
 
 func (c *CliClient) CreateEvaluation(request *CreateEvaluationRequest) (*CreateEvaluationResponse, error) {

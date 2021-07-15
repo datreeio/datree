@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/datreeio/datree/bl/validation"
 
@@ -25,14 +26,14 @@ type FormattedOutput struct {
 	InvalidK8sFiles   []*validation.InvalidK8sFile
 }
 
-func PrintResults(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string) error {
+func PrintResults(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string, policyName string) error {
 	switch {
 	case outputFormat == "json":
 		return jsonOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
 	case outputFormat == "yaml":
 		return yamlOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
 	default:
-		return textOutput(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion)
+		return textOutput(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion, policyName)
 	}
 }
 
@@ -58,7 +59,7 @@ func yamlOutput(formattedOutput *FormattedOutput) error {
 	return nil
 }
 
-func textOutput(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string) error {
+func textOutput(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string, policyName string) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -72,7 +73,7 @@ func textOutput(results *EvaluationResults, invalidYamlFiles []*validation.Inval
 
 	printer.PrintWarnings(warnings)
 
-	summary := parseEvaluationResultsToSummary(results, evaluationSummary, url)
+	summary := parseEvaluationResultsToSummary(results, evaluationSummary, url, policyName)
 
 	printer.PrintEvaluationSummary(evaluationSummary, k8sVersion)
 
@@ -135,8 +136,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 type OutputTitle int
 
 const (
-	EnabledRules OutputTitle = iota
-	EvaluatedConfigurations
+	EvaluatedConfigurations OutputTitle = iota
 	TotalRulesEvaluated
 	SeeAll
 	TotalRulesPassed
@@ -145,14 +145,20 @@ const (
 
 func (t OutputTitle) String() string {
 	return [...]string{
-		"Enabled rules in policy “default”",
 		"Configs tested against policy",
 		"Total rules evaluated",
 		"See all rules in policy",
 		"Total rules passed",
 		"Total rules failed"}[t]
 }
-func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSummary printer.EvaluationSummary, loginURL string) printer.Summary {
+
+func buildEnabledRulesTitle(policyName string) string {
+	var str strings.Builder
+	fmt.Fprintf(&str, "Enabled rules in policy “%s”", policyName)
+	return str.String()
+}
+
+func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSummary printer.EvaluationSummary, loginURL string, policyName string) printer.Summary {
 	configsCount := evaluationSummary.ConfigsCount
 	totalRulesEvaluated := 0
 	totalFailedRules := 0
@@ -165,7 +171,7 @@ func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSumma
 	}
 
 	plainRows := []printer.SummaryItem{
-		{LeftCol: EnabledRules.String(), RightCol: fmt.Sprint(evaluationSummary.RulesCount), RowIndex: 0},
+		{LeftCol: buildEnabledRulesTitle(policyName), RightCol: fmt.Sprint(evaluationSummary.RulesCount), RowIndex: 0},
 		{LeftCol: EvaluatedConfigurations.String(), RightCol: fmt.Sprint(configsCount), RowIndex: 1},
 		{LeftCol: TotalRulesEvaluated.String(), RightCol: fmt.Sprint(totalRulesEvaluated), RowIndex: 2},
 		{LeftCol: SeeAll.String(), RightCol: loginURL, RowIndex: 5},

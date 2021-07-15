@@ -13,6 +13,7 @@ type theme struct {
 		Yellow *color.Color
 		Red    *color.Color
 		White  *color.Color
+		Error  *color.Color
 	}
 	Spacing struct {
 		Default string
@@ -30,10 +31,12 @@ func createTheme() *theme {
 			Yellow *color.Color
 			Red    *color.Color
 			White  *color.Color
+			Error  *color.Color
 		}{
 			Green:  color.New(color.FgGreen),
 			Yellow: color.New(color.FgYellow),
 			Red:    color.New(color.FgHiRed, color.Bold),
+			Error:  color.New(color.FgHiRed),
 			White:  color.New(color.FgHiWhite),
 		},
 		Spacing: struct{ Default string }{
