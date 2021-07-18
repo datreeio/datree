@@ -94,8 +94,8 @@ func (c *Client) createNewRequest(method string, url string, body interface{}, h
 	var err error
 
 	if body != nil {
-		bodyBuffer := &bytes.Buffer{}
-		enc := json.NewEncoder(bodyBuffer)
+		var bodyBuffer bytes.Buffer
+		enc := json.NewEncoder(&bodyBuffer)
 		enc.SetEscapeHTML(false)
 		err = enc.Encode(body)
 		if err != nil {
@@ -109,10 +109,7 @@ func (c *Client) createNewRequest(method string, url string, body interface{}, h
 			return nil, err
 		}
 
-		if err != nil {
-			return nil, err
-		}
-		request, err = http.NewRequest(method, url, bytes.NewReader(buf.Bytes()))
+		request, err = http.NewRequest(method, url, &buf)
 		if err != nil {
 			return nil, err
 		}
