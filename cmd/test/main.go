@@ -70,13 +70,14 @@ type TestCommandContext struct {
 
 func New(ctx *TestCommandContext) *cobra.Command {
 	testCommand := &cobra.Command{
-		Use:   "test",
-		Short: "Execute static analysis for pattern",
-		Long:  "Execute static analysis for pattern. Input should be glob or `-` for stdin",
+		Use:   "test <pattern>",
+		Short: "Execute static analysis for given <pattern>",
+		Long:  "Execute static analysis for given <pattern>. Input should be glob or `-` for stdin",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
+				errMessage := "Requires at least 1 arg\n"
+				fmt.Println(errMessage)
 				cmd.Usage()
-				errMessage := "Requires at least 1 arg"
 				return fmt.Errorf(errMessage)
 			}
 			return nil
