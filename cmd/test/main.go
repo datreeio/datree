@@ -75,8 +75,8 @@ func New(ctx *TestCommandContext) *cobra.Command {
 		Long:  "Execute static analysis for pattern. Input should be glob or `-` for stdin",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
-				errMessage := "requires at least 1 arg"
-				fmt.Println(errMessage)
+				cmd.Usage()
+				errMessage := "Requires at least 1 arg"
 				return fmt.Errorf(errMessage)
 			}
 			return nil
