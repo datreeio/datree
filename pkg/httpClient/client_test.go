@@ -1,6 +1,8 @@
 package httpClient
 
 import (
+	"bytes"
+	"compress/gzip"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -86,7 +88,21 @@ func createMockServer(t *testing.T, tc *testCase) *httptest.Server {
 
 		body, _ := ioutil.ReadAll(req.Body)
 
-		assert.Equal(t, tc.expectedRequestBody, string(body))
+		if len(tc.expectedRequestBody) > 0 {
+			b := bytes.NewBuffer(body)
+			r, err := gzip.NewReader(b)
+			if err != nil {
+				panic(err)
+			}
+			var unzippedBuf bytes.Buffer
+			_, err = unzippedBuf.ReadFrom(r)
+			if err != nil {
+				panic(err)
+			}
+			assert.Equal(t, tc.expectedRequestBody, string(unzippedBuf.Bytes()))
+		} else {
+			assert.Equal(t, tc.expectedRequestBody, string(body))
+		}
 
 		assert.Equal(t, tc.method, req.Method)
 
