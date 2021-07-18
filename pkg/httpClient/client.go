@@ -94,22 +94,22 @@ func (c *Client) createNewRequest(method string, url string, body interface{}, h
 	var err error
 
 	if body != nil {
-		var bodyBuffer bytes.Buffer
-		enc := json.NewEncoder(&bodyBuffer)
+		var encodedBuf bytes.Buffer
+		enc := json.NewEncoder(&encodedBuf)
 		enc.SetEscapeHTML(false)
 		err = enc.Encode(body)
 		if err != nil {
 			return nil, err
 		}
 
-		var buf bytes.Buffer
-		g := gzip.NewWriter(&buf)
-		g.Write(bodyBuffer.Bytes())
-		if err = g.Close(); err != nil {
+		var gzippedBuf bytes.Buffer
+		gzipWriter := gzip.NewWriter(&gzippedBuf)
+		gzipWriter.Write(encodedBuf.Bytes())
+		if err = gzipWriter.Close(); err != nil {
 			return nil, err
 		}
 
-		request, err = http.NewRequest(method, url, &buf)
+		request, err = http.NewRequest(method, url, &gzippedBuf)
 		if err != nil {
 			return nil, err
 		}

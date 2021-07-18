@@ -89,17 +89,17 @@ func createMockServer(t *testing.T, tc *testCase) *httptest.Server {
 		body, _ := ioutil.ReadAll(req.Body)
 
 		if len(tc.expectedRequestBody) > 0 {
-			b := bytes.NewBuffer(body)
-			r, err := gzip.NewReader(b)
+			buf := bytes.NewBuffer(body)
+			gzipReader, err := gzip.NewReader(buf)
 			if err != nil {
 				panic(err)
 			}
-			var unzippedBuf bytes.Buffer
-			_, err = unzippedBuf.ReadFrom(r)
+			var gunzippedBuf bytes.Buffer
+			_, err = gunzippedBuf.ReadFrom(gzipReader)
 			if err != nil {
 				panic(err)
 			}
-			assert.Equal(t, tc.expectedRequestBody, string(unzippedBuf.Bytes()))
+			assert.Equal(t, tc.expectedRequestBody, string(gunzippedBuf.Bytes()))
 		} else {
 			assert.Equal(t, tc.expectedRequestBody, string(body))
 		}
