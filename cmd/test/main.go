@@ -76,7 +76,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				errMessage := "Requires at least 1 arg\n"
-				fmt.Println(errMessage)
 				cmd.Usage()
 				return fmt.Errorf(errMessage)
 			}
