@@ -2,6 +2,7 @@ package httpClient
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -89,26 +90,46 @@ func (c *Client) Request(method string, resourceURI string, body interface{}, he
 }
 
 func (c *Client) createNewRequest(method string, url string, body interface{}, headers map[string]string) (*http.Request, error) {
-	bodyBuffer, err := c.parseBody(body)
-	if err != nil {
-		return nil, err
-	}
-
-	request, err := http.NewRequest(method, url, bodyBuffer)
-	if err != nil {
-		return nil, err
-	}
-	requestHeaders := c.mergeWithDefaultHeaders(headers)
-	c.addHeadersToRequest(request, requestHeaders)
+	var request *http.Request
+	var err error
 
 	if body != nil {
+		var encodedBuf bytes.Buffer
+		enc := json.NewEncoder(&encodedBuf)
+		enc.SetEscapeHTML(false)
+		err = enc.Encode(body)
+		if err != nil {
+			return nil, err
+		}
+
+		var gzippedBuf bytes.Buffer
+		gzipWriter := gzip.NewWriter(&gzippedBuf)
+		gzipWriter.Write(encodedBuf.Bytes())
+		if err = gzipWriter.Close(); err != nil {
+			return nil, err
+		}
+
+		request, err = http.NewRequest(method, url, &gzippedBuf)
+		if err != nil {
+			return nil, err
+		}
+
 		contentTypeHeader := c.getValueOfHeader(headers, "Content-Type")
 		if contentTypeHeader == "" {
 			request.Header.Set("Content-Type", defaultContentType)
 		} else {
 			request.Header.Set("Content-Type", contentTypeHeader)
 		}
+		request.Header.Set("Content-Encoding", "gzip")
+	} else {
+		request, err = http.NewRequest(method, url, nil)
+		if err != nil {
+			return nil, err
+		}
 	}
+
+	requestHeaders := c.mergeWithDefaultHeaders(headers)
+	c.addHeadersToRequest(request, requestHeaders)
 
 	return request, nil
 }
