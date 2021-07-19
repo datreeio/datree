@@ -1,6 +1,8 @@
 package httpClient
 
 import (
+	"bytes"
+	"compress/gzip"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -79,6 +81,20 @@ func TestRequestWithBadUrl(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func gunzipBody(body []byte) string {
+	buf := bytes.NewBuffer(body)
+	gzipReader, err := gzip.NewReader(buf)
+	if err != nil {
+		panic(err)
+	}
+	var gunzippedBuf bytes.Buffer
+	_, err = gunzippedBuf.ReadFrom(gzipReader)
+	if err != nil {
+		panic(err)
+	}
+	return string(gunzippedBuf.Bytes())
+}
+
 func createMockServer(t *testing.T, tc *testCase) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 
@@ -86,7 +102,12 @@ func createMockServer(t *testing.T, tc *testCase) *httptest.Server {
 
 		body, _ := ioutil.ReadAll(req.Body)
 
-		assert.Equal(t, tc.expectedRequestBody, string(body))
+		if len(tc.expectedRequestBody) > 0 {
+			gunzippedBody := gunzipBody(body)
+			assert.Equal(t, tc.expectedRequestBody, gunzippedBody)
+		} else {
+			assert.Equal(t, tc.expectedRequestBody, string(body))
+		}
 
 		assert.Equal(t, tc.method, req.Method)
 
