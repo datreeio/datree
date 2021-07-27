@@ -14,6 +14,7 @@ before_deploy:
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
+  - HOMEBREW_NO_AUTO_UPDATE=1 brew install caarlos0/tap/svu
 deploy:
   - provider: script
     skip_cleanup: true
@@ -26,7 +27,7 @@ deploy:
     script: bash ./internal/release/internal_deploy.sh
     on:
       branch: main
-      
+
 env:
   global:
     #GITHUB_TOKEN
