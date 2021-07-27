@@ -15,7 +15,7 @@ before_deploy:
   - git config --global user.name "Travis CI"
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
   - brew install caarlos0/tap/svu
-  - export SEMVER_NUMBER=$(svu --strip-prefix --no-metadata)
+  - export SEMVER_NUMBER=$(svu next --strip-prefix --no-metadata)
 deploy:
   - provider: script
     skip_cleanup: true
