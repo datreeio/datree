@@ -14,7 +14,7 @@ before_deploy:
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
-  - HOMEBREW_NO_AUTO_UPDATE=1 brew install caarlos0/tap/svu
+  - brew install caarlos0/tap/svu
   - export SEMVER_NUMBER=$(svu next --no-metadata)
 deploy:
   - provider: script
