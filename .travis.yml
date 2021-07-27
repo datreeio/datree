@@ -3,6 +3,8 @@ go:
   - 1.x
 os: osx
 osx_image: xcode11.3
+services:
+  - docker
 
 script:
   - go build -tags $DATREE_DEPLOYMENT
