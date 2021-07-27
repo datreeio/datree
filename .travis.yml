@@ -16,7 +16,6 @@ before_deploy:
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
   - HOMEBREW_NO_AUTO_UPDATE=1 brew install caarlos0/tap/svu
   - export SEMVER_NUMBER=$(svu next --strip-prefix --no-metadata)
-
 deploy:
   - provider: script
     skip_cleanup: true
