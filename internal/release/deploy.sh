@@ -1,8 +1,8 @@
 set -ex
 if [ $TRAVIS_BRANCH == "main" ]; then 
-  export DATREE_BUILD_VERSION=$(svu next --no-metadata); 
+  export DATREE_BUILD_VERSION=$SEMVER_NUMBER; 
 else 
-  export DATREE_BUILD_VERSION=$(svu next --no-metadata)-$TRAVIS_BRANCH; 
+  export DATREE_BUILD_VERSION=$SEMVER_NUMBER-$TRAVIS_BRANCH; 
 fi
 
 export GIT_TAG=$DATREE_BUILD_VERSION
