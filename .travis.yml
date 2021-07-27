@@ -22,7 +22,7 @@ deploy:
     script: bash ./internal/release/deploy.sh
     on:
       all_branches: true
-      condition: $TRAVIS_BRANCH =~ ^(staging|main|DAT-3209-semantic-versioning)$
+      condition: $TRAVIS_BRANCH =~ ^(staging|main)$
   - provider: script
     skip_cleanup: true
     script: bash ./internal/release/internal_deploy.sh
