@@ -3,8 +3,6 @@ go:
   - 1.x
 os: osx
 osx_image: xcode11.3
-services:
-  - docker
 
 script:
   - go build -tags $DATREE_DEPLOYMENT
@@ -16,6 +14,7 @@ before_deploy:
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
+  - HOMEBREW_NO_AUTO_UPDATE=1 brew install docker
   - docker pull ghcr.io/caarlos0/svu:v1.6.1
   - export SEMVER_NUMBER=$(docker run --rm -v $PWD:/tmp --workdir /tmp ghcr.io/caarlos0/svu:v1.6.1 --strip-prefix --no-metadata)
 deploy:
