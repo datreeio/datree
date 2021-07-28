@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/datreeio/datree/bl/validation"
@@ -118,6 +119,8 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 
 				warningDetails = append(warningDetails, details)
 			}
+			sort.Slice(warningDetails,
+				func(i, j int) bool { return warningDetails[i].Caption < warningDetails[j].Caption })
 
 			relativePath, _ := filepath.Rel(pwd, fileName)
 
