@@ -108,9 +108,25 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 	}
 
 	if results != nil {
-		for fileName, rules := range results.FileNameRuleMapper {
+
+		filesKeys := []string{}
+		for key := range results.FileNameRuleMapper {
+			filesKeys = append(filesKeys, key)
+		}
+		sort.Strings(filesKeys)
+
+		for _, filename := range filesKeys {
+			rules := results.FileNameRuleMapper[filename]
 			var warningDetails = []printer.WarningInfo{}
-			for _, rule := range rules {
+
+			rulesIds := []int{}
+			for ruleId := range rules {
+				rulesIds = append(rulesIds, ruleId)
+			}
+			sort.Ints(rulesIds)
+
+			for _, ruleId := range rulesIds {
+				rule := rules[ruleId]
 				details := printer.WarningInfo{
 					Caption:     rule.Name,
 					Occurrences: rule.Count,
@@ -119,10 +135,8 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 
 				warningDetails = append(warningDetails, details)
 			}
-			sort.Slice(warningDetails,
-				func(i, j int) bool { return warningDetails[i].Caption < warningDetails[j].Caption })
 
-			relativePath, _ := filepath.Rel(pwd, fileName)
+			relativePath, _ := filepath.Rel(pwd, filename)
 
 			warnings = append(warnings, printer.Warning{
 				Title:           fmt.Sprintf(">>  File: %s\n", relativePath),
