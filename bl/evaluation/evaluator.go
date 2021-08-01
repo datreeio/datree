@@ -25,8 +25,13 @@ func New(c CLIClient) *Evaluator {
 	}
 }
 
+type RuleResults struct {
+	Rule	*Rule
+	Matches []*cliClient.Match
+}
+
 type EvaluationResults struct {
-	FileNameRuleMapper map[string]map[int]*Rule
+	FileNameRuleMapper map[string]map[int]*RuleResults
 	Summary            struct {
 		TotalFailedRules int
 		FilesCount       int
@@ -95,7 +100,7 @@ func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations
 }
 
 func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.EvaluationResult, filesCount int) *EvaluationResults {
-	mapper := make(map[string]map[int]*Rule)
+	mapper := make(map[string]map[int]*RuleResults)
 
 	totalFailedCount := 0
 	totalPassedCount := filesCount
@@ -104,17 +109,25 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.Evalu
 		for _, match := range result.Results.Matches {
 			// file not already exists in mapper
 			if _, exists := mapper[match.FileName]; !exists {
-				mapper[match.FileName] = make(map[int]*Rule)
+				mapper[match.FileName] = make(map[int]*RuleResults)
 				totalPassedCount = totalPassedCount - 1
 			}
 
 			// file and rule not already exists in mapper
 			if _, exists := mapper[match.FileName][result.Rule.ID]; !exists {
 				totalFailedCount++
-				mapper[match.FileName][result.Rule.ID] = &Rule{ID: result.Rule.ID, Name: result.Rule.Name, FailSuggestion: result.Rule.FailSuggestion, Count: 0}
+				mapper[match.FileName][result.Rule.ID] = &RuleResults{
+					Rule: &Rule{
+						ID: result.Rule.ID,
+						Name: result.Rule.Name,
+						FailSuggestion: result.Rule.FailSuggestion,
+						Count: 0,
+					},
+					Matches: result.Results.Matches,
+				}
 			}
 
-			mapper[match.FileName][result.Rule.ID].IncrementCount()
+			mapper[match.FileName][result.Rule.ID].Rule.IncrementCount()
 		}
 	}
 
