@@ -2,6 +2,7 @@ package printer
 
 import (
 	"fmt"
+	"github.com/datreeio/datree/pkg/cliClient"
 	"os"
 
 	"github.com/fatih/color"
@@ -23,6 +24,7 @@ type WarningInfo struct {
 	Caption     string
 	Occurrences int
 	Suggestion  string
+	Matches		[]*cliClient.Match
 }
 
 type InvalidYamlInfo struct {
@@ -89,6 +91,9 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 				caption := p.theme.Colors.Red.Sprint(details.Caption)
 
 				fmt.Printf("%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
+				for _, match := range details.Matches {
+					fmt.Printf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(match.MetadataName), p.getStringOrNotAvailable(match.Kind))
+				}
 				fmt.Printf("%v %v\n", p.theme.Emoji.Suggestion, details.Suggestion)
 
 				fmt.Println()
@@ -194,4 +199,12 @@ func (p *Printer) printPassedYamlValidation() {
 
 func (p *Printer) printSkippedPolicyCheck() {
 	p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
+}
+
+func (p *Printer) getStringOrNotAvailable(str string) string {
+	if str == "" {
+		return "N/A"
+	}else{
+		return str
+	}
 }
