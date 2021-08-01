@@ -44,9 +44,11 @@ func (c *CliClient) CreateEvaluation(request *CreateEvaluationRequest) (*CreateE
 }
 
 type Match struct {
-	FileName string `json:"fileName"`
-	Path     string `json:"path"`
-	Value    string `json:"value"`
+	FileName 	 string `json:"fileName"`
+	Path     	 string `json:"path"`
+	Value    	 string `json:"value"`
+	MetadataName string `json:"metadataName"`
+	Kind		 string `json:"kind"`
 }
 
 type EvaluationResult struct {
