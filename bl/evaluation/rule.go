@@ -6,10 +6,9 @@ type Rule struct {
 	ID             int
 	Name           string
 	FailSuggestion string
-	Count          int
 	Matches		   []*cliClient.Match
 }
 
-func (rp *Rule) IncrementCount() {
-	rp.Count++
+func (rp *Rule) getCount() int {
+	return len(rp.Matches)
 }

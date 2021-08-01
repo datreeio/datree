@@ -115,12 +115,11 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.Evalu
 					ID: result.Rule.ID,
 					Name: result.Rule.Name,
 					FailSuggestion: result.Rule.FailSuggestion,
-					Count: 0,
-					Matches: result.Results.Matches,
+					Matches: []*cliClient.Match{},
 				}
 			}
 
-			mapper[match.FileName][result.Rule.ID].IncrementCount()
+			mapper[match.FileName][result.Rule.ID].Matches = append(mapper[match.FileName][result.Rule.ID].Matches, match)
 		}
 	}
 
