@@ -128,9 +128,9 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 			for _, ruleId := range rulesIds {
 				rule := rules[ruleId]
 				details := printer.WarningInfo{
-					Caption:     rule.Name,
-					Occurrences: rule.Count,
-					Suggestion:  rule.FailSuggestion,
+					Caption:     rule.Rule.Name,
+					Occurrences: rule.Rule.Count,
+					Suggestion:  rule.Rule.FailSuggestion,
 				}
 
 				warningDetails = append(warningDetails, details)
