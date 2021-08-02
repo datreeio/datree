@@ -76,8 +76,8 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 			p.printInColor("[X] Policy check\n", p.theme.Colors.White)
 			fmt.Println()
 
-			var occurrencesPostfix string
 			for _, details := range warning.Details {
+				var occurrencesPostfix string
 				if details.Occurrences > 1 {
 					occurrencesPostfix = "s"
 				} else {
