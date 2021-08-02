@@ -80,7 +80,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 			for _, details := range warning.Details {
 				if details.Occurrences > 1 {
 					occurrencesPostfix = "s"
-				}else{
+				} else {
 					occurrencesPostfix = ""
 				}
 				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", details.Occurrences, occurrencesPostfix)
