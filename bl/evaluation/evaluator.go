@@ -112,10 +112,10 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.Evalu
 			if _, exists := mapper[match.FileName][result.Rule.ID]; !exists {
 				totalFailedCount++
 				mapper[match.FileName][result.Rule.ID] = &Rule{
-					ID: result.Rule.ID,
-					Name: result.Rule.Name,
+					ID:             result.Rule.ID,
+					Name:           result.Rule.Name,
 					FailSuggestion: result.Rule.FailSuggestion,
-					Matches: []*cliClient.Match{},
+					Matches:        []*cliClient.Match{},
 				}
 			}
 

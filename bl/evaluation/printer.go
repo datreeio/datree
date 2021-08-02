@@ -131,7 +131,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 					Caption:     rule.Name,
 					Occurrences: rule.getCount(),
 					Suggestion:  rule.FailSuggestion,
-					Matches:	 rule.Matches,
+					Matches:     rule.Matches,
 				}
 
 				warningDetails = append(warningDetails, details)
