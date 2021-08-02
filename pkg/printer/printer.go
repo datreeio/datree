@@ -2,7 +2,6 @@ package printer
 
 import (
 	"fmt"
-	"github.com/datreeio/datree/pkg/cliClient"
 	"os"
 
 	"github.com/fatih/color"
@@ -21,10 +20,15 @@ func CreateNewPrinter() *Printer {
 }
 
 type WarningInfo struct {
-	Caption     string
-	Occurrences int
-	Suggestion  string
-	Matches     []*cliClient.Match
+	Caption            string
+	Occurrences        int
+	Suggestion         string
+	OccurrencesDetails []OccurrenceDetails
+}
+
+type OccurrenceDetails struct {
+	MetadataName string
+	Kind         string
 }
 
 type InvalidYamlInfo struct {
@@ -91,8 +95,8 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 				caption := p.theme.Colors.Red.Sprint(details.Caption)
 
 				fmt.Printf("%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
-				for _, match := range details.Matches {
-					fmt.Printf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(match.MetadataName), p.getStringOrNotAvailable(match.Kind))
+				for _, occurrenceDetails := range details.OccurrencesDetails {
+					fmt.Printf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
 				}
 				fmt.Printf("%v %v\n", p.theme.Emoji.Suggestion, details.Suggestion)
 
