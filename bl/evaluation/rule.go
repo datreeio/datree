@@ -6,7 +6,7 @@ type Rule struct {
 	ID             int
 	Name           string
 	FailSuggestion string
-	Matches		   []*cliClient.Match
+	Matches        []*cliClient.Match
 }
 
 func (rp *Rule) getCount() int {
