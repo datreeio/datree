@@ -9,6 +9,6 @@ type Rule struct {
 	Matches        []*cliClient.Match
 }
 
-func (rp *Rule) getCount() int {
+func (rp *Rule) GetCount() int {
 	return len(rp.Matches)
 }
