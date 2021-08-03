@@ -27,11 +27,11 @@ Invoke-WebRequest -Uri "https://get.datree.io/k8s-demo.yaml" -OutFile $k8sDemoPa
 
 Write-Host "[V] Finished Installation" -ForegroundColor DarkGreen
 Write-Host ""
-Write-Host "    Usage: datree test `$home/.datree/k8s-demo.yaml" -ForegroundColor DarkGreen
-Write-Host ""
-Write-Host "    Using Helm? => https://hub.datree.io/helm-plugin"
-Write-Host ""
 Write-Host "To run datree globally, please run the following command as administrator:" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "setx PATH `$env:path;$datreePath -m"
+Write-Host ""
+Write-Host "    Usage: datree test `$home/.datree/k8s-demo.yaml" -ForegroundColor DarkGreen
+Write-Host ""
+Write-Host "    Using Helm? => https://hub.datree.io/helm-plugin"
 Write-Host ""
