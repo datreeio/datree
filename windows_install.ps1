@@ -27,7 +27,7 @@ Invoke-WebRequest -Uri "https://get.datree.io/k8s-demo.yaml" -OutFile $k8sDemoPa
 
 Write-Host "[V] Finished Installation" -ForegroundColor DarkGreen
 Write-Host ""
-Write-Host "    Usage: $ datree test ~/.datree/k8s-demo.yaml" -ForegroundColor DarkGreen
+Write-Host "    Usage: datree test `$home/.datree/k8s-demo.yaml" -ForegroundColor DarkGreen
 Write-Host ""
 Write-Host "    Using Helm? => https://hub.datree.io/helm-plugin"
 Write-Host ""
