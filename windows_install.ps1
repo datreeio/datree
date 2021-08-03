@@ -19,7 +19,7 @@ Copy-Item -Path "$OUTPUT_BASENAME/*" -Destination $datreePath -PassThru -Force |
 Remove-Item -Recurse $OUTPUT_BASENAME
 Remove-Item $OUTPUT_BASENAME_WITH_POSTFIX
 
-$dotDatreePath = "~/.datree"
+$dotDatreePath = "$home/.datree"
 mkdir -Force $dotDatreePath | Out-Null
 $k8sDemoPath =  Join-Path "$dotDatreePath" "k8s-demo.yaml"
 
