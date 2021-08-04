@@ -2,11 +2,14 @@ package printer
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 )
+
+var out io.Writer = os.Stdout
 
 type Printer struct {
 	theme *theme
@@ -42,39 +45,39 @@ type Warning struct {
 func (p *Printer) PrintWarnings(warnings []Warning) {
 	for _, warning := range warnings {
 		p.printInColor(warning.Title, p.theme.Colors.Yellow)
-		fmt.Println()
+		fmt.Fprintln(out)
 
 		if len(warning.InvalidYamlInfo.ValidationErrors) > 0 {
 			p.printInColor("[X] YAML validation\n", p.theme.Colors.White)
-			fmt.Println()
+			fmt.Fprintln(out)
 			for _, validationError := range warning.InvalidYamlInfo.ValidationErrors {
 				validationError := p.theme.Colors.Red.Sprint(validationError.Error())
-				fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
+				fmt.Fprintf(out,"%v %v\n", p.theme.Emoji.Error, validationError)
 			}
-			fmt.Println()
+			fmt.Fprintln(out)
 
 			p.printInColor("[?] Kubernetes schema validation didn’t run for this file\n", p.theme.Colors.White)
 			p.printSkippedPolicyCheck()
-			fmt.Println()
+			fmt.Fprintln(out)
 		} else if len(warning.InvalidK8sInfo.ValidationErrors) > 0 {
 			p.printPassedYamlValidation()
 			p.printInColor("[X] Kubernetes schema validation\n", p.theme.Colors.White)
-			fmt.Println()
+			fmt.Fprintln(out)
 
 			for _, validationError := range warning.InvalidK8sInfo.ValidationErrors {
 				validationError := p.theme.Colors.Red.Sprint(validationError.Error())
-				fmt.Printf("%v %v\n", p.theme.Emoji.Error, validationError)
+				fmt.Fprintf(out, "%v %v\n", p.theme.Emoji.Error, validationError)
 			}
-			fmt.Println()
+			fmt.Fprintln(out)
 			p.printSkippedPolicyCheck()
-			fmt.Println()
+			fmt.Fprintln(out)
 		} else {
 			p.printPassedYamlValidation()
 			p.printInColor("[V] Kubernetes schema validation\n", p.theme.Colors.Green)
 
-			fmt.Println()
+			fmt.Fprintln(out)
 			p.printInColor("[X] Policy check\n", p.theme.Colors.White)
-			fmt.Println()
+			fmt.Fprintln(out)
 
 			for _, details := range warning.Details {
 				var occurrencesPostfix string
@@ -88,15 +91,15 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 
 				caption := p.theme.Colors.Red.Sprint(details.Caption)
 
-				fmt.Printf("%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
-				fmt.Printf("%v %v\n", p.theme.Emoji.Suggestion, details.Suggestion)
+				fmt.Fprintf(out, "%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
+				fmt.Fprintf(out, "%v %v\n", p.theme.Emoji.Suggestion, details.Suggestion)
 
-				fmt.Println()
+				fmt.Fprintln(out)
 			}
 		}
 	}
 
-	fmt.Println()
+	fmt.Fprintln(out)
 }
 
 type SummaryItem struct {
