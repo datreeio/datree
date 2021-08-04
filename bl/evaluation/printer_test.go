@@ -64,8 +64,8 @@ func TestPrintResults(t *testing.T) {
 
 			} else {
 				pwd, _ := os.Getwd()
-				wagnings, _ := parseToPrinterWarnings(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0")
-				mockedPrinter.AssertCalled(t, "PrintWarnings", wagnings)
+				warnings, _ := parseToPrinterWarnings(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0")
+				mockedPrinter.AssertCalled(t, "PrintWarnings", warnings)
 			}
 		})
 	}
