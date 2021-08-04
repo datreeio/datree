@@ -167,8 +167,8 @@ func (p *Printer) PrintSummaryTable(summary Summary) {
 }
 
 func (p *Printer) printInColor(title string, color *color.Color) {
-	colorPrintFn := color.PrintfFunc()
-	colorPrintFn(title)
+	colorPrintFn := color.FprintfFunc()
+	colorPrintFn(out, title)
 }
 
 func (p *Printer) createNewColor(clr string) *color.Color {
