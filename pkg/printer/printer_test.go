@@ -3,8 +3,9 @@ package printer
 import (
 	"bytes"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // add to test and run to get expected string
@@ -39,10 +40,34 @@ func TestWarnings(t *testing.T) {
 
 		got := out.(*bytes.Buffer).Bytes()
 
-		expected := []byte("Failed with Occurrences[V] YAML validation\n[V] Kubernetes schema validation\n[X] Policy check\nFailed with yaml validation[X] YAML validation\n[?] Kubernetes schema validation didn’t run for this file\n[?] Policy check didn’t run for this file\nFailed with k8s validation[V] YAML validation\n[X] Kubernetes schema validation\n[?] Policy check didn’t run for this file\n\n\n\n❌  Caption  [5 occurrences]\n💡  Suggestion\n\n\n\n❌  yaml validation error\n\n\n\n\n❌  K8S validation error\n\n\n")
+		expected := []byte(
+			`Failed with Occurrences
+[V] YAML validation
+[V] Kubernetes schema validation
 
-		fmt.Print(got)
-		//res := bytes.Compare(got, expected)
+[X] Policy check
+
+❌  Caption  [5 occurrences]
+💡  Suggestion
+
+Failed with yaml validation
+[X] YAML validation
+
+❌  yaml validation error
+
+[?] Kubernetes schema validation didn’t run for this file
+[?] Policy check didn’t run for this file
+
+Failed with k8s validation
+[V] YAML validation
+[X] Kubernetes schema validation
+
+❌  K8S validation error
+
+[?] Policy check didn’t run for this file
+
+
+`)
 		assert.Equal(t, expected, got)
 	})
 }
