@@ -94,7 +94,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 
 				caption := p.theme.Colors.Red.Sprint(details.Caption)
 
-				fmt.Printf("%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
+				fmt.Printf("%v___ %v %v\n", p.theme.Emoji.Error, caption, occurrences)
 				for _, occurrenceDetails := range details.OccurrencesDetails {
 					fmt.Printf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
 				}
