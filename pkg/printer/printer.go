@@ -23,9 +23,15 @@ func CreateNewPrinter() *Printer {
 }
 
 type WarningInfo struct {
-	Caption     string
-	Occurrences int
-	Suggestion  string
+	Caption            string
+	Occurrences        int
+	Suggestion         string
+	OccurrencesDetails []OccurrenceDetails
+}
+
+type OccurrenceDetails struct {
+	MetadataName string
+	Kind         string
 }
 
 type InvalidYamlInfo struct {
@@ -52,7 +58,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 			fmt.Fprintln(out)
 			for _, validationError := range warning.InvalidYamlInfo.ValidationErrors {
 				validationError := p.theme.Colors.Red.Sprint(validationError.Error())
-				fmt.Fprintf(out,"%v %v\n", p.theme.Emoji.Error, validationError)
+				fmt.Fprintf(out, "%v %v\n", p.theme.Emoji.Error, validationError)
 			}
 			fmt.Fprintln(out)
 
@@ -92,6 +98,9 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 				caption := p.theme.Colors.Red.Sprint(details.Caption)
 
 				fmt.Fprintf(out, "%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
+				for _, occurrenceDetails := range details.OccurrencesDetails {
+					fmt.Fprintf(out, "    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
+				}
 				fmt.Fprintf(out, "%v %v\n", p.theme.Emoji.Suggestion, details.Suggestion)
 
 				fmt.Fprintln(out)
@@ -197,4 +206,12 @@ func (p *Printer) printPassedYamlValidation() {
 
 func (p *Printer) printSkippedPolicyCheck() {
 	p.printInColor("[?] Policy check didn’t run for this file\n", p.theme.Colors.White)
+}
+
+func (p *Printer) getStringOrNotAvailable(str string) string {
+	if str == "" {
+		return "N/A"
+	} else {
+		return str
+	}
 }
