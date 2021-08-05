@@ -15,6 +15,7 @@ before_deploy:
   - git config --global user.name "Travis CI"
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
   - HOMEBREW_NO_AUTO_UPDATE=1 brew install caarlos0/tap/svu
+  - echo $(svu --version)
   - export SEMVER_NUMBER=$(svu next --strip-prefix --no-metadata)
 deploy:
   - provider: script
@@ -22,7 +23,7 @@ deploy:
     script: bash ./internal/release/deploy.sh
     on:
       all_branches: true
-      condition: $TRAVIS_BRANCH =~ ^(staging|main)$
+      condition: $TRAVIS_BRANCH =~ ^(staging|main|fix-semver)$
   - provider: script
     skip_cleanup: true
     script: bash ./internal/release/internal_deploy.sh
