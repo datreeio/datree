@@ -21,8 +21,15 @@ func TestWarnings(t *testing.T) {
 
 		warnings := []Warning{
 			Warning{
-				Title:   "Failed with Occurrences",
-				Details: []WarningInfo{WarningInfo{Caption: "Caption", Occurrences: 5, Suggestion: "Suggestion"}},
+				Title: "Failed with Occurrences",
+				Details: []WarningInfo{
+					WarningInfo{
+						Caption:            "Caption",
+						Occurrences:        5,
+						Suggestion:         "Suggestion",
+						OccurrencesDetails: []OccurrenceDetails{OccurrenceDetails{MetadataName: "yishay", Kind: "Pod"}},
+					},
+				},
 			},
 			Warning{
 				Title:           "Failed with yaml validation",
@@ -48,6 +55,7 @@ func TestWarnings(t *testing.T) {
 [X] Policy check
 
 ❌  Caption  [5 occurrences]
+    — metadata.name: yishay (kind: Pod)
 💡  Suggestion
 
 Failed with yaml validation
@@ -68,6 +76,6 @@ Failed with k8s validation
 
 
 `)
-		assert.Equal(t, expected, got)
+		assert.Equal(t, string(expected), string(got))
 	})
 }
