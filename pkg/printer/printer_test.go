@@ -25,7 +25,7 @@ func TestWarnings(t *testing.T) {
 				Details: []WarningInfo{
 					WarningInfo{
 						Caption:            "Caption",
-						Occurrences:        5,
+						Occurrences:        1,
 						Suggestion:         "Suggestion",
 						OccurrencesDetails: []OccurrenceDetails{OccurrenceDetails{MetadataName: "yishay", Kind: "Pod"}},
 					},
@@ -54,7 +54,7 @@ func TestWarnings(t *testing.T) {
 
 [X] Policy check
 
-❌  Caption  [5 occurrences]
+❌  Caption  [1 occurrence]
     — metadata.name: yishay (kind: Pod)
 💡  Suggestion
 
