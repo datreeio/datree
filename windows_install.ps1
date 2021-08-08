@@ -30,7 +30,8 @@ Write-Host "[V] Downloaded Datree" -ForegroundColor DarkGreen
 Expand-Archive -Path $OUTPUT_BASENAME_WITH_POSTFIX -DestinationPath $OUTPUT_BASENAME -Force | Out-Null
 
 $localAppDataPath = $env:LOCALAPPDATA
-$datreePath = Join-Path "$localAppDataPath" 'datree' '\'
+$datreePath = Join-Path "$localAppDataPath" 'datree'
+New-Item -ItemType Directory -Force -Path $datreePath
 
 Copy-Item -Path "$OUTPUT_BASENAME/*" -Destination "$datreePath" -PassThru -Force | Out-Null
 
