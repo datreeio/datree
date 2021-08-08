@@ -8,10 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// add to test and run to get expected string
-// got := out.(*bytes.Buffer).String()
-// fmt.Sprintf(got)
-
 func TestWarnings(t *testing.T) {
 	t.Run("Test Warning", func(t *testing.T) {
 
