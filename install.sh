@@ -24,8 +24,8 @@ then
     sudo rm -f /usr/local/bin/datree
     sudo cp $OUTPUT_BASENAME/datree /usr/local/bin
 else
-    rm -f /usr/local/bin/datree
-    cp $OUTPUT_BASENAME/datree /usr/local/bin
+    rm -f /usr/local/bin/datree || sudo rm -f /usr/local/bin/datree
+    cp $OUTPUT_BASENAME/datree /usr/local/bin || sudo cp $OUTPUT_BASENAME/datree /usr/local/bin
 fi
 
 rm $OUTPUT_BASENAME_WITH_POSTFIX
