@@ -44,9 +44,12 @@ type TestCommandFlags struct {
 }
 
 type EvaluationPrinter interface {
+	SimplePrintWarnings(warnings []printer.Warning)
 	PrintWarnings(warnings []printer.Warning)
+	SimplePrintSummaryTable(summary printer.Summary)
 	PrintSummaryTable(summary printer.Summary)
 	PrintMessage(messageText string, messageColor string)
+	SimplePrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
 	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
 }
 
@@ -175,7 +178,11 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	var _spinner *spinner.Spinner
 	if isInteractiveMode == true {
-		_spinner = createSpinner(" Loading...", "cyan")
+		color := "cyan"
+		if flags.Output == "simple" {
+			color = ""
+		}
+		_spinner = createSpinner(" Loading...", color)
 		_spinner.Start()
 	}
 
