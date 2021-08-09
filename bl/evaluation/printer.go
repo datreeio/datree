@@ -15,11 +15,8 @@ import (
 )
 
 type Printer interface {
-	SimplePrintWarnings(warnings []printer.Warning)
 	PrintWarnings(warnings []printer.Warning)
-	SimplePrintSummaryTable(summary printer.Summary)
 	PrintSummaryTable(summary printer.Summary)
-	SimplePrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 }
 
@@ -36,8 +33,6 @@ func PrintResults(results *EvaluationResults, invalidYamlFiles []*validation.Inv
 		return jsonOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
 	case outputFormat == "yaml":
 		return yamlOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
-	case outputFormat == "simple":
-		return simpleOutput(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion, policyName)
 	default:
 		return textOutput(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion, policyName)
 	}
@@ -62,29 +57,6 @@ func yamlOutput(formattedOutput *FormattedOutput) error {
 	}
 
 	fmt.Println(string(yamlOutput))
-	return nil
-}
-
-func simpleOutput(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string, policyName string) error {
-	pwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	warnings, err := parseToPrinterWarnings(results, invalidYamlFiles, invalidK8sFiles, pwd, k8sVersion)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	printer.SimplePrintWarnings(warnings)
-
-	summary := parseEvaluationResultsToSummary(results, evaluationSummary, url, policyName)
-
-	printer.SimplePrintEvaluationSummary(evaluationSummary, k8sVersion)
-
-	printer.SimplePrintSummaryTable(summary)
-
 	return nil
 }
 
