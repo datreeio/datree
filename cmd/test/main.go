@@ -51,6 +51,7 @@ type EvaluationPrinter interface {
 	PrintMessage(messageText string, messageColor string)
 	SimplePrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
 	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
+	SetTheme(theme *printer.Theme)
 }
 
 type Reader interface {
@@ -153,6 +154,9 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		paths = []string{tempFile.Name()}
 	}
 
+	if flags.Output == "simple" {
+		ctx.Printer.SetTheme(printer.CreateSimpleTheme())
+	}
 	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml")
 
 	if isInteractiveMode == true {

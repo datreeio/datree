@@ -7,7 +7,7 @@ import (
 	"github.com/kyokomi/emoji"
 )
 
-type theme struct {
+type Theme struct {
 	Colors struct {
 		Green  *color.Color
 		Yellow *color.Color
@@ -24,8 +24,8 @@ type theme struct {
 	}
 }
 
-func createTheme() *theme {
-	return &theme{
+func createDefaultTheme() *Theme {
+	return &Theme{
 		Colors: struct {
 			Green  *color.Color
 			Yellow *color.Color
@@ -48,6 +48,33 @@ func createTheme() *theme {
 		}{
 			Error:      emoji.Sprint(":cross_mark:"),
 			Suggestion: emoji.Sprint(":light_bulb:"),
+		},
+	}
+}
+func CreateSimpleTheme() *Theme {
+	return &Theme{
+		Colors: struct {
+			Green  *color.Color
+			Yellow *color.Color
+			Red    *color.Color
+			White  *color.Color
+			Error  *color.Color
+		}{
+			Green:  color.New(),
+			Yellow: color.New(),
+			Red:    color.New(),
+			Error:  color.New(),
+			White:  color.New(),
+		},
+		Spacing: struct{ Default string }{
+			Default: strings.Join([]string{" "}, ""),
+		},
+		Emoji: struct {
+			Error      string
+			Suggestion string
+		}{
+			Error:      "[X] ",
+			Suggestion: "[*] ",
 		},
 	}
 }

@@ -106,6 +106,10 @@ func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {
 	p.Called(messageText, messageColor)
 }
 
+func (p *PrinterMock) SetTheme(theme *printer.Theme) {
+	p.Called(theme)
+}
+
 type ReaderMock struct {
 	mock.Mock
 }

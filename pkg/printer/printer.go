@@ -12,13 +12,13 @@ import (
 var out io.Writer = os.Stdout
 
 type Printer struct {
-	theme *theme
+	Theme *Theme
 }
 
 func CreateNewPrinter() *Printer {
-	theme := createTheme()
+	theme := createDefaultTheme()
 	return &Printer{
-		theme: theme,
+		Theme: theme,
 	}
 }
 
@@ -46,6 +46,10 @@ type Warning struct {
 	FailedRules     []FailedRule
 	InvalidYamlInfo InvalidYamlInfo
 	InvalidK8sInfo  InvalidK8sInfo
+}
+
+func (p *Printer) SetTheme(theme *Theme) {
+	p.Theme = theme
 }
 
 func (p *Printer) SimplePrintWarnings(warnings []Warning) {
@@ -107,27 +111,27 @@ func (p *Printer) SimplePrintWarnings(warnings []Warning) {
 }
 
 func (p *Printer) printYamlValidationWarning(warning Warning) {
-	p.printInColor("[X] YAML validation\n", p.theme.Colors.White)
+	p.printInColor("[X] YAML validation\n", p.Theme.Colors.White)
 	fmt.Fprintln(out)
 	for _, validationError := range warning.InvalidYamlInfo.ValidationErrors {
-		validationError := p.theme.Colors.Red.Sprint(validationError.Error())
-		fmt.Fprintf(out, "%v %v\n", p.theme.Emoji.Error, validationError)
+		validationError := p.Theme.Colors.Red.Sprint(validationError.Error())
+		fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Error, validationError)
 	}
 	fmt.Fprintln(out)
 
-	p.printInColor("[?] Kubernetes schema validation didn't run for this file\n", p.theme.Colors.White)
+	p.printInColor("[?] Kubernetes schema validation didn't run for this file\n", p.Theme.Colors.White)
 	p.printSkippedPolicyCheck()
 	fmt.Fprintln(out)
 }
 
 func (p *Printer) printK8sValidationWarning(warning Warning) {
 	p.printPassedYamlValidation()
-	p.printInColor("[X] Kubernetes schema validation\n", p.theme.Colors.White)
+	p.printInColor("[X] Kubernetes schema validation\n", p.Theme.Colors.White)
 	fmt.Fprintln(out)
 
 	for _, validationError := range warning.InvalidK8sInfo.ValidationErrors {
-		validationError := p.theme.Colors.Red.Sprint(validationError.Error())
-		fmt.Fprintf(out, "%v %v\n", p.theme.Emoji.Error, validationError)
+		validationError := p.Theme.Colors.Red.Sprint(validationError.Error())
+		fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Error, validationError)
 	}
 	fmt.Fprintln(out)
 	p.printSkippedPolicyCheck()
@@ -136,7 +140,7 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 
 func (p *Printer) PrintWarnings(warnings []Warning) {
 	for _, warning := range warnings {
-		p.printInColor(warning.Title, p.theme.Colors.Yellow)
+		p.printInColor(warning.Title, p.Theme.Colors.Yellow)
 		fmt.Fprintln(out)
 
 		if len(warning.InvalidYamlInfo.ValidationErrors) > 0 {
@@ -145,10 +149,10 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 			p.printK8sValidationWarning(warning)
 		} else {
 			p.printPassedYamlValidation()
-			p.printInColor("[V] Kubernetes schema validation\n", p.theme.Colors.Green)
+			p.printInColor("[V] Kubernetes schema validation\n", p.Theme.Colors.Green)
 
 			fmt.Fprintln(out)
-			p.printInColor("[X] Policy check\n", p.theme.Colors.White)
+			p.printInColor("[X] Policy check\n", p.Theme.Colors.White)
 			fmt.Fprintln(out)
 
 			for _, failedRule := range warning.FailedRules {
@@ -159,15 +163,15 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 					occurrencesPostfix = ""
 				}
 				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", failedRule.Occurrences, occurrencesPostfix)
-				occurrences := p.theme.Colors.White.Sprintf(formattedOccurrences)
+				occurrences := p.Theme.Colors.White.Sprintf(formattedOccurrences)
 
-				ruleName := p.theme.Colors.Red.Sprint(failedRule.Name)
+				ruleName := p.Theme.Colors.Red.Sprint(failedRule.Name)
 
-				fmt.Fprintf(out, "%v %v %v\n", p.theme.Emoji.Error, ruleName, occurrences)
+				fmt.Fprintf(out, "%v %v %v\n", p.Theme.Emoji.Error, ruleName, occurrences)
 				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
 					fmt.Fprintf(out, "    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
 				}
-				fmt.Fprintf(out, "%v %v\n", p.theme.Emoji.Suggestion, failedRule.Suggestion)
+				fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion)
 
 				fmt.Fprintln(out)
 			}
@@ -211,7 +215,7 @@ func (p *Printer) SimplePrintEvaluationSummary(summary EvaluationSummary, k8sVer
 }
 
 func (p *Printer) PrintEvaluationSummary(summary EvaluationSummary, k8sVersion string) {
-	p.printInColor("(Summary)\n", p.theme.Colors.White)
+	p.printInColor("(Summary)\n", p.Theme.Colors.White)
 	fmt.Fprintln(out)
 
 	fmt.Fprintf(out, "- Passing YAML validation: %v/%v\n", summary.PassedYamlValidationCount, summary.FilesCount)
@@ -292,15 +296,15 @@ func (p *Printer) printInColor(title string, color *color.Color) {
 func (p *Printer) createNewColor(clr string) *color.Color {
 	switch clr {
 	case "error":
-		return p.theme.Colors.Error
+		return p.Theme.Colors.Error
 	case "red":
-		return p.theme.Colors.Red
+		return p.Theme.Colors.Red
 	case "yellow":
-		return p.theme.Colors.Yellow
+		return p.Theme.Colors.Yellow
 	case "green":
-		return p.theme.Colors.Green
+		return p.Theme.Colors.Green
 	default:
-		return p.theme.Colors.White
+		return p.Theme.Colors.White
 	}
 }
 
@@ -310,11 +314,11 @@ func (p *Printer) PrintMessage(messageText string, messageColor string) {
 }
 
 func (p *Printer) printPassedYamlValidation() {
-	p.printInColor("[V] YAML validation\n", p.theme.Colors.Green)
+	p.printInColor("[V] YAML validation\n", p.Theme.Colors.Green)
 }
 
 func (p *Printer) printSkippedPolicyCheck() {
-	p.printInColor("[?] Policy check didn't run for this file\n", p.theme.Colors.White)
+	p.printInColor("[?] Policy check didn't run for this file\n", p.Theme.Colors.White)
 }
 
 func (p *Printer) getStringOrNotAvailable(str string) string {
