@@ -130,9 +130,9 @@ func TestPrintEvaluationSummary(t *testing.T) {
 			PassedK8sValidationCount:  3,
 			PassedPolicyCheckCount:    2,
 		}
-		k8sVErsion := "1.2.3"
+		k8sVersion := "1.2.3"
 
-		printer.PrintEvaluationSummary(summary, k8sVErsion)
+		printer.PrintEvaluationSummary(summary, k8sVersion)
 		expected := []byte(`(Summary)
 
 - Passing YAML validation: 4/5
