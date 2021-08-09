@@ -25,17 +25,6 @@ func (c *mockPrinter) PrintSummaryTable(summary printer.Summary) {
 func (c *mockPrinter) PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string) {
 	c.Called(summary, k8sVersion)
 }
-func (m *mockPrinter) SimplePrintWarnings(warnings []printer.Warning) {
-	m.Called(warnings)
-}
-
-func (c *mockPrinter) SimplePrintSummaryTable(summary printer.Summary) {
-	c.Called(summary)
-}
-
-func (c *mockPrinter) SimplePrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string) {
-	c.Called(summary, k8sVersion)
-}
 
 type printResultsTestCaseArgs struct {
 	results           *EvaluationResults
@@ -64,9 +53,6 @@ func TestPrintResults(t *testing.T) {
 		mockedPrinter.On("PrintWarnings", mock.Anything, mock.Anything, mock.Anything)
 		mockedPrinter.On("PrintSummaryTable", mock.Anything)
 		mockedPrinter.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
-		mockedPrinter.On("SimplePrintWarnings", mock.Anything, mock.Anything, mock.Anything)
-		mockedPrinter.On("SimplePrintSummaryTable", mock.Anything)
-		mockedPrinter.On("SimplePrintEvaluationSummary", mock.Anything, mock.Anything)
 
 		t.Run(tt.name, func(t *testing.T) {
 			_ = PrintResults(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0", "Default")

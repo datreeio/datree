@@ -44,12 +44,9 @@ type TestCommandFlags struct {
 }
 
 type EvaluationPrinter interface {
-	SimplePrintWarnings(warnings []printer.Warning)
 	PrintWarnings(warnings []printer.Warning)
-	SimplePrintSummaryTable(summary printer.Summary)
 	PrintSummaryTable(summary printer.Summary)
 	PrintMessage(messageText string, messageColor string)
-	SimplePrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
 	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
 	SetTheme(theme *printer.Theme)
 }

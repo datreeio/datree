@@ -90,18 +90,6 @@ func (p *PrinterMock) PrintEvaluationSummary(evaluationSummary printer.Evaluatio
 	p.Called(evaluationSummary)
 }
 
-func (p *PrinterMock) SimplePrintWarnings(warnings []printer.Warning) {
-	p.Called(warnings)
-}
-
-func (p *PrinterMock) SimplePrintSummaryTable(summary printer.Summary) {
-	p.Called(summary)
-}
-
-func (p *PrinterMock) SimplePrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string) {
-	p.Called(evaluationSummary)
-}
-
 func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {
 	p.Called(messageText, messageColor)
 }
@@ -162,9 +150,6 @@ func TestTestCommand(t *testing.T) {
 	printerMock.On("PrintWarnings", mock.Anything)
 	printerMock.On("PrintSummaryTable", mock.Anything)
 	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
-	printerMock.On("SimplePrintWarnings", mock.Anything)
-	printerMock.On("SimplePrintSummaryTable", mock.Anything)
-	printerMock.On("SimplePrintEvaluationSummary", mock.Anything, mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 
 	readerMock := &ReaderMock{}
