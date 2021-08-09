@@ -18,9 +18,9 @@ func TestWarnings(t *testing.T) {
 		warnings := []Warning{
 			Warning{
 				Title: "Failed with Occurrences",
-				Details: []WarningInfo{
-					WarningInfo{
-						Caption:            "Caption",
+				FailedRules: []FailedRule{
+					FailedRule{
+						Name:               "Caption",
 						Occurrences:        1,
 						Suggestion:         "Suggestion",
 						OccurrencesDetails: []OccurrenceDetails{OccurrenceDetails{MetadataName: "yishay", Kind: "Pod"}},
@@ -29,12 +29,12 @@ func TestWarnings(t *testing.T) {
 			},
 			Warning{
 				Title:           "Failed with yaml validation",
-				Details:         []WarningInfo{},
+				FailedRules:     []FailedRule{},
 				InvalidYamlInfo: InvalidYamlInfo{ValidationErrors: []error{fmt.Errorf("yaml validation error")}},
 			},
 			Warning{
 				Title:          "Failed with k8s validation",
-				Details:        []WarningInfo{},
+				FailedRules:    []FailedRule{},
 				InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
 			},
 		}

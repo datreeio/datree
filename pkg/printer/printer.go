@@ -22,8 +22,8 @@ func CreateNewPrinter() *Printer {
 	}
 }
 
-type WarningInfo struct {
-	Caption            string
+type FailedRule struct {
+	Name               string
 	Occurrences        int
 	Suggestion         string
 	OccurrencesDetails []OccurrenceDetails
@@ -43,7 +43,7 @@ type InvalidK8sInfo struct {
 }
 type Warning struct {
 	Title           string
-	Details         []WarningInfo
+	FailedRules     []FailedRule
 	InvalidYamlInfo InvalidYamlInfo
 	InvalidK8sInfo  InvalidK8sInfo
 }
@@ -83,7 +83,7 @@ func (p *Printer) SimplePrintWarnings(warnings []Warning) {
 			fmt.Fprintf(out, "[X] Policy check\n")
 			fmt.Fprintln(out)
 
-			for _, details := range warning.Details {
+			for _, details := range warning.FailedRules {
 				var occurrencesPostfix string
 				if details.Occurrences > 1 {
 					occurrencesPostfix = "s"
@@ -92,7 +92,7 @@ func (p *Printer) SimplePrintWarnings(warnings []Warning) {
 				}
 				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", details.Occurrences, occurrencesPostfix)
 
-				fmt.Fprintf(out, "%v %v %v\n", "[X]", details.Caption, formattedOccurrences)
+				fmt.Fprintf(out, "%v %v %v\n", "[X]", details.Name, formattedOccurrences)
 				for _, occurrenceDetails := range details.OccurrencesDetails {
 					fmt.Fprintf(out, "    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
 				}
@@ -143,7 +143,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 			p.printInColor("[X] Policy check\n", p.theme.Colors.White)
 			fmt.Fprintln(out)
 
-			for _, details := range warning.Details {
+			for _, details := range warning.FailedRules {
 				var occurrencesPostfix string
 				if details.Occurrences > 1 {
 					occurrencesPostfix = "s"
@@ -153,7 +153,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", details.Occurrences, occurrencesPostfix)
 				occurrences := p.theme.Colors.White.Sprintf(formattedOccurrences)
 
-				caption := p.theme.Colors.Red.Sprint(details.Caption)
+				caption := p.theme.Colors.Red.Sprint(details.Name)
 
 				fmt.Fprintf(out, "%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
 				for _, occurrenceDetails := range details.OccurrencesDetails {
