@@ -117,3 +117,35 @@ Failed with k8s validation
 		assert.Equal(t, string(expected), string(got))
 	})
 }
+
+func TestPrintEvaluationSummary(t *testing.T) {
+	t.Run("Test PrintEvaluationSummary", func(t *testing.T) {
+		out = new(bytes.Buffer)
+		printer := CreateNewPrinter()
+		summary := EvaluationSummary{
+			ConfigsCount:              6,
+			RulesCount:                21,
+			FilesCount:                5,
+			PassedYamlValidationCount: 4,
+			PassedK8sValidationCount:  3,
+			PassedPolicyCheckCount:    2,
+		}
+		k8sVErsion := "1.2.3"
+
+		printer.PrintEvaluationSummary(summary, k8sVErsion)
+		expected := []byte(`(Summary)
+
+- Passing YAML validation: 4/5
+
+- Passing Kubernetes (1.2.3) schema validation: 3/5
+
+- Passing policy check: 2/5
+
+`)
+
+		got := out.(*bytes.Buffer).Bytes()
+
+		assert.Equal(t, string(expected), string(got))
+
+	})
+}
