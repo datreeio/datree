@@ -56,7 +56,7 @@ func (p *Printer) printYamlValidationWarning(warning Warning) {
 	p.printInColor("[X] YAML validation\n", p.Theme.Colors.White)
 	fmt.Fprintln(out)
 	for _, validationError := range warning.InvalidYamlInfo.ValidationErrors {
-		validationError := p.Theme.Colors.Red.Sprint(validationError.Error())
+		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
 		fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Error, validationError)
 	}
 	fmt.Fprintln(out)
@@ -72,7 +72,7 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 	fmt.Fprintln(out)
 
 	for _, validationError := range warning.InvalidK8sInfo.ValidationErrors {
-		validationError := p.Theme.Colors.Red.Sprint(validationError.Error())
+		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
 		fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Error, validationError)
 	}
 	fmt.Fprintln(out)
@@ -107,7 +107,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", failedRule.Occurrences, occurrencesPostfix)
 				occurrences := p.Theme.Colors.White.Sprintf(formattedOccurrences)
 
-				ruleName := p.Theme.Colors.Red.Sprint(failedRule.Name)
+				ruleName := p.Theme.Colors.RedBold.Sprint(failedRule.Name)
 
 				fmt.Fprintf(out, "%v %v %v\n", p.Theme.Emoji.Error, ruleName, occurrences)
 				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
@@ -197,7 +197,7 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 	case "error":
 		return p.Theme.Colors.Error
 	case "red":
-		return p.Theme.Colors.Red
+		return p.Theme.Colors.RedBold
 	case "yellow":
 		return p.Theme.Colors.Yellow
 	case "green":

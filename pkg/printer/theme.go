@@ -9,11 +9,11 @@ import (
 
 type Theme struct {
 	Colors struct {
-		Green  *color.Color
-		Yellow *color.Color
-		Red    *color.Color
-		White  *color.Color
-		Error  *color.Color
+		Green   *color.Color
+		Yellow  *color.Color
+		RedBold *color.Color
+		White   *color.Color
+		Error   *color.Color
 	}
 	ColorsAttributes struct {
 		Green color.Attribute
@@ -31,17 +31,17 @@ type Theme struct {
 func createDefaultTheme() *Theme {
 	return &Theme{
 		Colors: struct {
-			Green  *color.Color
-			Yellow *color.Color
-			Red    *color.Color
-			White  *color.Color
-			Error  *color.Color
+			Green   *color.Color
+			Yellow  *color.Color
+			RedBold *color.Color
+			White   *color.Color
+			Error   *color.Color
 		}{
-			Green:  color.New(color.FgGreen),
-			Yellow: color.New(color.FgYellow),
-			Red:    color.New(color.FgHiRed, color.Bold),
-			Error:  color.New(color.FgHiRed),
-			White:  color.New(color.FgHiWhite),
+			Green:   color.New(color.FgGreen),
+			Yellow:  color.New(color.FgYellow),
+			RedBold: color.New(color.FgHiRed, color.Bold),
+			Error:   color.New(color.FgHiRed),
+			White:   color.New(color.FgHiWhite),
 		},
 		ColorsAttributes: struct {
 			Green color.Attribute
@@ -65,17 +65,17 @@ func createDefaultTheme() *Theme {
 func CreateSimpleTheme() *Theme {
 	return &Theme{
 		Colors: struct {
-			Green  *color.Color
-			Yellow *color.Color
-			Red    *color.Color
-			White  *color.Color
-			Error  *color.Color
+			Green   *color.Color
+			Yellow  *color.Color
+			RedBold *color.Color
+			White   *color.Color
+			Error   *color.Color
 		}{
-			Green:  color.New(),
-			Yellow: color.New(),
-			Red:    color.New(),
-			Error:  color.New(),
-			White:  color.New(),
+			Green:   color.New(),
+			Yellow:  color.New(),
+			RedBold: color.New(),
+			Error:   color.New(),
+			White:   color.New(),
 		},
 		ColorsAttributes: struct {
 			Green color.Attribute
