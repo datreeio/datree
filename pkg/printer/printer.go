@@ -151,23 +151,23 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 			p.printInColor("[X] Policy check\n", p.theme.Colors.White)
 			fmt.Fprintln(out)
 
-			for _, details := range warning.FailedRules {
+			for _, failedRule := range warning.FailedRules {
 				var occurrencesPostfix string
-				if details.Occurrences > 1 {
+				if failedRule.Occurrences > 1 {
 					occurrencesPostfix = "s"
 				} else {
 					occurrencesPostfix = ""
 				}
-				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", details.Occurrences, occurrencesPostfix)
+				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", failedRule.Occurrences, occurrencesPostfix)
 				occurrences := p.theme.Colors.White.Sprintf(formattedOccurrences)
 
-				caption := p.theme.Colors.Red.Sprint(details.Name)
+				ruleName := p.theme.Colors.Red.Sprint(failedRule.Name)
 
-				fmt.Fprintf(out, "%v %v %v\n", p.theme.Emoji.Error, caption, occurrences)
-				for _, occurrenceDetails := range details.OccurrencesDetails {
+				fmt.Fprintf(out, "%v %v %v\n", p.theme.Emoji.Error, ruleName, occurrences)
+				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
 					fmt.Fprintf(out, "    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
 				}
-				fmt.Fprintf(out, "%v %v\n", p.theme.Emoji.Suggestion, details.Suggestion)
+				fmt.Fprintf(out, "%v %v\n", p.theme.Emoji.Suggestion, failedRule.Suggestion)
 
 				fmt.Fprintln(out)
 			}
