@@ -15,6 +15,10 @@ type Theme struct {
 		White  *color.Color
 		Error  *color.Color
 	}
+	ColorsAttributes struct {
+		Green color.Attribute
+		Red   color.Attribute
+	}
 	Spacing struct {
 		Default string
 	}
@@ -38,6 +42,13 @@ func createDefaultTheme() *Theme {
 			Red:    color.New(color.FgHiRed, color.Bold),
 			Error:  color.New(color.FgHiRed),
 			White:  color.New(color.FgHiWhite),
+		},
+		ColorsAttributes: struct {
+			Green color.Attribute
+			Red   color.Attribute
+		}{
+			Green: color.FgGreen,
+			Red:   color.FgRed,
 		},
 		Spacing: struct{ Default string }{
 			Default: strings.Join([]string{" "}, ""),
@@ -65,6 +76,13 @@ func CreateSimpleTheme() *Theme {
 			Red:    color.New(),
 			Error:  color.New(),
 			White:  color.New(),
+		},
+		ColorsAttributes: struct {
+			Green color.Attribute
+			Red   color.Attribute
+		}{
+			Green: color.Reset,
+			Red:   color.Reset,
 		},
 		Spacing: struct{ Default string }{
 			Default: strings.Join([]string{" "}, ""),

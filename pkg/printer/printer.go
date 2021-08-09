@@ -172,11 +172,11 @@ func (p *Printer) PrintSummaryTable(summary Summary) {
 	}
 
 	errorRow := []string{summary.ErrorRow.LeftCol, summary.ErrorRow.RightCol}
-	summaryTable.Rich(errorRow, []tablewriter.Colors{{tablewriter.FgHiRedColor}, {tablewriter.FgHiRedColor}})
+	summaryTable.Rich(errorRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Red)}, {int(p.Theme.ColorsAttributes.Red)}})
 	rowIndex++
 
 	successRow := []string{summary.SuccessRow.LeftCol, summary.SuccessRow.RightCol}
-	summaryTable.Rich(successRow, []tablewriter.Colors{{tablewriter.Normal, tablewriter.FgGreenColor}, {tablewriter.Normal, tablewriter.FgGreenColor}})
+	summaryTable.Rich(successRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Green)}, {int(p.Theme.ColorsAttributes.Green)}})
 	rowIndex++
 
 	for plainRowsIndex < len(summary.PlainRows) && summary.PlainRows[plainRowsIndex].RowIndex >= rowIndex {
