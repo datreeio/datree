@@ -116,8 +116,8 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 
 	for _, invalidFile := range invalidYamlFiles {
 		warnings = append(warnings, printer.Warning{
-			Title:   fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
-			Details: []printer.WarningInfo{},
+			Title:       fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
+			FailedRules: []printer.FailedRule{},
 			InvalidYamlInfo: printer.InvalidYamlInfo{
 				ValidationErrors: invalidFile.ValidationErrors,
 			},
@@ -126,8 +126,8 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 
 	for _, invalidFile := range invalidK8sFiles {
 		warnings = append(warnings, printer.Warning{
-			Title:   fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
-			Details: []printer.WarningInfo{},
+			Title:       fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
+			FailedRules: []printer.FailedRule{},
 			InvalidK8sInfo: printer.InvalidK8sInfo{
 				ValidationErrors: invalidFile.ValidationErrors,
 				K8sVersion:       k8sVersion,
@@ -145,7 +145,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 
 		for _, filename := range filesKeys {
 			rules := results.FileNameRuleMapper[filename]
-			var warningsInfo = []printer.WarningInfo{}
+			var failedRules = []printer.FailedRule{}
 
 			rulesIds := []int{}
 			for ruleId := range rules {
@@ -155,27 +155,27 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 
 			for _, ruleId := range rulesIds {
 				rule := rules[ruleId]
-				warningInfo := printer.WarningInfo{
-					Caption:            rule.Name,
+				failedRule := printer.FailedRule{
+					Name:               rule.Name,
 					Occurrences:        rule.GetCount(),
 					Suggestion:         rule.FailSuggestion,
 					OccurrencesDetails: []printer.OccurrenceDetails{},
 				}
 				for _, occurrenceDetails := range rule.OccurrencesDetails {
-					warningInfo.OccurrencesDetails = append(
-						warningInfo.OccurrencesDetails,
+					failedRule.OccurrencesDetails = append(
+						failedRule.OccurrencesDetails,
 						printer.OccurrenceDetails{MetadataName: occurrenceDetails.MetadataName, Kind: occurrenceDetails.Kind},
 					)
 				}
 
-				warningsInfo = append(warningsInfo, warningInfo)
+				failedRules = append(failedRules, failedRule)
 			}
 
 			relativePath, _ := filepath.Rel(pwd, filename)
 
 			warnings = append(warnings, printer.Warning{
 				Title:           fmt.Sprintf(">>  File: %s\n", relativePath),
-				Details:         warningsInfo,
+				FailedRules:     failedRules,
 				InvalidYamlInfo: printer.InvalidYamlInfo{},
 				InvalidK8sInfo:  printer.InvalidK8sInfo{},
 			})
