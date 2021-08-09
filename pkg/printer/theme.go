@@ -48,7 +48,7 @@ func createDefaultTheme() *Theme {
 			Red   color.Attribute
 		}{
 			Green: color.FgGreen,
-			Red:   color.FgRed,
+			Red:   color.FgHiRed,
 		},
 		Spacing: struct{ Default string }{
 			Default: strings.Join([]string{" "}, ""),
