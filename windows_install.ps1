@@ -31,9 +31,9 @@ Expand-Archive -Path $OUTPUT_BASENAME_WITH_POSTFIX -DestinationPath $OUTPUT_BASE
 
 $localAppDataPath = $env:LOCALAPPDATA
 $datreePath = Join-Path "$localAppDataPath" 'datree'
-New-Item -ItemType Directory -Force -Path $datreePath
+New-Item -ItemType Directory -Force -Path $datreePath | Out-Null
 
-Copy-Item $OUTPUT_BASENAME -Destination "$datreePath" -Recurse -Force | Out-Null
+Copy-Item "$OUTPUT_BASENAME/*" -Destination "$datreePath/" -Recurse -Force | Out-Null
 
 Remove-Item -Recurse $OUTPUT_BASENAME
 Remove-Item $OUTPUT_BASENAME_WITH_POSTFIX
