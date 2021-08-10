@@ -9,7 +9,7 @@ before:
     - go generate ./...
 dockers:
   - image_templates:
-    - datree/datree
+    - datree/datree:{{.Env.DATREE_BUILD_VERSION}}
 builds:
   - env:
       - CGO_ENABLED=0
