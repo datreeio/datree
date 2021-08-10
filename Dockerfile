@@ -1,2 +1,6 @@
 FROM scratch
-COPY dist/datree-macos_darwin_amd64/datree /
+
+WORKDIR /go/src/app
+COPY . .
+
+ENTRYPOINT ["/dist/datree_linux_amd64/datree"]
