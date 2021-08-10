@@ -16,7 +16,7 @@ The CLI integration provides a policy enforcement solution for Kubernetes to run
 ## Quick start in two steps
 #### 1. Install the latest release on your CLI  
 **Linux & MacOS:** `curl https://get.datree.io | /bin/bash`  
-**Windows:** `not supported yet :(`  
+**Windows:** `iwr -useb https://get.datree.io/windows_install.ps1 | iex`  
 
 #### 2. Pass datree a Kuberntes manifest file to scan
 `datree test <k8s-manifest-file>`  
