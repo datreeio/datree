@@ -40,4 +40,6 @@ echo -e "\033[35m Usage: $ datree test ~/.datree/k8s-demo.yaml"
 
 echo -e " Using Helm? => https://hub.datree.io/helm-plugin"
 
+tput init
+
 echo
