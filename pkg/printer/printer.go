@@ -3,7 +3,6 @@ package printer
 import (
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
@@ -157,7 +156,7 @@ func (p *Printer) PrintEvaluationSummary(summary EvaluationSummary, k8sVersion s
 }
 
 func (p *Printer) PrintSummaryTable(summary Summary) {
-	summaryTable := tablewriter.NewWriter(os.Stdout)
+	summaryTable := tablewriter.NewWriter(out)
 	summaryTable.SetAutoWrapText(false)
 	summaryTable.SetAlignment(tablewriter.ALIGN_LEFT)
 
