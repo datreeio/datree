@@ -9,7 +9,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-var out io.Writer = os.Stdout
+var out io.Writer = color.Output
 
 type Printer struct {
 	Theme *Theme
