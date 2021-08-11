@@ -83,23 +83,29 @@ func textOutput(results *EvaluationResults, invalidYamlFiles []*validation.Inval
 	return nil
 }
 
-func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, pwd string, k8sVersion string) ([]printer.Warning, error) {
-	var warnings = []printer.Warning{}
+func parseInvalidYamlFilesToWarnings(invalidYamlFiles []*validation.InvalidYamlFile) []printer.Warning {
+	var warnings []printer.Warning
 
 	for _, invalidFile := range invalidYamlFiles {
 		warnings = append(warnings, printer.Warning{
-			Title:   fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
-			Details: []printer.WarningInfo{},
+			Title:       fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
+			FailedRules: []printer.FailedRule{},
 			InvalidYamlInfo: printer.InvalidYamlInfo{
 				ValidationErrors: invalidFile.ValidationErrors,
 			},
 		})
 	}
 
+	return warnings
+}
+
+func parseInvalidK8sFilesToWarnings(invalidK8sFiles []*validation.InvalidK8sFile, k8sVersion string) []printer.Warning {
+	var warnings []printer.Warning
+
 	for _, invalidFile := range invalidK8sFiles {
 		warnings = append(warnings, printer.Warning{
-			Title:   fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
-			Details: []printer.WarningInfo{},
+			Title:       fmt.Sprintf(">>  File: %s\n", invalidFile.Path),
+			FailedRules: []printer.FailedRule{},
 			InvalidK8sInfo: printer.InvalidK8sInfo{
 				ValidationErrors: invalidFile.ValidationErrors,
 				K8sVersion:       k8sVersion,
@@ -107,17 +113,27 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 		})
 	}
 
+	return warnings
+}
+
+func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, pwd string, k8sVersion string) ([]printer.Warning, error) {
+	var warnings = []printer.Warning{}
+
+	warnings = append(warnings, parseInvalidYamlFilesToWarnings(invalidYamlFiles)...)
+
+	warnings = append(warnings, parseInvalidK8sFilesToWarnings(invalidK8sFiles, k8sVersion)...)
+
 	if results != nil {
 
-		filesKeys := []string{}
+		filenames := []string{}
 		for key := range results.FileNameRuleMapper {
-			filesKeys = append(filesKeys, key)
+			filenames = append(filenames, key)
 		}
-		sort.Strings(filesKeys)
+		sort.Strings(filenames)
 
-		for _, filename := range filesKeys {
+		for _, filename := range filenames {
 			rules := results.FileNameRuleMapper[filename]
-			var warningDetails = []printer.WarningInfo{}
+			var failedRules = []printer.FailedRule{}
 
 			rulesIds := []int{}
 			for ruleId := range rules {
@@ -127,27 +143,27 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 
 			for _, ruleId := range rulesIds {
 				rule := rules[ruleId]
-				details := printer.WarningInfo{
-					Caption:            rule.Name,
+				failedRule := printer.FailedRule{
+					Name:               rule.Name,
 					Occurrences:        rule.GetCount(),
 					Suggestion:         rule.FailSuggestion,
 					OccurrencesDetails: []printer.OccurrenceDetails{},
 				}
 				for _, occurrenceDetails := range rule.OccurrencesDetails {
-					details.OccurrencesDetails = append(
-						details.OccurrencesDetails,
+					failedRule.OccurrencesDetails = append(
+						failedRule.OccurrencesDetails,
 						printer.OccurrenceDetails{MetadataName: occurrenceDetails.MetadataName, Kind: occurrenceDetails.Kind},
 					)
 				}
 
-				warningDetails = append(warningDetails, details)
+				failedRules = append(failedRules, failedRule)
 			}
 
 			relativePath, _ := filepath.Rel(pwd, filename)
 
 			warnings = append(warnings, printer.Warning{
 				Title:           fmt.Sprintf(">>  File: %s\n", relativePath),
-				Details:         warningDetails,
+				FailedRules:     failedRules,
 				InvalidYamlInfo: printer.InvalidYamlInfo{},
 				InvalidK8sInfo:  printer.InvalidK8sInfo{},
 			})
