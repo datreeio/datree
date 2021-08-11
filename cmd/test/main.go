@@ -48,6 +48,7 @@ type EvaluationPrinter interface {
 	PrintSummaryTable(summary printer.Summary)
 	PrintMessage(messageText string, messageColor string)
 	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
+	SetTheme(theme *printer.Theme)
 }
 
 type Reader interface {
@@ -150,6 +151,9 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		paths = []string{tempFile.Name()}
 	}
 
+	if flags.Output == "simple" {
+		ctx.Printer.SetTheme(printer.CreateSimpleTheme())
+	}
 	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml")
 
 	if isInteractiveMode == true {
@@ -175,7 +179,11 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	var _spinner *spinner.Spinner
 	if isInteractiveMode == true {
-		_spinner = createSpinner(" Loading...", "cyan")
+		color := "cyan"
+		if flags.Output == "simple" {
+			color = ""
+		}
+		_spinner = createSpinner(" Loading...", color)
 		_spinner.Start()
 	}
 
