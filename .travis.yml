@@ -6,8 +6,8 @@ osx_image: xcode12.5
 
 script:
   - go build -tags $DATREE_DEPLOYMENT
-  - HOMEBREW_NO_AUTO_UPDATE=1 brew install docker
-  - docker login --username=$DOCKER_USER --password=$DOCKER_PASS
+  # - HOMEBREW_NO_AUTO_UPDATE=1 brew install docker
+  # - docker login --username=$DOCKER_USER --password=$DOCKER_PASS
   - go test ./...
 
 before_deploy:
