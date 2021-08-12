@@ -7,9 +7,9 @@ before:
   hooks:
     # you may remove this if you don't need go generate
     - go generate ./...
-dockers:
-  - image_templates:
-    - datree/datree
+# dockers:
+#   - image_templates:
+#     - datree/datree
 builds:
   - env:
       - CGO_ENABLED=0
