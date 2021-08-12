@@ -6,6 +6,7 @@ osx_image: xcode12.5
 
 script:
   - go build -tags $DATREE_DEPLOYMENT
+  - docker login --username=$DOCKER_USER --password=$DOCKER_PASS
   - go test ./...
 
 before_deploy:
@@ -23,7 +24,7 @@ deploy:
     script: bash ./internal/release/deploy.sh
     on:
       all_branches: true
-      condition: $TRAVIS_BRANCH =~ ^(staging|main)$
+      condition: $TRAVIS_BRANCH =~ ^(staging|main|DAT-3363-docker-image)$
   - provider: script
     skip_cleanup: true
     script: bash ./internal/release/internal_deploy.sh
@@ -42,3 +43,7 @@ env:
     - secure: "KWpsLZ3fPSDa4dZGzVpIQjzhxmhqSYI4dbgFs+NmteBB7hLRpMP6gjLy1BAoVW74jMr8Mo7ThGDRHq9leemrwplJHIrvmoNBl2l96rmOC/+W8IoFThpFIJxNUyqudQkFO0pDMH31F7WGUouzXaMyzM1CZI2lSeBmS9XNKkgWDbVuKb4703GEzfNG8LBn9vMJns4ZYAOSK8aAQi4alo9dR8emNg2o27xshoXG25vCz7hp9N9+1+h1yP7QLLlfD+ZV3IvO8hKYfm9eb36rARsOEt5059gBs2jeVcKxYJn6bWnlgzrSIMbpSGbUvuDkiT6sllPt73GQKQ5k7n7qhYUxc8/qL8xanGutEdyCxoU5MJ1l42T9KoLNmCboS6FDWqEeZ2hLOL9rPQyWOwZlKkviczKNAvtEaqK94GX2ARiKkmIA/sJcCqACFM3HeSOxxlrBl4K07fX8sGheuU1We33PU1IYPmeYqFwECciuGwFgOqVDrmLcFr20C9X0gDx3WQzutmLf5YVia2ItvXbohTe3Cg3y5b4ECZ5YtW9WtSazkY+zfAtMloe3xpRdz7lahSe7YPdfwef61mYcMI9+PzImpN0JL/FCd6kvI+mNocdY4PB7RD5G6ozBa5qJFtEFWlJhqyGOcJRNEJt/UvSaFeKV7XV6PUqyxAdZHcga5VERBSs="
     #P12_PASSWORD
     - secure: "eSkV14fXLnTIX/QGfrzUMACLCgNICEGxhS4AX+UCYnhNKyhOvXQjWJVOHnwuy4Oon75Ueev3PiUTlZBviPWZsAiy6VMpxUA5R149BtpQjUBfvzugA04ooxn6BD+zssIpSnld8VFENxNLRTzMcOyHyQAiwbKIG+TMOGcD8rYR58zJ60DispXY0otg+R/MEofcGXgb59bgD406kcUcEmBKRamE0oU1Xk0TxWrTJg3n7IM34qfPc2KUuO5DdPaxuOvfJ++b9YDyH4n0GFKMW6fuHxoDjMT7O6s2WrYlx+PF294RKiiVV1yCMhDvszu7uMkDgmWbZasmaj6ENBZ6b/RD0PNXHYwh/WvertL2y0waCfAmB9ULk1WYuFOvoqni+jYbcf7fMlLG06xOVF9JKakP1MOBy/K1ESJnOvvl5kpjiSJxK6y/KEcIP9A/RFNdZQX+1pYvPnFk+9IIAtcnE361fu66+E9/HO5yv9BcSiQhQMWiajNnfMlSNEy3vtSEHYovhwo3pfBtgRDlvYxeRQnmjpZH1UjLFhVrq6/qfQGGAkA4eu9uoKuyg9Mf7LFnUhOeknxNZe8eBGHhQ6zMIVzjV72vVSpx1fbUcTHhet+AMCS9fP5NgqOtTTNZ65wIWuwXJAh8jfed3tJ4qTL3GHmnVj/0nSLVIFISy8rwMWb00Cw="
+    #DOCKER_USER
+    - secure: "HP/A7GPE58usGpNad/1ecjdFw0c2wjmwt2aDlPFjwBnSQBJ4yq6uNnoUy9KpBR4t/iMOuSAQLDC1UOvygcM94WQczgxWz340mPqkEnHJaU6Q0R76nwlgGoytpja9e6QHwzh+PZglr5zRyZRML+FWIftRG7XvVBFeRgcwPfVWgj/l2xLLOiNbKuGQpamkWxQGYKrQCmAFJUDCZXMwp8QjuwbvIXu9ln1HdKEUoUnPug7dwt6KIgS/pPa3Z5aHydKvTBD/wYvyNtUE1C7PILUJcWbRqJr12QmOLpRuXTxVXokVJzG/a7nzeh57A0p3EsAKuMYJGhcjV3oCsrTChCZ8BXO4G3QuEpiZSHDBqY88ObLZ+2aqlZt1EPMf+UKcXvQ5igGQrG/OHvSvG6ekrwtDqQ01tVFXusx163u6ww5gEybuTIizf8JGRPa9FoLYJtM6ckQAwVmWFLzLw0/k51Uw5pGZVsOlNDt4HK4US8xIxQ5YprqeMCmr5qq1uQo7oxQ05QbQ6XYYoIxnOufGfXkd2qQBtwFMD5De6ygDCUEUeIN4ts6ZzshdZcjeE5SCCghc6vmTKX78DL95KUeficUIXzlZ3mh/EfUbFQ4iGvrr+iT48AtlWTIaiU/cwTcWElxWyWmG8Rro0LBYT1Twk+UAPuyOgWzma9KWCB7/I0Im2p8="
+    #DOCKER_PASS
+    - secure: "IDUtvsbKcKV8NFQ6liI5IeriGMOU2PV67QY6tBDVWE2Go5fwArHjjxrfkvwsGuWrbhSL7uEVR62brAbY4zAvMXrLtWdniChBJ7XuuUBXi0WoVqUjh/42HbSL9kCvACO5ODu9rSzjhkKCuoRHtA1QE+itqcxZX3hmkvpuY4YKZFM0bdzSMe7iGvmGPJg8xLIiTIZDhPsurp6fEKCuX8VFTWpo8XG4H3ZKrF6jpAIXSEpjSRvxvdkOwQPIM7LegcrkdjVmWx7EfrU3nFM4+1xEzcJttgs0uVFb25IoRvIuRXcZ9NzjtSKpWm7K5hteYkgnmErVuE6GAnEToBvd22a1XJ6qryy1NEk80JR83RieqvhW+AME/RclZo+TbN7DK1FaOhUINuU8h+BB4barPmQUqad7uDoBP5CPy6mur2Rj638uQyyflX2Sq6zdbrwOeLV7LNh40W6AC+GSSlFXbbltzDImmr9f7LHNOUHILSPIwmvEz31RDntt4HYPPOIY2/T6lmJCy5YnyqveXIdX/aorGqLwC3FEX8A7NFFZdVMgA6N8yHW3IhyWDbX7zqWKH6aLd8vCjPoNIntGIRCOdURdUZ3hFHkz0TqWdfp3DsUNeIiu/H9Dd/AIvzzbZkK6D2+Q//7gxjeWTCz2O+8W9aQYE2Ig2hBfERLcjyX8K8GTPZA="

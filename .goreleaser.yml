@@ -9,7 +9,7 @@ before:
     - go generate ./...
 dockers:
   - image_templates:
-    - datree/datree:{{.Env.DATREE_BUILD_VERSION}}
+    - datree/datree
 builds:
   - env:
       - CGO_ENABLED=0
@@ -34,8 +34,8 @@ builds:
       - -tags={{.Env.DATREE_DEPLOYMENT}}
     ldflags:
       - -X github.com/datreeio/datree/cmd.CliVersion={{.Env.DATREE_BUILD_VERSION}}
-    # hooks:
-    #  post: gon gon.hcl
+    hooks:
+     post: gon gon.hcl
 archives:
   - replacements:
       darwin: Darwin
