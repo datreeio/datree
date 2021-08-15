@@ -2,11 +2,13 @@ package evaluation
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"strconv"
 
 	"github.com/datreeio/datree/bl/validation"
 
@@ -33,6 +35,8 @@ func PrintResults(results *EvaluationResults, invalidYamlFiles []*validation.Inv
 		return jsonOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
 	case outputFormat == "yaml":
 		return yamlOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
+	case outputFormat == "xml":
+		return xmlOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
 	default:
 		return textOutput(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion, policyName)
 	}
@@ -57,6 +61,18 @@ func yamlOutput(formattedOutput *FormattedOutput) error {
 	}
 
 	fmt.Println(string(yamlOutput))
+	return nil
+}
+
+func xmlOutput(formmattedOutput *FormattedOutput) error {
+	xmlOutput, err := xml.MarshalIndent(formmattedOutput, "", "\t")
+	xmlOutput = []byte(xml.Header + string(xmlOutput))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Println(string(xmlOutput))
 	return nil
 }
 
@@ -226,4 +242,40 @@ func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSumma
 		PlainRows:  plainRows,
 	}
 	return *summary
+}
+
+func (mapper FileNameRuleMapper) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	if len(mapper) == 0 {
+		return nil
+	}
+	
+	tokens := []xml.Token{start}
+
+	// Iterate over mapper and create XML tokens for all entries
+	for eKey, eValue := range mapper {
+		for iKey, iValue := range eValue {
+			eStartToken := xml.StartElement{Name: xml.Name{Space: "", Local: eKey}}
+			iStartToken := xml.StartElement{Name: xml.Name{Space: "", Local: strconv.Itoa(iKey)}}
+			iEndToken := xml.EndElement{Name: iStartToken.Name}
+			eEndToken := xml.EndElement{Name: eStartToken.Name}
+			tokens = append(tokens, eStartToken, iStartToken, iValue, iValue, iEndToken, eEndToken)
+		}
+	}
+
+	tokens = append(tokens, xml.EndElement{Name: start.Name})
+
+	for _, t := range tokens {
+		var err error
+		switch t.(type) {
+		default:
+			err = e.EncodeToken(t)
+		case *Rule:
+			err = e.EncodeElement(t, xml.StartElement{Name: xml.Name{Space: "", Local: "Rule"}})
+		}
+		if err != nil {
+			return err
+		}
+	}
+
+	return e.Flush()
 }
