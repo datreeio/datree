@@ -1,4 +1,1 @@
 *
-!dist
-!install.sh
-!internal/fixtures/kube/fail-30.yaml
