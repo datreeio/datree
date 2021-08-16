@@ -19,14 +19,8 @@ unzip -qq $OUTPUT_BASENAME_WITH_POSTFIX -d $OUTPUT_BASENAME
 
 mkdir -p ~/.datree
 
-if [[ $osName == "Linux" ]]
-then
-    sudo rm -f /usr/local/bin/datree
-    sudo cp $OUTPUT_BASENAME/datree /usr/local/bin
-else
-    rm -f /usr/local/bin/datree || sudo rm -f /usr/local/bin/datree
-    cp $OUTPUT_BASENAME/datree /usr/local/bin || sudo cp $OUTPUT_BASENAME/datree /usr/local/bin
-fi
+rm -f /usr/local/bin/datree || sudo rm -f /usr/local/bin/datree
+cp $OUTPUT_BASENAME/datree /usr/local/bin || sudo cp $OUTPUT_BASENAME/datree /usr/local/bin
 
 rm $OUTPUT_BASENAME_WITH_POSTFIX
 rm -rf $OUTPUT_BASENAME
