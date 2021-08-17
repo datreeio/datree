@@ -235,6 +235,8 @@ github.com/xeipuuv/gojsonschema v1.2.0/go.mod h1:anYRn/JVcOK2ZgGU+IjEV4nwlhoK5sQ
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/yannh/kubeconform v0.4.7 h1:ExAjZYd6D0WnG/Eq/IRxvTebPbARh6e6M96Pq8Xy5u0=
 github.com/yannh/kubeconform v0.4.7/go.mod h1:lhkEiaDOtSewHGGZ8iR2iiTC0CSnR7xbMEtyL4bm4rE=
+github.com/yannh/kubeconform v0.4.8 h1:xzxVzYJE1qTZkCQE0qo/4Y5LQ1ahCW51rrT4YZaOYjQ=
+github.com/yannh/kubeconform v0.4.8/go.mod h1:lhkEiaDOtSewHGGZ8iR2iiTC0CSnR7xbMEtyL4bm4rE=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=

@@ -1,7 +1,6 @@
 package publish
 
 import (
-	"errors"
 	"fmt"
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -69,53 +68,29 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 }
 
 func publish(ctx *PublishCommandContext, path string) error {
-	return errors.New("some error")
 
-	jsonContent, err := files.ExtractYamlFileToJson(path)
+	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
 	if err != nil {
 		return err
 	}
 
-	ctx.CliClient.CreateEvaluation()
+	policiesConfiguration, err := files.ExtractYamlFileToUnknownStruct(path)
 
-	//localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//var cliId = localConfigContent.CliId
-	//
-	//validYamlFilesConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(args, 100)
-	//
-	//var validFiles []*extractor.FileConfigurations
-	//for validFile := range validYamlFilesConfigurationsChan {
-	//	validFiles = append(validFiles, validFile)
-	//}
-	//
-	//var invalidFiles []*validation.InvalidYamlFile
-	//for invalidFile := range invalidYamlFilesChan {
-	//	invalidFiles = append(invalidFiles, invalidFile)
-	//}
-	//
-	////createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(localConfigContent.CliId, ctx.CliVersion, flags.K8sVersion, flags.PolicyName)
-	////if err != nil {
-	////	return err
-	////}
-	//
-	//if len(invalidFiles) == 1 {
-	//	return invalidFiles[0].ValidationErrors[0]
-	//}
-	//
-	//if len(validFiles) == 1 {
-	//	var file = validFiles[0]
-	//	ctx.Printer.PrintMessage(file.FileName, "error")
-	//	ctx.Printer.PrintMessage(file.Configurations[0])
-	//}
-	//
-	//err = ctx.Evaluator.UpdateFailedYamlValidation(invalidYamlFiles, createEvaluationResponse.EvaluationId, stopEvaluation)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//return nil
+	if err != nil {
+		return err
+	}
+
+	response, err := ctx.CliClient.PublishPolicies(policiesConfiguration, localConfigContent.CliId)
+	if err != nil {
+		return err
+	}
+
+	printRows := append([]string{"Publish Failed"}, response.Errors...)
+	errorMessage := strings.Join(printRows, "\n") + "\n"
+	if !response.IsSuccessful {
+		ctx.Printer.PrintMessage(errorMessage, "error")
+	} else {
+		ctx.Printer.PrintMessage("Publish Successful", "green")
+	}
+	return nil
 }

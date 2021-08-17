@@ -17,4 +17,4 @@ set-token:
 	go run -tags=staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go config set token testtoken
 
 publish:
-	go run -tags=staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go publish --help #./internal/fixtures/kube/fail-30.yaml
+	go run -tags=dev -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go publish ./internal/fixtures/policies/policies1.yaml

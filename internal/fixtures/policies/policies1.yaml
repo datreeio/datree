@@ -1,0 +1,12 @@
+apiVersion: v1
+policies:
+  - name: "Default"
+    isDefault: true
+    rules:
+      - id: "CONTAINERS_MISSING_MEMORY_LIMIT_KEY"
+        failSuggestion: "This is the fail suggestion"
+  - name: 'allRulesAreDisabledPolicy' # all rules are disabled
+  - name: 'otherPolicy'
+    rules:
+      - id: 'CONTAINERS_MISSING_CUP_REQUEST_KEY'
+        failSuggestion: ''

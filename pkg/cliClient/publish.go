@@ -2,36 +2,23 @@ package cliClient
 
 import (
 	"encoding/json"
+	"github.com/datreeio/datree/bl/files"
 	"net/http"
-	"time"
-
-	"github.com/datreeio/datree/pkg/httpClient"
 )
 
-type PublishReturnType struct {
-	CliVersion   string `json:"cliVersion"`
-	MessageText  string `json:"messageText"`
-	MessageColor string `json:"messageColor"`
+type PublishResponse struct {
+	IsSuccessful bool     `json:"isSuccessful"`
+	Errors       []string `json:"errors"`
 }
 
-func (c *CliClient) PublishPolicies(policiesJson string, timeout int) (*PublishReturnType, error) {
-	_timeout := time.Duration(timeout) * time.Millisecond
-
-	var timeoutClient HTTPClient
-	if c.timeoutClient != nil {
-		timeoutClient = c.timeoutClient
-	} else {
-		timeoutClient = httpClient.NewClientTimeout(c.baseUrl, nil, _timeout)
-	}
-
-	res, err := timeoutClient.Request(http.MethodPost, "/cli/policy/publish", policiesJson, nil)
+func (c *CliClient) PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) (*PublishResponse, error) {
+	res, err := c.httpClient.Request(http.MethodPost, "/cli/policy/accounts/"+cliId+"/publish/policies", policiesConfiguration, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	var response = &PublishReturnType{}
+	var response = &PublishResponse{}
 	err = json.Unmarshal(res.Body, &response)
-
 	if err != nil {
 		return nil, err
 	}
