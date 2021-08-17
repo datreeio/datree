@@ -23,4 +23,5 @@ require (
 	golang.org/x/tools v0.0.0-20191112195655-aa38f8e97acc
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	sigs.k8s.io/yaml v1.2.0 // indirect
 )

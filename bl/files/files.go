@@ -2,8 +2,10 @@ package files
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sigs.k8s.io/yaml"
 
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -58,4 +60,23 @@ func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extracto
 	}()
 
 	return filesConfigurationsChan, invalidFilesChan
+}
+
+func ExtractYamlFileToJson(path string) (string, error) {
+	absolutePath, err := ToAbsolutePath(path)
+	if err != nil {
+		return "", err
+	}
+
+	yamlContent, err := ioutil.ReadFile(absolutePath)
+	if err != nil {
+		return "", err
+	}
+
+	jsonContent, err := yaml.YAMLToJSON(yamlContent)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonContent), nil
 }
