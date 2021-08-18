@@ -3,6 +3,7 @@ package cliClient
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/datreeio/datree/bl/files"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
@@ -96,6 +97,30 @@ type GetVersionMessageTestCase struct {
 	}
 }
 
+type PublishPoliciesTestCase struct {
+	name string
+	args struct {
+		policiesConfiguration files.UnknownStruct
+		cliId                 string
+	}
+	mockResponse struct {
+		status int
+		body   struct {
+			message string
+		}
+	}
+
+	expected struct {
+		request struct {
+			method  string
+			uri     string
+			body    files.UnknownStruct
+			headers map[string]string
+		}
+		response error
+	}
+}
+
 func TestRequestEvaluation(t *testing.T) {
 	tests := []*RequestEvaluationTestCase{
 		test_requestEvaluation_success(),
@@ -170,6 +195,30 @@ func TestGetVersionMessage(t *testing.T) {
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.response, res)
 
+		})
+	}
+}
+
+func TestPublishPolicies(t *testing.T) {
+	tests := []*PublishPoliciesTestCase{
+		test_publishPolicies_success(),
+	}
+	httpClientMock := mockHTTPClient{}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, _ := json.Marshal(tt.mockResponse.body)
+			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mockResponse.status, Body: body}
+			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
+
+			client := &CliClient{
+				baseUrl:    "http://cli-service.test.io",
+				httpClient: &httpClientMock,
+			}
+
+			actualResponse := client.PublishPolicies(tt.args.policiesConfiguration, tt.args.cliId)
+			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
+			assert.Equal(t, tt.expected.response, actualResponse)
 		})
 	}
 }
@@ -381,6 +430,55 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 				EvaluationId: 123,
 				K8sVersion:   k8sVersion,
 			},
+		},
+	}
+}
+
+func test_publishPolicies_success() *PublishPoliciesTestCase {
+	requestPoliciesConfigurationArg := files.UnknownStruct{}
+	return &PublishPoliciesTestCase{
+		name: "success - publish policies",
+		args: struct {
+			policiesConfiguration files.UnknownStruct
+			cliId                 string
+		}{
+			policiesConfiguration: requestPoliciesConfigurationArg,
+			cliId:                 "cli_id",
+		},
+		mockResponse: struct {
+			status int
+			body   struct {
+				message string
+			}
+		}{
+			status: http.StatusCreated,
+			body: struct {
+				message string
+			}{
+				message: "",
+			},
+		},
+		expected: struct {
+			request struct {
+				method  string
+				uri     string
+				body    files.UnknownStruct
+				headers map[string]string
+			}
+			response error
+		}{
+			request: struct {
+				method  string
+				uri     string
+				body    files.UnknownStruct
+				headers map[string]string
+			}{
+				method:  http.MethodPost,
+				uri:     "/cli/policy/accounts/cli_id/publish/policies",
+				body:    requestPoliciesConfigurationArg,
+				headers: nil,
+			},
+			response: nil,
 		},
 	}
 }
