@@ -1,0 +1,7 @@
+apiVersion: v2
+policies:
+  - name: "Default"
+    isDefault: true
+    rules:
+      - id: "CONTAINERS_MISSING_MEMORY_LIMIT_KEY"
+        failSuggestion: "This is the fail suggestion"
