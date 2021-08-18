@@ -43,6 +43,15 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			messages := make(chan *messager.VersionMessage, 1)
+			go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
+			defer func() {
+				msg, ok := <-messages
+				if ok {
+					ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+				}
+			}()
+
 			err := publish(ctx, args[0])
 			if err != nil {
 				ctx.Printer.PrintMessage("Publish Failed:\n"+err.Error()+"\n", "error")
@@ -57,6 +66,14 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 	}
 
 	return publishCommand
+}
+
+type MessagesContext struct {
+	CliVersion  string
+	LocalConfig LocalConfig
+	Messager    Messager
+	Printer     Printer
+	CliClient   *cliClient.CliClient
 }
 
 func publish(ctx *PublishCommandContext, path string) error {
