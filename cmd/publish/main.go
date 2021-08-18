@@ -68,29 +68,27 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 }
 
 func publish(ctx *PublishCommandContext, path string) error {
-
 	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
 	if err != nil {
 		return err
 	}
 
 	policiesConfiguration, err := files.ExtractYamlFileToUnknownStruct(path)
-
 	if err != nil {
 		return err
 	}
 
-	response, err := ctx.CliClient.PublishPolicies(policiesConfiguration, localConfigContent.CliId)
+	publishResponse, err := ctx.CliClient.PublishPolicies(policiesConfiguration, localConfigContent.CliId)
 	if err != nil {
 		return err
 	}
 
-	printRows := append([]string{"Publish Failed"}, response.Errors...)
-	errorMessage := strings.Join(printRows, "\n") + "\n"
-	if !response.IsSuccessful {
-		ctx.Printer.PrintMessage(errorMessage, "error")
-	} else {
+	if publishResponse.IsSuccessful {
 		ctx.Printer.PrintMessage("Publish Successful", "green")
+	} else {
+		printRows := append([]string{"Publish Failed"}, publishResponse.Errors...)
+		errorMessage := strings.Join(printRows, "\n") + "\n"
+		ctx.Printer.PrintMessage(errorMessage, "error")
 	}
 	return nil
 }

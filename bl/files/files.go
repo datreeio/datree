@@ -80,7 +80,6 @@ func ExtractYamlFileToUnknownStruct(path string) (UnknownStruct, error) {
 	var policies = UnknownStruct{}
 	err = yamlDecoder.Decode(&policies)
 
-	fmt.Println(policies)
 	if err != nil {
 		return nil, err
 	}
