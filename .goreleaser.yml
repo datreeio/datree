@@ -7,6 +7,13 @@ before:
   hooks:
     # you may remove this if you don't need go generate
     - go generate ./...
+brews: 
+  - name: datree
+    ids:
+    - datree-macos 
+    tap:
+      owner: datreeio
+      name: homebrew-datree
 builds:
   - env:
       - CGO_ENABLED=0
