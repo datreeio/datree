@@ -55,7 +55,6 @@ func init() {
 		LocalConfig: app.context.LocalConfig,
 		Messager:    app.context.Messager,
 		Printer:     app.context.Printer,
-		Reader:      app.context.Reader,
 		CliClient:   app.context.CliClient,
 	}))
 }
