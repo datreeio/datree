@@ -255,7 +255,7 @@ func (mapper FileNameRuleMapper) MarshalXML(e *xml.Encoder, start xml.StartEleme
 		for _, iValue := range eValue {
 			eStartToken := xml.StartElement{Name: xml.Name{Space: "", Local: eKey}}
 			eEndToken := xml.EndElement{Name: eStartToken.Name}
-			tokens = append(tokens, eStartToken, iValue, iValue, eEndToken)
+			tokens = append(tokens, eStartToken, iValue, eEndToken)
 		}
 	}
 
