@@ -13,8 +13,12 @@ brews:
     - datree-zip
     tap:
       owner: datreeio
-      name: homebrew-datree
+      name: homebrew-datree{{ if .Branch != "main" }}-staging{{ end }}
     install: bin.install "datree"
+    homepage: "https://datree.io/"
+    commit_author:
+      name: datree-ci
+      email: rnd@datree.io
 builds:
   - env:
       - CGO_ENABLED=0
