@@ -249,13 +249,15 @@ func (mapper FileNameRuleMapper) MarshalXML(e *xml.Encoder, start xml.StartEleme
 	}
 
 	tokens := []xml.Token{start}
+	fileXMLName := xml.Name{Space: "", Local: "File"}
+	filenameXMLName := xml.Name{Space: "", Local: "filename"}
 
 	// Iterate over mapper and create XML tokens for all entries
-	for eKey, eValue := range mapper {
-		for _, iValue := range eValue {
-			eStartToken := xml.StartElement{Name: xml.Name{Space: "", Local: eKey}}
-			eEndToken := xml.EndElement{Name: eStartToken.Name}
-			tokens = append(tokens, eStartToken, iValue, eEndToken)
+	for filePath, encapsulatedRule := range mapper {
+		for _, rule := range encapsulatedRule {	// Since rule is encapsulated by its id (int), we don't add is a tag
+			startToken := xml.StartElement{Name: fileXMLName, Attr: []xml.Attr{{Name: filenameXMLName, Value: filePath}}}
+			endToken := xml.EndElement{Name: fileXMLName}
+			tokens = append(tokens, startToken, rule, endToken)
 		}
 	}
 
