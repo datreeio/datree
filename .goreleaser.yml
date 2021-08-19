@@ -10,7 +10,7 @@ before:
 brews: 
   - name: datree
     ids:
-    - datree-macos 
+    - datree-zip
     tap:
       owner: datreeio
       name: homebrew-datree
@@ -46,6 +46,7 @@ archives:
       linux: Linux
       amd64: x86_64
     format: zip
+    id: datree-zip
 checksum:
   name_template: "checksums.txt"
 snapshot:
