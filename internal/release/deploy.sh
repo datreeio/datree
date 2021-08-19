@@ -1,8 +1,10 @@
 set -ex
 if [ $TRAVIS_BRANCH == "main" ]; then 
   export DATREE_BUILD_VERSION=$SEMVER_NUMBER; 
+  export DATREE_BREW_REPO_NAME=homebrew-datree
 else 
   export DATREE_BUILD_VERSION=$SEMVER_NUMBER-$TRAVIS_BRANCH; 
+  export DATREE_BREW_REPO_NAME=homebrew-datree-staging
 fi
 
 export GIT_TAG=$DATREE_BUILD_VERSION
