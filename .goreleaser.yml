@@ -13,7 +13,7 @@ brews:
     - datree-zip
     tap:
       owner: datreeio
-      name: {{.Env.DATREE_BREW_REPO_NAME}}
+      name: "{{.Env.DATREE_BREW_REPO_NAME}}"
     install: bin.install "datree"
     homepage: "https://datree.io/"
     commit_author:
