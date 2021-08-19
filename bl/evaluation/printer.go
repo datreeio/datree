@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"strconv"
 
 	"github.com/datreeio/datree/bl/validation"
 
@@ -248,17 +247,15 @@ func (mapper FileNameRuleMapper) MarshalXML(e *xml.Encoder, start xml.StartEleme
 	if len(mapper) == 0 {
 		return nil
 	}
-	
+
 	tokens := []xml.Token{start}
 
 	// Iterate over mapper and create XML tokens for all entries
 	for eKey, eValue := range mapper {
-		for iKey, iValue := range eValue {
+		for _, iValue := range eValue {
 			eStartToken := xml.StartElement{Name: xml.Name{Space: "", Local: eKey}}
-			iStartToken := xml.StartElement{Name: xml.Name{Space: "", Local: strconv.Itoa(iKey)}}
-			iEndToken := xml.EndElement{Name: iStartToken.Name}
 			eEndToken := xml.EndElement{Name: eStartToken.Name}
-			tokens = append(tokens, eStartToken, iStartToken, iValue, iValue, iEndToken, eEndToken)
+			tokens = append(tokens, eStartToken, iValue, iValue, eEndToken)
 		}
 	}
 
