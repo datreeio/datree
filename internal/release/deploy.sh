@@ -8,7 +8,7 @@ else
 fi
 
 sed -ie "s/___TAP_NAME/$DATREE_BREW_REPO_NAME/" .goreleaser.yml
-git add .goreleaser
+git add .goreleaser.yml
 git commit -m "ci: Goreleaser brew update tap name"
 
 export GIT_TAG=$DATREE_BUILD_VERSION
