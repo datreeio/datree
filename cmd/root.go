@@ -5,6 +5,7 @@ import (
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/cmd/config"
+	"github.com/datreeio/datree/cmd/publish"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -47,6 +48,14 @@ func init() {
 		Messager:    app.context.Messager,
 		Printer:     app.context.Printer,
 		LocalConfig: app.context.LocalConfig,
+	}))
+
+	rootCmd.AddCommand(publish.New(&publish.PublishCommandContext{
+		CliVersion:       CliVersion,
+		LocalConfig:      app.context.LocalConfig,
+		Messager:         app.context.Messager,
+		Printer:          app.context.Printer,
+		PublishCliClient: app.context.CliClient,
 	}))
 }
 
