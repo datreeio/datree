@@ -1,13 +1,18 @@
 package files
 
 import (
+	"bytes"
 	"fmt"
+	"gopkg.in/yaml.v3"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 )
+
+type UnknownStruct map[string]interface{}
 
 func ToAbsolutePath(path string) (string, error) {
 	absolutePath, err := filepath.Abs(path)
@@ -58,4 +63,26 @@ func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extracto
 	}()
 
 	return filesConfigurationsChan, invalidFilesChan
+}
+
+func ExtractYamlFileToUnknownStruct(path string) (UnknownStruct, error) {
+	absolutePath, err := ToAbsolutePath(path)
+	if err != nil {
+		return nil, err
+	}
+
+	yamlContent, err := ioutil.ReadFile(absolutePath)
+	if err != nil {
+		return nil, err
+	}
+
+	yamlDecoder := yaml.NewDecoder(bytes.NewReader(yamlContent))
+	var policies = UnknownStruct{}
+	err = yamlDecoder.Decode(&policies)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return policies, nil
 }

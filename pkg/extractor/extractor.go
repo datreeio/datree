@@ -24,7 +24,6 @@ func ParseYaml(content string) (*[]Configuration, error) {
 	if err != nil {
 		return nil, err
 	} else {
-
 		return configurations, nil
 	}
 }
