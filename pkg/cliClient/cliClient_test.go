@@ -474,7 +474,7 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 				headers map[string]string
 			}{
 				method:  http.MethodPut,
-				uri:     "/cli/policy/publish?token=cli_id",
+				uri:     "/cli/policy/publish/tokens/cli_id",
 				body:    requestPoliciesConfigurationArg,
 				headers: nil,
 			},
