@@ -8,8 +8,9 @@ else
 fi
 
 sed -ie "s/___TAP_NAME/$DATREE_BREW_REPO_NAME/" .goreleaser.yml
-git add .goreleaser.yml
-git commit -m "ci: Goreleaser brew update tap name"
+sed -ie "s/___CLI_VERSION/$DATREE_BUILD_VERSION/" Dockerfile
+git add .goreleaser.yml Dockerfile
+git commit -m "ci: dynamic variable updates"
 
 export GIT_TAG=$DATREE_BUILD_VERSION
 git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
