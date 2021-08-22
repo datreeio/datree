@@ -3,6 +3,7 @@ package cliClient
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"github.com/datreeio/datree/bl/files"
 	"io/ioutil"
 	"net/http"
@@ -108,6 +109,7 @@ type PublishPoliciesTestCase struct {
 		body   struct {
 			message string
 		}
+		error error
 	}
 
 	expected struct {
@@ -202,6 +204,7 @@ func TestGetVersionMessage(t *testing.T) {
 func TestPublishPolicies(t *testing.T) {
 	tests := []*PublishPoliciesTestCase{
 		test_publishPolicies_success(),
+		test_publishPolicies_schemaError(),
 	}
 	httpClientMock := mockHTTPClient{}
 
@@ -209,7 +212,7 @@ func TestPublishPolicies(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.mockResponse.body)
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mockResponse.status, Body: body}
-			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
+			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, tt.mockResponse.error).Once()
 
 			client := &CliClient{
 				baseUrl:    "http://cli-service.test.io",
@@ -450,6 +453,7 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 			body   struct {
 				message string
 			}
+			error error
 		}{
 			status: http.StatusCreated,
 			body: struct {
@@ -457,6 +461,7 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 			}{
 				message: "",
 			},
+			error: nil,
 		},
 		expected: struct {
 			request struct {
@@ -474,11 +479,62 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 				headers map[string]string
 			}{
 				method:  http.MethodPut,
-				uri:     "/cli/policy/publish/tokens/cli_id",
+				uri:     "/cli/policy/publish/cliIds/cli_id",
 				body:    requestPoliciesConfigurationArg,
 				headers: nil,
 			},
 			response: nil,
+		},
+	}
+}
+
+func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
+	requestPoliciesConfigurationArg := files.UnknownStruct{}
+	return &PublishPoliciesTestCase{
+		name: "schema error - publish policies",
+		args: struct {
+			policiesConfiguration files.UnknownStruct
+			cliId                 string
+		}{
+			policiesConfiguration: requestPoliciesConfigurationArg,
+			cliId:                 "cli_id",
+		},
+		mockResponse: struct {
+			status int
+			body   struct {
+				message string
+			}
+			error error
+		}{
+			status: http.StatusBadRequest,
+			body: struct {
+				message string
+			}{
+				message: "",
+			},
+			error: errors.New("error from cli-service"),
+		},
+		expected: struct {
+			request struct {
+				method  string
+				uri     string
+				body    files.UnknownStruct
+				headers map[string]string
+			}
+			response error
+		}{
+			request: struct {
+				method  string
+				uri     string
+				body    files.UnknownStruct
+				headers map[string]string
+			}{
+				method:  http.MethodPut,
+				uri:     "/cli/policy/publish/cliIds/cli_id",
+				body:    requestPoliciesConfigurationArg,
+				headers: nil,
+			},
+			response: errors.New("error from cli-service"),
 		},
 	}
 }
