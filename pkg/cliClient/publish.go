@@ -7,7 +7,7 @@ import (
 )
 
 func (c *CliClient) PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) error {
-	_, err := c.httpClient.Request(http.MethodPost, "/cli/policy/accounts/"+cliId+"/publish/policies", policiesConfiguration, nil)
+	_, err := c.httpClient.Request(http.MethodPut, "/cli/policy/publish?token="+cliId, policiesConfiguration, nil)
 	if err != nil && err.Error() == "<nil>" {
 		return errors.New("unknown error")
 	} else {

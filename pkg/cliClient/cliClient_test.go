@@ -473,8 +473,8 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 				body    files.UnknownStruct
 				headers map[string]string
 			}{
-				method:  http.MethodPost,
-				uri:     "/cli/policy/accounts/cli_id/publish/policies",
+				method:  http.MethodPut,
+				uri:     "/cli/policy/publish?token=cli_id",
 				body:    requestPoliciesConfigurationArg,
 				headers: nil,
 			},

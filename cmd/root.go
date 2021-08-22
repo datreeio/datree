@@ -51,11 +51,11 @@ func init() {
 	}))
 
 	rootCmd.AddCommand(publish.New(&publish.PublishCommandContext{
-		CliVersion:  CliVersion,
-		LocalConfig: app.context.LocalConfig,
-		Messager:    app.context.Messager,
-		Printer:     app.context.Printer,
-		CliClient:   app.context.CliClient,
+		CliVersion:       CliVersion,
+		LocalConfig:      app.context.LocalConfig,
+		Messager:         app.context.Messager,
+		Printer:          app.context.Printer,
+		PublishCliClient: app.context.CliClient,
 	}))
 }
 

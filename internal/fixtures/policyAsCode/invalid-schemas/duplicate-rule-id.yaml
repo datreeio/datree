@@ -3,7 +3,7 @@ policies:
   - name: "Default"
     isDefault: true
     rules:
-      - id: "CONTAINERS_MISSING_MEMORY_LIMIT_KEY"
+      - identifier: "CONTAINERS_MISSING_MEMORY_LIMIT_KEY"
         failSuggestion: "This is the fail suggestion"
-      - id: "CONTAINERS_MISSING_MEMORY_LIMIT_KEY"
+      - identifier: "CONTAINERS_MISSING_MEMORY_LIMIT_KEY"
         failSuggestion: "This is the fail suggestion"

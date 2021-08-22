@@ -21,12 +21,16 @@ type LocalConfig interface {
 	GetLocalConfiguration() (*localConfig.ConfigContent, error)
 }
 
+type CliClient interface {
+	PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) error
+}
+
 type PublishCommandContext struct {
-	CliVersion  string
-	LocalConfig LocalConfig
-	Messager    Messager
-	Printer     Printer
-	CliClient   *cliClient.CliClient
+	CliVersion       string
+	LocalConfig      LocalConfig
+	Messager         Messager
+	Printer          Printer
+	PublishCliClient CliClient
 }
 
 func New(ctx *PublishCommandContext) *cobra.Command {
@@ -54,9 +58,9 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 
 			err := publish(ctx, args[0])
 			if err != nil {
-				ctx.Printer.PrintMessage("Publish Failed:\n"+err.Error()+"\n", "error")
+				ctx.Printer.PrintMessage("Publish failed:\n"+err.Error()+"\n", "error")
 			} else {
-				ctx.Printer.PrintMessage("Publish Successful", "green")
+				ctx.Printer.PrintMessage("Published successfully\n", "green")
 			}
 
 			return err
@@ -87,6 +91,6 @@ func publish(ctx *PublishCommandContext, path string) error {
 		return err
 	}
 
-	err = ctx.CliClient.PublishPolicies(policiesConfiguration, localConfigContent.CliId)
+	err = ctx.PublishCliClient.PublishPolicies(policiesConfiguration, localConfigContent.CliId)
 	return err
 }
