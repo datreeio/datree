@@ -23,7 +23,7 @@ deploy:
     script: bash ./internal/release/deploy.sh
     on:
       all_branches: true
-      condition: $TRAVIS_BRANCH =~ ^(staging|main)$
+      condition: $TRAVIS_BRANCH =~ ^(staging|main|DAT-3371-homebrew)$
   - provider: script
     skip_cleanup: true
     script: bash ./internal/release/internal_deploy.sh
