@@ -154,7 +154,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	if flags.Output == "simple" {
 		ctx.Printer.SetTheme(printer.CreateSimpleTheme())
 	}
-	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml")
+	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml") && (flags.Output != "xml")
 
 	if isInteractiveMode == true {
 		messages := make(chan *messager.VersionMessage, 1)
