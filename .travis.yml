@@ -1,6 +1,6 @@
 language: go
 go:
-  - 1.x
+  - 1.16.7
 os: osx
 osx_image: xcode12.5
 

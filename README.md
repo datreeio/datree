@@ -48,14 +48,14 @@ The rules cover different Kubernetes resources and use cases:
 * [Deprecation](https://hub.datree.io/deprecation/?utm_source=github&utm_medium=organic_oss)
 * [Others](https://hub.datree.io/other/?utm_source=github&utm_medium=organic_oss)
 
-## WARNING: Alpha release
+## Support
+
+[Datree](https://datree.io/?utm_source=github&utm_medium=organic_oss) builds and maintains this project to make Kubernetes policies simple and accessible. Start with our [documentations](https://hub.datree.io/?utm_source=github&utm_medium=organic_oss) for quick tutorials and examples.
+
+## Disclaimer
 
 Datree is at an early stage of development. We do our best to maintain backwards compatibility but there may be breaking changes in
 the future to the command usage, flags, and configuration file formats. The CLI will output a warning message when a new version with breaking changes is detected.
 We encourage you to use Datree to test your Kubernetes manifests files and Helm charts, see what
 breaks, and [contribute](./CONTRIBUTING.md).
-
-## Support
-
-[Datree](https://datree.io/?utm_source=github&utm_medium=organic_oss) builds and maintains this project to make Kubernetes policies simple and accessible. Start with our [documentations](https://hub.datree.io/?utm_source=github&utm_medium=organic_oss) for quick tutorials and examples.
 
