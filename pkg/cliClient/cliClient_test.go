@@ -3,6 +3,8 @@ package cliClient
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"github.com/datreeio/datree/bl/files"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
@@ -96,6 +98,31 @@ type GetVersionMessageTestCase struct {
 	}
 }
 
+type PublishPoliciesTestCase struct {
+	name string
+	args struct {
+		policiesConfiguration files.UnknownStruct
+		cliId                 string
+	}
+	mockResponse struct {
+		status int
+		body   struct {
+			message string
+		}
+		error error
+	}
+
+	expected struct {
+		request struct {
+			method  string
+			uri     string
+			body    files.UnknownStruct
+			headers map[string]string
+		}
+		response error
+	}
+}
+
 func TestRequestEvaluation(t *testing.T) {
 	tests := []*RequestEvaluationTestCase{
 		test_requestEvaluation_success(),
@@ -170,6 +197,31 @@ func TestGetVersionMessage(t *testing.T) {
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.response, res)
 
+		})
+	}
+}
+
+func TestPublishPolicies(t *testing.T) {
+	tests := []*PublishPoliciesTestCase{
+		test_publishPolicies_success(),
+		test_publishPolicies_schemaError(),
+	}
+	httpClientMock := mockHTTPClient{}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, _ := json.Marshal(tt.mockResponse.body)
+			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mockResponse.status, Body: body}
+			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, tt.mockResponse.error).Once()
+
+			client := &CliClient{
+				baseUrl:    "http://cli-service.test.io",
+				httpClient: &httpClientMock,
+			}
+
+			actualResponse := client.PublishPolicies(tt.args.policiesConfiguration, tt.args.cliId)
+			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
+			assert.Equal(t, tt.expected.response, actualResponse)
 		})
 	}
 }
@@ -381,6 +433,108 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 				EvaluationId: 123,
 				K8sVersion:   k8sVersion,
 			},
+		},
+	}
+}
+
+func test_publishPolicies_success() *PublishPoliciesTestCase {
+	requestPoliciesConfigurationArg := files.UnknownStruct{}
+	return &PublishPoliciesTestCase{
+		name: "success - publish policies",
+		args: struct {
+			policiesConfiguration files.UnknownStruct
+			cliId                 string
+		}{
+			policiesConfiguration: requestPoliciesConfigurationArg,
+			cliId:                 "cli_id",
+		},
+		mockResponse: struct {
+			status int
+			body   struct {
+				message string
+			}
+			error error
+		}{
+			status: http.StatusCreated,
+			body: struct {
+				message string
+			}{
+				message: "",
+			},
+			error: nil,
+		},
+		expected: struct {
+			request struct {
+				method  string
+				uri     string
+				body    files.UnknownStruct
+				headers map[string]string
+			}
+			response error
+		}{
+			request: struct {
+				method  string
+				uri     string
+				body    files.UnknownStruct
+				headers map[string]string
+			}{
+				method:  http.MethodPut,
+				uri:     "/cli/policy/publish/cliIds/cli_id",
+				body:    requestPoliciesConfigurationArg,
+				headers: nil,
+			},
+			response: nil,
+		},
+	}
+}
+
+func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
+	requestPoliciesConfigurationArg := files.UnknownStruct{}
+	return &PublishPoliciesTestCase{
+		name: "schema error - publish policies",
+		args: struct {
+			policiesConfiguration files.UnknownStruct
+			cliId                 string
+		}{
+			policiesConfiguration: requestPoliciesConfigurationArg,
+			cliId:                 "cli_id",
+		},
+		mockResponse: struct {
+			status int
+			body   struct {
+				message string
+			}
+			error error
+		}{
+			status: http.StatusBadRequest,
+			body: struct {
+				message string
+			}{
+				message: "",
+			},
+			error: errors.New("error from cli-service"),
+		},
+		expected: struct {
+			request struct {
+				method  string
+				uri     string
+				body    files.UnknownStruct
+				headers map[string]string
+			}
+			response error
+		}{
+			request: struct {
+				method  string
+				uri     string
+				body    files.UnknownStruct
+				headers map[string]string
+			}{
+				method:  http.MethodPut,
+				uri:     "/cli/policy/publish/cliIds/cli_id",
+				body:    requestPoliciesConfigurationArg,
+				headers: nil,
+			},
+			response: errors.New("error from cli-service"),
 		},
 	}
 }

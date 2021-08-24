@@ -1,9 +1,16 @@
 set -ex
 if [ $TRAVIS_BRANCH == "main" ]; then 
   export DATREE_BUILD_VERSION=$SEMVER_NUMBER; 
+  export DATREE_BREW_REPO_NAME=homebrew-datree
 else 
   export DATREE_BUILD_VERSION=$SEMVER_NUMBER-$TRAVIS_BRANCH; 
+  export DATREE_BREW_REPO_NAME=homebrew-datree-staging
 fi
+
+sed -ie "s/___TAP_NAME/$DATREE_BREW_REPO_NAME/" .goreleaser.yml
+sed -ie "s/___CLI_VERSION/$DATREE_BUILD_VERSION/" Dockerfile
+git add .goreleaser.yml Dockerfile
+git commit -m "ci: dynamic variable updates"
 
 export GIT_TAG=$DATREE_BUILD_VERSION
 git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
