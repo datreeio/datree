@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -33,6 +34,8 @@ func PrintResults(results *EvaluationResults, invalidYamlFiles []*validation.Inv
 		return jsonOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
 	case outputFormat == "yaml":
 		return yamlOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
+	case outputFormat == "xml":
+		return xmlOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
 	default:
 		return textOutput(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion, policyName)
 	}
@@ -57,6 +60,18 @@ func yamlOutput(formattedOutput *FormattedOutput) error {
 	}
 
 	fmt.Println(string(yamlOutput))
+	return nil
+}
+
+func xmlOutput(formmattedOutput *FormattedOutput) error {
+	xmlOutput, err := xml.MarshalIndent(formmattedOutput, "", "\t")
+	xmlOutput = []byte(xml.Header + string(xmlOutput))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Println(string(xmlOutput))
 	return nil
 }
 
@@ -226,4 +241,40 @@ func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSumma
 		PlainRows:  plainRows,
 	}
 	return *summary
+}
+
+func (mapper FileNameRuleMapper) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	if len(mapper) == 0 {
+		return nil
+	}
+
+	tokens := []xml.Token{start}
+	fileXMLName := xml.Name{Space: "", Local: "File"}
+	filenameXMLName := xml.Name{Space: "", Local: "filename"}
+
+	// Iterate over mapper and create XML tokens for all entries
+	for filePath, encapsulatedRule := range mapper {
+		for _, rule := range encapsulatedRule {	// Since rule is encapsulated by its id (int), we don't add is a tag
+			startToken := xml.StartElement{Name: fileXMLName, Attr: []xml.Attr{{Name: filenameXMLName, Value: filePath}}}
+			endToken := xml.EndElement{Name: fileXMLName}
+			tokens = append(tokens, startToken, rule, endToken)
+		}
+	}
+
+	tokens = append(tokens, xml.EndElement{Name: start.Name})
+
+	for _, t := range tokens {
+		var err error
+		switch t.(type) {
+		default:
+			err = e.EncodeToken(t)
+		case *Rule:
+			err = e.EncodeElement(t, xml.StartElement{Name: xml.Name{Space: "", Local: "Rule"}})
+		}
+		if err != nil {
+			return err
+		}
+	}
+
+	return e.Flush()
 }

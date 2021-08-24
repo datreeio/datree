@@ -25,8 +25,10 @@ func New(c CLIClient) *Evaluator {
 	}
 }
 
+type FileNameRuleMapper map[string]map[int]*Rule 
+
 type EvaluationResults struct {
-	FileNameRuleMapper map[string]map[int]*Rule
+	FileNameRuleMapper FileNameRuleMapper
 	Summary            struct {
 		TotalFailedRules int
 		FilesCount       int

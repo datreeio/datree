@@ -170,6 +170,7 @@ func TestTestCommand(t *testing.T) {
 	test_testCommand_no_flags(t, mockedEvaluator, filesConfigurations, evaluationId, ctx)
 	test_testCommand_json_output(t, mockedEvaluator, filesConfigurations, evaluationId, ctx)
 	test_testCommand_yaml_output(t, mockedEvaluator, filesConfigurations, evaluationId, ctx)
+	test_testCommand_xml_output(t, mockedEvaluator, filesConfigurations, evaluationId, ctx)
 }
 
 func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
@@ -187,6 +188,12 @@ func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, filesC
 
 func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "yaml"})
+
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
+}
+
+func test_testCommand_xml_output(t *testing.T, evaluator *mockEvaluator, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
+	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "xml"})
 
 	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
 }
