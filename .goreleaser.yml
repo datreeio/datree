@@ -13,7 +13,7 @@ brews:
     - datree-zip
     tap:
       owner: datreeio
-      name: ___TAP_NAME
+      name: homebrew-datree
     install: bin.install "datree"
     homepage: "https://datree.io/"
     commit_author:
