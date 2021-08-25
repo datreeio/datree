@@ -3,12 +3,15 @@
 ![Travis (.com) branch](https://img.shields.io/travis/com/datreeio/datree/staging?label=build-staging)
 ![Travis (.com) branch](https://img.shields.io/travis/com/datreeio/datree/main?label=build-main)
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fdatreeio%2Fdatree&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23E7E7E7&title=views+%28today+%2F+total%29&edge_flat=false)](https://hits.seeyoufarm.com)
+[![Go Report Card](https://goreportcard.com/badge/github.com/datreeio/datree)](https://goreportcard.com/report/github.com/datreeio/datree)
 ![open issues](https://img.shields.io/github/issues-raw/datreeio/datree)
 
 ## What is Datree?
 [Datree](https://datree.io/?utm_source=github&utm_medium=organic_oss) is a CLI tool that supports Kubernetes admins in their roles, by preventing developers from making errors in Kubernetes configurations that can cause clusters to fail in production. Our CLI tool is open source, enabling it to be supported by the Kubernetes community.  
 
 It’s far more effective than manual processes, such as sending an email to a slew of developers, begging them to set various limits, which likely falls on deaf ears because developers are already overwhelmed.
+
+### ⭐️ [Star this repository](https://github.com/datreeio/datree/stargazers) to get updates ⭐️   
 
 ## How it Works
 The CLI integration provides a policy enforcement solution for Kubernetes to run automatic checks on every code change for rule violations and misconfigurations. When rule violations are found, Datree produces an alert which guides the developer to fix the issue inside the CI process — or even earlier as a pre-commit hook — while explaining the reason behind the rule.
