@@ -1,9 +1,9 @@
 set -ex
-if [ $TRAVIS_BRANCH == "main" ]; then 
-  export DATREE_BUILD_VERSION=$SEMVER_NUMBER; 
+if [ $TRAVIS_BRANCH == "main" ]; then
+  export DATREE_BUILD_VERSION=$SEMVER_NUMBER
   export DATREE_BREW_REPO_NAME=homebrew-datree
-else 
-  export DATREE_BUILD_VERSION=$SEMVER_NUMBER-$TRAVIS_BRANCH; 
+else
+  export DATREE_BUILD_VERSION=$SEMVER_NUMBER-$TRAVIS_BRANCH
   export DATREE_BREW_REPO_NAME=homebrew-datree-staging
 fi
 
@@ -15,6 +15,7 @@ git commit -m "ci: dynamic variable updates"
 export GIT_TAG=$DATREE_BUILD_VERSION
 git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 git push --tags
+
 git stash save --keep-index --include-untracked
 
 # Secure private key
