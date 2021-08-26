@@ -6,6 +6,8 @@ import (
 )
 
 func (c *CliClient) PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) error {
-	_, err := c.httpClient.Request(http.MethodPut, "/cli/policy/publish/cliIds/"+cliId, policiesConfiguration, nil)
+	headers := make(map[string]string)
+	headers["x-cli-id"] = cliId
+	_, err := c.httpClient.Request(http.MethodPut, "/cli/policy/publish", policiesConfiguration, headers)
 	return err
 }
