@@ -7,7 +7,7 @@
 ![open issues](https://img.shields.io/github/issues-raw/datreeio/datree)
 
 ## What is Datree?
-[Datree](https://datree.io/?utm_source=github&utm_medium=organic_oss) is a CLI tool that supports Kubernetes admins in their roles, by preventing developers from making errors in Kubernetes configurations that can cause clusters to fail in production. Our CLI tool is open source, enabling it to be supported by the Kubernetes community.  
+[Datree](https://datree.io/#utm_source=github&utm_medium=organic_oss) is a CLI tool that supports Kubernetes admins in their roles, by preventing developers from making errors in Kubernetes configurations that can cause clusters to fail in production. Our CLI tool is open source, enabling it to be supported by the Kubernetes community.  
 
 It’s far more effective than manual processes, such as sending an email to a slew of developers, begging them to set various limits, which likely falls on deaf ears because developers are already overwhelmed.
 
@@ -18,42 +18,47 @@ The CLI integration provides a policy enforcement solution for Kubernetes to run
 
 ## Quick start in two steps
 #### 1. Install the latest release on your CLI  
-**Linux & MacOS:** `curl https://get.datree.io | /bin/bash`  
-**Windows:** `iwr -useb https://get.datree.io/windows_install.ps1 | iex`  
+_Linux & MacOS:_ `curl https://get.datree.io | /bin/bash`  
+_Windows:_ `iwr -useb https://get.datree.io/windows_install.ps1 | iex`  
 
 #### 2. Pass datree a Kuberntes manifest file to scan
 `datree test <k8s-manifest-file>`  
 
 ...and voilà, you just ran your first invocation! 🥳    
 
-In your command line, you’ll see something like this:
-<img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree" width="600" height="400">  
+## [Command Line Interface](https://hub.datree.io/cli-output/#utm_source=github&utm_medium=organic_oss)
+<img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree-cli" width="600" height="400">  
 
-#### Playground
-[![katacoda-logo](https://raw.githubusercontent.com/datreeio/datree/main/images/katacoda-logo.png)](#)  
+## [Web Application Interface](https://hub.datree.io/centralized-policy/#utm_source=github&utm_medium=organic_oss)
+<img src="https://user-images.githubusercontent.com/19731161/130956287-ca44e831-46ba-48fa-96eb-be8e23d43bdf.png" alt="Datree-saas" width="600" height="400">  
+
+<img src="https://user-images.githubusercontent.com/19731161/130957021-4b825b82-01e1-47ba-bf6f-68003f08a532.png" alt="Datree-saas" width="600" height="400"> 
+
+## Playground
+[![katacoda-logo](https://raw.githubusercontent.com/datreeio/datree/main/images/katacoda-logo.png)](https://www.katacoda.com/datree/scenarios/datree-demo)  
 You can also checkout our [interactive demo scenario](https://www.katacoda.com/datree/scenarios/datree-demo) on Katacoda without having to install anything on your machine.  
 
-#### Ready to review our "Getting Started" guide?
-All the information needed to get started, as well as a bunch of other cool features (including how to set up your policy), can be found in [**our docs**](https://hub.datree.io/getting-started/?utm_source=github&utm_medium=organic_oss).
+## Ready to review our "Getting Started" guide?
+All the information needed to get started, as well as a bunch of other cool features (including how to set up your policy), can be found in [**our docs**](https://hub.datree.io/getting-started/#utm_source=github&utm_medium=organic_oss).
 
 ## Helm plugin
-[Datree's Helm plugin](https://hub.datree.io/helm-plugin/?utm_source=github&utm_medium=organic_oss) can be accessed through the helm CLI, to provide a seamless experience to Helm users:  
+[Datree's Helm plugin](https://hub.datree.io/helm-plugin/#utm_source=github&utm_medium=organic_oss) can be accessed through the helm CLI, to provide a seamless experience to Helm users:  
 
 `helm plugin install https://github.com/datreeio/helm-datree`  
 
 ## Built-in rules
 Right now, there are 30 battle-tested rules for you to choose from.    
 The rules cover different Kubernetes resources and use cases:
-* [Workload](https://hub.datree.io/workload/?utm_source=github&utm_medium=organic_oss)
-* [CronJob](https://hub.datree.io/cronjob/?utm_source=github&utm_medium=organic_oss)
-* [Containers](https://hub.datree.io/containers/?utm_source=github&utm_medium=organic_oss)
-* [Networking](https://hub.datree.io/networking/?utm_source=github&utm_medium=organic_oss)
-* [Deprecation](https://hub.datree.io/deprecation/?utm_source=github&utm_medium=organic_oss)
-* [Others](https://hub.datree.io/other/?utm_source=github&utm_medium=organic_oss)
+* [Workload](https://hub.datree.io/workload/#utm_source=github&utm_medium=organic_oss)
+* [CronJob](https://hub.datree.io/cronjob/#utm_source=github&utm_medium=organic_oss)
+* [Containers](https://hub.datree.io/containers/#utm_source=github&utm_medium=organic_oss)
+* [Networking](https://hub.datree.io/networking/#utm_source=github&utm_medium=organic_oss)
+* [Deprecation](https://hub.datree.io/deprecation/#utm_source=github&utm_medium=organic_oss)
+* [Others](https://hub.datree.io/other/#utm_source=github&utm_medium=organic_oss)
 
 ## Support
 
-[Datree](https://datree.io/?utm_source=github&utm_medium=organic_oss) builds and maintains this project to make Kubernetes policies simple and accessible. Start with our [documentations](https://hub.datree.io/?utm_source=github&utm_medium=organic_oss) for quick tutorials and examples.
+[Datree](https://datree.io/#utm_source=github&utm_medium=organic_oss) builds and maintains this project to make Kubernetes policies simple and accessible. Start with our [documentations](https://hub.datree.io/#utm_source=github&utm_medium=organic_oss) for quick tutorials and examples.
 
 ## Disclaimer
 
