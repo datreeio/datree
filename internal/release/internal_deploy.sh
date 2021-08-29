@@ -4,8 +4,9 @@ export DATREE_INTERNAL=$SEMVER_NUMBER-internal
 sed -ie "s/___TAP_NAME/$DATREE_INTERNAL/" .goreleaser.yml
 git add .goreleaser.yml
 git commit -m "release $DATREE_INTERNAL"
-git add .goreleaser.ymle
-git stash save --keep-index --include-untracked
+git status
+# git add .goreleaser.ymle
+# git stash save --keep-index --include-untracked
 
 git tag $DATREE_INTERNAL -a -m "Generated internal tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 git push --tags
