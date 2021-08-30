@@ -438,8 +438,7 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 }
 
 func test_publishPolicies_success() *PublishPoliciesTestCase {
-	expectedPublishHeaders := make(map[string]string)
-	expectedPublishHeaders["x-cli-id"] = "cli_id"
+	expectedPublishHeaders := map[string]string{"x-cli-id": "cli_id"}
 
 	requestPoliciesConfigurationArg := files.UnknownStruct{}
 	return &PublishPoliciesTestCase{
@@ -492,8 +491,7 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 }
 
 func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
-	expectedPublishHeaders := make(map[string]string)
-	expectedPublishHeaders["x-cli-id"] = "cli_id"
+	expectedPublishHeaders := map[string]string{"x-cli-id": "cli_id"}
 
 	requestPoliciesConfigurationArg := files.UnknownStruct{}
 	return &PublishPoliciesTestCase{
