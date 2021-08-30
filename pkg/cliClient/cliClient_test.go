@@ -438,6 +438,8 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 }
 
 func test_publishPolicies_success() *PublishPoliciesTestCase {
+	expectedPublishHeaders := map[string]string{"x-cli-id": "cli_id"}
+
 	requestPoliciesConfigurationArg := files.UnknownStruct{}
 	return &PublishPoliciesTestCase{
 		name: "success - publish policies",
@@ -479,9 +481,9 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 				headers map[string]string
 			}{
 				method:  http.MethodPut,
-				uri:     "/cli/policy/publish/cliIds/cli_id",
+				uri:     "/cli/policy/publish",
 				body:    requestPoliciesConfigurationArg,
-				headers: nil,
+				headers: expectedPublishHeaders,
 			},
 			response: nil,
 		},
@@ -489,6 +491,8 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 }
 
 func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
+	expectedPublishHeaders := map[string]string{"x-cli-id": "cli_id"}
+
 	requestPoliciesConfigurationArg := files.UnknownStruct{}
 	return &PublishPoliciesTestCase{
 		name: "schema error - publish policies",
@@ -530,9 +534,9 @@ func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
 				headers map[string]string
 			}{
 				method:  http.MethodPut,
-				uri:     "/cli/policy/publish/cliIds/cli_id",
+				uri:     "/cli/policy/publish",
 				body:    requestPoliciesConfigurationArg,
-				headers: nil,
+				headers: expectedPublishHeaders,
 			},
 			response: errors.New("error from cli-service"),
 		},
