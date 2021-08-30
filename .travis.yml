@@ -23,12 +23,12 @@ deploy:
     script: bash ./internal/release/deploy.sh
     on:
       all_branches: true
-      condition: $TRAVIS_BRANCH =~ ^(staging|main|DAT-3412-fix-brew-version)$
+      condition: $TRAVIS_BRANCH =~ ^(staging|main)$
   - provider: script
     skip_cleanup: true
     script: bash ./internal/release/internal_deploy.sh
     on:
-      branch: DAT-3412-fix-brew-version
+      branch: main
 
 env:
   global:
