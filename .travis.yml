@@ -17,6 +17,7 @@ before_deploy:
   - bash ./internal/release/install_svu.sh
   - echo $(svu --version)
   - export SEMVER_NUMBER=$(svu next --strip-prefix --no-metadata)
+
 deploy:
   - provider: script
     skip_cleanup: true

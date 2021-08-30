@@ -28,4 +28,5 @@ security list-keychains -d user -s buildagent.keychain
 security import DatreeCli.p12 -k buildagent.keychain -P $P12_PASSWORD -T /usr/bin/codesign
 security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.keychain
 security find-identity -v
+
 curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
