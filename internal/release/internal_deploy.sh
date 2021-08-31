@@ -2,6 +2,7 @@ set -ex
 
 export DATREE_INTERNAL=$SEMVER_NUMBER-internal
 sed -ie "s/homebrew-datree/homebrew-datree-internal/" .goreleaser.yml
+
 git add -A
 git commit -m "release $DATREE_INTERNAL"
 git tag $DATREE_INTERNAL -a -m "Generated internal tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
