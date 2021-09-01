@@ -23,7 +23,7 @@ fi
 
 BREW_REPO_URL="git@github.com:datreeio/${BREW_REPO_NAME}.git"
 
-git clone --depth 1 $BREW_REPO_URL
+git clone $BREW_REPO_URL
 bash ./internal/release/brew_formula_generator.sh $VERSION $BREW_REPO_NAME
 cd $BREW_REPO_NAME
 git add -A
