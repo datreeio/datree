@@ -2,10 +2,8 @@ set -ex
 
 if [ $TRAVIS_BRANCH == "main" ]; then
   export DATREE_BUILD_VERSION=$SEMVER_NUMBER
-  bash ./internal/release/brew_push_formula.sh production $DATREE_BUILD_VERSION
 else
   export DATREE_BUILD_VERSION=$SEMVER_NUMBER-$TRAVIS_BRANCH
-  bash ./internal/release/brew_push_formula.sh staging $DATREE_BUILD_VERSION
 fi
 
 export GIT_TAG=$DATREE_BUILD_VERSION
@@ -26,3 +24,9 @@ security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.ke
 security find-identity -v
 
 curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
+
+if [ $TRAVIS_BRANCH == "main" ]; then
+  bash ./internal/release/brew_push_formula.sh production $DATREE_BUILD_VERSION
+else
+  bash ./internal/release/brew_push_formula.sh staging $DATREE_BUILD_VERSION
+fi
