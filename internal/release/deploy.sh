@@ -1,6 +1,5 @@
 set -ex
 
-DATREE_BREW_REPO_NAME = ""
 if [ $TRAVIS_BRANCH == "main" ]; then
   export DATREE_BUILD_VERSION=$SEMVER_NUMBER
   bash ./internal/release/brew_push_formula.sh production $DATREE_BUILD_VERSION
