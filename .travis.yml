@@ -24,12 +24,12 @@ deploy:
     script: bash ./internal/release/deploy.sh
     on:
       all_branches: true
-      condition: $TRAVIS_BRANCH =~ ^(staging|main)$
+      condition: $TRAVIS_BRANCH =~ ^(staging|main|DAT-3420-remove-find-replace)$
   - provider: script
     skip_cleanup: true
     script: bash ./internal/release/internal_deploy.sh
     on:
-      branch: main
+      branch: DAT-3420-remove-find-replace
 
 env:
   global:
