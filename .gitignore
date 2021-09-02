@@ -4,5 +4,13 @@ datree
 .DS_STORE
 .vscode
 .idea
+
+# macos code signing
 DatreeCli.cer
 DatreeCli.p12
+
+# brew
+homebrew*
+
+# travis
+travis_wait*

@@ -1,10 +1,12 @@
 language: go
 go:
   - 1.16.7
+
 os: osx
 osx_image: xcode12.5
 
 script:
+  - "travis_wait 60 sleep 3600 &"
   - go build -tags $DATREE_DEPLOYMENT
   - go test ./...
 
