@@ -7,18 +7,6 @@ before:
   hooks:
     # you may remove this if you don't need go generate
     - go generate ./...
-brews: 
-  - name: datree
-    ids:
-    - datree-zip
-    tap:
-      owner: datreeio
-      name: ___TAP_NAME
-    install: bin.install "datree"
-    homepage: "https://datree.io/"
-    commit_author:
-      name: datree-ci
-      email: rnd@datree.io
 builds:
   - env:
       - CGO_ENABLED=0
