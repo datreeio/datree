@@ -6,6 +6,7 @@ os: osx
 osx_image: xcode12.5
 
 script:
+  - "travis_wait 30 sleep 1800 &"
   - go build -tags $DATREE_DEPLOYMENT
   - go test ./...
 
