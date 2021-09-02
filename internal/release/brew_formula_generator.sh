@@ -9,8 +9,6 @@ fi
 VERSION=$1
 DESTINATION_FOLDER=$2
 
-cat ./dist/checksums.txt
-
 SHA256_MAC=$(cat ./dist/checksums.txt | grep Darwin_x86_64 | cut -d" " -f1)
 SHA256_LINUX_INTEL=$(cat ./dist/checksums.txt | grep Linux_x86_64 | cut -d" " -f1)
 SHA256_LINUX_ARM=$(cat ./dist/checksums.txt | grep Linux_arm64 | cut -d" " -f1)
