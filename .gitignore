@@ -11,3 +11,6 @@ DatreeCli.p12
 
 # brew
 homebrew*
+
+# travis
+travis_wait*
