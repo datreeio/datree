@@ -21,7 +21,7 @@ security import DatreeCli.p12 -k buildagent.keychain -P $P12_PASSWORD -T /usr/bi
 security set-key-partition-list -S "apple-tool:,apple:" -s -k test buildagent.keychain
 security find-identity -v
 
-curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
+travis_wait curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
 
 if [ $TRAVIS_BRANCH == "main" ]; then
   bash ./internal/release/brew_push_formula.sh production $DATREE_BUILD_VERSION
