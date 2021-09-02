@@ -7,5 +7,5 @@ git push --tags
 git stash save --keep-index --include-untracked
 
 export DATREE_BUILD_VERSION=$DATREE_INTERNAL
-travis_wait curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION sh -s -- --rm-dist
+curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION sh -s -- --rm-dist
 bash ./internal/release/brew_push_formula.sh internal $DATREE_INTERNAL
