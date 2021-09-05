@@ -3,6 +3,7 @@
 project_name: datree-cli
 release:
   prerelease: auto
+  
 before:
   hooks:
     # you may remove this if you don't need go generate
