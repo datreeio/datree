@@ -44,8 +44,9 @@ class Datree < Formula
     <<~EOS
       \033[32m[V] Downloaded Datree
       [V] Finished Installation
+
       \033[35m Usage: $ datree test [k8s-file.yaml]
-        Using Helm? => https://hub.datree.io/helm-plugin
+       Using Helm? => https://hub.datree.io/helm-plugin
     EOS
   end
 end
