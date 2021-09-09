@@ -63,8 +63,8 @@ func yamlOutput(formattedOutput *FormattedOutput) error {
 	return nil
 }
 
-func xmlOutput(formmattedOutput *FormattedOutput) error {
-	xmlOutput, err := xml.MarshalIndent(formmattedOutput, "", "\t")
+func xmlOutput(formattedOutput *FormattedOutput) error {
+	xmlOutput, err := xml.MarshalIndent(formattedOutput, "", "\t")
 	xmlOutput = []byte(xml.Header + string(xmlOutput))
 	if err != nil {
 		fmt.Println(err)
@@ -254,7 +254,14 @@ func (mapper FileNameRuleMapper) MarshalXML(e *xml.Encoder, start xml.StartEleme
 
 	// Iterate over mapper and create XML tokens for all entries
 	for filePath, encapsulatedRule := range mapper {
-		for _, rule := range encapsulatedRule {	// Since rule is encapsulated by its id (int), we don't add is a tag
+		keys := make([]int, 0)
+		for i := range encapsulatedRule {
+			keys = append(keys, i)
+		}
+		sort.Ints(keys)
+
+		for _, key := range keys { // Since rule is encapsulated by its id (int), we don't add is a tag
+			rule := encapsulatedRule[key]
 			startToken := xml.StartElement{Name: fileXMLName, Attr: []xml.Attr{{Name: filenameXMLName, Value: filePath}}}
 			endToken := xml.EndElement{Name: fileXMLName}
 			tokens = append(tokens, startToken, rule, endToken)
