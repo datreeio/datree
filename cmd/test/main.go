@@ -178,12 +178,8 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	var _spinner *spinner.Spinner
-	if isInteractiveMode == true {
-		color := "cyan"
-		if flags.Output == "simple" {
-			color = ""
-		}
-		_spinner = createSpinner(" Loading...", color)
+	if isInteractiveMode == true && flags.Output != "simple" {
+		_spinner = createSpinner(" Loading...", "cyan")
 		_spinner.Start()
 	}
 
@@ -228,7 +224,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	results, err := ctx.Evaluator.Evaluate(validK8sFilesConfigurations, createEvaluationResponse.EvaluationId)
 
-	if _spinner != nil && isInteractiveMode == true {
+	if _spinner != nil {
 		_spinner.Stop()
 	}
 
