@@ -4,4 +4,4 @@ policies:
     isDefault: true
     rules:
       - identifier: "CONTAINERS_MISSING_MEMORY_LIMIT_KEYaa"
-        failSuggestion: "This is the fail suggestion"
+        messageOnFailure: "This is the message on failure"

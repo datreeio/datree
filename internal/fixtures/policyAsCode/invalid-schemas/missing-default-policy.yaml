@@ -3,4 +3,4 @@ policies:
   - name: "Default"
     rules:
       - identifier: "CONTAINERS_MISSING_MEMORY_LIMIT_KEY"
-        failSuggestion: "This is the fail suggestion"
+        messageOnFailure: "This is the message on failure"

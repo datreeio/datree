@@ -4,11 +4,11 @@ policies:
     isDefault: true
     rules:
       - identifier: "CONTAINERS_MISSING_MEMORY_LIMIT_KEY"
-        failSuggestion: "This is the fail suggestion"
+        messageOnFailure: "This is the message on failure"
       - identifier: "CONTAINERS_MISSING_MEMORY_REQUEST_KEY"
-        failSuggestion: "This is the fail suggestion"
+        messageOnFailure: "This is the message on failure"
   - name: 'allRulesAreDisabledPolicy' # all rules are disabled
   - name: 'otherPolicy'
     rules:
       - identifier: 'INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE'
-        failSuggestion: ''
+        messageOnFailure: ''
