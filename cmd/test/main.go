@@ -33,7 +33,7 @@ type Messager interface {
 
 type K8sValidator interface {
 	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile)
-	InitClient(k8sVersion string, ignoreMissingSchemas bool)
+	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
 }
 
 type TestCommandFlags struct {
@@ -41,6 +41,7 @@ type TestCommandFlags struct {
 	K8sVersion           string
 	IgnoreMissingSchemas bool
 	PolicyName           string
+	SchemaLocations      []string
 }
 
 type EvaluationPrinter interface {
@@ -110,7 +111,12 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy}
+			schemaLocations, err := cmd.Flags().GetStringArray("schema-location")
+			if err != nil {
+				return err
+			}
+
+			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations}
 
 			err = test(ctx, args, testCommandFlags)
 			if err != nil {
@@ -125,7 +131,10 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	testCommand.Flags().StringP("output", "o", "", "Define output format")
 	testCommand.Flags().StringP("schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
 	testCommand.Flags().StringP("policy", "p", "", "Policy name to run against")
-	testCommand.Flags().BoolP("ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
+
+	// kubeconform flags
+	testCommand.Flags().StringArray("schema-location", []string{}, "override schemas location search path (can be specified multiple times)")
+	testCommand.Flags().Bool("ignore-missing-schemas", false, "Ignore missing schemas when executing schema validation step")
 	return testCommand
 }
 
@@ -192,7 +201,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas)
+	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas, flags.SchemaLocations)
 	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlFilesConfigurationsChan, concurrency)
 
 	invalidYamlFiles := aggregateInvalidYamlFiles(invalidYamlFilesChan)
