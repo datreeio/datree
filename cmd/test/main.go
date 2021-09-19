@@ -7,19 +7,18 @@ import (
 	"os"
 	"strings"
 
-	"github.com/eiannone/keyboard"
-	"github.com/pkg/browser"
-
-	"github.com/briandowns/spinner"
-	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/extractor"
-
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
+
+	"github.com/briandowns/spinner"
+	"github.com/eiannone/keyboard"
+	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 )
 
