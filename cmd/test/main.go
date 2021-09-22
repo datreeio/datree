@@ -7,16 +7,18 @@ import (
 	"os"
 	"strings"
 
-	"github.com/briandowns/spinner"
-	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/extractor"
-
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
+
+	"github.com/briandowns/spinner"
+	"github.com/eiannone/keyboard"
+	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 )
 
@@ -257,6 +259,15 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion, createEvaluationResponse.PolicyName)
+
+	if len(createEvaluationResponse.PromptMessage) > 0 {
+		fmt.Println(createEvaluationResponse.PromptMessage + " (Y/n)")
+		answer, _, _ := keyboard.GetSingleKey()
+
+		if strings.ToLower(string(answer)) != "n" {
+			browser.OpenURL(fmt.Sprintf("https://app.datree.io/promptLogin?cliId=%s", localConfigContent.CliId))
+		}
+	}
 
 	var invocationFailedErr error = nil
 
