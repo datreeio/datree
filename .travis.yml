@@ -23,10 +23,10 @@ before_deploy:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: bash ./internal/release/deploy.sh
+    script: echo "Travis Test YISHAY"
     on:
       all_branches: true
-      condition: $TRAVIS_BRANCH =~ ^(staging|main)$
+      condition: $TRAVIS_BRANCH =~ ^(staging|main|fix-semver-travis)$
   - provider: script
     skip_cleanup: true
     script: bash ./internal/release/internal_deploy.sh
