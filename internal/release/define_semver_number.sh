@@ -2,7 +2,8 @@
 set -ex
 
 git tag --sort=-version:refname >tags.txt
-stagingTags=$(cat tags.txt | grep '^0.13.\d\+\-staging')
+head -n 10 tags.txt
+stagingTags=$(cat tags.txt | grep '^0.13.\d')
 echo $stagingTags
 stagingTag=$(echo $stagingTags | head -n 1)
 echo $stagingTag
