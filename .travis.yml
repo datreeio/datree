@@ -18,7 +18,7 @@ before_deploy:
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
   - bash ./internal/release/install_svu.sh
   - echo $(svu --version)
-  - bash ./internal/release/define_semver_number.sh
+  - export SEMVER_NUMBER=$(bash ./internal/release/define_semver_number.sh)
 
 deploy:
   - provider: script
