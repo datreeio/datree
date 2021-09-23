@@ -1,6 +1,7 @@
 #!/bin/bash
 set -ex
 
+echo "yishay test"
 git tag --sort=-version:refname >tags.txt
 head -n 10 tags.txt
 stagingTags=$(cat tags.txt | grep '^0.13.\d')
