@@ -62,7 +62,7 @@ The rules cover different Kubernetes resources and use cases:
 
 ## Disclaimer
 
-Datree is at an early stage of development. We do our best to maintain backwards compatibility but there may be breaking changes in
+We do our best to maintain backwards compatibility but there may be breaking changes in
 the future to the command usage, flags, and configuration file formats. The CLI will output a warning message when a new version with breaking changes is detected.
 We encourage you to use Datree to test your Kubernetes manifests files and Helm charts, see what
 breaks, and [contribute](./CONTRIBUTING.md).
