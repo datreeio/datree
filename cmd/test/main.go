@@ -15,6 +15,7 @@ import (
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
+	"github.com/fatih/color"
 
 	"github.com/briandowns/spinner"
 	"github.com/eiannone/keyboard"
@@ -261,11 +262,18 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion, createEvaluationResponse.PolicyName)
 
 	if len(createEvaluationResponse.PromptMessage) > 0 {
-		fmt.Println(createEvaluationResponse.PromptMessage + " (Y/n)")
-		answer, _, _ := keyboard.GetSingleKey()
+		fmt.Fprint(color.Output, color.HiCyanString("\n\n"+createEvaluationResponse.PromptMessage+" (Y/n)\n"))
+		answer, _, err := keyboard.GetSingleKey()
+
+		if err != nil {
+			fmt.Println("Failed to get prompt answer")
+			return err
+		}
 
 		if strings.ToLower(string(answer)) != "n" {
-			browser.OpenURL(fmt.Sprintf("https://app.datree.io/promptLogin?cliId=%s", localConfigContent.CliId))
+			promptLoginUrl := fmt.Sprintf("https://app.datree.io/promptLogin?cliId=%s", localConfigContent.CliId)
+			fmt.Printf("Opening %s in your browser.\n", promptLoginUrl)
+			browser.OpenURL(promptLoginUrl)
 		}
 	}
 
