@@ -15,11 +15,9 @@ import (
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
-	"github.com/fatih/color"
 
 	"github.com/briandowns/spinner"
 	"github.com/eiannone/keyboard"
-	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 )
 
@@ -51,6 +49,7 @@ type EvaluationPrinter interface {
 	PrintWarnings(warnings []printer.Warning)
 	PrintSummaryTable(summary printer.Summary)
 	PrintMessage(messageText string, messageColor string)
+	PrintPromptMessage(promptMessage string)
 	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
 	SetTheme(theme *printer.Theme)
 }
@@ -262,7 +261,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion, createEvaluationResponse.PolicyName)
 
 	if len(createEvaluationResponse.PromptMessage) > 0 {
-		fmt.Fprint(color.Output, color.HiCyanString("\n\n"+createEvaluationResponse.PromptMessage+" (Y/n)\n"))
+		ctx.Printer.PrintPromptMessage(createEvaluationResponse.PromptMessage)
 		answer, _, err := keyboard.GetSingleKey()
 
 		if err != nil {
@@ -272,8 +271,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 		if strings.ToLower(string(answer)) != "n" {
 			promptLoginUrl := fmt.Sprintf("https://app.datree.io/promptLogin?cliId=%s", localConfigContent.CliId)
-			fmt.Printf("Opening %s in your browser.\n", promptLoginUrl)
-			browser.OpenURL(promptLoginUrl)
+			openBrowser(promptLoginUrl)
 		}
 	}
 

@@ -211,6 +211,10 @@ func (p *Printer) PrintMessage(messageText string, messageColor string) {
 	p.printInColor(messageText, colorPrintFn)
 }
 
+func (p *Printer) PrintPromptMessage(promptMessage string) {
+	fmt.Fprint(out, color.HiCyanString("\n\n"+promptMessage+" (Y/n)\n"))
+}
+
 func (p *Printer) printPassedYamlValidation() {
 	p.printInColor("[V] YAML validation\n", p.Theme.Colors.Green)
 }
