@@ -18,7 +18,6 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/eiannone/keyboard"
-	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 )
 
@@ -50,6 +49,7 @@ type EvaluationPrinter interface {
 	PrintWarnings(warnings []printer.Warning)
 	PrintSummaryTable(summary printer.Summary)
 	PrintMessage(messageText string, messageColor string)
+	PrintPromptMessage(promptMessage string)
 	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
 	SetTheme(theme *printer.Theme)
 }
@@ -261,11 +261,17 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion, createEvaluationResponse.PolicyName)
 
 	if len(createEvaluationResponse.PromptMessage) > 0 {
-		fmt.Println(createEvaluationResponse.PromptMessage + " (Y/n)")
-		answer, _, _ := keyboard.GetSingleKey()
+		ctx.Printer.PrintPromptMessage(createEvaluationResponse.PromptMessage)
+		answer, _, err := keyboard.GetSingleKey()
+
+		if err != nil {
+			fmt.Println("Failed to get prompt answer")
+			return err
+		}
 
 		if strings.ToLower(string(answer)) != "n" {
-			browser.OpenURL(fmt.Sprintf("https://app.datree.io/promptLogin?cliId=%s", localConfigContent.CliId))
+			promptLoginUrl := fmt.Sprintf("https://app.datree.io/promptLogin?cliId=%s", localConfigContent.CliId)
+			openBrowser(promptLoginUrl)
 		}
 	}
 

@@ -1,11 +1,13 @@
 package test
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/briandowns/spinner"
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/pkg/browser"
 )
 
 func createSpinner(text string, color string) *spinner.Spinner {
@@ -38,4 +40,9 @@ func countConfigurations(filesConfigurations []*extractor.FileConfigurations) in
 	}
 
 	return totalConfigs
+}
+
+func openBrowser(url string) {
+	fmt.Printf("Opening %s in your browser.\n", url)
+	browser.OpenURL(url)
 }
