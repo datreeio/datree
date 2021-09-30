@@ -94,6 +94,10 @@ func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {
 	p.Called(messageText, messageColor)
 }
 
+func (p *PrinterMock) PrintPromptMessage(promptMessage string) {
+	p.Called(promptMessage)
+}
+
 func (p *PrinterMock) SetTheme(theme *printer.Theme) {
 	p.Called(theme)
 }
@@ -151,6 +155,7 @@ func TestTestCommand(t *testing.T) {
 	printerMock.On("PrintSummaryTable", mock.Anything)
 	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
+	printerMock.On("PrintPromptMessage", mock.Anything)
 
 	readerMock := &ReaderMock{}
 	readerMock.On("FilterFiles", mock.Anything).Return([]string{"file/path"}, nil)
