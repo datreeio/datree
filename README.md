@@ -7,14 +7,14 @@
 ![open issues](https://img.shields.io/github/issues-raw/datreeio/datree)
 
 ## What is Datree?
-[Datree](https://datree.io/#utm_source=github&utm_medium=organic_oss) is a CLI tool that supports Kubernetes admins in their roles, by preventing developers from making errors in Kubernetes configurations that can cause clusters to fail in production. Our CLI tool is open source, enabling it to be supported by the Kubernetes community.  
+[Datree](https://datree.io/#utm_source=github&utm_medium=organic_oss) is a CLI tool that supports Kubernetes admins in their roles by preventing developers from making errors in Kubernetes configurations that can cause clusters to fail in production. Our CLI tool is open source, enabling it to be supported by the Kubernetes community.  
 
 It’s far more effective than manual processes, such as sending an email to a slew of developers, begging them to set various limits, which likely falls on deaf ears because developers are already overwhelmed.
 
 ### ⭐️ [Star this repository](https://github.com/datreeio/datree/stargazers) to get updates ⭐️   
 
 ## How it Works
-The CLI integration provides a policy enforcement solution for Kubernetes to run automatic checks on every code change for rule violations and misconfigurations. When rule violations are found, Datree produces an alert which guides the developer to fix the issue inside the CI process — or even earlier as a pre-commit hook — while explaining the reason behind the rule.
+The CLI integration provides a policy enforcement solution for Kubernetes to run automatic checks on every code change for rule violations and misconfigurations. When rule violations are found, Datree produces an alert that guides the developer to fix the issue inside the CI process — or even earlier as a pre-commit hook — while explaining the reason behind the rule.
 
 ## Quick start in two steps
 #### 1. Install the latest release on your CLI  
@@ -58,11 +58,11 @@ The rules cover different Kubernetes resources and use cases:
 
 ## Support
 
-[Datree](https://datree.io/#utm_source=github&utm_medium=organic_oss) builds and maintains this project to make Kubernetes policies simple and accessible. Start with our [documentations](https://hub.datree.io/#utm_source=github&utm_medium=organic_oss) for quick tutorials and examples.
+[Datree](https://datree.io/#utm_source=github&utm_medium=organic_oss) builds and maintains this project to make Kubernetes policies simple and accessible. Start with our [documentation](https://hub.datree.io/#utm_source=github&utm_medium=organic_oss) for quick tutorials and examples.
 
 ## Disclaimer
 
-We do our best to maintain backwards compatibility but there may be breaking changes in
+We do our best to maintain backward compatibility, but there may be breaking changes in
 the future to the command usage, flags, and configuration file formats. The CLI will output a warning message when a new version with breaking changes is detected.
 We encourage you to use Datree to test your Kubernetes manifests files and Helm charts, see what
 breaks, and [contribute](./CONTRIBUTING.md).
