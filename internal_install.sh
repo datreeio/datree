@@ -17,6 +17,12 @@ echo
 curl -sL $DOWNLOAD_URL -o $OUTPUT_BASENAME_WITH_POSTFIX
 echo -e "\033[32m[V] Downloaded Datree"
 
+if ! unzip >/dev/null 2>&1;then
+    echo -e "\e[1;31m error: unzip command not found \e[0m"
+    echo -e "\e[1;33m install unzip command in your system \e[0m"
+    exit 1
+fi
+
 unzip -qq $OUTPUT_BASENAME_WITH_POSTFIX -d $OUTPUT_BASENAME
 
 DATREE_CONFIG_PATH=~/.datree
@@ -46,6 +52,6 @@ echo
 
 echo -e "\033[35m Usage: $ datree test ~/.datree/k8s-demo.yaml"
 
-echo -e " Using Helm? => https://hub.datree.io/helm-plugin"
+echo -e " Using Helm? => https://hub.datree.io/helm-plugin \e[0m"
 
 echo
