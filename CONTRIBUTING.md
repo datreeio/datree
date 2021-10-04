@@ -50,6 +50,8 @@ We understand that sometimes it might be hard to extract essential bits of code 
 
 Unfortunately, we are not able to investigate / fix bugs without a minimal reproduction, so if we don't hear back from you, we are going to close an issue that doesn't have enough info to be reproduced.
 
+Issues with appropriate labels and correct Project setting(datree) will help the community with prioritization and better response times so please choose the correct ones.
+
 You can file new issues by selecting from our [new issue templates](https://github.com/datreeio/datree/issues/new/choose) and filling out the issue template.
 
 
