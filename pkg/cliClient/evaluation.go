@@ -59,12 +59,24 @@ type EvaluationResult struct {
 		Mismatches []*Match `json:"mismatches"`
 	} `json:"results"`
 	Rule struct {
-		ID             int    `json:"defaultRuleId"`
-		Name           string `json:"name"`
-		Description    string `json:"description"`
-		FailSuggestion string `json:"failSuggestion"`
+		Name           string     `json:"name"`
+		FailSuggestion string     `json:"failSuggestion"`
+		Origin         RuleOrigin `json:"origin"`
 	} `json:"rule"`
 }
+
+type RuleOrigin struct {
+	DefaultRuleId *int     `json:"defaultRuleId,omitempty"`
+	CustomRuleId  *int     `json:"customRuleId,omitempty"`
+	Type          RuleType `json:"type"`
+}
+
+type RuleType string
+
+const (
+	Default RuleType = "default"
+	Custom           = "custom"
+)
 
 type EvaluationResponse struct {
 	Results []*EvaluationResult `json:"results"`
