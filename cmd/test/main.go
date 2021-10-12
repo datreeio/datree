@@ -33,7 +33,7 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile)
+	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int, onlyK8sFiles bool) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile, chan *string)
 	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
 }
 
@@ -41,6 +41,7 @@ type TestCommandFlags struct {
 	Output               string
 	K8sVersion           string
 	IgnoreMissingSchemas bool
+	OnlyK8sFiles         bool
 	PolicyName           string
 	SchemaLocations      []string
 }
@@ -108,6 +109,11 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
+			onlyK8sFiles, err := cmd.Flags().GetBool("only-k8s-files")
+			if err != nil {
+				return err
+			}
+
 			policy, err := cmd.Flags().GetString("policy")
 			if err != nil {
 				return err
@@ -118,7 +124,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations}
+			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations, OnlyK8sFiles: onlyK8sFiles}
 
 			err = test(ctx, args, testCommandFlags)
 			if err != nil {
@@ -133,9 +139,10 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	testCommand.Flags().StringP("output", "o", "", "Define output format")
 	testCommand.Flags().StringP("schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
 	testCommand.Flags().StringP("policy", "p", "", "Policy name to run against")
+	testCommand.Flags().Bool("only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
 
 	// kubeconform flags
-	testCommand.Flags().StringArray("schema-location", []string{}, "override schemas location search path (can be specified multiple times)")
+	testCommand.Flags().StringArray("schema-location", []string{}, "Override schemas location search path (can be specified multiple times)")
 	testCommand.Flags().Bool("ignore-missing-schemas", false, "Ignore missing schemas when executing schema validation step")
 	return testCommand
 }
@@ -204,13 +211,21 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas, flags.SchemaLocations)
-	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlFilesConfigurationsChan, concurrency)
+	validK8sFilesConfigurationsChan, invalidK8sFilesChan, ignoredYamlFilesChan := ctx.K8sValidator.ValidateResources(validYamlFilesConfigurationsChan, concurrency, flags.OnlyK8sFiles)
 
 	invalidYamlFiles := aggregateInvalidYamlFiles(invalidYamlFilesChan)
+	ignoredYamlFiles := aggregateIgnoredYamlFiles(ignoredYamlFilesChan)
 
 	invalidYamlFilesLen := len(invalidYamlFiles)
+	ignoredYamlFilesLen := len(ignoredYamlFiles)
 
-	stopEvaluation := invalidYamlFilesLen == filesPathsLen
+	if flags.OnlyK8sFiles {
+		filesPathsLen = filesPathsLen - invalidYamlFilesLen - ignoredYamlFilesLen
+		invalidYamlFilesLen = 0
+		invalidYamlFiles = []*validation.InvalidYamlFile{}
+	}
+
+	stopEvaluation := invalidYamlFilesLen+ignoredYamlFilesLen == filesPathsLen
 	err = ctx.Evaluator.UpdateFailedYamlValidation(invalidYamlFiles, createEvaluationResponse.EvaluationId, stopEvaluation)
 	if err != nil {
 		return err
@@ -219,9 +234,9 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	invalidK8sFiles := aggregateInvalidK8sFiles(invalidK8sFilesChan)
 
 	invalidK8sFilesLen := len(invalidK8sFiles)
-	stopEvaluation = invalidYamlFilesLen+invalidK8sFilesLen == filesPathsLen
+	stopEvaluation = invalidYamlFilesLen+invalidK8sFilesLen+ignoredYamlFilesLen == filesPathsLen
 
-	if len(invalidK8sFiles) > 0 {
+	if invalidK8sFilesLen > 0 {
 		err = ctx.Evaluator.UpdateFailedK8sValidation(invalidK8sFiles, createEvaluationResponse.EvaluationId, stopEvaluation)
 		if err != nil {
 			return err
@@ -245,7 +260,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	passedYamlValidationCount := filesPathsLen - invalidYamlFilesLen
-	passedK8sValidationCount := passedYamlValidationCount - invalidK8sFilesLen
+	passedK8sValidationCount := len(validK8sFilesConfigurations)
 
 	configsCount := countConfigurations(validK8sFilesConfigurations)
 

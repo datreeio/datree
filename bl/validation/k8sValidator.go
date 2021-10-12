@@ -33,17 +33,26 @@ func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool
 	val.validationClient = newKubconformValidator(k8sVersion, ignoreMissingSchemas, schemaLocations)
 }
 
-func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *InvalidK8sFile) {
+func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int, onlyK8sFiles bool) (chan *extractor.FileConfigurations, chan *InvalidK8sFile, chan *string) {
 	validK8sFilesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
 	invalidK8sFilesChan := make(chan *InvalidK8sFile, concurrency)
+	ignoredFilesChan := make(chan *string, concurrency)
 
 	go func() {
 		defer func() {
 			close(invalidK8sFilesChan)
 			close(validK8sFilesConfigurationsChan)
+			close(ignoredFilesChan)
 		}()
 
 		for fileConfigurations := range filesConfigurationsChan {
+			if onlyK8sFiles {
+				if ok := val.validatePotentialK8sFile(fileConfigurations.Configurations); !ok {
+					ignoredFilesChan <- &fileConfigurations.FileName
+					continue
+				}
+			}
+
 			isValid, validationErrors, err := val.validateResource(fileConfigurations.FileName)
 			if err != nil {
 				invalidK8sFilesChan <- &InvalidK8sFile{
@@ -62,7 +71,20 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 			}
 		}
 	}()
-	return validK8sFilesConfigurationsChan, invalidK8sFilesChan
+	return validK8sFilesConfigurationsChan, invalidK8sFilesChan, ignoredFilesChan
+}
+
+func (val *K8sValidator) validatePotentialK8sFile(fileConfigurations []extractor.Configuration) bool {
+	for _, configuration := range fileConfigurations {
+		_, has_apiVersion := configuration["apiVersion"]
+		_, has_kind := configuration["kind"]
+
+		if !has_apiVersion || !has_kind {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (val *K8sValidator) validateResource(filepath string) (bool, []error, error) {
