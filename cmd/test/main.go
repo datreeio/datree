@@ -33,8 +33,9 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int, onlyK8sFiles bool) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile, chan *string)
+	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile)
 	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
+	GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations)
 }
 
 type TestCommandFlags struct {
@@ -211,19 +212,22 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas, flags.SchemaLocations)
-	validK8sFilesConfigurationsChan, invalidK8sFilesChan, ignoredYamlFilesChan := ctx.K8sValidator.ValidateResources(validYamlFilesConfigurationsChan, concurrency, flags.OnlyK8sFiles)
 
 	invalidYamlFiles := aggregateInvalidYamlFiles(invalidYamlFilesChan)
-	ignoredYamlFiles := aggregateIgnoredYamlFiles(ignoredYamlFilesChan)
-
-	invalidYamlFilesLen := len(invalidYamlFiles)
-	ignoredYamlFilesLen := len(ignoredYamlFiles)
+	ignoredYamlFiles := []extractor.FileConfigurations{}
 
 	if flags.OnlyK8sFiles {
-		filesPathsLen = filesPathsLen - invalidYamlFilesLen - ignoredYamlFilesLen
-		invalidYamlFilesLen = 0
+		var ignoredYamlFilesChan chan *extractor.FileConfigurations
+		validYamlFilesConfigurationsChan, ignoredYamlFilesChan = ctx.K8sValidator.GetK8sFiles(validYamlFilesConfigurationsChan, concurrency)
+		ignoredYamlFiles = aggregateIgnoredYamlFiles(ignoredYamlFilesChan)
+
+		filesPathsLen = filesPathsLen - len(invalidYamlFiles) - len(ignoredYamlFiles)
 		invalidYamlFiles = []*validation.InvalidYamlFile{}
 	}
+
+	invalidYamlFilesLen := len(invalidYamlFiles)
+	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlFilesConfigurationsChan, concurrency)
+	ignoredYamlFilesLen := len(ignoredYamlFiles)
 
 	stopEvaluation := invalidYamlFilesLen+ignoredYamlFilesLen == filesPathsLen
 	err = ctx.Evaluator.UpdateFailedYamlValidation(invalidYamlFiles, createEvaluationResponse.EvaluationId, stopEvaluation)

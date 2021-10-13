@@ -31,8 +31,9 @@ func aggregateInvalidYamlFiles(invalidFilesChan chan *validation.InvalidYamlFile
 	}
 	return invalidFiles
 }
-func aggregateIgnoredYamlFiles(ignoredFilesChan chan *string) []string {
-	var ignoredFiles []string
+func aggregateIgnoredYamlFiles(ignoredFilesChan chan *extractor.FileConfigurations) []extractor.FileConfigurations {
+	var ignoredFiles []extractor.FileConfigurations
+
 	for ignoredFile := range ignoredFilesChan {
 		ignoredFiles = append(ignoredFiles, *ignoredFile)
 	}

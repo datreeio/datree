@@ -33,25 +33,17 @@ func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool
 	val.validationClient = newKubconformValidator(k8sVersion, ignoreMissingSchemas, schemaLocations)
 }
 
-func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int, onlyK8sFiles bool) (chan *extractor.FileConfigurations, chan *InvalidK8sFile, chan *string) {
+func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *InvalidK8sFile) {
 	validK8sFilesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
 	invalidK8sFilesChan := make(chan *InvalidK8sFile, concurrency)
-	ignoredFilesChan := make(chan *string, concurrency)
 
 	go func() {
 		defer func() {
 			close(invalidK8sFilesChan)
 			close(validK8sFilesConfigurationsChan)
-			close(ignoredFilesChan)
 		}()
 
 		for fileConfigurations := range filesConfigurationsChan {
-			if onlyK8sFiles {
-				if ok := val.validatePotentialK8sFile(fileConfigurations.Configurations); !ok {
-					ignoredFilesChan <- &fileConfigurations.FileName
-					continue
-				}
-			}
 
 			isValid, validationErrors, err := val.validateResource(fileConfigurations.FileName)
 			if err != nil {
@@ -71,10 +63,32 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 			}
 		}
 	}()
-	return validK8sFilesConfigurationsChan, invalidK8sFilesChan, ignoredFilesChan
+	return validK8sFilesConfigurationsChan, invalidK8sFilesChan
 }
 
-func (val *K8sValidator) validatePotentialK8sFile(fileConfigurations []extractor.Configuration) bool {
+func (val *K8sValidator) GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations) {
+	k8sFilesChan := make(chan *extractor.FileConfigurations, concurrency)
+	ignoredYamlFilesChan := make(chan *extractor.FileConfigurations, concurrency)
+
+	go func() {
+		defer func() {
+			close(k8sFilesChan)
+			close(ignoredYamlFilesChan)
+		}()
+
+		for fileConfigurations := range filesConfigurationsChan {
+			if ok := val.isK8sFile(fileConfigurations.Configurations); ok {
+				k8sFilesChan <- fileConfigurations
+			} else {
+				ignoredYamlFilesChan <- fileConfigurations
+			}
+		}
+	}()
+
+	return k8sFilesChan, ignoredYamlFilesChan
+}
+
+func (val *K8sValidator) isK8sFile(fileConfigurations []extractor.Configuration) bool {
 	for _, configuration := range fileConfigurations {
 		_, has_apiVersion := configuration["apiVersion"]
 		_, has_kind := configuration["kind"]
