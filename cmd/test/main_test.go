@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/datreeio/datree/bl/validation"
@@ -25,9 +24,6 @@ func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfig
 }
 
 func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error) {
-	fmt.Println("*****************")
-	fmt.Println(cliId, cliVersion, k8sVersion, policyName)
-	fmt.Println("*****************")
 	args := m.Called(cliId, cliVersion, k8sVersion, policyName)
 	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
 }
@@ -69,6 +65,11 @@ type K8sValidatorMock struct {
 func (kv *K8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile) {
 	args := kv.Called(filesConfigurationsChan, concurrency)
 	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *validation.InvalidK8sFile)
+}
+
+func (kv *K8sValidatorMock) GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations) {
+	args := kv.Called(filesConfigurationsChan, concurrency)
+	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *extractor.FileConfigurations)
 }
 
 func (kv *K8sValidatorMock) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) {
@@ -146,8 +147,10 @@ func TestTestCommand(t *testing.T) {
 	filesConfigurations := newFilesConfigurations(path)
 
 	invelidK8sFilesChan := newInvalidK8sFilesChan()
+	ignoredFilesChan := newIgnoredYamlFilesChan()
 
 	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invelidK8sFilesChan, newErrorsChan())
+	k8sValidatorMock.On("GetK8sFiles", mock.Anything, mock.Anything).Return(filesConfigurationsChan, ignoredFilesChan, newErrorsChan())
 	k8sValidatorMock.On("InitClient", mock.Anything, mock.Anything, mock.Anything).Return()
 
 	printerMock := &PrinterMock{}
@@ -172,35 +175,48 @@ func TestTestCommand(t *testing.T) {
 		Reader:       readerMock,
 	}
 
-	test_testCommand_no_flags(t, mockedEvaluator, filesConfigurations, evaluationId, ctx)
-	test_testCommand_json_output(t, mockedEvaluator, filesConfigurations, evaluationId, ctx)
-	test_testCommand_yaml_output(t, mockedEvaluator, filesConfigurations, evaluationId, ctx)
-	test_testCommand_xml_output(t, mockedEvaluator, filesConfigurations, evaluationId, ctx)
+	test_testCommand_no_flags(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, evaluationId, ctx)
+	test_testCommand_json_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, evaluationId, ctx)
+	test_testCommand_yaml_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, evaluationId, ctx)
+	test_testCommand_xml_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, evaluationId, ctx)
+
+	test_testCommand_only_k8s_files(t, k8sValidatorMock, filesConfigurations, evaluationId, ctx)
 }
 
-func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
+func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{K8sVersion: "1.18.0", Output: "", PolicyName: "Default"})
 
+	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	evaluator.AssertCalled(t, "CreateEvaluation", "134kh", "", "1.18.0", "Default")
 	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
 }
 
-func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
+func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "json"})
 
+	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
 }
 
-func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
+func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "yaml"})
 
+	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
 }
 
-func test_testCommand_xml_output(t *testing.T, evaluator *mockEvaluator, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
+func test_testCommand_xml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "xml"})
 
+	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
+}
+
+func test_testCommand_only_k8s_files(t *testing.T, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
+	test(ctx, []string{"8/*"}, TestCommandFlags{OnlyK8sFiles: true})
+
+	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
+	k8sValidator.AssertCalled(t, "GetK8sFiles", mock.Anything, 100)
 }
 
 func newFilesConfigurationsChan(path string) chan *extractor.FileConfigurations {
@@ -238,6 +254,20 @@ func newInvalidK8sFilesChan() chan *validation.InvalidK8sFile {
 	}()
 
 	return invalidFilesChan
+}
+
+func newIgnoredYamlFilesChan() chan *extractor.FileConfigurations {
+	ignoredFilesChan := make(chan *extractor.FileConfigurations)
+	ignoredFile := &extractor.FileConfigurations{
+		FileName: "path/to/ignored/file",
+	}
+
+	go func() {
+		ignoredFilesChan <- ignoredFile
+		close(ignoredFilesChan)
+	}()
+
+	return ignoredFilesChan
 }
 
 func newErrorsChan() chan error {
