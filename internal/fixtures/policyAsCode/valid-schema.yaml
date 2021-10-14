@@ -7,8 +7,39 @@ policies:
         messageOnFailure: "This is the message on failure"
       - identifier: "CONTAINERS_MISSING_MEMORY_REQUEST_KEY"
         messageOnFailure: "This is the message on failure"
-  - name: 'allRulesAreDisabledPolicy' # all rules are disabled
-  - name: 'otherPolicy'
+  - name: "allRulesAreDisabledPolicy" # all rules are disabled
     rules:
-      - identifier: 'INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE'
-        messageOnFailure: ''
+      - identifier: "INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE"
+        messageOnFailure: ""
+  - name: "otherPolicy"
+    rules:
+      - identifier: "INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE"
+        messageOnFailure: ""
+      - identifier: "UNIQUE3"
+        messageOnFailure: "a custom message on failure"
+customRules:
+  - identifier: UNIQUE2
+    name: rule unique 2
+    defaultMessageOnFailure: default message for rule fail number 2
+    jsonSchema: |
+      {
+                "type": "object",
+                "properties": {
+                    "apiVersion": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "apiVersion"
+                ]
+            }
+  - identifier: UNIQUE3
+    name: rule unique 3
+    defaultMessageOnFailure: default message for rule fail number 3
+    schema:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+      required:
+        - apiVersion

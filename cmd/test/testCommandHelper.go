@@ -31,6 +31,14 @@ func aggregateInvalidYamlFiles(invalidFilesChan chan *validation.InvalidYamlFile
 	}
 	return invalidFiles
 }
+func aggregateIgnoredYamlFiles(ignoredFilesChan chan *extractor.FileConfigurations) []extractor.FileConfigurations {
+	var ignoredFiles []extractor.FileConfigurations
+
+	for ignoredFile := range ignoredFilesChan {
+		ignoredFiles = append(ignoredFiles, *ignoredFile)
+	}
+	return ignoredFiles
+}
 
 func countConfigurations(filesConfigurations []*extractor.FileConfigurations) int {
 	totalConfigs := 0
