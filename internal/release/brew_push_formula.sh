@@ -12,8 +12,6 @@ BREW_REPO_NAME=""
 
 if [ $DEPLOYMENT == "production" ]; then
   BREW_REPO_NAME="homebrew-datree"
-elif [ $DEPLOYMENT == "internal" ]; then
-  BREW_REPO_NAME="homebrew-datree-internal"
 elif [ $DEPLOYMENT == "staging" ]; then 
   BREW_REPO_NAME="homebrew-datree-staging"
 else
