@@ -1,4 +1,12 @@
-#!/bin/bash
+#!/bin/bash 
+
+set -e
+
+# keep track of the last executed command
+trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
+# echo an error message before exiting
+trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
+
 
 osName=$(uname -s)
 DOWNLOAD_URL=$(curl --silent "https://api.github.com/repos/datreeio/datree/releases/latest" | grep -o "browser_download_url.*\_${osName}_x86_64.zip")
@@ -11,7 +19,6 @@ OUTPUT_BASENAME_WITH_POSTFIX=$OUTPUT_BASENAME.zip
 
 echo "Installing Datree..."
 echo
-
 curl -sL $DOWNLOAD_URL -o $OUTPUT_BASENAME_WITH_POSTFIX
 echo -e "\033[32m[V] Downloaded Datree"
 
