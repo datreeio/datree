@@ -27,12 +27,12 @@ _Windows:_ `iwr -useb https://get.datree.io/windows_install.ps1 | iex`
 ...and voilà, you just ran your first invocation! 🥳    
 
 ## [Command Line Interface](https://hub.datree.io/cli-output/#utm_source=github&utm_medium=organic_oss)
-<img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree-cli" width="600" height="400">  
+<img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree-cli" width="60%" height="50%">  
 
 ## [Web Application Interface](https://hub.datree.io/centralized-policy/#utm_source=github&utm_medium=organic_oss)
-<img src="https://user-images.githubusercontent.com/19731161/130956287-ca44e831-46ba-48fa-96eb-be8e23d43bdf.png" alt="Datree-saas" width="600" height="400">  
+<img src="https://user-images.githubusercontent.com/19731161/130956287-ca44e831-46ba-48fa-96eb-be8e23d43bdf.png" alt="Datree-saas" width="60%" height="50%">  
 
-<img src="https://user-images.githubusercontent.com/19731161/130957021-4b825b82-01e1-47ba-bf6f-68003f08a532.png" alt="Datree-saas" width="600" height="400"> 
+<img src="https://user-images.githubusercontent.com/19731161/130957021-4b825b82-01e1-47ba-bf6f-68003f08a532.png" alt="Datree-saas" width="60%" height="50%"> 
 
 ## Playground
 [![katacoda-logo](https://raw.githubusercontent.com/datreeio/datree/main/images/katacoda-logo.png)](https://www.katacoda.com/datree/scenarios/datree-demo)  
