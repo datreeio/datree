@@ -1,6 +1,6 @@
 language: go
 go:
-  - 1.17
+  - "1.17"
 
 os: osx
 osx_image: xcode12.5
@@ -27,6 +27,11 @@ deploy:
     on:
       all_branches: true
       condition: $TRAVIS_BRANCH =~ ^(staging|main)$
+  - provider: script
+    skip_cleanup: true
+    script: bash ./internal/release/deploy_release_candidate.sh
+    on:
+      branch: DAT-3504-pre-release-deployment
 
 env:
   global:
