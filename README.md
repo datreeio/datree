@@ -3,8 +3,8 @@
 ![Travis (.com) branch](https://img.shields.io/travis/com/datreeio/datree/staging?label=build-staging)
 ![Travis (.com) branch](https://img.shields.io/travis/com/datreeio/datree/main?label=build-main)
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fdatreeio%2Fdatree&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23E7E7E7&title=views+%28today+%2F+total%29&edge_flat=false)](https://hits.seeyoufarm.com)
-![Github Releases (by Release)](https://img.shields.io/github/downloads/datreeio/datree/total.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/datreeio/datree)](https://goreportcard.com/report/github.com/datreeio/datree)
+![open issues](https://img.shields.io/github/issues-raw/datreeio/datree)
 
 ## What is Datree?
 [Datree](https://datree.io/#utm_source=github&utm_medium=organic_oss) is a CLI tool that supports Kubernetes admins in their roles by preventing developers from making errors in Kubernetes configurations that can cause clusters to fail in production. Our CLI tool is open source, enabling it to be supported by the Kubernetes community.  
@@ -27,12 +27,12 @@ _Windows:_ `iwr -useb https://get.datree.io/windows_install.ps1 | iex`
 ...and voilà, you just ran your first invocation! 🥳    
 
 ## [Command Line Interface](https://hub.datree.io/cli-output/#utm_source=github&utm_medium=organic_oss)
-<img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree-cli" width="60%" height="50%">  
+<img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree-cli" width="600" height="400">  
 
 ## [Web Application Interface](https://hub.datree.io/centralized-policy/#utm_source=github&utm_medium=organic_oss)
-<img src="https://user-images.githubusercontent.com/19731161/130956287-ca44e831-46ba-48fa-96eb-be8e23d43bdf.png" alt="Datree-saas" width="60%" height="50%">  
+<img src="https://user-images.githubusercontent.com/19731161/130956287-ca44e831-46ba-48fa-96eb-be8e23d43bdf.png" alt="Datree-saas" width="600" height="400">  
 
-<img src="https://user-images.githubusercontent.com/19731161/130957021-4b825b82-01e1-47ba-bf6f-68003f08a532.png" alt="Datree-saas" width="60%" height="50%"> 
+<img src="https://user-images.githubusercontent.com/19731161/130957021-4b825b82-01e1-47ba-bf6f-68003f08a532.png" alt="Datree-saas" width="600" height="400"> 
 
 ## Playground
 [![katacoda-logo](https://raw.githubusercontent.com/datreeio/datree/main/images/katacoda-logo.png)](https://www.katacoda.com/datree/scenarios/datree-demo)  
