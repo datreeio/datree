@@ -14,7 +14,7 @@ OUTPUT_BASENAME_WITH_POSTFIX=$OUTPUT_BASENAME.zip
 echo "Installing Datree..."
 echo
 
-nmcli radio wifi off
+
 
 curl -sL $DOWNLOAD_URL -o $OUTPUT_BASENAME_WITH_POSTFIX
 echo -e "\033[32m[V] Downloaded Datree"
