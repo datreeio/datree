@@ -1,6 +1,6 @@
 language: go
 go:
-  - 1.17
+  - "1.17"
 
 os: osx
 osx_image: xcode12.5
@@ -16,17 +16,22 @@ before_deploy:
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
-  - bash ./internal/release/install_svu.sh
+  - bash ./scripts/install_svu.sh
   - echo $(svu --version)
-  - export SEMVER_NUMBER=$(bash ./internal/release/define_semver_number.sh)
+  - export SEMVER_NUMBER=$(bash ./scripts/release/define_semver_number.sh)
 
 deploy:
   - provider: script
     skip_cleanup: true
-    script: bash ./internal/release/deploy.sh
+    script: bash ./scripts/deploy.sh
     on:
       all_branches: true
       condition: $TRAVIS_BRANCH =~ ^(staging|main)$
+  - provider: script
+    skip_cleanup: true
+    script: bash ./scripts/release/deploy_release_candidate.sh
+    on:
+      branch: main
 
 env:
   global:
