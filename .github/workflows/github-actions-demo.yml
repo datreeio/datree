@@ -1,11 +1,66 @@
-on: push
+name: Example of cURL action
+
+on: [ push ]
 jobs:
-  curl:
+  test-curl-action:
+    name: 'Perform REST API'
     runs-on: ubuntu-latest
     steps:
-      - name: curl
-        uses: wei/curl@v1
+      - name: 'Call API'
+        uses: indiesdev/curl@v1
         with:
-          args: -X POST https://api.travis-ci.com/repo/datreeio%2F$front-d2/requests
-          bearer-token: token jO7NUf2oQzSV9EveWzbDXB5Co9AJYP+7cF9vCCn8mzz9FFrs7pbcl7cooIUFcBJN1/QIQyHx/S4+HDiRUeJ51FCTYG09Pmv6pOH6jCY4wyKyZfs4OzgRapTilBbkxcSaeZCM+TIZHm2fZ0S4Bb0vGbsSwauMnJ1NRnzIg/RdbB19Z2kV3ecP+JJ27B0M3uQwBFlKl6hMEmRl1UHkjDttcJjPZkVdc4Dz2YPu1LVjA6gMfWyhfaol7o9vGXN+NNXgVvePTPmTOWa9HFzm2eX5RQtK1P3cPGO5oKZUOlbxPhUck/zuJTCgBgLKogtfutTud3R0aiQsY3FMEFSDHURCKPXcc0Oq07L+kNgwYqTtdRPf3wdt3V/GqQiYAML9UCvZtSbi+xgfMMmS6gtFUUfHJCM1XJ0dyaVUUFZBG5TiM2+LRDd0aOlxwk3xG4rQ/pg0mMj3gsCSKbVqXZejhwK3xJz7LL39l7tG6bMWB2uMb7bOT7xSYRd1ME93f8o+UV0bk8xRC9ZSxloqH/K+FNU+yswZlUadIJFxO/DWMCu6FO4YtOD24gnXNuFB4N4/bf/oQrI5Tq+S83XBOxlJ9bflgJtbT4lDme8eMleHPqq6gWbMxnXNfUr13MzHPaulyl1ozmGwEZTn8aI+ESG0/6bX/DpI+xA/8sb8kR2M0lHyw9c=
-          body: '{ "request": {branch: DAT-3451-create-trigger-for-production-release-deployment}}'
+          # The target URL
+          # Required: true if custom-config is not set
+          url: https://reqres.in/api/users
+
+          # The request method, basically it's one of GET|POST|PUT|PATCH
+          # Default is GET
+          method: 'POST'
+
+          # List of response status codes to be accepted, else it will set the job to be failed
+          # If more than one value is needed, you can use comma(,) as seperator
+          # In this case if the response status code is not one of 200, 201 and 204, the job will be failed
+          # Default is 200,201,204
+          accept: 200,201,204
+
+          # Headers can be passed through json object string
+          headers: '{ "custom-header": "value" }'
+
+          # Params can be passed through json object string
+          params: '{ "param1": "value", "param2": "value2" }'
+
+          # Body request
+          # Apply only to POST|PUT request
+          body: '{ "name": "breeze",  "job": "devops" }'
+
+          # Request timeout (millisec)
+          # Default: 1000
+          timeout: 1000
+
+          # Basic authentication using username and password
+          # This will override the Authorization header, for example Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW1l
+          # Format => username:password
+          basic-auth: ${{ secrets.curl_auth_username }}:${{ secrets.curl_auth_password }}
+
+          # The authentication using token
+          # This will override the Authorization header, for example Authorization: Bearer QWxhZGRpbjpPcGVuU2VzYW1l
+          bearer-token: ${{ secrets.bearer_token }}
+
+          # If you want to use proxy with the request, you can use proxy-url
+          # Format => host:port
+          proxy-url: https://proxy-url:3000
+
+          # If the proxy host requires the authentication, you can use proxy-auth to pass credentials
+          # Format => username:password
+          proxy-auth: ${{ secrets.proxy_auth_username }}:${{ secrets.proxy_auth_password }}
+
+          # If it is set to true, it will show the response log in the Github UI
+          # Default: false
+          is_debug: false
+
+          # If you want to use axios config directly, you can pass config file to the action
+          # The file is just basically a json file that has the same format as axios config https://github.com/axios/axios#request-config
+          # If this input is set, it will ignore other inputs that related to the config
+          # The path file is start from root directory of the repo
+          custom-config: .github/workflows/curl-config.json
+  
