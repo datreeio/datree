@@ -1,25 +1,10 @@
 name: Ben's GitHub Actions Demo
-on:
-  push:
-    branch:
-      - DAT-3451-create-trigger-for-production-release-deployment
-    inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'warning'
-      tags:
-        required: true
-        description: 'Test scenario tags'
+on: push
 jobs:
-#  Bens-Explore-GitHub-Actions:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - run: echo "🎉 HELLO!!! this code brought to you by ${{ github.event_name }} event."
     curl:
       runs-on: ubuntu-latest
       steps:
-        -name: curl
+        - name: curl
         uses: wei/curl@v1
         with:
           args: -X POST https://httpbin.org/post
