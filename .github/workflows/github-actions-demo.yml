@@ -12,10 +12,10 @@ on:
         required: true
         description: 'Test scenario tags'
 jobs:
-  Bens-Explore-GitHub-Actions:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "🎉 HELLO!!! this code brought to you by ${{ github.event_name }} event."
+#  Bens-Explore-GitHub-Actions:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - run: echo "🎉 HELLO!!! this code brought to you by ${{ github.event_name }} event."
     curl:
       runs-on: ubuntu-latest
       steps:
