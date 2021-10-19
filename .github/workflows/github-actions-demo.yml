@@ -19,6 +19,6 @@ jobs:
       - run: curl -s -X POST \
       -H "Content-Type: application/json" \
       -H "Accept: application/json" \
-      -H "Authorization: token ${TRAVIS_API_TOKEN}" \
+#      -H "Authorization: token ${TRAVIS_API_TOKEN}" \
 #      -d "{\"request\":{\"branch\":"\"master"\"",\"sha\":"\"$COMMIT_SHA\""}}" \
       "https://api.travis-ci.com/repo/datreeio%2F$front-d2/requests"
