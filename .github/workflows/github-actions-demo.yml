@@ -10,7 +10,7 @@ on:
         required: true
         description: 'Test scenario tags'
 jobs:
-  Explore-GitHub-Actions:
+  Bens-Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 HELLO!!! this code brought to you by ${{ github.event_name }} event."
