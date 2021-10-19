@@ -1,10 +1,9 @@
-name: Ben's GitHub Actions Demo
 on: push
 jobs:
-    curl:
-      runs-on: ubuntu-latest
-      steps:
-        - name: curl
-        uses: wei/curl@v1
+  curl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: curl
+        uses: wei/curl@master
         with:
-          args: -X POST https://httpbin.org/post
+          args: https://httpbin.org/get
