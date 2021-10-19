@@ -116,6 +116,7 @@ func publish(ctx *PublishCommandContext, path string) (PublishFailedResponse, er
 			}
 			return publishFailedResponse, publishErr
 		}
+		return PublishFailedResponse{}, publishErr
 	}
 	return PublishFailedResponse{}, nil
 }
