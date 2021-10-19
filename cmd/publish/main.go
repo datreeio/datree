@@ -1,10 +1,13 @@
 package publish
 
 import (
+	"encoding/json"
 	"fmt"
+
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/httpClient"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/spf13/cobra"
 )
@@ -22,7 +25,7 @@ type LocalConfig interface {
 }
 
 type CliClient interface {
-	PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) error
+	PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) (httpClient.Response, error)
 }
 
 type PublishCommandContext struct {
@@ -56,9 +59,15 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 				}
 			}()
 
-			err := publish(ctx, args[0])
-			if err != nil {
-				ctx.Printer.PrintMessage("Publish failed:\n"+err.Error()+"\n", "error")
+			publishFailedResponse, err := publish(ctx, args[0])
+			if len(publishFailedResponse.Payload) > 0 {
+				for _, message := range publishFailedResponse.Payload {
+					ctx.Printer.PrintMessage("Publish failed:\n", "error")
+					ctx.Printer.PrintMessage("\t"+message+"\n", "error")
+				}
+			} else if err != nil {
+				ctx.Printer.PrintMessage("Publish failed: "+err.Error()+"\n", "error")
+
 			} else {
 				ctx.Printer.PrintMessage("Published successfully\n", "green")
 			}
@@ -80,17 +89,33 @@ type MessagesContext struct {
 	CliClient   *cliClient.CliClient
 }
 
-func publish(ctx *PublishCommandContext, path string) error {
+type PublishFailedResponse struct {
+	Code    string   `json:"code"`
+	Message string   `json:"message"`
+	Payload []string `json:"payload"`
+}
+
+func publish(ctx *PublishCommandContext, path string) (PublishFailedResponse, error) {
 	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
 	if err != nil {
-		return err
+		return PublishFailedResponse{}, err
 	}
 
 	policiesConfiguration, err := files.ExtractYamlFileToUnknownStruct(path)
 	if err != nil {
-		return err
+		return PublishFailedResponse{}, err
 	}
 
-	err = ctx.PublishCliClient.PublishPolicies(policiesConfiguration, localConfigContent.CliId)
-	return err
+	res, publishErr := ctx.PublishCliClient.PublishPolicies(policiesConfiguration, localConfigContent.CliId)
+	if publishErr != nil {
+		if res.StatusCode != 0 {
+			publishFailedResponse := PublishFailedResponse{}
+			err = json.Unmarshal(res.Body, &publishFailedResponse)
+			if err != nil {
+				return PublishFailedResponse{}, err
+			}
+			return publishFailedResponse, publishErr
+		}
+	}
+	return PublishFailedResponse{}, nil
 }

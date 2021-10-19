@@ -79,7 +79,16 @@ func (c *Client) Request(method string, resourceURI string, body interface{}, he
 			return responseBody, err
 		}
 
+		responseBody = Response{
+			StatusCode: response.StatusCode,
+			Body:       b,
+		}
+
 		return responseBody, fmt.Errorf(fmt.Sprintf("%v", errorJson["message"]))
+	}
+
+	if err != nil {
+		return responseBody, err
 	}
 
 	responseBody = Response{

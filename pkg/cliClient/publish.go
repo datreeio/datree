@@ -1,12 +1,13 @@
 package cliClient
 
 import (
-	"github.com/datreeio/datree/bl/files"
 	"net/http"
+
+	"github.com/datreeio/datree/bl/files"
+	"github.com/datreeio/datree/pkg/httpClient"
 )
 
-func (c *CliClient) PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) error {
+func (c *CliClient) PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) (httpClient.Response, error) {
 	headers := map[string]string{"x-cli-id": cliId}
-	_, err := c.httpClient.Request(http.MethodPut, "/cli/policy/publish", policiesConfiguration, headers)
-	return err
+	return c.httpClient.Request(http.MethodPut, "/cli/policy/publish", policiesConfiguration, headers)
 }

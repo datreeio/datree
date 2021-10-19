@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/datreeio/datree/bl/files"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
 	"testing"
+
+	"github.com/datreeio/datree/bl/files"
 
 	"gopkg.in/yaml.v3"
 
@@ -219,9 +220,9 @@ func TestPublishPolicies(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			actualResponse := client.PublishPolicies(tt.args.policiesConfiguration, tt.args.cliId)
+			_, err := client.PublishPolicies(tt.args.policiesConfiguration, tt.args.cliId)
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
-			assert.Equal(t, tt.expected.response, actualResponse)
+			assert.Equal(t, tt.expected.response, err)
 		})
 	}
 }
