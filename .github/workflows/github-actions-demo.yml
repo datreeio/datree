@@ -1,9 +1,9 @@
 name: GitHub Actions Demo
 on:
-  push:
-    branches:
-      - main
-      - DAT-3451-create-trigger-for-production-release-deployment
+  workflow_dispatch:
+#    branches:
+#      - main
+#      - DAT-3451-create-trigger-for-production-release-deployment
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
