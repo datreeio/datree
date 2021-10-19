@@ -16,9 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 HELLO!!! this code brought to you by ${{ github.event_name }} event."
-      - run: curl -s -X POST \
-      -H "Content-Type: application/json" \
-      -H "Accept: application/json" \
-      -H "Authorization: token jO7NUf2oQzSV9EveWzbDXB5Co9AJYP+7cF9vCCn8mzz9FFrs7pbcl7cooIUFcBJN1/QIQyHx/S4+HDiRUeJ51FCTYG09Pmv6pOH6jCY4wyKyZfs4OzgRapTilBbkxcSaeZCM+TIZHm2fZ0S4Bb0vGbsSwauMnJ1NRnzIg/RdbB19Z2kV3ecP+JJ27B0M3uQwBFlKl6hMEmRl1UHkjDttcJjPZkVdc4Dz2YPu1LVjA6gMfWyhfaol7o9vGXN+NNXgVvePTPmTOWa9HFzm2eX5RQtK1P3cPGO5oKZUOlbxPhUck/zuJTCgBgLKogtfutTud3R0aiQsY3FMEFSDHURCKPXcc0Oq07L+kNgwYqTtdRPf3wdt3V/GqQiYAML9UCvZtSbi+xgfMMmS6gtFUUfHJCM1XJ0dyaVUUFZBG5TiM2+LRDd0aOlxwk3xG4rQ/pg0mMj3gsCSKbVqXZejhwK3xJz7LL39l7tG6bMWB2uMb7bOT7xSYRd1ME93f8o+UV0bk8xRC9ZSxloqH/K+FNU+yswZlUadIJFxO/DWMCu6FO4YtOD24gnXNuFB4N4/bf/oQrI5Tq+S83XBOxlJ9bflgJtbT4lDme8eMleHPqq6gWbMxnXNfUr13MzHPaulyl1ozmGwEZTn8aI+ESG0/6bX/DpI+xA/8sb8kR2M0lHyw9c=" \
-#      -d "{\"request\":{\"branch\":"\"DAT-3451-create-trigger-for-production-release-deployment"\"",\"sha\":"\"$COMMIT_SHA\""}}" \
-      "https://api.travis-ci.com/repo/datreeio%2F$front-d2/requests"
+    curl:
+      runs-on: ubuntu-latest
+      steps:
+        -name: curl
+        uses: wei/curl@v1
+        with:
+          args: -X POST https://httpbin.org/post
