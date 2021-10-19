@@ -120,7 +120,7 @@ type PublishPoliciesTestCase struct {
 			body    files.UnknownStruct
 			headers map[string]string
 		}
-		response error
+		responseErr error
 	}
 }
 
@@ -222,7 +222,7 @@ func TestPublishPolicies(t *testing.T) {
 
 			_, err := client.PublishPolicies(tt.args.policiesConfiguration, tt.args.cliId)
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
-			assert.Equal(t, tt.expected.response, err)
+			assert.Equal(t, tt.expected.responseErr, err)
 		})
 	}
 }
@@ -473,7 +473,7 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 				body    files.UnknownStruct
 				headers map[string]string
 			}
-			response error
+			responseErr error
 		}{
 			request: struct {
 				method  string
@@ -486,7 +486,7 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 				body:    requestPoliciesConfigurationArg,
 				headers: expectedPublishHeaders,
 			},
-			response: nil,
+			responseErr: nil,
 		},
 	}
 }
@@ -526,7 +526,7 @@ func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
 				body    files.UnknownStruct
 				headers map[string]string
 			}
-			response error
+			responseErr error
 		}{
 			request: struct {
 				method  string
@@ -539,7 +539,7 @@ func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
 				body:    requestPoliciesConfigurationArg,
 				headers: expectedPublishHeaders,
 			},
-			response: errors.New("error from cli-service"),
+			responseErr: errors.New("error from cli-service"),
 		},
 	}
 }
