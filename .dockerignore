@@ -3,3 +3,4 @@ dist
 .github
 internal
 *install.sh
+scripts
