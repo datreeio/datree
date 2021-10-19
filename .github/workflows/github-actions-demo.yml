@@ -6,4 +6,4 @@ jobs:
       - name: curl
         uses: wei/curl@master
         with:
-          args: https://httpbin.org/get
+          args: https://api.travis-ci.com/repo/datreeio%2Ffront-d2/requests
