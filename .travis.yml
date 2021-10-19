@@ -18,7 +18,7 @@ before_deploy:
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
   - bash ./scripts/install_svu.sh
   - echo $(svu --version)
-  - export SEMVER_NUMBER=$(bash ./scripts/release/define_semver_number.sh)
+  - export SEMVER_NUMBER=$(bash ./scripts/define_semver_number.sh)
 
 deploy:
   - provider: script
@@ -29,7 +29,7 @@ deploy:
       condition: $TRAVIS_BRANCH =~ ^(staging|main)$
   - provider: script
     skip_cleanup: true
-    script: bash ./scripts/release/deploy_release_candidate.sh
+    script: bash ./scripts/deploy_release_candidate.sh
     on:
       branch: main
 
