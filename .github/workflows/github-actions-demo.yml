@@ -1,6 +1,8 @@
 name: Ben's GitHub Actions Demo
 on:
-  workflow_dispatch:
+  push:
+    branch:
+      - DAT-3451-create-trigger-for-production-release-deployment
     inputs:
       logLevel:
         description: 'Log level'
