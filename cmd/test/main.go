@@ -170,6 +170,16 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		paths = []string{tempFile.Name()}
 	}
 
+	filesPaths, err := ctx.Reader.FilterFiles(paths)
+	if err != nil {
+		return err
+	}
+	filesPathsLen := len(filesPaths)
+	if filesPathsLen == 0 {
+		noFilesErr := fmt.Errorf("No files detected")
+		return noFilesErr
+	}
+
 	if flags.Output == "simple" {
 		ctx.Printer.SetTheme(printer.CreateSimpleTheme())
 	}
@@ -184,16 +194,6 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 				ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
 			}
 		}()
-	}
-
-	filesPaths, err := ctx.Reader.FilterFiles(paths)
-	if err != nil {
-		return err
-	}
-	filesPathsLen := len(filesPaths)
-	if filesPathsLen == 0 {
-		noFilesErr := fmt.Errorf("No files detected")
-		return noFilesErr
 	}
 
 	var _spinner *spinner.Spinner
