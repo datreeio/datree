@@ -1,20 +1,24 @@
-name: Manually triggered workflow
+name: Release Workflow
 on:
   workflow_dispatch:
     inputs:
       name:
-        description: 'Person to greet'
+        description: "Triggered by:"
         required: true
-        default: 'Mona the Octocat'
-      home:
-        description: 'location'
-        required: false
-        default: 'The Octoverse'
+        default: "myishay"
 
 jobs:
   say_hello:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "Hello ${{ github.event.inputs.name }}!"
-          echo "- in ${{ github.event.inputs.home }}!"
+      - env:
+          TRAVIS_API_TOKEN: ${{ secrets.TRAVIS_API_TOKEN }}
+        run: |
+          echo "Triggered by: ${{ github.event.inputs.name }}!"
+
+          if [ -z "$TRAVIS_API_TOKEN" ]; then
+              echo "TRAVIS_API_TOKEN is EMPTY"
+          else
+              echo "TRAVIS_API_TOKEN exists"
+          fi
+          
