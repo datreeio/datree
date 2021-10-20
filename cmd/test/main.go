@@ -222,7 +222,6 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		ignoredYamlFiles = aggregateIgnoredYamlFiles(ignoredYamlFilesChan)
 
 		filesPathsLen = filesPathsLen - len(invalidYamlFiles) - len(ignoredYamlFiles)
-		invalidYamlFiles = []*validation.InvalidYamlFile{}
 	}
 
 	invalidYamlFilesLen := len(invalidYamlFiles)
