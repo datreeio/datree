@@ -183,74 +183,10 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	if flags.Output == "simple" {
 		ctx.Printer.SetTheme(printer.CreateSimpleTheme())
 	}
-	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml") && (flags.Output != "xml")
 
-	if isInteractiveMode == true {
-		messages := make(chan *messager.VersionMessage, 1)
-		go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
-		defer func() {
-			msg, ok := <-messages
-			if ok {
-				ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
-			}
-		}()
-	}
-
-	var _spinner *spinner.Spinner
-	if isInteractiveMode == true && flags.Output != "simple" {
-		_spinner = createSpinner(" Loading...", "cyan")
-		_spinner.Start()
-	}
-
-	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(localConfigContent.CliId, ctx.CliVersion, flags.K8sVersion, flags.PolicyName)
+	validationManager, createEvaluationResponse, results, err := evaluate(ctx, filesPaths, flags, localConfigContent.CliId)
 	if err != nil {
-		return err
-	}
-
-	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas, flags.SchemaLocations)
-
-	concurrency := 100
-
-	validationManager := &ValidationManager{}
-
-	validYamlConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(filesPaths, concurrency)
-
-	validationManager.AggregateInvalidYamlFiles(invalidYamlFilesChan)
-
-	if flags.OnlyK8sFiles {
-		var ignoredYamlFilesChan chan *extractor.FileConfigurations
-		validYamlConfigurationsChan, ignoredYamlFilesChan = ctx.K8sValidator.GetK8sFiles(validYamlConfigurationsChan, concurrency)
-		validationManager.AggregateIgnoredYamlFiles(ignoredYamlFilesChan)
-
-		filesPathsLen = filesPathsLen - validationManager.InvalidYamlFilesCount() - validationManager.IgnoredFilesCount()
-	}
-
-	noValidYamlFiles := validationManager.InvalidYamlFilesCount()+validationManager.IgnoredFilesCount() == filesPathsLen
-	if validationManager.InvalidYamlFilesCount() > 0 {
-		err = ctx.Evaluator.UpdateFailedYamlValidation(validationManager.InvalidYamlFiles(), createEvaluationResponse.EvaluationId, noValidYamlFiles)
-		if err != nil {
-			return err
-		}
-	}
-
-	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)
-
-	validationManager.AggregateInvalidK8sFiles(invalidK8sFilesChan)
-
-	noValidK8sFiles := validationManager.InvalidYamlFilesCount()+validationManager.InvalidK8sFilesCount()+validationManager.IgnoredFilesCount() == filesPathsLen
-	if validationManager.InvalidK8sFilesCount() > 0 {
-		err = ctx.Evaluator.UpdateFailedK8sValidation(validationManager.InvalidK8sFiles(), createEvaluationResponse.EvaluationId, noValidK8sFiles)
-		if err != nil {
-			return err
-		}
-	}
-
-	validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan)
-
-	results, err := ctx.Evaluator.Evaluate(validationManager.ValidK8sFilesConfigurations(), createEvaluationResponse.EvaluationId)
-
-	if _spinner != nil {
-		_spinner.Stop()
+		return nil
 	}
 
 	passedPolicyCheckCount := 0
@@ -368,4 +304,85 @@ func (v *ValidationManager) IgnoredFiles() []*extractor.FileConfigurations {
 
 func (v *ValidationManager) IgnoredFilesCount() int {
 	return len(v.ignoredFiles)
+}
+
+func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFlags, cliId string) (*ValidationManager, *cliClient.CreateEvaluationResponse, *evaluation.EvaluationResults, error) {
+	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml") && (flags.Output != "xml")
+
+	if isInteractiveMode == true {
+		messages := make(chan *messager.VersionMessage, 1)
+		go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
+		defer func() {
+			msg, ok := <-messages
+			if ok {
+				ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+			}
+		}()
+	}
+
+	var _spinner *spinner.Spinner
+	if isInteractiveMode == true && flags.Output != "simple" {
+		_spinner = createSpinner(" Loading...", "cyan")
+		_spinner.Start()
+	}
+
+	defer func() {
+		if _spinner != nil {
+			_spinner.Stop()
+		}
+	}()
+
+	validationManager := &ValidationManager{}
+	filesPathsLen := len(filesPaths)
+
+	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(cliId, ctx.CliVersion, flags.K8sVersion, flags.PolicyName)
+	if err != nil {
+		return validationManager, nil, nil, err
+	}
+
+	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas, flags.SchemaLocations)
+
+	concurrency := 100
+
+	validYamlConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(filesPaths, concurrency)
+
+	validationManager.AggregateInvalidYamlFiles(invalidYamlFilesChan)
+
+	if flags.OnlyK8sFiles {
+		var ignoredYamlFilesChan chan *extractor.FileConfigurations
+		validYamlConfigurationsChan, ignoredYamlFilesChan = ctx.K8sValidator.GetK8sFiles(validYamlConfigurationsChan, concurrency)
+		validationManager.AggregateIgnoredYamlFiles(ignoredYamlFilesChan)
+
+		filesPathsLen = filesPathsLen - validationManager.InvalidYamlFilesCount() - validationManager.IgnoredFilesCount()
+	}
+
+	noValidYamlFiles := validationManager.InvalidYamlFilesCount()+validationManager.IgnoredFilesCount() == filesPathsLen
+	if validationManager.InvalidYamlFilesCount() > 0 {
+		err = ctx.Evaluator.UpdateFailedYamlValidation(validationManager.InvalidYamlFiles(), createEvaluationResponse.EvaluationId, noValidYamlFiles)
+		if err != nil {
+			return validationManager, createEvaluationResponse, nil, err
+		}
+	}
+
+	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)
+
+	validationManager.AggregateInvalidK8sFiles(invalidK8sFilesChan)
+
+	noValidK8sFiles := validationManager.InvalidYamlFilesCount()+validationManager.InvalidK8sFilesCount()+validationManager.IgnoredFilesCount() == filesPathsLen
+	if validationManager.InvalidK8sFilesCount() > 0 {
+		err = ctx.Evaluator.UpdateFailedK8sValidation(validationManager.InvalidK8sFiles(), createEvaluationResponse.EvaluationId, noValidK8sFiles)
+		if err != nil {
+			return validationManager, createEvaluationResponse, nil, err
+		}
+	}
+
+	validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan)
+
+	results, err := ctx.Evaluator.Evaluate(validationManager.ValidK8sFilesConfigurations(), createEvaluationResponse.EvaluationId)
+
+	if err != nil {
+		return validationManager, createEvaluationResponse, nil, err
+	}
+
+	return validationManager, createEvaluationResponse, results, nil
 }
