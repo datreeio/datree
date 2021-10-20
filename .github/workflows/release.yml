@@ -32,7 +32,22 @@ jobs:
               exit 1
           fi
 
-          BODY="{\"request\":{\"branch\":"\"$branch_name\"",\"sha\":"\"$commit_sha\""}}"
+          BODY="
+          {
+            \"request\": {
+              \"branch\": \"$branch_name\",
+              \"sha\": \"$commit_sha\",
+              \"merge_mode\": \"deep_merge_append\",
+              \"config\": {
+                \"env\": {
+                  \"global\": [
+                    \"RELEASE_DATREE_PROD=true\"
+                  ]
+                }
+              }
+            }
+          }
+          "
           GH_ORGANIZATION_NAME="datreeio"
           GH_REPOSITORY_NAME="datree"
 
