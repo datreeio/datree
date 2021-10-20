@@ -16,13 +16,6 @@ func createSpinner(text string, color string) *spinner.Spinner {
 	return s
 }
 
-func aggregateValidK8sFiles (validK8sFilesConfigurationsChan chan *extractor.FileConfigurations) (validK8sFilesConfigurations []*extractor.FileConfigurations){
-	for fileConfigurations := range validK8sFilesConfigurationsChan {
-		validK8sFilesConfigurations = append(validK8sFilesConfigurations, fileConfigurations)
-	}
-	return
-}
-
 func aggregateIgnoredYamlFiles(ignoredFilesChan chan *extractor.FileConfigurations) []extractor.FileConfigurations {
 	var ignoredFiles []extractor.FileConfigurations
 
@@ -30,16 +23,6 @@ func aggregateIgnoredYamlFiles(ignoredFilesChan chan *extractor.FileConfiguratio
 		ignoredFiles = append(ignoredFiles, *ignoredFile)
 	}
 	return ignoredFiles
-}
-
-func countConfigurations(filesConfigurations []*extractor.FileConfigurations) int {
-	totalConfigs := 0
-
-	for _, fileConfiguration := range filesConfigurations {
-		totalConfigs += len(fileConfiguration.Configurations)
-	}
-
-	return totalConfigs
 }
 
 func openBrowser(url string) {

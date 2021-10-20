@@ -247,9 +247,9 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		}
 	}
 
-	validK8sFilesConfigurations := aggregateValidK8sFiles(validK8sFilesConfigurationsChan)
+	validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan)
 
-	results, err := ctx.Evaluator.Evaluate(validK8sFilesConfigurations, createEvaluationResponse.EvaluationId)
+	results, err := ctx.Evaluator.Evaluate(validationManager.ValidK8sFilesConfigurations(), createEvaluationResponse.EvaluationId)
 
 	if _spinner != nil {
 		_spinner.Stop()
@@ -261,16 +261,14 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	passedYamlValidationCount := filesPathsLen - validationManager.InvalidYamlFilesCount()
-	passedK8sValidationCount := len(validK8sFilesConfigurations)
 
-	configsCount := countConfigurations(validK8sFilesConfigurations)
 
 	evaluationSummary := printer.EvaluationSummary{
 		FilesCount:                filesPathsLen,
 		RulesCount:                createEvaluationResponse.RulesCount,
 		PassedYamlValidationCount: passedYamlValidationCount,
-		PassedK8sValidationCount:  passedK8sValidationCount,
-		ConfigsCount:              configsCount,
+		PassedK8sValidationCount:  validationManager.ValidK8sFilesConfigurationsCount(),
+		ConfigsCount:              validationManager.ValidK8sConfigurationsCount(),
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
@@ -303,34 +301,59 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 }
 
 type ValidationManager struct {
-	invalidYamlFiles []*validation.InvalidYamlFile
-	invalidK8sFiles  []*validation.InvalidK8sFile
+	invalidYamlFiles            []*validation.InvalidYamlFile
+	invalidK8sFiles             []*validation.InvalidK8sFile
+	validK8sFilesConfigurations []*extractor.FileConfigurations
 }
 
-func (v ValidationManager) AggregateInvalidYamlFiles(invalidFilesChan chan *validation.InvalidYamlFile) {
+func (v *ValidationManager) AggregateInvalidYamlFiles(invalidFilesChan chan *validation.InvalidYamlFile) {
 	for invalidFile := range invalidFilesChan {
 		v.invalidYamlFiles = append(v.invalidYamlFiles, invalidFile)
 	}
 }
 
-func (v ValidationManager) InvalidYamlFiles() []*validation.InvalidYamlFile {
+func (v *ValidationManager) InvalidYamlFiles() []*validation.InvalidYamlFile {
 	return v.invalidYamlFiles
 }
 
-func (v ValidationManager) InvalidYamlFilesCount() int {
+func (v *ValidationManager) InvalidYamlFilesCount() int {
 	return len(v.invalidYamlFiles)
 }
 
-func (v ValidationManager) AggregateInvalidK8sFiles(invalidFilesChan chan *validation.InvalidK8sFile) {
+func (v *ValidationManager) AggregateInvalidK8sFiles(invalidFilesChan chan *validation.InvalidK8sFile) {
 	for invalidFile := range invalidFilesChan {
 		v.invalidK8sFiles = append(v.invalidK8sFiles, invalidFile)
 	}
 }
 
-func (v ValidationManager) InvalidK8sFiles() []*validation.InvalidK8sFile {
+func (v *ValidationManager) InvalidK8sFiles() []*validation.InvalidK8sFile {
 	return v.invalidK8sFiles
 }
 
-func (v ValidationManager) InvalidK8sFilesCount() int {
+func (v *ValidationManager) InvalidK8sFilesCount() int {
 	return len(v.invalidK8sFiles)
+}
+
+func (v *ValidationManager) AggregateValidK8sFiles(validK8sFilesConfigurationsChan chan *extractor.FileConfigurations){
+	for fileConfigurations := range validK8sFilesConfigurationsChan {
+		v.validK8sFilesConfigurations = append(v.validK8sFilesConfigurations, fileConfigurations)
+	}
+}
+
+func (v *ValidationManager) ValidK8sFilesConfigurations() []*extractor.FileConfigurations {
+	return v.validK8sFilesConfigurations
+}
+
+func (v *ValidationManager) ValidK8sFilesConfigurationsCount() int {
+	return len(v.validK8sFilesConfigurations)
+}
+
+func (v *ValidationManager) ValidK8sConfigurationsCount() int {
+	totalConfigs := 0
+
+	for _, fileConfiguration := range v.validK8sFilesConfigurations {
+		totalConfigs += len(fileConfiguration.Configurations)
+	}
+
+	return totalConfigs
 }
