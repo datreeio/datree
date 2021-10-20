@@ -211,14 +211,14 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	concurrency := 100
 
-	k8sConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(filesPaths, concurrency)
+	validYamlConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(filesPaths, concurrency)
 
 	invalidYamlFiles := aggregateInvalidYamlFiles(invalidYamlFilesChan)
 	ignoredYamlFiles := []extractor.FileConfigurations{}
 
 	if flags.OnlyK8sFiles {
 		var ignoredYamlFilesChan chan *extractor.FileConfigurations
-		k8sConfigurationsChan, ignoredYamlFilesChan = ctx.K8sValidator.GetK8sFiles(k8sConfigurationsChan, concurrency)
+		validYamlConfigurationsChan, ignoredYamlFilesChan = ctx.K8sValidator.GetK8sFiles(validYamlConfigurationsChan, concurrency)
 		ignoredYamlFiles = aggregateIgnoredYamlFiles(ignoredYamlFilesChan)
 
 		filesPathsLen = filesPathsLen - len(invalidYamlFiles) - len(ignoredYamlFiles)
@@ -226,7 +226,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	invalidYamlFilesLen := len(invalidYamlFiles)
-	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(k8sConfigurationsChan, concurrency)
+	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)
 	ignoredYamlFilesLen := len(ignoredYamlFiles)
 
 	noValidYamlFiles := invalidYamlFilesLen+ignoredYamlFilesLen == filesPathsLen
@@ -248,10 +248,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		}
 	}
 
-	var validK8sFilesConfigurations []*extractor.FileConfigurations
-	for fileConfigurations := range validK8sFilesConfigurationsChan {
-		validK8sFilesConfigurations = append(validK8sFilesConfigurations, fileConfigurations)
-	}
+	validK8sFilesConfigurations := aggregateValidK8sFiles(validK8sFilesConfigurationsChan)
 
 	results, err := ctx.Evaluator.Evaluate(validK8sFilesConfigurations, createEvaluationResponse.EvaluationId)
 

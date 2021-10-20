@@ -17,6 +17,13 @@ func createSpinner(text string, color string) *spinner.Spinner {
 	return s
 }
 
+func aggregateValidK8sFiles (validK8sFilesConfigurationsChan chan *extractor.FileConfigurations) (validK8sFilesConfigurations []*extractor.FileConfigurations){
+	for fileConfigurations := range validK8sFilesConfigurationsChan {
+		validK8sFilesConfigurations = append(validK8sFilesConfigurations, fileConfigurations)
+	}
+	return
+}
+
 func aggregateInvalidK8sFiles(invalidFilesChan chan *validation.InvalidK8sFile) []*validation.InvalidK8sFile {
 	var invalidFiles []*validation.InvalidK8sFile
 	for invalidFile := range invalidFilesChan {
