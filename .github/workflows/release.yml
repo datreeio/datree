@@ -11,14 +11,25 @@ jobs:
   say_hello:
     runs-on: ubuntu-latest
     steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - env:
           TRAVIS_API_TOKEN: ${{ secrets.TRAVIS_API_TOKEN }}
         run: |
           echo "Triggered by: ${{ github.event.inputs.name }}!"
+          branch_name=${{ steps.extract_branch.outputs.branch }}
+          echo "branch name: $branch_name"
+
+          if [ "$branch_name" == "main" ]; then
+              echo "we are good to go"
+          else
+              echo "BRANCH NAME IS NOT main!!!!!!!"
+          fi
 
           if [ -z "$TRAVIS_API_TOKEN" ]; then
               echo "TRAVIS_API_TOKEN is EMPTY"
           else
               echo "TRAVIS_API_TOKEN exists"
           fi
-          
