@@ -229,19 +229,20 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(k8sConfigurationsChan, concurrency)
 	ignoredYamlFilesLen := len(ignoredYamlFiles)
 
-	stopEvaluation := invalidYamlFilesLen+ignoredYamlFilesLen == filesPathsLen
-	err = ctx.Evaluator.UpdateFailedYamlValidation(invalidYamlFiles, createEvaluationResponse.EvaluationId, stopEvaluation)
-	if err != nil {
-		return err
+	noValidYamlFiles := invalidYamlFilesLen+ignoredYamlFilesLen == filesPathsLen
+	if invalidYamlFilesLen > 0 {
+		err = ctx.Evaluator.UpdateFailedYamlValidation(invalidYamlFiles, createEvaluationResponse.EvaluationId, noValidYamlFiles)
+		if err != nil {
+			return err
+		}
 	}
 
 	invalidK8sFiles := aggregateInvalidK8sFiles(invalidK8sFilesChan)
 
 	invalidK8sFilesLen := len(invalidK8sFiles)
-	stopEvaluation = invalidYamlFilesLen+invalidK8sFilesLen+ignoredYamlFilesLen == filesPathsLen
-
+	noValidK8sFiles := invalidYamlFilesLen+invalidK8sFilesLen+ignoredYamlFilesLen == filesPathsLen
 	if invalidK8sFilesLen > 0 {
-		err = ctx.Evaluator.UpdateFailedK8sValidation(invalidK8sFiles, createEvaluationResponse.EvaluationId, stopEvaluation)
+		err = ctx.Evaluator.UpdateFailedK8sValidation(invalidK8sFiles, createEvaluationResponse.EvaluationId, noValidK8sFiles)
 		if err != nil {
 			return err
 		}
