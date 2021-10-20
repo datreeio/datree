@@ -21,6 +21,8 @@ jobs:
           echo "Triggered by: ${{ github.event.inputs.name }}!"
           branch_name=${{ steps.extract_branch.outputs.branch }}
           echo "branch name: $branch_name"
+          
+          echo "commit sha: ${{ github.sha }}"
 
           if [ "$branch_name" == "main" ]; then
               echo "we are good to go"
