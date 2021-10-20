@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
-	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/pkg/browser"
 )
@@ -24,20 +23,6 @@ func aggregateValidK8sFiles (validK8sFilesConfigurationsChan chan *extractor.Fil
 	return
 }
 
-func aggregateInvalidK8sFiles(invalidFilesChan chan *validation.InvalidK8sFile) []*validation.InvalidK8sFile {
-	var invalidFiles []*validation.InvalidK8sFile
-	for invalidFile := range invalidFilesChan {
-		invalidFiles = append(invalidFiles, invalidFile)
-	}
-	return invalidFiles
-}
-func aggregateInvalidYamlFiles(invalidFilesChan chan *validation.InvalidYamlFile) []*validation.InvalidYamlFile {
-	var invalidFiles []*validation.InvalidYamlFile
-	for invalidFile := range invalidFilesChan {
-		invalidFiles = append(invalidFiles, invalidFile)
-	}
-	return invalidFiles
-}
 func aggregateIgnoredYamlFiles(ignoredFilesChan chan *extractor.FileConfigurations) []extractor.FileConfigurations {
 	var ignoredFiles []extractor.FileConfigurations
 

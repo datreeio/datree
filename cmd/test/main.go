@@ -211,37 +211,37 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	concurrency := 100
 
+	validationManager := &ValidationManager{}
+
 	validYamlConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(filesPaths, concurrency)
 
-	invalidYamlFiles := aggregateInvalidYamlFiles(invalidYamlFilesChan)
-	ignoredYamlFiles := []extractor.FileConfigurations{}
+	validationManager.AggregateInvalidYamlFiles(invalidYamlFilesChan)
 
+	ignoredYamlFiles := []extractor.FileConfigurations{}
 	if flags.OnlyK8sFiles {
 		var ignoredYamlFilesChan chan *extractor.FileConfigurations
 		validYamlConfigurationsChan, ignoredYamlFilesChan = ctx.K8sValidator.GetK8sFiles(validYamlConfigurationsChan, concurrency)
 		ignoredYamlFiles = aggregateIgnoredYamlFiles(ignoredYamlFilesChan)
 
-		filesPathsLen = filesPathsLen - len(invalidYamlFiles) - len(ignoredYamlFiles)
+		filesPathsLen = filesPathsLen - validationManager.InvalidYamlFilesCount() - len(ignoredYamlFiles)
 	}
-
-	invalidYamlFilesLen := len(invalidYamlFiles)
-	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)
 	ignoredYamlFilesLen := len(ignoredYamlFiles)
 
-	noValidYamlFiles := invalidYamlFilesLen+ignoredYamlFilesLen == filesPathsLen
-	if invalidYamlFilesLen > 0 {
-		err = ctx.Evaluator.UpdateFailedYamlValidation(invalidYamlFiles, createEvaluationResponse.EvaluationId, noValidYamlFiles)
+	noValidYamlFiles := validationManager.InvalidYamlFilesCount()+ignoredYamlFilesLen == filesPathsLen
+	if validationManager.InvalidYamlFilesCount() > 0 {
+		err = ctx.Evaluator.UpdateFailedYamlValidation(validationManager.InvalidYamlFiles(), createEvaluationResponse.EvaluationId, noValidYamlFiles)
 		if err != nil {
 			return err
 		}
 	}
 
-	invalidK8sFiles := aggregateInvalidK8sFiles(invalidK8sFilesChan)
+	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)
 
-	invalidK8sFilesLen := len(invalidK8sFiles)
-	noValidK8sFiles := invalidYamlFilesLen+invalidK8sFilesLen+ignoredYamlFilesLen == filesPathsLen
-	if invalidK8sFilesLen > 0 {
-		err = ctx.Evaluator.UpdateFailedK8sValidation(invalidK8sFiles, createEvaluationResponse.EvaluationId, noValidK8sFiles)
+	validationManager.AggregateInvalidK8sFiles(invalidK8sFilesChan)
+
+	noValidK8sFiles := validationManager.InvalidYamlFilesCount()+validationManager.InvalidK8sFilesCount()+ignoredYamlFilesLen == filesPathsLen
+	if validationManager.InvalidK8sFilesCount() > 0 {
+		err = ctx.Evaluator.UpdateFailedK8sValidation(validationManager.InvalidK8sFiles(), createEvaluationResponse.EvaluationId, noValidK8sFiles)
 		if err != nil {
 			return err
 		}
@@ -260,7 +260,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		passedPolicyCheckCount = results.Summary.TotalPassedCount
 	}
 
-	passedYamlValidationCount := filesPathsLen - invalidYamlFilesLen
+	passedYamlValidationCount := filesPathsLen - validationManager.InvalidYamlFilesCount()
 	passedK8sValidationCount := len(validK8sFilesConfigurations)
 
 	configsCount := countConfigurations(validK8sFilesConfigurations)
@@ -274,7 +274,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion, createEvaluationResponse.PolicyName)
+	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion, createEvaluationResponse.PolicyName)
 
 	if len(createEvaluationResponse.PromptMessage) > 0 {
 		ctx.Printer.PrintPromptMessage(createEvaluationResponse.PromptMessage)
@@ -295,9 +295,42 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	if err != nil {
 		invocationFailedErr = err
-	} else if len(invalidYamlFiles) > 0 || len(invalidK8sFiles) > 0 || results.Summary.TotalFailedRules > 0 {
+	} else if validationManager.InvalidYamlFilesCount() > 0 || validationManager.InvalidK8sFilesCount() > 0 || results.Summary.TotalFailedRules > 0 {
 		invocationFailedErr = fmt.Errorf("")
 	}
 
 	return invocationFailedErr
+}
+
+type ValidationManager struct {
+	invalidYamlFiles []*validation.InvalidYamlFile
+	invalidK8sFiles  []*validation.InvalidK8sFile
+}
+
+func (v ValidationManager) AggregateInvalidYamlFiles(invalidFilesChan chan *validation.InvalidYamlFile) {
+	for invalidFile := range invalidFilesChan {
+		v.invalidYamlFiles = append(v.invalidYamlFiles, invalidFile)
+	}
+}
+
+func (v ValidationManager) InvalidYamlFiles() []*validation.InvalidYamlFile {
+	return v.invalidYamlFiles
+}
+
+func (v ValidationManager) InvalidYamlFilesCount() int {
+	return len(v.invalidYamlFiles)
+}
+
+func (v ValidationManager) AggregateInvalidK8sFiles(invalidFilesChan chan *validation.InvalidK8sFile) {
+	for invalidFile := range invalidFilesChan {
+		v.invalidK8sFiles = append(v.invalidK8sFiles, invalidFile)
+	}
+}
+
+func (v ValidationManager) InvalidK8sFiles() []*validation.InvalidK8sFile {
+	return v.invalidK8sFiles
+}
+
+func (v ValidationManager) InvalidK8sFilesCount() int {
+	return len(v.invalidK8sFiles)
 }
