@@ -77,3 +77,4 @@ func (v *ValidationManager) IgnoredFiles() []*extractor.FileConfigurations {
 func (v *ValidationManager) IgnoredFilesCount() int {
 	return len(v.ignoredFiles)
 }
+
