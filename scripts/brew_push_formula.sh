@@ -22,7 +22,7 @@ fi
 BREW_REPO_URL="https://${GITHUB_TOKEN}@github.com/datreeio/${BREW_REPO_NAME}.git"
 
 git clone $BREW_REPO_URL
-bash ./internal/release/brew_formula_generator.sh $VERSION $BREW_REPO_NAME
+bash ./scripts/brew_formula_generator.sh $VERSION $BREW_REPO_NAME
 cd $BREW_REPO_NAME
 git add -A
 git commit -m "Brew formula update for datree-cli version $VERSION"
