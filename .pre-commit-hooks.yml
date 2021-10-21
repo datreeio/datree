@@ -1,0 +1,7 @@
+- id: datree-test
+  name: datree test
+  description: Prevent Kubernetes misconfigurations from reaching production
+  entry: datree test --only-k8s-files
+  types: [file, yaml]
+  language: golang
+  pass_filenames: true
