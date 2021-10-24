@@ -44,7 +44,7 @@ deploy:
     script: bash ./scripts/release.sh
     on:
       branch: fix-travis-relerase
-      # condition: $RELEASE_DATREE_PROD = 'true'
+      condition: $RELEASE_DATREE_PROD != 'true'
 
 env:
   global:
