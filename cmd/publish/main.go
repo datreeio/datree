@@ -59,8 +59,8 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 
 			publishFailedResponse, err := publish(ctx, args[0])
 			if publishFailedResponse != nil {
+				ctx.Printer.PrintMessage("Publish failed:\n", "error")
 				for _, message := range publishFailedResponse.Payload {
-					ctx.Printer.PrintMessage("Publish failed:\n", "error")
 					ctx.Printer.PrintMessage("\t"+message+"\n", "error")
 				}
 			} else if err != nil {
