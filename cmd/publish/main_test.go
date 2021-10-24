@@ -1,14 +1,13 @@
 package publish
 
 import (
-	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
 
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
-	"github.com/datreeio/datree/pkg/httpClient"
+	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -51,9 +50,9 @@ type PublishClientMock struct {
 	mock.Mock
 }
 
-func (p *PublishClientMock) PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) (httpClient.Response, error) {
+func (p *PublishClientMock) PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) (*cliClient.PublishFailedResponse, error) {
 	args := p.Called(policiesConfiguration, cliId)
-	return args.Get(0).(httpClient.Response), args.Error(1)
+	return args.Get(0).(*cliClient.PublishFailedResponse), args.Error(1)
 }
 
 func TestPublishCommand(t *testing.T) {
@@ -82,7 +81,7 @@ func TestPublishCommand(t *testing.T) {
 }
 
 func testPublishCommandSuccess(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock) {
-	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(httpClient.Response{}, nil).Once()
+	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(&cliClient.PublishFailedResponse{}, nil).Once()
 	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/valid-schema.yaml")
 	assert.Equal(t, nil, err)
 }
@@ -96,19 +95,13 @@ func testPublishCommandFailedYaml(t *testing.T, ctx *PublishCommandContext) {
 func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock) {
 	publishFailedPayloadMock := []string{"first error", "second error"}
 	errMessage := strings.Join(publishFailedPayloadMock, ",")
-	publishFailedResponseMock := PublishFailedResponse{
+	publishFailedResponseMock := &cliClient.PublishFailedResponse{
 		Code:    "mocked code",
 		Message: errMessage,
 		Payload: publishFailedPayloadMock,
 	}
 
-	mockedResponseBody, _ := json.Marshal(publishFailedResponseMock)
-	mockedResponse := httpClient.Response{
-		StatusCode: 400,
-		Body:       mockedResponseBody,
-	}
-
-	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(mockedResponse, errors.New(errMessage)).Once()
+	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(publishFailedResponseMock, errors.New(errMessage)).Once()
 	publishFailedRes, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-schemas/duplicate-rule-id.yaml")
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, errMessage, err.Error())

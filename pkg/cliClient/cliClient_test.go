@@ -107,10 +107,8 @@ type PublishPoliciesTestCase struct {
 	}
 	mockResponse struct {
 		status int
-		body   struct {
-			message string
-		}
-		error error
+		body   PublishFailedResponse
+		error  error
 	}
 
 	expected struct {
@@ -120,7 +118,8 @@ type PublishPoliciesTestCase struct {
 			body    files.UnknownStruct
 			headers map[string]string
 		}
-		responseErr error
+		responseErr           error
+		publishFailedResponse *PublishFailedResponse
 	}
 }
 
@@ -220,8 +219,9 @@ func TestPublishPolicies(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			_, err := client.PublishPolicies(tt.args.policiesConfiguration, tt.args.cliId)
+			publishFailedResponse, err := client.PublishPolicies(tt.args.policiesConfiguration, tt.args.cliId)
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
+			assert.Equal(t, tt.expected.publishFailedResponse, publishFailedResponse)
 			assert.Equal(t, tt.expected.responseErr, err)
 		})
 	}
@@ -453,16 +453,14 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 		},
 		mockResponse: struct {
 			status int
-			body   struct {
-				message string
-			}
-			error error
+			body   PublishFailedResponse
+			error  error
 		}{
 			status: http.StatusCreated,
-			body: struct {
-				message string
-			}{
-				message: "",
+			body: PublishFailedResponse{
+				Code:    "mocked code",
+				Message: "error from cli-service",
+				Payload: []string{"error from cli-service"},
 			},
 			error: nil,
 		},
@@ -473,7 +471,8 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 				body    files.UnknownStruct
 				headers map[string]string
 			}
-			responseErr error
+			responseErr           error
+			publishFailedResponse *PublishFailedResponse
 		}{
 			request: struct {
 				method  string
@@ -486,7 +485,8 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 				body:    requestPoliciesConfigurationArg,
 				headers: expectedPublishHeaders,
 			},
-			responseErr: nil,
+			responseErr:           nil,
+			publishFailedResponse: nil,
 		},
 	}
 }
@@ -506,16 +506,14 @@ func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
 		},
 		mockResponse: struct {
 			status int
-			body   struct {
-				message string
-			}
-			error error
+			body   PublishFailedResponse
+			error  error
 		}{
 			status: http.StatusBadRequest,
-			body: struct {
-				message string
-			}{
-				message: "",
+			body: PublishFailedResponse{
+				Code:    "mocked code",
+				Message: "error from cli-service",
+				Payload: []string{"error from cli-service"},
 			},
 			error: errors.New("error from cli-service"),
 		},
@@ -526,7 +524,8 @@ func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
 				body    files.UnknownStruct
 				headers map[string]string
 			}
-			responseErr error
+			responseErr           error
+			publishFailedResponse *PublishFailedResponse
 		}{
 			request: struct {
 				method  string
@@ -540,6 +539,11 @@ func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
 				headers: expectedPublishHeaders,
 			},
 			responseErr: errors.New("error from cli-service"),
+			publishFailedResponse: &PublishFailedResponse{
+				Code:    "mocked code",
+				Message: "error from cli-service",
+				Payload: []string{"error from cli-service"},
+			},
 		},
 	}
 }
