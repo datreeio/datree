@@ -37,7 +37,7 @@ deploy:
     skip_cleanup: true
     script: bash ./scripts/release.sh
     on:
-      branch: staging # change to `main` when replacing default branch to main
+      branch: staging # TODO: change to `main` when replacing default branch to main
       condition: $RELEASE_DATREE_PROD = 'true'
 
 env:
