@@ -9,7 +9,9 @@ latestRcTag=$(git tag --sort=-version:refname | grep "^${MAJOR_VERSION}.${MINOR_
 if [ "$latestRcTag" == "" ]; then
     nextVersion=$MAJOR_VERSION.$MINOR_VERSION.0
 else
-    nextVersion=$(echo $latestRcTag | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+    # TODO: remove the comment once we are ready to remove the staging deployment
+    # nextVersion=$(echo $latestRcTag | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+    nextVersion=$latestRcTag
 fi
 
 export DATREE_BUILD_VERSION=$nextVersion-rc
