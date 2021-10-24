@@ -2,12 +2,15 @@ package publish
 
 import (
 	"errors"
+	"strings"
+	"testing"
+
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
+	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 type LocalConfigMock struct {
@@ -47,8 +50,9 @@ type PublishClientMock struct {
 	mock.Mock
 }
 
-func (p *PublishClientMock) PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) error {
-	return p.Called(policiesConfiguration, cliId).Error(0)
+func (p *PublishClientMock) PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) (*cliClient.PublishFailedResponse, error) {
+	args := p.Called(policiesConfiguration, cliId)
+	return args.Get(0).(*cliClient.PublishFailedResponse), args.Error(1)
 }
 
 func TestPublishCommand(t *testing.T) {
@@ -77,20 +81,29 @@ func TestPublishCommand(t *testing.T) {
 }
 
 func testPublishCommandSuccess(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock) {
-	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(nil).Once()
-	err := publish(ctx, "../../internal/fixtures/policyAsCode/valid-schema.yaml")
+	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(&cliClient.PublishFailedResponse{}, nil).Once()
+	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/valid-schema.yaml")
 	assert.Equal(t, nil, err)
 }
 
 func testPublishCommandFailedYaml(t *testing.T, ctx *PublishCommandContext) {
-	err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-yaml.yaml")
+	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-yaml.yaml")
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, "yaml: line 2: did not find expected key", err.Error())
 }
 
 func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock) {
-	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(errors.New("some error")).Once()
-	err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-schemas/duplicate-rule-id.yaml")
+	publishFailedPayloadMock := []string{"first error", "second error"}
+	errMessage := strings.Join(publishFailedPayloadMock, ",")
+	publishFailedResponseMock := &cliClient.PublishFailedResponse{
+		Code:    "mocked code",
+		Message: errMessage,
+		Payload: publishFailedPayloadMock,
+	}
+
+	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(publishFailedResponseMock, errors.New(errMessage)).Once()
+	publishFailedRes, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-schemas/duplicate-rule-id.yaml")
 	assert.NotEqual(t, nil, err)
-	assert.Equal(t, "some error", err.Error())
+	assert.Equal(t, errMessage, err.Error())
+	assert.Equal(t, publishFailedResponseMock, publishFailedRes)
 }
