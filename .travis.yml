@@ -39,6 +39,12 @@ deploy:
     on:
       branch: main
       condition: $RELEASE_DATREE_PROD = 'true'
+  - provider: script
+    skip_cleanup: true
+    script: bash ./scripts/release.sh
+    on:
+      branch: fix-travis-relerase
+      # condition: $RELEASE_DATREE_PROD = 'true'
 
 env:
   global:
