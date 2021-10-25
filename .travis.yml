@@ -26,17 +26,24 @@ deploy:
     script: bash ./scripts/deploy.sh
     on:
       all_branches: true
-      condition: $TRAVIS_BRANCH =~ ^(staging|main)$
+      condition: "$TRAVIS_BRANCH =~ ^(staging|main)$ && $RELEASE_DATREE_PROD != 'true'"
   - provider: script
     skip_cleanup: true
     script: bash ./scripts/deploy_release_candidate.sh
     on:
       branch: main
+      condition: $RELEASE_DATREE_PROD != 'true'
+  - provider: script
+    skip_cleanup: true
+    script: bash ./scripts/release.sh
+    on:
+      branch: staging # TODO: change to `main` when replacing default branch to main
+      condition: $RELEASE_DATREE_PROD = 'true'
 
 env:
   global:
     #GITHUB_TOKEN
-    - secure: "MhiIeE2QSZCb17nR9BIcn3potAw7CyEtjya+35i2ri96QYnbXuHA3Irwq7GhKVNhMIRKj7ctedpJL43L6dTFUTYpkykeH8SpyYh1w1Bv/RMl280XQU1MW2pUUKc5VDXlHOnGZQ5HOwVI3wrLNyw/x2dSHF4VZ0GvHWv/yL0AisfS9i4+i3/tpl9Kup/+96gzT2xtpoBhIuWy47WbG6sAt6gySQZo+Qn3h+/g450i9gXma8wnmavXUz9RhECORBvzFVhFVT0ZX5hWCzTO9vFdw6G6HhjfVHuYv9pnobpmrkAfEAG/rf1pF+NR9eanFJOuTsM6PAfFm11VDofLuVUQ71rYNGZAfv3tG1SkCt/JbFxF9LDBOCO4AcSFb+PFIGljM96LhfdgVS5ygROQY94hGPTTREPeBjutNZFGiTFqPrBhlFrP6eq4kKPD6YiDrC4/AC0T+T6q6HtTGBR2PPdxDG7W1K5+OvAghMeb57wACrGgIgWOHglriQkRbCOMNExbyPJhhA4I52rZv3ak0QCz5egsjqQiAeLRXALyAvrDBL2D1H8GoQKzhRAQTH4wBejribu9r9EBU8Wb1IgyqepD0iAgEg1sv/R1hKApjEgyyswxvzbB9TFYekyDLwUfr5Xvm2aoechQbviRHhgP+nnHRXOw7ummX2O7+YaLr9MW+9Q="
+    - secure: "OQTTfOMNYFxGNkizM7bhK3OJXUntazxaQ6rliRO327fRnMPacK/pswMIwUjjzwTwLV8nVIvACSIWmo/45SeJtLVcHsle3RBn0OZFmgMFjySkLldP71t/4HzV3ef24px9JNX/FO6kQ7tqzzS7SRwlekL4v/r6K8ro1kqmFDLQ2uibgSXqkI7rNwPP56L5+QTX46pA2113NnGpywAm/K33ky40Fb2QclDH41ax+Jm7zyDy1ry0d/T9db+GBOnBsfkqkuBiBDvJ2tp4n0KbvAIt870O8Ey9jB7MUkwdGKH/0ZlEFXihEmKIVn9pih5t8EFZzVxdPK+aJ3SHeqWAu9v0Iy1lsxs1je6fIkhA5hkHk9Hz4mgRrwiGRG1d25sBoNegnu0uA5Iowtwp4Rp7lTfDJSdazTW7W3L5+qzd9b1LA7GfIlATcSwDrPicf6RBX0r2eb0o2fiFi/B24X8J84CAmdnhlBjGYhoKdBZv3+ngopZAJNbbclD1YKMBhVEfjVGQMDOm6yVejIrPWq1asupX+JEpF4/myLXilooUKt2Znx01EG2UVZ31o6e5m3Hn/XWa5z5HR/zsYTozLUFe0kbJvBVwy4v/8YgUyoGGaxAifs6Eh3rmKzmQLa8eyZjIIUAibOd19uL7ZZSGAvKDr93N/8rlZnHA0PRsDNhNxVyCFu8="
     - GORELEASER_VERSION="0.155.1"
     - DATREE_DEPLOYMENT=$TRAVIS_BRANCH
     #AC_USERNAME
