@@ -57,4 +57,4 @@ jobs:
               -H "Travis-API-Version: 3" \
               -H "Authorization: token ${TRAVIS_API_TOKEN}" \
               -d "$BODY" \
-              "https://api.travis-ci.com/repo/${GH_ORGANIZATION_NAME}/${GH_REPOSITORY_NAME}/requests"
+              "https://api.travis-ci.com/repo/${GH_ORGANIZATION_NAME}%2F${GH_REPOSITORY_NAME}/requests"
