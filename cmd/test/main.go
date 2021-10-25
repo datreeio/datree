@@ -236,7 +236,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFlags, cliId string) (*ValidationManager, *cliClient.CreateEvaluationResponse, *evaluation.EvaluationResults, error) {
 	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml") && (flags.Output != "xml")
 
-	if isInteractiveMode == true {
+	if isInteractiveMode {
 		messages := make(chan *messager.VersionMessage, 1)
 		go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 		defer func() {
@@ -248,7 +248,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 	}
 
 	var _spinner *spinner.Spinner
-	if isInteractiveMode == true && flags.Output != "simple" {
+	if isInteractiveMode && flags.Output != "simple" {
 		_spinner = createSpinner(" Loading...", "cyan")
 		_spinner.Start()
 	}
