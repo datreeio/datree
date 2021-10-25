@@ -21,7 +21,7 @@ _Windows:_ `iwr -useb https://get.datree.io/windows_install.ps1 | iex`
 
 _Other installation options (Homebrew, Docker, etc.) can be found [here](https://hub.datree.io/#a-1-install-datrees-cli-integration/#utm_source=github&utm_medium=organic_oss)_
 
-#### 2. Pass datree a Kuberntes manifest file to scan
+#### 2. Pass datree a Kubernetes manifest file to scan
 `datree test [k8s-manifest-file]`  
 
 ...and voilà, you just ran your first invocation! 🥳    
@@ -47,9 +47,9 @@ All the information needed to get started, as well as a bunch of other cool feat
 `helm plugin install https://github.com/datreeio/helm-datree`  
 
 ## Built-in schema & policy validation
-Every check validate [your schema](https://hub.datree.io/schema-validation/#utm_source=github&utm_medium=organic_oss) and in additional, there are 30 battle-tested rules for you to choose from.  
+Every check will validate [your schema](https://hub.datree.io/schema-validation/#utm_source=github&utm_medium=organic_oss). In additional, there are 30 battle-tested rules for you to select to create your policy.
 
-The rules cover different Kubernetes resources and use cases:
+The policy rules cover a variety of Kubernetes resources and use cases:
 * [Workload](https://hub.datree.io/workload/#utm_source=github&utm_medium=organic_oss)
 * [CronJob](https://hub.datree.io/cronjob/#utm_source=github&utm_medium=organic_oss)
 * [Containers](https://hub.datree.io/containers/#utm_source=github&utm_medium=organic_oss)
