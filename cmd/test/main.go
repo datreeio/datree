@@ -186,7 +186,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	validationManager, createEvaluationResponse, results, err := evaluate(ctx, filesPaths, flags, localConfigContent.CliId)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	passedPolicyCheckCount := 0
