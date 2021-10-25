@@ -4,6 +4,7 @@ import (
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/cmd/completion"
 	"github.com/datreeio/datree/cmd/config"
 	"github.com/datreeio/datree/cmd/publish"
 	"github.com/datreeio/datree/cmd/test"
@@ -56,6 +57,12 @@ func init() {
 		Messager:         app.context.Messager,
 		Printer:          app.context.Printer,
 		PublishCliClient: app.context.CliClient,
+	}))
+
+	rootCmd.AddCommand(completion.New(&completion.CompletionCommandContext{
+		CliVersion: CliVersion,
+		Messager:   app.context.Messager,
+		Printer:    app.context.Printer,
 	}))
 }
 
