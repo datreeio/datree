@@ -58,7 +58,7 @@ The policy rules cover a variety of Kubernetes resources and use cases:
 * [Others](https://hub.datree.io/other/#utm_source=github&utm_medium=organic_oss)
 
 ## Custom rules
-You can extend our built-in rules, and also write any custom rule that you desire and run them against your Kubernetes configurations to check for rule violations. The custom rules engine is based on JSON Schema.
+You can extend our built-in rules, and also write [any custom rule](https://hub.datree.io/custom-rules-overview/#utm_source=github&utm_medium=organic_oss) that you desire and run them against your Kubernetes configurations to check for rule violations. The custom rules engine is based on JSON Schema.
 
 ## Support
 
