@@ -2,10 +2,9 @@ name: Release Workflow
 on:
   workflow_dispatch:
     inputs:
-      name:
-        description: "Triggered by:"
+      release_candidate_version:
+        description: "Release Candidate Version:"
         required: false
-        default: "myishay"
 
 jobs:
   release:
@@ -41,7 +40,8 @@ jobs:
               \"config\": {
                 \"env\": {
                   \"global\": [
-                    \"RELEASE_DATREE_PROD=true\"
+                    \"RELEASE_DATREE_PROD=true\",
+                    \"RELEASE_CANDIDATE_VERSION=${{ github.event.inputs.release_candidate_version }}\"
                   ]
                 }
               }
