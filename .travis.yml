@@ -32,13 +32,8 @@ deploy:
     skip_cleanup: true
     script: bash ./scripts/release.sh
     on:
-      branch: main
+      branch: staging # TODO: change to main when removing staging branch
       condition: $RELEASE_DATREE_PROD = 'true'
-  - provider: script
-    skip_cleanup: true
-    script: bash ./scripts/release.sh
-    on:
-      branch: DAT-3450-ceate-prod-release
 
 env:
   global:
