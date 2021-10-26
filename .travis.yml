@@ -32,7 +32,6 @@ deploy:
     skip_cleanup: true
     script: bash ./scripts/release.sh
     on:
-      branch: staging # TODO: change to main when removing staging branch
       condition: $RELEASE_DATREE_PROD = 'true'
 
 env:
