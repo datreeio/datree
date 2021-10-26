@@ -1,7 +1,11 @@
 #!/bin/bash
 set -ex
 
-latestRcTag=$(git tag --sort=-version:refname | grep "\-rc$" | head -n 1)
+if test -z "$RELEASE_CANDIDATE_VERSION"; then
+    latestRcTag=$(git tag --sort=-version:refname | grep "\-rc$" | head -n 1)
+else
+    latestRcTag="$RELEASE_CANDIDATE_VERSION"
+fi
 
 if [ $latestRcTag == "" ]; then
     echo "couldn't find latestRcTag"
