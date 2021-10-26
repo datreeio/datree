@@ -26,7 +26,7 @@ deploy:
     script: bash ./scripts/deploy.sh
     on:
       all_branches: true
-      condition: "$TRAVIS_BRANCH =~ ^(staging|main)$ && $RELEASE_DATREE_PROD != 'true'"
+      condition: "$TRAVIS_BRANCH = staging && $RELEASE_DATREE_PROD != 'true'"
   - provider: script
     skip_cleanup: true
     script: bash ./scripts/deploy_release_candidate.sh
