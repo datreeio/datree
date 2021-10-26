@@ -29,3 +29,5 @@ if [ $TRAVIS_BRANCH == "main" ]; then
 else
   bash ./scripts/brew_push_formula.sh staging $DATREE_BUILD_VERSION
 fi
+
+rm -rf ./dist
