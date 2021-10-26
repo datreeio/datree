@@ -1,13 +1,14 @@
 #!/bin/bash
 set -ex
 
+RELEASE_CANDIDATE_VERSION=0.14.17-rc # TODO: remove when running from main branch
 if test -z "$RELEASE_CANDIDATE_VERSION"; then
     latestRcTag=$(git tag --sort=-version:refname | grep "\-rc$" | head -n 1)
 else
     latestRcTag="$RELEASE_CANDIDATE_VERSION"
 fi
 
-if [ $latestRcTag == "" ]; then
+if test -z "$latestRcTag"; then
     echo "couldn't find latestRcTag"
     exit 1
 fi
