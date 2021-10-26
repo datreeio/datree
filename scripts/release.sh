@@ -11,7 +11,8 @@ fi
 git checkout $latestRcTag
 
 release_tag=${latestRcTag%-rc}
-git tag $release_tag -a -m "Generated tag from manual TravisCI for build $TRAVIS_BUILD_NUMBER"
+release_tag="$release_tag-test-yishay" # TODO: remove for creating real production release
+git tag $release_tag -a -m "Generated tag from manual TravisCI for production build $TRAVIS_BUILD_NUMBER"
 git push --tags
 
 # Secure private key
