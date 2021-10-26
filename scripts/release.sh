@@ -25,7 +25,7 @@ bash ./scripts/sign_application.sh
 export DATREE_BUILD_VERSION=$release_tag
 echo $DATREE_BUILD_VERSION
 
-curl -sL https://git.io/goreleaser | GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash
+curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash
 
 # bash ./scripts/brew_push_formula.sh production $release_tag # TODO: uncomment on prod
 

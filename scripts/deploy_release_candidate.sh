@@ -19,6 +19,6 @@ git tag $DATREE_BUILD_VERSION -a -m "Generated tag from TravisCI for build $TRAV
 git push --tags
 
 bash ./scripts/sign_application.sh
-curl -sL https://git.io/goreleaser | GO_BUILD_TAG=staging VERSION=v$GORELEASER_VERSION bash
+curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging VERSION=v$GORELEASER_VERSION bash
 
 bash ./scripts/brew_push_formula.sh staging $DATREE_BUILD_VERSION
