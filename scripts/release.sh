@@ -21,9 +21,12 @@ git push --tags
 
 bash ./scripts/sign_application.sh
 
-curl -sL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION bash
+export DATREE_BUILD_VERSION=$release_tag
+echo $DATREE_BUILD_VERSION
 
-bash ./scripts/brew_push_formula.sh production $release_tag
+curl -sL https://git.io/goreleaser | GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash
+
+# bash ./scripts/brew_push_formula.sh production $release_tag # TODO: uncomment on prod
 
 git checkout -b "release/${release_tag}"
 git push origin "release/${release_tag}"

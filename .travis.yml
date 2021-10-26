@@ -7,7 +7,8 @@ osx_image: xcode12.5
 
 script:
   - "travis_wait 60 sleep 3600 &"
-  - go build -tags $DATREE_DEPLOYMENT
+  - export GO_BUILD_TAG=$(bash ./scripts/define_build_tag.sh)
+  - go build -tags $GO_BUILD_TAG
   - go test ./...
 
 before_deploy:
@@ -23,12 +24,6 @@ before_deploy:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: bash ./scripts/deploy.sh
-    on:
-      all_branches: true
-      condition: "$TRAVIS_BRANCH = staging && $RELEASE_DATREE_PROD != 'true'"
-  - provider: script
-    skip_cleanup: true
     script: bash ./scripts/deploy_release_candidate.sh
     on:
       branch: main
@@ -37,15 +32,19 @@ deploy:
     skip_cleanup: true
     script: bash ./scripts/release.sh
     on:
-      branch: staging # TODO: change to `main` when replacing default branch to main
+      branch: main
       condition: $RELEASE_DATREE_PROD = 'true'
+  - provider: script
+    skip_cleanup: true
+    script: bash ./scripts/release.sh
+    on:
+      branch: DAT-3450-ceate-prod-release
 
 env:
   global:
     #GITHUB_TOKEN
     - secure: "OQTTfOMNYFxGNkizM7bhK3OJXUntazxaQ6rliRO327fRnMPacK/pswMIwUjjzwTwLV8nVIvACSIWmo/45SeJtLVcHsle3RBn0OZFmgMFjySkLldP71t/4HzV3ef24px9JNX/FO6kQ7tqzzS7SRwlekL4v/r6K8ro1kqmFDLQ2uibgSXqkI7rNwPP56L5+QTX46pA2113NnGpywAm/K33ky40Fb2QclDH41ax+Jm7zyDy1ry0d/T9db+GBOnBsfkqkuBiBDvJ2tp4n0KbvAIt870O8Ey9jB7MUkwdGKH/0ZlEFXihEmKIVn9pih5t8EFZzVxdPK+aJ3SHeqWAu9v0Iy1lsxs1je6fIkhA5hkHk9Hz4mgRrwiGRG1d25sBoNegnu0uA5Iowtwp4Rp7lTfDJSdazTW7W3L5+qzd9b1LA7GfIlATcSwDrPicf6RBX0r2eb0o2fiFi/B24X8J84CAmdnhlBjGYhoKdBZv3+ngopZAJNbbclD1YKMBhVEfjVGQMDOm6yVejIrPWq1asupX+JEpF4/myLXilooUKt2Znx01EG2UVZ31o6e5m3Hn/XWa5z5HR/zsYTozLUFe0kbJvBVwy4v/8YgUyoGGaxAifs6Eh3rmKzmQLa8eyZjIIUAibOd19uL7ZZSGAvKDr93N/8rlZnHA0PRsDNhNxVyCFu8="
     - GORELEASER_VERSION="0.155.1"
-    - DATREE_DEPLOYMENT=$TRAVIS_BRANCH
     #AC_USERNAME
     - secure: "eyz1nelBEtNDwYYXPn5X8Fh76q6tXudD7Z6qpu/0I8c4dACg0zK2h2BwzetVoDQZ6+E1nzWS6raaSOpXAzn/ezB7lb0zEWCoSjsuCxN7LiKikQn1rLWg7SNOYF2HJYENJLUVeBElHAcZOVXFa/G4u4Djq1lDNRqQaKlZ8EKhJswMCqa9gyo9oTvWiWuWXbI33aU6fFGpj/BH5ZxQPupA1uFPYLalt2cxB4D7SDGoIdDx5uUedzcPC2vxq9H5Qh0Lj6QdJ6Xq0RHZZw9TEKHJlCM1pyjWsFmAX/SEmsahc2RSExm6biOGjiorzDvtW0nF3MmZfz9k4+M24lSTLh/Lpvc+JAkRIRiv7vegvA9f5am3WbUESzFA5CfZWbn7uH4gtQoguPNQXBKe2a/nkHgQciKTntqrLiiQp+FpxH+u5AAQPkPLhhbPHfGH/CL8GfrCtRBL13GXkfVK093NXWmPqKb7GOIwTkmc9itocdWxLwMJpCnUf0dSRnmBefg2N65Uz0EsdGQMeRmZNcY0F3NvSOxhi1RN84LuiKlXeJa0jNiaSplS/jZNpRvWPlpg5oj5M5AqjF0gL8Mt6BdB7JsbGX9VIE4RjMmkGhshkb5hZk3TqRozAxqLw4q+NePyiKmCzax5KQIj0CuDDqxU2PZYFOG6Mun/f4alU2M86zzcc1M="
     #AC_PASSWORD

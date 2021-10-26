@@ -18,7 +18,7 @@ builds:
       - windows
     main: ./main.go
     flags:
-      - -tags={{.Env.DATREE_DEPLOYMENT}}
+      - -tags={{.Env.GO_BUILD_TAG}}
     ldflags:
       - -X github.com/datreeio/datree/cmd.CliVersion={{.Env.DATREE_BUILD_VERSION}}
   - env:
@@ -29,7 +29,7 @@ builds:
       - darwin
     main: ./main.go
     flags:
-      - -tags={{.Env.DATREE_DEPLOYMENT}}
+      - -tags={{.Env.GO_BUILD_TAG}}
     ldflags:
       - -X github.com/datreeio/datree/cmd.CliVersion={{.Env.DATREE_BUILD_VERSION}}
     hooks:
