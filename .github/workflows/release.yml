@@ -1,0 +1,60 @@
+name: Release Workflow
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Triggered by:"
+        required: false
+        default: "myishay"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - env:
+          TRAVIS_API_TOKEN: ${{ secrets.TRAVIS_API_TOKEN }}
+        run: |
+          echo "Triggered by: ${{ github.actor }}!"
+          branch_name=${{ steps.extract_branch.outputs.branch }}
+          commit_sha=${{ github.sha }}
+
+          echo "branch name: $branch_name"
+          if [ "$branch_name" != "staging" ]; then # TODO: change back to `main` after deleting staging branch
+              echo "Release should build only from main branch"
+              exit 1
+          fi
+          if [ -z "$TRAVIS_API_TOKEN" ]; then
+              echo "TRAVIS_API_TOKEN is empty"
+              exit 1
+          fi
+
+          BODY="
+          {
+            \"request\": {
+              \"branch\": \"$branch_name\",
+              \"sha\": \"$commit_sha\",
+              \"merge_mode\": \"deep_merge_append\",
+              \"config\": {
+                \"env\": {
+                  \"global\": [
+                    \"RELEASE_DATREE_PROD=true\"
+                  ]
+                }
+              }
+            }
+          }
+          "
+          GH_ORGANIZATION_NAME="datreeio"
+          GH_REPOSITORY_NAME="datree"
+
+          curl -s -X POST \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              -H "Travis-API-Version: 3" \
+              -H "Authorization: token ${TRAVIS_API_TOKEN}" \
+              -d "$BODY" \
+              "https://api.travis-ci.com/repo/${GH_ORGANIZATION_NAME}%2F${GH_REPOSITORY_NAME}/requests"

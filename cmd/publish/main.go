@@ -2,6 +2,7 @@ package publish
 
 import (
 	"fmt"
+
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -22,7 +23,7 @@ type LocalConfig interface {
 }
 
 type CliClient interface {
-	PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) error
+	PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) (*cliClient.PublishFailedResponse, error)
 }
 
 type PublishCommandContext struct {
@@ -56,9 +57,14 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 				}
 			}()
 
-			err := publish(ctx, args[0])
-			if err != nil {
-				ctx.Printer.PrintMessage("Publish failed:\n"+err.Error()+"\n", "error")
+			publishFailedResponse, err := publish(ctx, args[0])
+			if publishFailedResponse != nil {
+				ctx.Printer.PrintMessage("Publish failed:\n", "error")
+				for _, message := range publishFailedResponse.Payload {
+					ctx.Printer.PrintMessage("\t"+message+"\n", "error")
+				}
+			} else if err != nil {
+				ctx.Printer.PrintMessage("Publish failed: \n"+err.Error()+"\n", "error")
 			} else {
 				ctx.Printer.PrintMessage("Published successfully\n", "green")
 			}
@@ -80,17 +86,16 @@ type MessagesContext struct {
 	CliClient   *cliClient.CliClient
 }
 
-func publish(ctx *PublishCommandContext, path string) error {
+func publish(ctx *PublishCommandContext, path string) (*cliClient.PublishFailedResponse, error) {
 	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	policiesConfiguration, err := files.ExtractYamlFileToUnknownStruct(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = ctx.PublishCliClient.PublishPolicies(policiesConfiguration, localConfigContent.CliId)
-	return err
+	return ctx.PublishCliClient.PublishPolicies(policiesConfiguration, localConfigContent.CliId)
 }
