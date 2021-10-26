@@ -47,7 +47,7 @@ All the information needed to get started, as well as a bunch of other cool feat
 `helm plugin install https://github.com/datreeio/helm-datree`  
 
 ## Built-in schema & policy validation
-Every check will validate [your schema](https://hub.datree.io/schema-validation/#utm_source=github&utm_medium=organic_oss). In additional, there are 30 battle-tested rules for you to select to create your policy.
+Every check will validate [your schema](https://hub.datree.io/schema-validation/#utm_source=github&utm_medium=organic_oss). In addition, there are 30 battle-tested rules for you to select to create your policy.
 
 The policy rules cover a variety of Kubernetes resources and use cases:
 * [Workload](https://hub.datree.io/workload/#utm_source=github&utm_medium=organic_oss)
@@ -58,7 +58,7 @@ The policy rules cover a variety of Kubernetes resources and use cases:
 * [Others](https://hub.datree.io/other/#utm_source=github&utm_medium=organic_oss)
 
 ## Custom rules
-You can extend our built-in rules, and also write [any custom rule](https://hub.datree.io/custom-rules-overview/#utm_source=github&utm_medium=organic_oss) that you desire and run them against your Kubernetes configurations to check for rule violations. The custom rules engine is based on JSON Schema.
+In additon to our built-in rules, you can write [any custom rule](https://hub.datree.io/custom-rules-overview/#utm_source=github&utm_medium=organic_oss) you wish, and then run them against your Kubernetes configurations to check for rule violations. The custom rule engine is based on JSON Schema.
 
 ## Support
 
