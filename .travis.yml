@@ -33,6 +33,7 @@ deploy:
     skip_cleanup: true
     script: bash ./scripts/release.sh
     on:
+      all_branches: true
       condition: $RELEASE_DATREE_PROD = true
 
 env:
