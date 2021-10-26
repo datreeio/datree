@@ -11,6 +11,7 @@ if test -z "$latestRcTag"; then
     echo "couldn't find latestRcTag"
     exit 1
 fi
+echo $latestRcTag
 
 git checkout $latestRcTag
 
