@@ -2,10 +2,9 @@ name: Release Workflow
 on:
   workflow_dispatch:
     inputs:
-      name:
-        description: "Triggered by:"
+      release_candidate_version:
+        description: "Release Candidate Version:"
         required: false
-        default: "myishay"
 
 jobs:
   release:
@@ -23,7 +22,7 @@ jobs:
           commit_sha=${{ github.sha }}
 
           echo "branch name: $branch_name"
-          if [ "$branch_name" != "main" ]; then
+          if [ "$branch_name" != "staging" ]; then # TODO: change back to `main` after deleting staging branch
               echo "Release should build only from main branch"
               exit 1
           fi
@@ -41,7 +40,8 @@ jobs:
               \"config\": {
                 \"env\": {
                   \"global\": [
-                    \"RELEASE_DATREE_PROD=true\"
+                    \"RELEASE_DATREE_PROD=true\",
+                    \"RELEASE_CANDIDATE_VERSION=${{ github.event.inputs.release_candidate_version }}\"
                   ]
                 }
               }
@@ -57,4 +57,4 @@ jobs:
               -H "Travis-API-Version: 3" \
               -H "Authorization: token ${TRAVIS_API_TOKEN}" \
               -d "$BODY" \
-              "https://api.travis-ci.com/repo/${GH_ORGANIZATION_NAME}/${GH_REPOSITORY_NAME}/requests"
+              "https://api.travis-ci.com/repo/${GH_ORGANIZATION_NAME}%2F${GH_REPOSITORY_NAME}/requests"

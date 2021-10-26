@@ -24,6 +24,7 @@ func TestValidateResources(t *testing.T) {
 	test_valid_multiple_configurations(t)
 	test_valid_multiple_configurations_only_k8s_files(t)
 	test_invalid_file(t)
+	t.Run("test empty file", test_empty_file)
 }
 
 func test_valid_multiple_configurations(t *testing.T) {
@@ -84,6 +85,30 @@ func test_invalid_file(t *testing.T) {
 	}
 
 	path := "../../internal/fixtures/kube/invalidK8sSchema.yaml"
+
+	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
+	filesConfigurationsChan <- &extractor.FileConfigurations{
+		FileName:       path,
+		Configurations: []extractor.Configuration{},
+	}
+	close(filesConfigurationsChan)
+	_, invalidFilesChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+
+	for p := range invalidFilesChan {
+		assert.Equal(t, path, p.Path)
+	}
+}
+
+func test_empty_file(t *testing.T) {
+	validationClient := &mockValidationClient{}
+	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
+		{Status: kubeconformValidator.Invalid, Err: fmt.Errorf("empty file")},
+	})
+	k8sValidator := K8sValidator{
+		validationClient: validationClient,
+	}
+
+	path := "../../internal/fixtures/kube/empty.yaml"
 
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 	filesConfigurationsChan <- &extractor.FileConfigurations{
