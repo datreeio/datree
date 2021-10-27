@@ -32,17 +32,13 @@ def trailing_period(msg):
         sys.exit(1)
 
 
-def validate_commit(c):
-    msg = c["message"]
-    commit_msg_len(msg)
-    commit_type(msg)
-    first_letter_case(msg)
-    trailing_period(msg)
-
-
 if __name__ == "__main__":
 
     with open(os.environ.get("GITHUB_EVENT_PATH")) as f:
         data = json.load(f)
         for c in data["commits"]:
-            validate_commit(c)
+            msg = c["message"]
+            commit_msg_len(msg)
+            commit_type(msg)
+            first_letter_case(msg)
+            trailing_period(msg)
