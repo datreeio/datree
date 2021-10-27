@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -67,7 +66,7 @@ func (c *Client) Request(method string, resourceURI string, body interface{}, he
 
 	defer response.Body.Close()
 
-	b, err := ioutil.ReadAll(response.Body)
+	b, err := io.ReadAll(response.Body)
 	if err != nil {
 		return responseBody, err
 	}
