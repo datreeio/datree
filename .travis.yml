@@ -27,13 +27,13 @@ deploy:
     skip_cleanup: true
     script: bash ./scripts/deploy_release_candidate.sh
     on:
-      branch: staging # TODO: change to main before production ready
+      branch: main
       condition: $RELEASE_DATREE_PROD != true
   - provider: script
     skip_cleanup: true
     script: bash ./scripts/release.sh
     on:
-      all_branches: true
+      all_branches: true # TODO: on branch: main
       condition: $RELEASE_DATREE_PROD = true
 
 env:
