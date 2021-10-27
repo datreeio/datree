@@ -106,8 +106,16 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, error
 	if err != nil {
 		return false, []error{}, fmt.Errorf("failed opening %s: %s", filepath, &InvalidK8sSchemaError{ErrorMessage: err.Error()})
 	}
+	defer f.Close()
 
 	results := val.validationClient.Validate(filepath, f)
+
+	// Return an error if no valid configurations found
+	// Empty files are throwing errors in k8s
+	if len(results) == 1 && results[0].Status == kubeconformValidator.Empty{
+		return false, []error{&InvalidK8sSchemaError{ErrorMessage: "empty file"}}, nil
+	}
+
 	isValid := true
 	var validationErrors []error
 	for _, res := range results {
