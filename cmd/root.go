@@ -59,11 +59,7 @@ func init() {
 		PublishCliClient: app.context.CliClient,
 	}))
 
-	rootCmd.AddCommand(completion.New(&completion.CompletionCommandContext{
-		CliVersion: CliVersion,
-		Messager:   app.context.Messager,
-		Printer:    app.context.Printer,
-	}))
+	rootCmd.AddCommand(completion.New())
 }
 
 func Execute() error {

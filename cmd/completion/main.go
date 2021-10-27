@@ -3,24 +3,10 @@ package completion
 import (
 	"os"
 
-	"github.com/datreeio/datree/bl/messager"
 	"github.com/spf13/cobra"
 )
 
-type Messager interface {
-	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
-}
-
-type Printer interface {
-	PrintMessage(messageText string, messageColor string)
-}
-type CompletionCommandContext struct {
-	CliVersion string
-	Messager   Messager
-	Printer    Printer
-}
-
-func New(ctx *CompletionCommandContext) *cobra.Command {
+func New() *cobra.Command {
 	var completionCmd = &cobra.Command{
 		Use:   "completion [bash|zsh|fish|powershell]",
 		Short: "Generate completion script for bash,zsh,fish,powershell",
