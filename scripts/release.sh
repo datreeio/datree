@@ -12,7 +12,7 @@ if test -z "$latestRcTag"; then
     exit 1
 fi
 echo $latestRcTag
-
+echo test
 git checkout $latestRcTag
 
 release_tag=${latestRcTag%-rc}
