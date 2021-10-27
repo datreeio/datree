@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -231,7 +231,7 @@ func readMock(path string) ([]extractor.Configuration, error) {
 	var configurations []extractor.Configuration
 
 	absPath, _ := filepath.Abs(path)
-	content, err := ioutil.ReadFile(absPath)
+	content, err := os.ReadFile(absPath)
 
 	if err != nil {
 		return []extractor.Configuration{}, err

@@ -3,7 +3,7 @@ package extractor
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
+	"os"
 
 	"gopkg.in/yaml.v3"
 )
@@ -54,7 +54,7 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 }
 
 func ReadFileContent(filepath string) (string, error) {
-	dat, err := ioutil.ReadFile(filepath)
+	dat, err := os.ReadFile(filepath)
 	if err != nil {
 		return "", err
 	}
