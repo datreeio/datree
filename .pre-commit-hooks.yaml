@@ -2,7 +2,8 @@
 - id: datree-test-golang-built
   name: datree test, build datree and run it (golang is dependency)
   description: Prevent Kubernetes misconfigurations from reaching production
-  entry: datree test --only-k8s-files
+  entry: datree
+  args: ['test', '--only-k8s-files']
   types: [file, yaml]
   language: golang
   pass_filenames: true
@@ -14,6 +15,7 @@
 # now as our CI tool package manager - no version pinning in .pre-commit-config.yaml :(
   description: Prevent Kubernetes misconfigurations from reaching production
   entry: /usr/local/bin/datree
+  args: ['test', '--only-k8s-files']
   types: [file, yaml]
   language: system
 
@@ -25,6 +27,7 @@
   types: [file, yaml]
   language: docker_image
   pass_filenames: true
+  args: ['test', '--only-k8s-files']
 
   # entry: datree/datree:latest
   # this errors out :(
@@ -36,6 +39,6 @@
 
   # I updated your Dockerfile. Includes update to go 1.17 and it now works when I point to a local repo built with
   # the same Dockerfile. I also added a multi-stage build which brought container size down from ~430mb to ~20mb
-  entry: datree-test:latest test --only-k8s-files
+  entry: datree-test:latest
   # if we wanted to use your dockerhub repo it would be
   # entry: datree/datree:latest test --only-k8s-files
