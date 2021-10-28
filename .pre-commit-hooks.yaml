@@ -1,7 +1,41 @@
-- id: datree-test
-  name: datree test
+# build from source of datree
+- id: datree-test-golang-built
+  name: datree test, build datree and run it (golang is dependency)
   description: Prevent Kubernetes misconfigurations from reaching production
   entry: datree test --only-k8s-files
   types: [file, yaml]
   language: golang
   pass_filenames: true
+
+# use a pre-installed binary of datree, user must run install.sh prior to using pre-commit hook
+- id: datree-test-pre-installed
+  name: datree test, datree is already installed locally
+# Via the current install.sh? his reduces the effectiveness of pre-commit
+# now as our CI tool package manager - no version pinning in .pre-commit-config.yaml :(
+  description: Prevent Kubernetes misconfigurations from reaching production
+  entry: /usr/local/bin/datree
+  types: [file, yaml]
+  language: system
+
+# use Docker to run datree, use :latest or semantic versioning tag in dockerhub
+# to pin a particular release
+- id: datree-test-docker
+  name: datree test, run within docker
+  description: Prevent Kubernetes misconfigurations from reaching production
+  types: [file, yaml]
+  language: docker_image
+  pass_filenames: true
+
+  # entry: datree/datree:latest
+  # this errors out :(
+  # starting container process caused: exec: "./datree": stat ./datree: no such file or directory: unknown.
+
+  # entry: --entrypoint './datree test --only-k8s-files' datree/datree:latest
+  # this errors out:
+  # starting container process caused: exec: "./datree test --only-k8s-files": stat ./datree test --only-k8s-files: no such file or directory: unknown.
+
+  # I updated your Dockerfile. Includes update to go 1.17 and it now works when I point to a local repo built with
+  # the same Dockerfile. I also added a multi-stage build which brought container size down from ~430mb to ~20mb
+  entry: datree-test:latest test --only-k8s-files
+  # if we wanted to use your dockerhub repo it would be
+  # entry: datree/datree:latest test --only-k8s-files
