@@ -16,9 +16,8 @@ echo $latestRcTag
 git checkout $latestRcTag
 
 release_tag=${latestRcTag%-rc}
-release_tag="$release_tag-test-yishay" # TODO: remove for creating real production release
 git tag $release_tag -a -m "Generated tag from manual TravisCI for production build $TRAVIS_BUILD_NUMBER"
-git push --tags
+git push origin $release_tag # TODO: check if goreleaser pushes the tag itself (so no need to push here)
 
 bash ./scripts/sign_application.sh
 
@@ -27,7 +26,7 @@ echo $DATREE_BUILD_VERSION
 
 curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash
 
-# bash ./scripts/brew_push_formula.sh production $release_tag # TODO: uncomment on prod
+bash ./scripts/brew_push_formula.sh production $DATREE_BUILD_VERSION
 
 git checkout -b "release/${release_tag}"
 git push origin "release/${release_tag}"

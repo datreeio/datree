@@ -6,6 +6,7 @@ os: osx
 osx_image: xcode12.5
 
 script:
+  - echo $RELEASE_DATREE_PROD
   - "travis_wait 60 sleep 3600 &"
   - export GO_BUILD_TAG=$(bash ./scripts/define_build_tag.sh)
   - go build -tags $GO_BUILD_TAG
@@ -27,13 +28,13 @@ deploy:
     script: bash ./scripts/deploy_release_candidate.sh
     on:
       branch: main
-      condition: $RELEASE_DATREE_PROD != 'true'
+      condition: $RELEASE_DATREE_PROD != true
   - provider: script
     skip_cleanup: true
     script: bash ./scripts/release.sh
     on:
-      branch: staging # TODO: change to main when removing staging branch
-      condition: $RELEASE_DATREE_PROD = 'true'
+      branch: main
+      condition: $RELEASE_DATREE_PROD = true
 
 env:
   global:
