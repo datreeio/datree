@@ -22,7 +22,7 @@ jobs:
           commit_sha=${{ github.sha }}
 
           echo "branch name: $branch_name"
-          if [ "$branch_name" != "staging" ]; then # TODO: change back to `main` after deleting staging branch
+          if [ "$branch_name" != "main" ]; then
               echo "Release should build only from main branch"
               exit 1
           fi
