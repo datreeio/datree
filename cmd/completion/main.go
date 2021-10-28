@@ -1,10 +1,14 @@
 package completion
 
 import (
+	"fmt"
+	"io"
 	"os"
 
 	"github.com/spf13/cobra"
 )
+
+var out io.Writer = os.Stdout
 
 func New() *cobra.Command {
 	var completionCmd = &cobra.Command{
@@ -55,13 +59,25 @@ func New() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			switch args[0] {
 			case "bash":
-				cmd.Root().GenBashCompletion(os.Stdout)
+				err := cmd.Root().GenBashCompletion(out)
+				if err != nil {
+					fmt.Printf("Failed to generate bash script. Error : %v", err)
+				}
 			case "zsh":
-				cmd.Root().GenZshCompletion(os.Stdout)
+				err := cmd.Root().GenZshCompletion(out)
+				if err != nil {
+					fmt.Printf("Failed to generate zsh script. Error : %v", err)
+				}
 			case "fish":
-				cmd.Root().GenFishCompletion(os.Stdout, true)
+				err := cmd.Root().GenFishCompletion(out, true)
+				if err != nil {
+					fmt.Printf("Failed to generate fish script. Error : %v", err)
+				}
 			case "powershell":
-				cmd.Root().GenPowerShellCompletionWithDesc(os.Stdout)
+				err := cmd.Root().GenPowerShellCompletionWithDesc(out)
+				if err != nil {
+					fmt.Printf("Failed to generate powershell script. Error : %v", err)
+				}
 			}
 		},
 	}
