@@ -71,8 +71,6 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 
 			return err
 		},
-		SilenceUsage:  true,
-		SilenceErrors: true,
 	}
 
 	return publishCommand

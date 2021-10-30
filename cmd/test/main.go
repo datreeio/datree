@@ -133,8 +133,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			}
 			return nil
 		},
-		SilenceUsage:  true,
-		SilenceErrors: true,
 	}
 
 	testCommand.Flags().StringP("output", "o", "", "Define output format")
