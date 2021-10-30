@@ -24,7 +24,7 @@ If applicable, add screenshots to help explain your problem.
 **Desktop (please complete the following information):**
  - OS: [e.g. Linux]
 
-**Datree version (run `datree verion`):**
+**Datree version (run `datree version`):**
  - Version: [e.g. 0.1.443]
 
 **Additional context**  
