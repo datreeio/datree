@@ -1,7 +1,14 @@
-name: Check commit messages
-on: pull_request
+name: PR title
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
 jobs:
-  check-commit:
+  check:
     runs-on: ubuntu-latest
     steps:
       - name: checkout repo content
