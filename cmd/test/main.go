@@ -3,7 +3,6 @@ package test
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -82,12 +81,13 @@ func New(ctx *TestCommandContext) *cobra.Command {
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				errMessage := "Requires at least 1 arg\n"
-				cmd.Usage()
 				return fmt.Errorf(errMessage)
 			}
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true
+			cmd.SilenceErrors = true
 			var err error = nil
 			defer func() {
 				if err != nil {
@@ -133,8 +133,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			}
 			return nil
 		},
-		SilenceUsage:  true,
-		SilenceErrors: true,
 	}
 
 	testCommand.Flags().StringP("output", "o", "", "Define output format")
@@ -158,7 +156,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		if len(paths) > 1 {
 			return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(paths[1:], ",")))
 		}
-		tempFile, err := ioutil.TempFile("", "datree_temp_*.yaml")
+		tempFile, err := os.CreateTemp("", "datree_temp_*.yaml")
 		if err != nil {
 			return err
 		}
