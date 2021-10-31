@@ -1,5 +1,8 @@
 name: Check commit messages
-on: push
+on: 
+  push:
+    branches-ignore:
+      - 'main'
 jobs:
   check-commit:
     runs-on: ubuntu-latest
