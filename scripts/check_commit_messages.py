@@ -38,6 +38,7 @@ if __name__ == "__main__":
         data = json.load(f)
         for c in data["commits"]:
             msg = c["message"]
+            print(msg)
             commit_msg_len(msg)
             commit_type(msg)
             first_letter_case(msg)
