@@ -1,5 +1,5 @@
 name: Check commit messages
-on: push
+on: pull_request
 jobs:
   check-commit:
     runs-on: ubuntu-latest
