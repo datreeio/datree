@@ -82,12 +82,13 @@ func New(ctx *TestCommandContext) *cobra.Command {
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				errMessage := "Requires at least 1 arg\n"
-				cmd.Usage()
 				return fmt.Errorf(errMessage)
 			}
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true
+			cmd.SilenceErrors = true
 			var err error = nil
 			defer func() {
 				if err != nil {
