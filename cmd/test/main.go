@@ -3,7 +3,6 @@ package test
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -157,7 +156,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		if len(paths) > 1 {
 			return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(paths[1:], ",")))
 		}
-		tempFile, err := ioutil.TempFile("", "datree_temp_*.yaml")
+		tempFile, err := os.CreateTemp("", "datree_temp_*.yaml")
 		if err != nil {
 			return err
 		}

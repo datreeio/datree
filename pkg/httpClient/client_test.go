@@ -3,7 +3,7 @@ package httpClient
 import (
 	"bytes"
 	"compress/gzip"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -100,7 +100,7 @@ func createMockServer(t *testing.T, tc *testCase) *httptest.Server {
 
 		assert.Equal(t, tc.path, req.URL.String())
 
-		body, _ := ioutil.ReadAll(req.Body)
+		body, _ := io.ReadAll(req.Body)
 
 		if len(tc.expectedRequestBody) > 0 {
 			gunzippedBody := gunzipBody(body)

@@ -1,7 +1,6 @@
 package fileReader
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -29,7 +28,7 @@ type FileReaderOptions struct {
 
 func CreateFileReader(opts *FileReaderOptions) *FileReader {
 	fileReader := &FileReader{
-		readFile: ioutil.ReadFile,
+		readFile: os.ReadFile,
 		glob:     doublestar.Glob,
 		abs:      filepath.Abs,
 		stat:     os.Stat,
