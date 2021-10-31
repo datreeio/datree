@@ -2,7 +2,7 @@ package version
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/datreeio/datree/bl/messager"
@@ -45,13 +45,13 @@ func Test_ExecuteCommand(t *testing.T) {
 	cmd := New(&VersionCommandContext{
 		CliVersion: "1.2.3",
 		Messager:   messager,
-		Printer: printer,
+		Printer:    printer,
 	})
 
 	b := bytes.NewBufferString("1.2.3")
 	cmd.SetOut(b)
 	cmd.Execute()
-	out, err := ioutil.ReadAll(b)
+	out, err := io.ReadAll(b)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -3,10 +3,10 @@ package files
 import (
 	"bytes"
 	"fmt"
-	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -71,7 +71,7 @@ func ExtractYamlFileToUnknownStruct(path string) (UnknownStruct, error) {
 		return nil, err
 	}
 
-	yamlContent, err := ioutil.ReadFile(absolutePath)
+	yamlContent, err := os.ReadFile(absolutePath)
 	if err != nil {
 		return nil, err
 	}
