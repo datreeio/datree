@@ -16,4 +16,4 @@ jobs:
       - name: setup python
         uses: actions/setup-python@v2
       - name: check PR title
-        run: python ./scripts/check_pr_title.py.py
+        run: python ./scripts/check_pr_title.py
