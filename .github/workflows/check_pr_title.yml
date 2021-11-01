@@ -15,5 +15,5 @@ jobs:
         uses: actions/checkout@v2
       - name: setup python
         uses: actions/setup-python@v2
-      - name: check commit messages
-        run: python ./scripts/check_commit_messages.py
+      - name: check PR title
+        run: python ./scripts/check_pr_title.py.py
