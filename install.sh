@@ -5,8 +5,8 @@ set -e
 osName=$(uname -s)
 
 osArchitecture=$(uname -m)
-if [[ osArchitecture == *'aarch'* || osArchitecture == *'arm'* ]]; then
-	osArchitecture = 'arm64'
+if [[ $osArchitecture == *'aarch'* || $osArchitecture == *'arm'* ]]; then
+	osArchitecture='arm64'
 fi
 
 DOWNLOAD_URL=$(curl --silent "https://api.github.com/repos/datreeio/datree/releases/latest" | grep -o "browser_download_url.*\_${osName}_${osArchitecture}.zip")
