@@ -95,7 +95,7 @@ Before you submit your Pull Request (PR) consider the following guidelines:
     git push origin my-fix-branch
     ```
 
-11. In GitHub, send a pull request to `datree:staging`.
+11. In GitHub, send a pull request to `datree:main`.
 
 ### Reviewing a Pull Request
 
