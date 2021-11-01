@@ -18,7 +18,8 @@ if ((Get-ExecutionPolicy).ToString() -notin $allowedExecutionPolicy) {
     break
 }
 
-$DOWNLOAD_URL = (Invoke-WebRequest -Uri 'https://api.github.com/repos/datreeio/datree/releases/latest' -UseBasicParsing | select-string -Pattern 'https://github.com/datreeio/datree/releases/download/\d+\.\d+\.\d+/datree-cli_\d+\.\d+\.\d+_windows_x86_64.zip').Matches.Value
+$osArchitecture = if([Environment]::Is64BitProcess) { 'x86_64' } else { '386' }
+$DOWNLOAD_URL = (Invoke-WebRequest -Uri 'https://api.github.com/repos/datreeio/datree/releases/latest' -UseBasicParsing | select-string -Pattern "https://github.com/datreeio/datree/releases/download/\d+\.\d+\.\d+/datree-cli_\d+\.\d+\.\d+_windows_$osArchitecture.zip").Matches.Value
 $OUTPUT_BASENAME = "datree-latest"
 $OUTPUT_BASENAME_WITH_POSTFIX = "$OUTPUT_BASENAME.zip"
 
