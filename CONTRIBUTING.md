@@ -9,7 +9,7 @@ As a contributor, here are the guidelines we would like you to follow:
  - [Feature Requests](#feature)
  - [Submission Guidelines](#submit)
  - [Commit Message Guidelines](#commit)
- - [Signing the CLA](#cla)
+ - [Signing the CL](#cla)
 
 
 ## <a name="coc"></a> Code of Conduct
