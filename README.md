@@ -10,7 +10,7 @@
 
 ## Community
 <a href="https://bit.ly/3BHwCEG" target="_blank">
- <img src="https://img.shields.io/badge/Slack-4A154B?logo=slack&color=black&logoColor=white&style=for-the-badge alt="Join our Slack!" width="120" height="40"> 
+ <img src="https://img.shields.io/badge/Slack-4A154B?logo=slack&color=black&logoColor=white&style=for-the-badge alt="Join our Slack!" width=="50" height="30"> 
                                                                                                                  
 </a> 
 
