@@ -59,12 +59,12 @@ jobs:
               -d "$BODY" \
               "https://api.travis-ci.com/repo/${GH_ORGANIZATION_NAME}%2F${GH_REPOSITORY_NAME}/requests"
 
-  docker-images:
+  release-docker:
     env:
       REPO_NAME: datree
       IMAGE_NAME: datree
       COMMIT_SHA: ${{ github.sha }}
-    name: Docker image build / push
+    name: Release container image to public registries
     needs: release
     runs-on: ubuntu-latest
     steps:
