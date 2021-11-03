@@ -74,9 +74,6 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    #- uses: docker/setup-qemu-action@v1
-    #this should only be needed if building
-    #for other platforms like linux/arm64
     - name: Build and push to registries
       uses: docker/build-push-action@v2
       with:
