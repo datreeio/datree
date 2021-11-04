@@ -1,5 +1,5 @@
 <p align="center">
- <img src="https://raw.githubusercontent.com/datreeio/datree/main/images/datree_LOGO-180px.png" height=170 alt="datree" border="0" />
+ <img src="https://raw.githubusercontent.com/datreeio/datree/main/images/datree_LOGO-180px.png" height=100 alt="datree" border="0" />
 </p>
  
 ![Travis (.com) branch](https://img.shields.io/travis/com/datreeio/datree/staging?label=build-staging)
@@ -10,8 +10,7 @@
 
 ## Community
 <a href="https://bit.ly/3BHwCEG" target="_blank">
- <img src="https://img.shields.io/badge/Slack-4A154B?logo=slack&color=black&logoColor=white&style=for-the-badge alt="Join our Slack!" width=="50" height="30"> 
-                                                                                                                 
+ <img src="https://img.shields.io/badge/Slack-4A154B?logo=slack&color=black&logoColor=white&style=for-the-badge alt="Join our Slack!" width="80" height="30">
 </a> 
 
 ## What is Datree?
