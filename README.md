@@ -1,5 +1,6 @@
-<p align="center">
- <img src="https://raw.githubusercontent.com/datreeio/datree/main/images/datree_LOGO-180px.png" height=90 alt="datree" border="0" />
+# Datree
+<p align="left">
+ <img src="https://raw.githubusercontent.com/datreeio/datree/logo/images/datree_ICON%20FLAT.png" height=90 alt="datree" border="0" />
 </p>
  
 ![Travis (.com) branch](https://img.shields.io/travis/com/datreeio/datree/staging?label=build-staging)
