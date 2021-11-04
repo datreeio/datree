@@ -7,7 +7,7 @@ else
     latestRcTag="$1"
 fi
 
-pattern="^[0-9]+\.[0-9]+\.[0-9]+\-rc$" 
+pattern="^[0-9]+\.[0-9]+\.[0-9]+\-rc$"
 if [[ ! $latestRcTag =~ $pattern ]]; then
     echo "release candidate does not match expected pattern"
     exit 1
