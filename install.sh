@@ -45,8 +45,9 @@ echo
 
 echo -e "\033[35m Usage: $ datree test ~/.datree/k8s-demo.yaml"
 
-echo -e " Using Helm? => https://hub.datree.io/helm-plugin \033[0m"
+echo -e " Using Helm? => https://hub.datree.io/helm-plugin"
 
+echo -e " Run 'datree completion $SHELL' to generate shell autocompletions \033[0m"
 tput init
 
 echo

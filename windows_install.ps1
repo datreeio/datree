@@ -55,3 +55,5 @@ Write-Host "    Usage: datree test `$home/.datree/k8s-demo.yaml" -ForegroundColo
 Write-Host ""
 Write-Host "    Using Helm? => https://hub.datree.io/helm-plugin"
 Write-Host ""
+Write-Host "    Run 'datree completion powershell' to generate shell autocompletions"
+Write-Host ""
