@@ -13,7 +13,10 @@ jobs:
       - uses: actions/checkout@v2
       - id: define_version
         name: Define release version
-        run: echo "##[set-output name=version;]$(bash ./scripts/define_release_version.sh ${{ github.event.inputs.release_candidate_version }})"
+        run: |-
+          OUTPUT_VERSION=$(bash scripts/define_release_version.sh ${{ github.event.inputs.release_candidate_version }})
+          echo "detected version = $OUTPUT_VERSION"
+          echo ::set-output name=version::$(echo $OUTPUT_VERSION)
     outputs:
       version: ${{ steps.define_version.outputs.version }}
 
