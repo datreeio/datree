@@ -1,14 +1,18 @@
-# Datree
-<p align="left">
+<h1 align="center">
+ Datree
+ </h1>
+<p align="center">
  <img src="https://raw.githubusercontent.com/datreeio/datree/logo/images/datree_ICON%20FLAT.png" height=90 alt="datree" border="0" />
 </p>
- 
-![Travis (.com) branch](https://img.shields.io/travis/com/datreeio/datree/staging?label=build-staging)
-![Travis (.com) branch](https://img.shields.io/travis/com/datreeio/datree/main?label=build-main)
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fdatreeio%2Fdatree&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23E7E7E7&title=views+%28today+%2F+total%29&edge_flat=false)](https://hits.seeyoufarm.com)
-![Github Releases (by Release)](https://img.shields.io/github/downloads/datreeio/datree/total.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/datreeio/datree)](https://goreportcard.com/report/github.com/datreeio/datree)
 
+<p align="center">
+ <img src="https://img.shields.io/travis/com/datreeio/datree/staging?label=build-staging" target="_blank"></a>
+ <img src="https://img.shields.io/travis/com/datreeio/datree/main?label=build-main" target="_blank"></a>
+ <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fdatreeio%2Fdatree&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23E7E7E7&title=views+%28today+%2F+total%29&edge_flat=false" target="_blank"></a>
+ <img src="https://img.shields.io/github/downloads/datreeio/datree/total.svg" target="_blank"></a>
+ <img src="https://goreportcard.com/badge/github.com/datreeio/datree" target="_blank"></a>
+</p>
+ 
 ## Community
 <a href="https://bit.ly/3BHwCEG" target="_blank">
  <img src="https://img.shields.io/badge/Slack-4A154B?logo=slack&color=black&logoColor=white&style=for-the-badge alt="Join our Slack!" width="80" height="30">
