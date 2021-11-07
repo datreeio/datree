@@ -2,7 +2,7 @@
  Datree
  </h1>
 <p align="center">
- <img src="https://raw.githubusercontent.com/datreeio/datree/logo/images/datree_ICON%20FLAT.png" height=90 alt="datree" border="0" />
+ <img src="https://github.com/datreeio/datree/blob/main/images/datree_ICON%20FLAT.png" height=90 alt="datree" border="0" />
 </p>
 
 <p align="center">
