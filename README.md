@@ -1,6 +1,6 @@
 
 <p align="center">
- <img src="https://github.com/datreeio/datree/blob/main/images/datree_ICON%20FLAT.png" height=90 alt="datree" border="0" />
+ <img src="https://github.com/datreeio/datree/blob/main/images/datree_GitHub_hero.png" alt="datree=github" border="0" />
 </p>
 
 <h1 align="center">
