@@ -75,7 +75,7 @@ The policy rules cover a variety of [Kubernetes resources and use cases](https:/
 * Others
 
 ## 🔧 Custom rules
-In additon to our built-in rules, you can write [any custom rule](https://hub.datree.io/custom-rules-overview/#utm_source=github&utm_medium=organic_oss) you wish, and then run them against your Kubernetes configurations to check for rule violations. The custom rule engine is based on JSON Schema.
+In addition to our built-in rules, you can write [any custom rule](https://hub.datree.io/custom-rules-overview/#utm_source=github&utm_medium=organic_oss) you wish, and then run them against your Kubernetes configurations to check for rule violations. The custom rule engine is based on JSON Schema.
 
 ## 🔗 CI/CD integrations
 Like any linter or static code analysis tool, Datree's command-line tool can be **integrated with all CI/CD platforms** to automatically scan every code change and provide feedback as part of the workflow. In the [docs](https://hub.datree.io/integrations/#utm_source=github&utm_medium=organic_oss), you can find examples of some of the common CI/CD platforms.  
