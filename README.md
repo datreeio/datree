@@ -63,8 +63,8 @@ You can also checkout our [interactive demo scenario](https://www.katacoda.com/d
 
 `helm plugin install https://github.com/datreeio/helm-datree`  
 
-## 🤖 Built-in schema & policy validation
-Every check will validate [your schema](https://hub.datree.io/schema-validation/#utm_source=github&utm_medium=organic_oss). In addition, there are 30 battle-tested rules for you to select to create your policy.
+## 🤖 Built-in schema validation & policy check
+Every policy check will (also) validate your [Kubernetes schema](https://hub.datree.io/schema-validation/#utm_source=github&utm_medium=organic_oss). In addition, there are 30 battle-tested rules for you to select to create your policy.
 
 The policy rules cover a variety of [Kubernetes resources and use cases](https://hub.datree.io/built-in-rules/#utm_source=github&utm_medium=organic_oss):
 * Workload
@@ -77,9 +77,10 @@ The policy rules cover a variety of [Kubernetes resources and use cases](https:/
 ## 🔧 Custom rules
 In additon to our built-in rules, you can write [any custom rule](https://hub.datree.io/custom-rules-overview/#utm_source=github&utm_medium=organic_oss) you wish, and then run them against your Kubernetes configurations to check for rule violations. The custom rule engine is based on JSON Schema.
 
-## 🚑 Support
+## 🔗 CI/CD integrations
+Like any linter or static code analysis tool, Datree's command-line tool can be **integrated with all CI/CD platforms** to automatically scan every code change and provide feedback as part of the workflow. In the [docs](https://hub.datree.io/integrations/#utm_source=github&utm_medium=organic_oss), you can find examples of some of the common CI/CD platforms.  
 
-[Datree](https://datree.io/#utm_source=github&utm_medium=organic_oss) builds and maintains this project to make Kubernetes policies simple and accessible. Start with our [documentation](https://hub.datree.io/#utm_source=github&utm_medium=organic_oss) for quick tutorials and examples.
+If you run into any difficulties with CI/CD integrations, please join our [community Slack channel](https://bit.ly/3BHwCEG) or open an issue, and we'd be happy to guide you through it.  
 
 ## Disclaimer
 
