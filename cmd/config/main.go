@@ -10,9 +10,10 @@ type Messager interface {
 	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
 }
 
-type Printer intace {
-PrintMessage(messageText string, messageColor string)
+type Printer interface {
+	PrintMessage(messageText string, messageColor string)
 }
+
 type LocalConfig interface {
 	GetLocalConfiguration() (*localConfig.ConfigContent, error)
 	Set(key string, value string) error
