@@ -64,7 +64,7 @@ jobs:
           }
           "
 
-          REQUEST_BUILD_BODY=$REQUEST_BUILD_BODY ./request-travis-build-and-wait-until-finished.sh
+          REQUEST_BUILD_BODY=$REQUEST_BUILD_BODY ./.github/workflows/request-travis-build-and-wait-until-finished.sh
   release-docker:
     env:
       REPO_NAME: datree
