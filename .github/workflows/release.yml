@@ -45,7 +45,7 @@ jobs:
               exit 1
           fi
 
-          BODY="
+          REQUEST_BUILD_BODY="
           {
             \"request\": {
               \"branch\": \"$branch_name\",
@@ -62,23 +62,14 @@ jobs:
             }
           }
           "
-          GH_ORGANIZATION_NAME="datreeio"
-          GH_REPOSITORY_NAME="datree"
 
-          curl -s -X POST \
-              -H "Content-Type: application/json" \
-              -H "Accept: application/json" \
-              -H "Travis-API-Version: 3" \
-              -H "Authorization: token ${TRAVIS_API_TOKEN}" \
-              -d "$BODY" \
-              "https://api.travis-ci.com/repo/${GH_ORGANIZATION_NAME}%2F${GH_REPOSITORY_NAME}/requests"
-
+          REQUEST_BUILD_BODY=$REQUEST_BUILD_BODY ./request-travis-build-and-wait-until-finished.sh
   release-docker:
     env:
       REPO_NAME: datree
       IMAGE_NAME: datree
     name: Release container image to public registries
-    needs: [release, define_version_job]
+    needs: [ release, define_version_job ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
