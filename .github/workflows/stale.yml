@@ -11,10 +11,10 @@ jobs:
         with:
           days-before-stale: 7
           days-before-pr-stale: -1
-          days-before-close: 3
+          days-before-close: 7
           stale-issue-message: >
             This issue has been automatically marked as stale because it has not had
             recent activity. It will be closed if no further activity occurs. Thank you
             for your contributions.
           stale-issue-label: 'stale issue'
-          exempt-issue-labels: 'good first issue, WIP, question'
+          exempt-issue-labels: 'good first issue, WIP, question, up for grabs'
