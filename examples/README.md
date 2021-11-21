@@ -24,4 +24,30 @@
 4. Create your policy:
   
    * Open the project in your favourite IDE (e.g. [VSCode](https://code.visualstudio.com/download), [WebStorm](https://www.jetbrains.com/webstorm/download))
+   * Go to the examples directory.
+   * Create a new directory with the name of your policy. The code structure should resemble the [sample-policy](https://github.com/datreeio/datree/tree/main/examples/sample-policy) directory
+   * Go to your newly created directory
+   * Create a policy with custom rules using [this](https://hub.datree.io/custom-rules) guide
+   * Create a README.md file that describes the policy and rules
+   * Create a pass.yaml and fail.yaml that contain a k8s manifest example that pass and fail your policy respectively. You can create more than one of each.
+
+5. Save the changes - once you made the changes save them with git locally by committing them:
+   * Run `git add .` to add all changed files.  
+     You can select specific files by running `git add [file1] [file2]`
+   * Run `git commit -m "[meaningful commit message]"`
+6. Run `git push` to push the changes to your remote (forked) repository
+7. When you’re satisfied with your work and you’re ready to submit it for review, create a pull request:
+   * Go to your forked repository in GitHub.
+   * You should see the **Compare & pull request** notification. Click on it
+   ![Screen Shot 2021-11-08 at 15 00 40](https://user-images.githubusercontent.com/1208902/142755492-57262458-87d1-4f3c-a9e7-00bf00d1313c.png)
+     * If you can’t find it. Go to the pull requests tab and click the New Pull Request button
+   * Write a title and a description using [this](https://github.com/datreeio/datree/blob/ada7baa263f7dee8b43c99bc50868bf6b90e0857/CONTRIBUTING.md#-commit-message-format) guide
+
+   * Click the ![Screen Shot 2021-11-08 at 15 13 06](https://user-images.githubusercontent.com/1208902/142755558-95a14899-fa75-4519-ab7e-6c3e3e6e97ea.png) button
+   * Please note, the pull request is visible in the [origin repository](https://github.com/datreeio/datree)
+8. The team will review and approve the request or will ask for changes and clarifications.
+   * Please visit the pull request page often and see if any changes were requested.  
+   
+
+   
 
