@@ -4,7 +4,7 @@
 </p>
 
 <h1 align="center">
- Prevent Kubernetes Misconfiguration
+ Prevent Kubernetes Misconfigurations
 </h1>
  
 <p align="center">
@@ -34,14 +34,14 @@ It’s far more effective than manual processes, such as sending an email to a s
 ## ⚙️ How it Works
 The CLI integration provides a policy enforcement solution for Kubernetes to run automatic checks on every code change for rule violations and misconfigurations. When rule violations are found, Datree produces an alert that guides the developer to fix the issue inside the CI process — or even earlier as a pre-commit hook — while explaining the reason behind the rule.
 
-## ⏩ Quick start in two steps
+## ⏩ Quick-start in two steps
 ### 1. Install the latest release on your CLI  
 _Linux & MacOS:_ `curl https://get.datree.io | /bin/bash`  
 _Windows:_ `iwr -useb https://get.datree.io/windows_install.ps1 | iex`  
 
 _Other installation options (Homebrew, Docker, etc.) can be found [here](https://hub.datree.io/#a-1-install-datrees-cli-integration/#utm_source=github&utm_medium=organic_oss)_
 
-### 2. Pass datree a Kubernetes manifest file to scan
+### 2. Pass Datree a Kubernetes manifest file to scan
 `datree test [k8s-manifest-file]`  
 
 ...and voilà, you just ran your first invocation! 🥳    
