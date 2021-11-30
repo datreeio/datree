@@ -1,5 +1,4 @@
-# Hackathon Guide
-
+# Hackathon Guide - December 10-12, 2021
 
 **If at any point you find yourself lost, join our [Slack community](https://bit.ly/3BHwCEG) for assistance.**
 
