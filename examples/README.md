@@ -6,6 +6,8 @@
 
 ## This is a step-by-step guide to submit one piece of work to Datree’s hackathon:
 
+## YouTube Video
+[![You Tube Video](https://img.youtube.com/vi/Cgmvs3UFPIQ/0.jpg)](https://www.youtube.com/watch?v=Cgmvs3UFPIQ)
 
 1. [Sign up](https://app.datree.io/#hackathon) for Datree and follow the instructions to install Datree’s CLI on your machine
 2. Fork [Datree's project](https://github.com/datreeio/datree):
