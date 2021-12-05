@@ -15,13 +15,13 @@
    4. Industry best practices
    5. Check lists
    6. Any other creative idea you have will be welcomed
-2. Solve the use case by creating a policy with relevant custom rules.
+2. Solve the use case by creating a policy with relevant custom rules. See the [step-by-step](#this-is-a-step-by-step-guide-to-submit-one-piece-of-work-to-datrees-hackathon) below
 3. Include well-written documentation in a README file. The README should include the following information:
    1. An overview about the use case that the policy is solving
    2. An explanation about why it’s a worthy use case and how the use case helps Kubernetes admins in their work
    3. The rules to support the use case
    4. Details for each rule, which should include what can cause the rule to fail and how to fix it. [See an example here](https://hub.datree.io/ensure-labels-value-valid).
-4. Provide a basic Kubernetes manifests to test (failing/passing) each custom rules
+4. Provide a basic Kubernetes manifests to test (failing and passing) each custom rule. [See an example here](https://github.com/datreeio/datree/tree/main/examples/sample-policy)
 5. Please note: your policy must represent a workable solution.
 6. Submit your work by opening a pull request on [Datree’s repo](https://github.com/datreeio/datree). You may submit more than one policy.
 7. Your score for winning will be based on whether your use case works according to what you present, including detailed documentation, and how useful the use case is to Kubernetes admins. Quality matters over quantity.
@@ -34,7 +34,7 @@
 2. If you find a bug, open an issue in [our project](https://github.com/datreeio/datree/issues) -- we’ll prioritize it and answer.
    
    
-## This is a step-by-step guide to submit one piece of work to Datree’s hackathon:
+# This is a step-by-step guide to submit one piece of work to Datree’s hackathon
 
 
 1. [Sign up](https://app.datree.io/#hackathon) for Datree and follow the instructions to install Datree’s CLI on your machine
