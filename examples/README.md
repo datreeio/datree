@@ -1,13 +1,20 @@
 # Cloud Native Hackathon Guide - December 10-12, 2021
-
+### Datree’s mission: To improve the workflow of Kubernetes administrators and users
 
 **If at any point you find yourself lost, join our [Slack community](https://bit.ly/3BHwCEG) for assistance.**
 
-# Datree’s mission: To improve the workflow of Kubernetes administrators and users
+### Compete to win
+* 1st prize is a laptop;  
+* 2nd prize is a mobile phone;  
+* 3rd prize is an iPad or headphones  
 
-## Compete to win: 1st prize is a laptop; 2nd prize is a mobile phone; 3rd prize is an iPad or headphones
+## Required knowledge to participate in this Hackathon
+* Basic knowledge with operating Git and GitHub
+* Basic knowledge with reading and writing JSON and YAML
+* Basic knowledge about using and writing [JSON Schema](https://json-schema.org/)
+* Familiarity with Datree's [Policy as code](https://hub.datree.io/policy-as-code) and [custom rules](https://hub.datree.io/custom-rules) concepts
 
-### The Rules
+## The Rules
 1. Choose a use case that would help other Kubernetes admins or users in their work. Such as:
    1. Stability
    2. Cost reduction
@@ -23,27 +30,24 @@
    4. Details for each rule, which should include what can cause the rule to fail and how to fix it. [See an example here](https://hub.datree.io/ensure-labels-value-valid).
 4. Provide a basic Kubernetes manifests to test (failing and passing) each custom rule. [See an example here](https://github.com/datreeio/datree/tree/main/examples/sample-policy)
 5. Please note: your policy must represent a workable solution.
-6. Submit your work by opening a pull request on [Datree’s repo](https://github.com/datreeio/datree). You may submit more than one policy.
-7. Your score for winning will be based on whether your use case works according to what you present, including detailed documentation, and how useful the use case is to Kubernetes admins. Quality matters over quantity.
-8. (Optional) Are you proud of your work? If so, don’t forget to Tweet or post on LinkedIn that you’ve participated in this #CloudNativeHackathon and tag us so we can like and share!
 
-
+## How to win
+1. Submit your work by opening a pull request on [Datree’s repo](https://github.com/datreeio/datree). You may submit more than one policy.
+2. Your score for winning will be based on whether your use case works according to what you present, including detailed documentation, and how useful the use case is to Kubernetes admins. Quality matters over quantity.
+3. (Optional) Are you proud of your work? If so, don’t forget to Tweet or post on LinkedIn that you’ve participated in this #CloudNativeHackathon and tag us so we can like and share!
 
 ## Support
 1. If technical issues arise, support will be provided via our [Slack channel](https://bit.ly/3BHwCEG). 
 2. If you find a bug, open an issue in [our project](https://github.com/datreeio/datree/issues) -- we’ll prioritize it and answer.
-   
-   
-# This is a step-by-step guide to submit one piece of work to Datree’s hackathon
 
 ## YouTube Video
 [![You Tube Video](https://img.youtube.com/vi/Cgmvs3UFPIQ/0.jpg)](https://www.youtube.com/watch?v=Cgmvs3UFPIQ)
+   
+## This is a step-by-step guide to submit one piece of work to Datree’s hackathon
 
 1. [Sign up](https://app.datree.io/#hackathon) for Datree and follow the instructions to install Datree’s CLI on your machine
 2. Fork [Datree's project](https://github.com/datreeio/datree):
   <img width="1679" alt="Screen Shot 2021-11-07 at 11 19 57" src="https://user-images.githubusercontent.com/1208902/142754175-099d9d47-fa83-415c-bec6-c0373a65e1cc.png">
-  
-<img width="391" style="float: right;" alt="Screen Shot 2021-11-07 at 11 45 07" src="https://user-images.githubusercontent.com/1208902/142754350-8aca5344-08a1-4a07-aa02-a1f9e15f08e3.png"> 
 
 3. Clone the forked project to your local machine:  
    * Click on the green code button<sup>[1]</sup>  
@@ -54,6 +58,7 @@
    * Run: `git clone <copied link>`  
    * Run: `cd datree`  
 
+<img width="391" style="float: right;" alt="Screen Shot 2021-11-07 at 11 45 07" src="https://user-images.githubusercontent.com/1208902/142754350-8aca5344-08a1-4a07-aa02-a1f9e15f08e3.png"> 
 
 4. Create your policy:
   
