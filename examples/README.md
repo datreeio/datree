@@ -8,11 +8,11 @@
 * 2nd prize is a mobile phone;  
 * 3rd prize is an iPad or headphones  
 
-## Required knowledge to participate this Hackathon
+## Required knowledge to participate in this Hackathon
 * Basic knowledge with operating Git and GitHub
 * Basic knowledge with reading and writing JSON and YAML
 * Basic knowledge about using and writing [JSON Schema](https://json-schema.org/)
-* Familar with Datree's [Policy as code](https://hub.datree.io/policy-as-code) and [custom rules](https://hub.datree.io/custom-rules) concepts
+* Familiarity with Datree's [Policy as code](https://hub.datree.io/policy-as-code) and [custom rules](https://hub.datree.io/custom-rules) concepts
 
 ## The Rules
 1. Choose a use case that would help other Kubernetes admins or users in their work. Such as:
