@@ -33,7 +33,7 @@ __The README should include the following information:__
    ㅤc. A list of the rules in the policy and how they support the use case  
    ㅤd. Any other type of documentation that can help evaluate and understand the rules in your policy, and how they are related to the use case that you chosed
 4. Provide a basic Kubernetes manifests to test (failing & passing) each custom rule ([see an example here](https://github.com/datreeio/datree/tree/main/examples/sample-policy))  
-5. Submit your work bt opening a Pull Request to the examples dirctory (`datree/examples`)
+5. Submit your work by opening a Pull Request to the examples dirctory (`datree/examples`)
 
 _:warning:ㅤPlease note: your policy must represent a workable solution_
 
