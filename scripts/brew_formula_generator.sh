@@ -21,7 +21,6 @@ class Datree < Formula
   desc ""
   homepage "https://datree.io/"
   version "$VERSION"
-  bottle :unneeded
 
   if OS.mac?
     url "https://github.com/datreeio/datree/releases/download/$VERSION/datree-cli_${VERSION}_Darwin_x86_64.zip"
