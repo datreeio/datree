@@ -15,7 +15,8 @@
 * Familiarity with Datree's [Policy as code](https://hub.datree.io/policy-as-code) and [custom rules](https://hub.datree.io/custom-rules) concepts
 
 ## :clipboard: Instructions
-1. Choose a use case that would help other Kubernetes admins or users in their work. Such as:  
+1. Choose a use case that would help other Kubernetes admins or users in their work   
+   __Such as:__  
    a. Stability  
    b. Cost reduction  
    c. Security  
@@ -25,7 +26,7 @@
    
 _:bulb:ㅤWe also welcome all innovative uses of Datree that help the community - please get your innovative idea pre-approved by our judges_  
 
-2. Solve the use case by [creating a policy](#how-to-write-a-policy) with relevant custom rules
+2. Solve the use case by [creating a policy](#oncoming_police_car-how-to-write-a-policy) with relevant custom rules
 3. Include well-written documentation in a README file   
 __The README should include the following information:__  
    ㅤa. An overview about the use case that the policy is solving  
@@ -33,14 +34,15 @@ __The README should include the following information:__
    ㅤc. A list of the rules in the policy and how they support the use case  
    ㅤd. Any other type of documentation that can help evaluate and understand the rules in your policy, and how they are related to the use case that you chosed
 4. Provide a basic Kubernetes manifests to test (failing & passing) each custom rule ([see an example here](https://github.com/datreeio/datree/tree/main/examples/sample-policy))  
-5. Submit your work by opening a Pull Request to the examples dirctory (`datree/examples`)
 
 _:warning:ㅤPlease note: your policy must represent a workable solution_
 
 ## :tada: How to win
-1. Submit your work by opening a pull request on [Datree’s repo](https://github.com/datreeio/datree) (you may submit more than one policy).
+1. Submit your work by opening a [pull request]((#computer-how-to-submit-a-pull-request)) to the examples dirctory (`datree/examples`) on Datree’s repo.  
+__You may submit more than one policy__.
 2. Your score for winning will be based on whether your use case works according to what you present, including detailed documentation, and how useful the use case is to Kubernetes admins. Quality matters over quantity.
-3. [OPTIONAL] Are you proud of your work? If so, don’t forget to Tweet or post on LinkedIn that you’ve participated in this #CloudNativeHackathon and tag us so we can like and share!
+3. [OPTIONAL] Are you proud of your work:question::question:   
+If so, don’t forget to Tweet or post on LinkedIn that you’ve participated in this #CloudNativeHackathon and tag us so we can like and share!
 
 ### YouTube Video
 [![You Tube Video](https://img.youtube.com/vi/Cgmvs3UFPIQ/0.jpg)](https://www.youtube.com/watch?v=Cgmvs3UFPIQ)
