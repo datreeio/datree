@@ -4,7 +4,7 @@ Kubernetes labels allow Engineers to perform in-cluster object searches, apply b
 __This policy helps to enforce the following labels best practices:__
 * [Ensure pre-defined environment labels are used](#ensure-pre-defined-environment-labels-are-used)
 * [Ensure the owner label is used](#ensure-the-owner-label-is-used)
-* Ensure all labels have a valid label value (RFC 1123)
+* [Ensure all labels have a valid label value (RFC 1123)](#ensure-all-labels-have-a-valid-label-value-rfc-1123)
 
 ## Ensure pre-defined environment labels are used
 Having an env label is useful for performing bulk operations in specific environments or for filtering workloads according to their stage. This rules will also ensure that only pre-aprooved `environment` label values are used:
