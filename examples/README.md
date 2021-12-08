@@ -24,13 +24,17 @@
    ㅤe. Industry best practices     
    ㅤf. Any other creative idea you have will be welcomed  
 
-2. Solve the use case by [creating a policy](#oncoming_police_car-how-to-write-a-policy) with relevant custom rules
+2. Solve the use case by [creating a policy](#oncoming_police_car-how-to-write-a-policy) with relevant custom rules  
+
 3. Include well-written documentation in a README file   
 __The README should include the following information:__  
    ㅤa. An overview of the use case that the policy solves  
    ㅤb. An explanation for why it’s a worthy use case and how the use case helps Kubernetes admins in their work  
    ㅤc. A list of the rules within the policy and how they support the use case  
-   ㅤd. Any other type of documentation that can help us to evaluate and understand the rules in your policy, and how they are related to the use case you chose  
+   ㅤd. The policy author - full name and GitHub handle (for teams: all team members)  
+   ㅤe. Any other type of documentation that can help us to evaluate and understand the rules in your policy, and how they are related to the use case you chose  
+   
+   
 4. Provide a basic Kubernetes manifests to test (failing & passing) for each custom rule ([see an example here](https://github.com/datreeio/datree/tree/main/examples/sample-policy))  
 
 ### :warning: Important notes
