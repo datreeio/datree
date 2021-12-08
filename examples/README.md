@@ -17,14 +17,12 @@
 ## :clipboard: Instructions
 1. Choose a use case that would help other Kubernetes admins or users in their work   
    __Such as:__  
-   a. Stability  
-   b. Cost reduction  
-   c. Security  
-   d. Industry best practices  
-   e. Governance  
-   f. Any other creative idea you have will be welcomed  
-   
-_:bulb:ㅤWe also welcome all innovative uses of Datree that help the community - please get your innovative idea pre-approved by our judges_  
+   ㅤa. Stability  
+   ㅤb. Security  
+   ㅤc. Governance  
+   ㅤd. Cost reduction  
+   ㅤe. Industry best practices     
+   ㅤf. Any other creative idea you have will be welcomed  
 
 2. Solve the use case by [creating a policy](#oncoming_police_car-how-to-write-a-policy) with relevant custom rules
 3. Include well-written documentation in a README file   
@@ -34,13 +32,16 @@ __The README should include the following information:__
    ㅤc. A list of the rules in the policy and how they support the use case  
    ㅤd. Any other type of documentation that can help evaluate and understand the rules in your policy, and how they are related to the use case that you chosed
 4. Provide a basic Kubernetes manifests to test (failing & passing) each custom rule ([see an example here](https://github.com/datreeio/datree/tree/main/examples/sample-policy))  
-
-_:warning:ㅤPlease note: your policy must represent a workable solution_
+### :warning: Important notes
+* Your policy must represent a workable solution
+* We also welcome all innovative uses of Datree that help the community - please get your innovative idea pre-approved by our judges
 
 ## :tada: How to win
-1. Submit your work by opening a [pull request]((#computer-how-to-submit-a-pull-request)) to the examples dirctory (`datree/examples`) on Datree’s repo.  
-__You may submit more than one policy__.
-2. Your score for winning will be based on whether your use case works according to what you present, including detailed documentation, and how useful the use case is to Kubernetes admins. Quality matters over quantity.
+1. Submit your work by opening a [pull request](#computer-how-to-submit-a-pull-request) to the examples dirctory (`datree/examples`) on Datree’s repo.  
+__You may submit more than one policy__.  
+
+2. Your score for winning will be based on whether your use case works according to what you present, including detailed documentation, and how useful the use case is to Kubernetes admins. Quality matters over quantity.  
+
 3. [OPTIONAL] Are you proud of your work:question::question:   
 If so, don’t forget to Tweet or post on LinkedIn that you’ve participated in this #CloudNativeHackathon and tag us so we can like and share!
 
@@ -48,11 +49,14 @@ If so, don’t forget to Tweet or post on LinkedIn that you’ve participated in
 [![You Tube Video](https://img.youtube.com/vi/Cgmvs3UFPIQ/0.jpg)](https://www.youtube.com/watch?v=Cgmvs3UFPIQ)
 
 ## :oncoming_police_car: How to write a policy
-1. [Sign up](https://app.datree.io/#hackathon) for Datree and follow the instructions to install Datree’s CLI on your machine
+1. [Sign up](https://app.datree.io/#hackathon) for Datree and follow the instructions to install Datree’s CLI on your machine  
+
 2. Using JSON Schema, create [custom rules](https://hub.datree.io/custom-rules-overview) that are relevant to your policy  
-:point_right:ㅤYou can use this [online YAML Schema Validator](https://yamlschemavalidator.datree.io/) to easily test your custom rule logic before adding it to your policy
-3. Add the custom rules to your [policy file](https://hub.datree.io/policy-as-code#go-policiesyaml)
-4. Publish the policy (`datree publish policy-name.yaml`) and verify it is working as expected
+:point_right:ㅤYou can use this [online YAML Schema Validator](https://yamlschemavalidator.datree.io/) to easily test your custom rule logic before adding it to your policy  
+
+3. Add the custom rules to your [policy file](https://hub.datree.io/policy-as-code#go-policiesyaml)  
+
+4. Publish the policy (`datree publish policy-name.yaml`) and verify it's working as expected
 
 ## :computer: How to submit a pull request
 1. Fork [Datree's project](https://github.com/datreeio/datree):
@@ -85,11 +89,11 @@ If so, don’t forget to Tweet or post on LinkedIn that you’ve participated in
    * Click on the "**Compare & pull request**" button
    ![Screen Shot 2021-11-08 at 15 00 40](https://user-images.githubusercontent.com/1208902/142755492-57262458-87d1-4f3c-a9e7-00bf00d1313c.png)
     *Please note: the pull request is visible in the [origin repository](https://github.com/datreeio/datree)
-   * Write a title and a description using [this](https://github.com/datreeio/datree/blob/ada7baa263f7dee8b43c99bc50868bf6b90e0857/CONTRIBUTING.md#-commit-message-format) guide
-7. The team will review and approve the request or will ask for changes and clarifications.
-   * Please visit the pull request page often and see if any changes were requested.  
+   * Write a title and a description using [this guide](https://github.com/datreeio/datree/blob/ada7baa263f7dee8b43c99bc50868bf6b90e0857/CONTRIBUTING.md#-commit-message-format) 
+7. The team will review and approve the request or will ask for changes and clarifications
+   * Please visit the pull request page often and see if any changes were requested  
    
 ## :ambulance: Support
-* If technical issues arise, support will be provided via our [Slack channel](https://bit.ly/3BHwCEG). 
-* If you find a bug, open an issue in [our project](https://github.com/datreeio/datree/issues) -- we’ll prioritize it and answer.
+* If technical issues arise, support will be provided via our [Slack channel](https://bit.ly/3BHwCEG) 
+* If you find a bug, open an issue in [our project](https://github.com/datreeio/datree/issues) -- we’ll prioritize it and answer
 
