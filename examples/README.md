@@ -9,9 +9,9 @@
 * 3rd prize is an iPad or headphones  
 
 ## :mortar_board: Required knowledge to participate in this Hackathon
-* Basic knowledge with operating Git and GitHub
-* Basic knowledge with reading and writing JSON and YAML
-* Basic knowledge about using and writing [JSON Schema](https://json-schema.org/)
+* Basic experience operating Git and GitHub
+* Basic experience reading and writing JSON and YAML
+* Basic experience using and writing [JSON Schema](https://json-schema.org/)
 * Familiarity with Datree's [Policy as code](https://hub.datree.io/policy-as-code) and [custom rules](https://hub.datree.io/custom-rules) concepts
 
 ## :clipboard: Instructions
@@ -27,17 +27,18 @@
 2. Solve the use case by [creating a policy](#oncoming_police_car-how-to-write-a-policy) with relevant custom rules
 3. Include well-written documentation in a README file   
 __The README should include the following information:__  
-   ㅤa. An overview about the use case that the policy is solving  
-   ㅤb. An explanation about why it’s a worthy use case and how the use case helps Kubernetes admins in their work  
-   ㅤc. A list of the rules in the policy and how they support the use case  
-   ㅤd. Any other type of documentation that can help evaluate and understand the rules in your policy, and how they are related to the use case that you chosed
-4. Provide a basic Kubernetes manifests to test (failing & passing) each custom rule ([see an example here](https://github.com/datreeio/datree/tree/main/examples/sample-policy))  
+   ㅤa. An overview of the use case that the policy solves  
+   ㅤb. An explanation for why it’s a worthy use case and how the use case helps Kubernetes admins in their work  
+   ㅤc. A list of the rules within the policy and how they support the use case  
+   ㅤd. Any other type of documentation that can help us to evaluate and understand the rules in your policy, and how they are related to the use case you chose  
+4. Provide a basic Kubernetes manifests to test (failing & passing) for each custom rule ([see an example here](https://github.com/datreeio/datree/tree/main/examples/sample-policy))  
+
 ### :warning: Important notes
 * Your policy must represent a workable solution
 * We also welcome all innovative uses of Datree that help the community - please get your innovative idea pre-approved by our judges
 
 ## :tada: How to win
-1. Submit your work by opening a [pull request](#computer-how-to-submit-a-pull-request) to the examples dirctory (`datree/examples`) on Datree’s repo.  
+1. Submit your work by opening a [pull request](#computer-how-to-submit-a-pull-request) to the examples directory (`datree/examples`) on Datree’s repo.  
 __You may submit more than one policy__.  
 
 2. Your score for winning will be based on whether your use case works according to what you present, including detailed documentation, and how useful the use case is to Kubernetes admins. Quality matters over quantity.  
@@ -74,9 +75,9 @@ If so, don’t forget to Tweet or post on LinkedIn that you’ve participated in
 <img width="391" style="float: right;" alt="Screen Shot 2021-11-07 at 11 45 07" src="https://user-images.githubusercontent.com/1208902/142754350-8aca5344-08a1-4a07-aa02-a1f9e15f08e3.png"> 
 
 3. Add your policy:
-   * Open the project in your favourite IDE (e.g. VSCode, WebStorm, etc.)
+   * Open the project in your favorite IDE (e.g. VSCode, WebStorm, etc.)
    * Go to the examples directory (`datree/examples`) and create a new directory with the name of your policy 
-   * Add your policy and additinal required files (README, tests yamls, etc.)
+   * Add your policy and additional required files (README, tests yamls, etc.)
    * The code structure should resemble the [sample-policy](https://github.com/datreeio/datree/tree/main/examples/sample-policy) directory
    
 4. Save the changes - once you made the changes save them with git locally by committing them:
@@ -95,5 +96,4 @@ If so, don’t forget to Tweet or post on LinkedIn that you’ve participated in
    
 ## :ambulance: Support
 * If technical issues arise, support will be provided via our [Slack channel](https://bit.ly/3BHwCEG) 
-* If you find a bug, open an issue in [our project](https://github.com/datreeio/datree/issues) -- we’ll prioritize it and answer
-
+* If you find a bug, open an issue in [our project](https://github.com/datreeio/datree/issues) -- we’ll prioritize it and respond
