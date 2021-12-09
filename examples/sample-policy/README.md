@@ -54,3 +54,5 @@ metadata:
   labels:
     name: test@datree.io
 ```
+## Policy author
+Eyar Zilberman \\ [eyarz](https://github.com/eyarz)
