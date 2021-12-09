@@ -1,0 +1,178 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fail-environment-label
+  labels:
+    environment: qa
+    app: test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend 
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "450m"
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fail-memory-in-request
+  labels:
+    environment: prod
+    app: test
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend 
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        resources:
+          requests:
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "450m"
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fail-cpu-in-request
+  labels:
+    environment: prod
+    app: test
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend 
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        resources:
+          requests:
+            memory: "128Mi"
+          limits:
+            memory: "128Mi"
+            cpu: "450m"
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fail-image-version
+  labels:
+    environment: prod
+    app: test
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend 
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "450m"
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fail-cpu-limit
+  labels:
+    environment: prod
+    app: test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend 
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "550m"
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fail-replicas-condition
+  labels:
+    environment: prod
+    app: test
+spec:
+  replicas: 12
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend 
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "450m"
+        ports:
+        - containerPort: 80

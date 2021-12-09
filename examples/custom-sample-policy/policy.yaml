@@ -1,0 +1,139 @@
+apiVersion: v1
+policies:
+  - name: custom_sample_policy
+    isDefault: true
+    rules: 
+      - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
+        messageOnFailure: Use only approved environment labels (`prod`, `staging` and `test`)
+      - identifier: CONTAINERS_MISSING_MEMORY_IN_REQUEST_KEY
+        messageOnFailure: Memory request should be configured
+      - identifier: CONTAINERS_MISSING_CPU_IN_REQUEST_KEY
+        messageOnFailure: Cpu request should be configured
+      - identifier: CUSTOM_CONTAINERS_MISSING_IMAGE_VALUE_VERSION
+        messageOnFailure: Container image should have proper versioning
+      - identifier: CUSTOM_CONTAINERS_INCORRECT_CPU_LIMIT_VALUE
+        messageOnFailure: Cpu limits should be in between 250m and 500m
+      - identifier: CUSTOM_DEPLOYMENT_INCORRECT_REPLICAS_VALUE
+        messageOnFailure: For Deployment kind replicas should be in between 2 and 10
+
+customRules:
+  - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
+    name: Ensure correct environment labels are used
+    defaultMessageOnFailure: Use only approved environment labels (`prod`, `staging` and `test`)
+    schema:
+      properties:
+        metadata:
+          properties:
+            labels:
+              properties:
+                environment:
+                  enum:
+                    - prod
+                    - staging
+                    - test
+              required:
+              - environment
+          required:
+          - labels
+
+  - identifier: CONTAINERS_MISSING_MEMORY_IN_REQUEST_KEY
+    name: Ensure each container has a configured memory request
+    defaultMessageOnFailure: Memory request should be configured
+    schema: 
+      properties:
+        spec:
+          properties:
+            template:
+              properties:
+                spec:
+                  properties:
+                    containers:
+                        items:
+                          properties:
+                            resources:
+                              properties:
+                                requests:
+                                  required: 
+                                  - memory
+
+  - identifier: CONTAINERS_MISSING_CPU_IN_REQUEST_KEY
+    name: Ensure each container has a configured cpu request
+    defaultMessageOnFailure: Cpu request should be configured
+    schema: 
+      properties:
+        spec:
+          properties:
+            template:
+              properties:
+                spec:
+                  properties:
+                    containers:
+                        items:
+                          properties:
+                            resources:
+                              properties:
+                                requests:
+                                  required: 
+                                  - cpu
+
+  - identifier: CUSTOM_CONTAINERS_MISSING_IMAGE_VALUE_VERSION 
+    name: Ensure each container image has a pinned (tag) version
+    defaultMessageOnFailure: Container image should have proper versioning
+    schema: 
+      properties:
+        spec:
+          properties:
+            template:
+              properties:
+                spec:
+                  properties:
+                    containers:
+                        items:
+                          properties:
+                            image:
+                              type: string
+                              pattern: ^(?=.*[:|@](?=.+)(?!latest)).*$
+
+  - identifier: CUSTOM_CONTAINERS_INCORRECT_CPU_LIMIT_VALUE 
+    name: Ensure each container has a configured CPU limit within range
+    defaultMessageOnFailure: Cpu limits should be in between 250m and 500m
+    schema: 
+      properties:
+        spec:
+          properties:
+            template: 
+              properties: 
+                spec:
+                  properties: 
+                    containers:
+                      items:
+                        properties:
+                          resources:
+                            properties:
+                              limits:
+                                properties:
+                                  cpu:
+                                    resourceMinimum: 250m
+                                    resourceMaximum: 500m
+
+  - identifier: CUSTOM_DEPLOYMENT_INCORRECT_REPLICAS_VALUE
+    name: Ensure Deployment has replicas set between 2-10
+    defaultMessageOnFailure: For Deployment kind replicas should be in between 2 and 10
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - Deployment
+      then:
+        properties:
+          spec:
+            properties:
+              replicas:
+                minimum: 2
+                maximum: 10
+            required:
+              - replicas
+
+
+  

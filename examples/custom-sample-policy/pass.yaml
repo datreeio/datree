@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pass-policy
+  labels:
+    owner: jatin
+    environment: prod
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend 
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "450m"
+        ports:
+        - containerPort: 80
