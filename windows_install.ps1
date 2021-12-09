@@ -47,13 +47,15 @@ Invoke-WebRequest -Uri "https://get.datree.io/k8s-demo.yaml" -OutFile $k8sDemoPa
 
 Write-Host "[V] Finished Installation" -ForegroundColor DarkGreen
 Write-Host ""
-Write-Host "To run datree globally, please run the following command as administrator:" -ForegroundColor Cyan
+Write-Host "To run datree globally, please follow these steps:" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "setx PATH `"`$env:path;$datreePath`" -m"
+Write-Host "    1. Run the following command as administrator: ``setx PATH `"`$env:path;$datreePath`" -m``"
+Write-Host ""
+Write-Host "    2. Close and reopen your terminal."
+Write-Host ""
+Write-Host "For more information, please visit https://datree.io" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "    Usage: datree test `$home/.datree/k8s-demo.yaml" -ForegroundColor DarkGreen
-Write-Host ""
-Write-Host "    Using Helm? => https://hub.datree.io/helm-plugin"
 Write-Host ""
 Write-Host "    Run 'datree completion -h' to learn how to generate shell autocompletions"
 Write-Host ""
