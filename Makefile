@@ -1,11 +1,23 @@
 run: 
-	go run -tags staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go test ./internal/fixtures/**/*.yaml
+	go run -tags $(or $(datree_build_env),staging) -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go test ./internal/fixtures/**/*.yaml
+run-production:
+	make datree_build_env=main run
+run-staging:
+	make datree_build_env=staging run
+run-dev:
+	make datree_build_env=dev run
+
+build:
+	go build -tags $(or $(datree_build_env),staging) -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1"
+build-production:
+	make datree_build_env=main build
+build-staging:
+	make datree_build_env=staging build
+build-dev:
+	make datree_build_env=dev build
 
 test:
 	go test ./...
-
-build:
-	go build -tags staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1"
 
 create-bin:
 	goreleaser --snapshot --skip-publish --rm-dist
