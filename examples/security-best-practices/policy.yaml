@@ -1,0 +1,40 @@
+apiVersion: v1
+policies:
+  - name: security_best_practices
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_SECURITY_CONTEXT_CHECK
+        messageOnFailure: ''
+
+customRules:
+  - identifier: CUSTOM_SECURITY_CONTEXT_CHECK
+    name: Check for basic security context rules [CUSTOM RULE]
+    defaultMessageOnFailure: Add all necessary security context rules (`runAsUser`, `runAsGroup` and `allowPrivelegeEscalation`)
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - Pods
+      then:
+        properties:
+          spec:
+            properties:
+              securityContext:
+                properties:
+                  runAsUser:
+                    minimum: 0
+                    maximum: 10000
+                  runAsGroup:
+                    minimum: 0
+                    maximum: 10000
+                  allowPrivilegeEscalation:
+                    enum:
+                      - false
+                      - true
+                required:
+                  - runAsUser
+                  - runAsGroup
+                  - allowPrivilegeEscalation
+            required:
+              - securityContext

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: pass-policy
+  labels:
+    owner: me
+    environment: prod
+    app: web
+spec:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 3000
+    allowPrivilegeEscalation: false
+    fsGroup: 2000
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
