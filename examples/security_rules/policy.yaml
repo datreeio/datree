@@ -43,6 +43,14 @@ customRules:
                                   - false
                           required:
                           - securityContext
+                    required:
+                    - containers 
+                required:
+                - spec    
+            required:
+            - template
+        required:
+        - spec                           
       else:
         properties:
           spec:
@@ -61,6 +69,10 @@ customRules:
                           - false
                   required:
                   - securityContext
+            required:
+            - containers
+        required:
+        - spec                  
 
   - identifier: READ_ONLY_ROOT_FILESYSTEM_ALLOW
     name: Ensure root filesystem is read-only
