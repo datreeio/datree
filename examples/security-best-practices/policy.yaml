@@ -1,0 +1,37 @@
+apiVersion: v1
+policies:
+  - name: Default
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_CONTAINERS_INCORRECT_ROOT_FILESYSTEM_PERMISSION
+        messageOnFailure: ""
+
+customRules:
+  - identifier: CUSTOM_CONTAINERS_INCORRECT_ROOT_FILESYSTEM_PERMISSION
+    name: Prevent containers from running without a read-only root filesystem [CUSTOM RULE]
+    defaultMessageOnFailure: Set readOnlyRootFilesystem to true in the container securityContext
+    schema:
+      definitions:
+        readOnlyRootFilesystemPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      securityContext:
+                        properties:
+                          readOnlyRootFilesystem:
+                            not:
+                             - false
+                        required:
+                          - readOnlyRootFilesystem
+                    required:
+                      - securityContext
+      allOf:
+        - $ref: "#/definitions/readOnlyRootFilesystemPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
