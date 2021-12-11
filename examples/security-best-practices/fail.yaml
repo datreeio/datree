@@ -2,11 +2,10 @@
 apiVersion: apps/v1
 kind: Pod
 metadata:
-  name: fail-environment-label
-  labels:
-    environment: qa
-    app: test
+  name: fail-user-permission
 spec:
+  securityContext:
+    runAsUser: 11000
   containers:
   - name: nginx
     image: nginx:1.14.2
@@ -16,11 +15,11 @@ spec:
 apiVersion: apps/v1
 kind: Pod
 metadata:
-  name: fail-owner-label
-  labels:
-    environment: prod
-    app: test
+  name: fail-group-permission
 spec:
+  securityContext:
+    allowPrivilegeEscalation: false
+    runAsUser: 0
   containers:
   - name: nginx
     image: nginx:1.14.2
@@ -30,12 +29,11 @@ spec:
 apiVersion: apps/v1
 kind: Pod
 metadata:
-  name: fail-valid-label-value
-  labels:
-    environment: prod
-    app: test
-    owner: test@datree.io
+  name: fail-privilege-escalation
 spec:
+  securityContext:
+    runAsGroup: 1000
+    runAsUser: 1000
   containers:
   - name: nginx
     image: nginx:1.14.2
