@@ -1,0 +1,21 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: OmiCronJob
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: Allow
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - date; echo Hello world
+          restartPolicy: OnFailure

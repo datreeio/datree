@@ -1,0 +1,17 @@
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_MINIMUM_REVISIONHISTORYLIMIT_VALUE
+    name: 'Ensure min value set for revisionHistoryLimit is atleast 1 [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Provide min value of atleast 1 for revisionHistoryLimit to ensure rollback of deployment'
+    schema:
+      properties:
+        spec:
+          properties:
+            revisionHistoryLimit:
+              minimum: 1
+policies:
+  - name: startingDeadlineSeconds_min_accepted_value
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_MINIMUM_REVISIONHISTORYLIMIT_VALUE
+        messageOnFailure: 'Provide min value of atleast 1 for revisionHistoryLimit to ensure rollback of deployment'

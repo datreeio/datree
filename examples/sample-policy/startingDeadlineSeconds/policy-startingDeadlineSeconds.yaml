@@ -1,0 +1,17 @@
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_INVALID_STARTINGDEADLINESECONDS_VALUE
+    name: 'Ensure min value is set for startingDeadlineSeconds [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Provide min value of 10 seconds for startingDeadlineSeconds as CronJob may not be scheduled'
+    schema:
+      properties:
+        spec:
+          properties:
+            startingDeadlineSeconds:
+              minimum: 10
+policies:
+  - name: startingDeadlineSeconds_min_accepted_value
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_INVALID_STARTINGDEADLINESECONDS_VALUE
+        messageOnFailure: 'Provide min value of 10 seconds for startingDeadlineSeconds as CronJob may not be scheduled'

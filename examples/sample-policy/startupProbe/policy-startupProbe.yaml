@@ -1,0 +1,20 @@
+apiVersion: v1
+customRules:
+  - identifier: CONTAINERS_MISSING_STARTUPPROBE_KEY
+    name: 'Ensure startupProbe options is used to determine app start state within the container [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Missing property object `startupProbe` - add a properly configured startupProbe to ensure app within the container is started properly'
+    schema:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                required:
+                  - startupProbe
+policies:
+  - name: imagePullPolicy_accepted_options
+    isDefault: true
+    rules:
+      - identifier: CONTAINERS_MISSING_STARTUPPROBE_KEY
+        messageOnFailure: 'Missing property object `startupProbe` - add a properly configured startupProbe to ensure app within the container is started properly'

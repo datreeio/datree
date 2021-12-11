@@ -1,0 +1,20 @@
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_INCORRECT_CONCURRENCYPOLICY
+    name: 'Ensure correct concurrencyPolicy options are used [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Use only the accepted concurrencyPolicy options (`Allow`, `Forbid` and `Replace`)'
+    schema:
+      properties:
+        spec:
+          properties:
+            concurrencyPolicy:
+              enum:
+                - Allow
+                - Forbid
+                - Replace
+policies:
+  - name: concurrencyPolicy_accepted_options
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_INCORRECT_CONCURRENCYPOLICY
+        messageOnFailure: 'Use only the accepted concurrencyPolicy options (`Allow`, `Forbid` and `Replace`)'

@@ -1,0 +1,24 @@
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_INCORRECT_IMAGEPULLPOLICY
+    name: 'Ensure correct imagePullPolicy options are used [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Use only the accepted imagePullPolicy options (`Always`, `IfNotPresent` and `Never`)'
+    schema:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  imagePullPolicy:
+                    enum:
+                      - Always
+                      - IfNotPresent
+                      - Never
+policies:
+  - name: imagePullPolicy_accepted_options
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_INCORRECT_IMAGEPULLPOLICY
+        messageOnFailure: 'Use only approved imagePullPolicy options (`Always`, `IfNotPresent` and `Never`)'

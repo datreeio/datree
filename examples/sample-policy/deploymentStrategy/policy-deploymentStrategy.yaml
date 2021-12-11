@@ -1,0 +1,21 @@
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_INCORRECT_DEPLOYMENT_STRATEGY
+    name: 'Ensure correct strategy options are used for deployment [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Use only the accepted strategy options (`Recreate` or `RollingUpdate`)'
+    schema:
+      properties:
+        spec:
+          properties:
+            strategy:
+              properties:
+                type:
+                  enum:
+                    - Recreate
+                    - RollingUpdate
+policies:
+  - name: deploymentStrategy_accepted_options
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_INCORRECT_DEPLOYMENT_STRATEGY
+        messageOnFailure: 'Use only the accepted strategy options (`Recreate` or `RollingUpdate`)'

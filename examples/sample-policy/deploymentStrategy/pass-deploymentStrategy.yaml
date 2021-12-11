@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recreate-strategy
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: web-app-recreate-strategy
+      version: nanoserver-1809
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: web-app-recreate-strategy
+    spec:
+      containers:
+        - name: web-app-recreate-strategy
+          image: hello-world:nanoserver-1809

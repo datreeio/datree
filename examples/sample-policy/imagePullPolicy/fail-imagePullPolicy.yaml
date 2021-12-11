@@ -1,0 +1,16 @@
+---
+apiVersion: apps/v1
+Kind: Pod
+metadata:
+  name: fail-policy
+  labels:
+    owner: Runcy
+    environment: prod
+    app: web
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    imagePullPolicy: Sometimes
+    ports:
+    - containerPort: 80

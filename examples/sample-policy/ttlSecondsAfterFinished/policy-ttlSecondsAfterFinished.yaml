@@ -1,0 +1,16 @@
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_MISSING_TTLSECONDSAFTERFINISHED_VALUE
+    name: 'Ensure ttlSecondsAfterFinished is set to ensure jobs are not left around [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Add ttlSecondsAfterFinished to ensure unmanaged jobs are not left around after Job is fully deleted'
+    schema:
+      properties:
+        spec:
+          required:
+            - ttlSecondsAfterFinished
+policies:
+  - name: ttlSecondsAfterFinished_set
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_MISSING_TTLSECONDSAFTERFINISHED_VALUE
+        messageOnFailure: 'Add ttlSecondsAfterFinished to ensure unmanaged jobs are not left around after Job is fully deleted'

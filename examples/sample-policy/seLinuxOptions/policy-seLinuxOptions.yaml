@@ -1,0 +1,24 @@
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_ASSIGN_SELINUX_LABELS
+    name: 'Ensure seLinuxOptions is assigned to the containers [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Add proper `seLinuxOptions` SELinux level for your container '
+    schema:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  securityContext:
+                    properties:
+                      seLinuxOptions:
+                        required:
+                          - level
+policies:
+  - name: seLinuxOptions_contains_level
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_ASSIGN_SELINUX_LABELS
+        messageOnFailure: 'Add proper `seLinuxOptions` SELinux level for your container '

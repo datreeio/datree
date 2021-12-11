@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context
+spec:
+  containers:
+  - name: sec-ctx
+    image: gcr.io/google-samples/node-hello:1.0
+    securityContext:
+      seLinuxOptions:
+        level: "s0:c123,c456"
