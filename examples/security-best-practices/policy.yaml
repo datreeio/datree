@@ -15,7 +15,7 @@ customRules:
         properties:
           kind:
             enum:
-              - Pods
+              - Pod
       then:
         properties:
           spec:
