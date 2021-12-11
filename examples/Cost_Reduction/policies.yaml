@@ -1,0 +1,31 @@
+apiVersion: v1
+policies:
+  - name: Cost_Reduction
+    isDefault: true
+    rules:
+      - identifier: SERVICE_DENY_TYPE_LOADBALANCER
+        messageOnFailure: LoadBalancer service type is not allowed by the organization, use clusterIP/NodePort instead.
+customRules:
+  - identifier: SERVICE_DENY_TYPE_LOADBALANCER
+    name: Deny LoadBalancer service type 
+    defaultMessageOnFailure: LoadBalancer service type is not allowed by the organization, use clusterIP/NodePort instead.
+    schema:
+      type: object
+      if:
+        properties:
+          kind:
+            type: string
+            enum:
+              - Service
+      then:
+        required:
+          - spec
+        properties:
+          spec:
+            type: object
+            properties:
+              type:
+                type: string
+                not:
+                  enum:
+                    - LoadBalancer

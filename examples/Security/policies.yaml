@@ -1,0 +1,63 @@
+apiVersion: v1
+policies:
+  - name: Security
+    isDefault: true
+    rules:
+      - identifier: WORKLOAD_INVALID_CONTAINER_CAPABILITIES_VALUE
+        messageOnFailure: Insecure and dangerous container capabilities values are not allowed by the organization.
+customRules:
+  - identifier: WORKLOAD_INVALID_CONTAINER_CAPABILITIES_VALUE  
+    name: Deny dangerous container capabilities, organization follows hardened pod security standards ref:(https://kubernetes.io/docs/concepts/security/pod-security-standards/)
+    defaultMessageOnFailure: Insecure and dangerous container capabilities values are not allowed by the organization.
+    schema:
+      type: object
+      if:
+        properties:
+          kind:
+            type: string
+            enum:
+              - Deployment
+              - Pod
+              - Daemonset
+              - Statefulset
+              - Replicaset
+              - Job
+              - CronJob
+      then:
+        properties:
+         spec:
+           type: object
+           properties:
+             containers:
+               type: array
+               items:
+                 type: object
+                 properties:
+                   securityContext:
+                     type: object
+                     properties:
+                       capabilities:
+                         type: object
+                         properties:
+                           add:
+                             type: array
+                             items:
+                               type: string
+                               not:
+                                 enum:
+                                   - ALL
+                                   - SYS_ADMIN
+                                   - NET_ADMIN
+                                   - CHOWN
+                                   - DAC_OVERRIDE
+                                   - FSETID
+                                   - FOWNER
+                                   - MKNOD
+                                   - NET_RAW
+                                   - SETGID
+                                   - SETUID
+                                   - SETFCAP
+                                   - SETPCAP
+                                   - SYS_CHROOT
+                                   - KILL
+                                   - AUDIT_WRITE      
