@@ -23,6 +23,8 @@ spec:
       securityContext:
         readOnlyRootFilesystem: false
         allowPrivilegeEscalation: true
+        runAsUser: 0
+        runAsNonRoot: false
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -53,3 +55,5 @@ spec:
           securityContext:
             readOnlyRootFilesystem: false
             allowPrivilegeEscalation: true
+            runAsUser: 0
+            runAsNonRoot: false

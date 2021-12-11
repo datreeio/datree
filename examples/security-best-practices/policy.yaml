@@ -7,6 +7,8 @@ policies:
         messageOnFailure: ""
       - identifier: CUSTOM_CONTAINERS_INCORRECT_PRIVILEGE_ESCALATION_PERMISSION
         messageOnFailure: ""
+      - identifier: CUSTOM_CONTAINERS_INCORRECT_PROCESS_PERMISSION
+        messageOnFailure: ""
 
 customRules:
   - identifier: CUSTOM_CONTAINERS_INCORRECT_ROOT_FILESYSTEM_PERMISSION
@@ -61,6 +63,37 @@ customRules:
                       - securityContext
       allOf:
         - $ref: "#/definitions/allowPrivilegeEscalationPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - identifier: CUSTOM_CONTAINERS_INCORRECT_PROCESS_PERMISSION
+    name: Ensure containers do not run processes with root privileges [CUSTOM RULE]
+    defaultMessageOnFailure: Set runAsUser to a non-zero number and runAsNonRoot to true in the container securityContext
+    schema:
+      definitions:
+        processPermissionPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      securityContext:
+                        properties:
+                          runAsUser:
+                            minimum: 1
+                          runAsNonRoot:
+                            enum:
+                              - true
+                        required:
+                          - runAsUser
+                          - runAsNonRoot
+                    required:
+                      - securityContext
+      allOf:
+        - $ref: "#/definitions/processPermissionPattern"
       additionalProperties:
         $ref: "#"
       items:

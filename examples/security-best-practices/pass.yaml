@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: fail-resource-quotas-for-pod
+  name: pass-security-best-practices-for-pod
   labels:
     environment: prod
     app: test
@@ -23,11 +23,13 @@ spec:
       securityContext:
         readOnlyRootFilesystem: true
         allowPrivilegeEscalation: false
+        runAsUser: 1000
+        runAsNonRoot: true
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fail-resource-quotas-for-deployment
+  name: pass-security-best-practices-for-deployment
 spec:
   selector:
     matchLabels:
@@ -53,3 +55,5 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
+            runAsUser: 1000
+            runAsNonRoot: true
