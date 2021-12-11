@@ -1,0 +1,17 @@
+apiVersion: v1
+policies:
+  - name: workload_best_practices
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_CHECK_NAME_LABEL
+        messageOnFailure: ''
+
+customRules:
+  - identifier: CUSTOM_WORKLOAD_CHECK_NAME_LABEL
+    name: Ensure each configuration file has deployment name.
+    defaultMessageOnFailure: Use `name` tag in the configuration file.
+    schema:
+      properties:
+        metadata:
+          required:
+            - name
