@@ -1,0 +1,143 @@
+apiVersion: v1
+policies:
+  - name: Default
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_CONTAINERS_INCORRECT_CPU_REQUEST_VALUE
+        messageOnFailure: ""
+      - identifier: CUSTOM_CONTAINERS_INCORRECT_CPU_LIMIT_VALUE
+        messageOnFailure: ""
+      - identifier: CUSTOM_CONTAINERS_INCORRECT_MEMORY_REQUEST_VALUE
+        messageOnFailure: ""
+      - identifier: CUSTOM_CONTAINERS_INCORRECT_MEMORY_LIMIT_VALUE
+        messageOnFailure: ""
+
+customRules:
+  - identifier: CUSTOM_CONTAINERS_INCORRECT_CPU_REQUEST_VALUE
+    name: Ensure each container has a configured CPU request within range [CUSTOM RULE]
+    defaultMessageOnFailure: CPU request value should be within the accepted boundaries (100m-250m)
+    schema:
+      definitions:
+        cpuRequestPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      resources:
+                        properties:
+                          requests:
+                            properties:
+                              cpu:
+                                resourceMinimum: 100m
+                                resourceMaximum: 250m
+                            required:
+                              - cpu
+                        required:
+                          - requests
+                    required:
+                      - resources
+      allOf:
+        - $ref: "#/definitions/cpuRequestPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - identifier: CUSTOM_CONTAINERS_INCORRECT_CPU_LIMIT_VALUE
+    name: Ensure each container has a configured CPU limit within range [CUSTOM RULE]
+    defaultMessageOnFailure: CPU limit value should be within the accepted boundaries (500m-1000m)
+    schema:
+      definitions:
+        cpuLimitPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      resources:
+                        properties:
+                          limits:
+                            properties:
+                              cpu:
+                                resourceMinimum: 500m
+                                resourceMaximum: 1000m
+                            required:
+                              - cpu
+                        required:
+                          - limits
+                    required:
+                      - resources
+      allOf:
+        - $ref: "#/definitions/cpuLimitPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - identifier: CUSTOM_CONTAINERS_INCORRECT_MEMORY_REQUEST_VALUE
+    name: Ensure each container has a configured memory request within range [CUSTOM RULE]
+    defaultMessageOnFailure: Memory request value should be within the accepted boundaries (512Mi-1024Mi)
+    schema:
+      definitions:
+        memoryRequestPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      resources:
+                        properties:
+                          requests:
+                            properties:
+                              memory:
+                                resourceMinimum: 512Mi
+                                resourceMaximum: 1024Mi
+                            required:
+                              - memory
+                        required:
+                          - requests
+                    required:
+                      - resources
+      allOf:
+        - $ref: "#/definitions/memoryRequestPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - identifier: CUSTOM_CONTAINERS_INCORRECT_MEMORY_LIMIT_VALUE
+    name: Ensure each container has a configured memory limit within range [CUSTOM RULE]
+    defaultMessageOnFailure: Memory limit value should be within the accepted boundaries (2048Mi-4096Mi)
+    schema:
+      definitions:
+        memoryLimitPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      resources:
+                        properties:
+                          limits:
+                            properties:
+                              memory:
+                                resourceMinimum: 2048Mi
+                                resourceMaximum: 4096Mi
+                            required:
+                              - memory
+                        required:
+                          - limits
+                    required:
+                      - resources
+      allOf:
+        - $ref: "#/definitions/memoryLimitPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
