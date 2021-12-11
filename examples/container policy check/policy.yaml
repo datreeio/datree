@@ -1,0 +1,60 @@
+apiVersion: v1
+policies:
+  - name: container_best_practices
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_CONTAINERS_FAILED_STATE
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_MISSING_STATE
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_INVALID_STATE
+        messageOnFailure: ''
+
+customRules:
+  - identifier: CUSTOM_CONTAINERS_FAILED_STATE
+    name: Ensure that each container has its correct state which are used [CUSTOM RULE]
+    defaultMessageOnFailure: Accept only approved container states (`waiting`, `running` and `terminated`)
+    schema:
+      properties:
+        kind:
+          metadata:
+            properties:
+              labels:
+                properties:
+                  environment:
+                    containers:
+                      type: array
+                        enum:
+                          - waiting
+                          - running
+                          - terminated
+              required:
+                - environment
+          required:
+            - containers
+
+  - identifier: CUSTOM_CONTAINERS_MISSING_STATE
+    name: Ensure that each containers has a configured with running status that indicates the container is executing without issues. [CUSTOM RULE]
+    defaultMessageOnFailure: Containers stop executing as running state failed.
+    schema:
+      properties:
+        metadata:
+          properties:
+            labels:
+              required:
+                - owner
+          required:
+            - labels
+
+  - identifier: CUSTOM_CONTAINERS_INVALID_STATE
+    name: Ensure containers has valid its valid state. [CUSTOM RULE]
+    defaultMessageOnFailure: Accept only approved container states (`waiting`, `running` and `terminated`)
+    schema:
+      properties:
+        metadata:
+          properties:
+            labels:
+              patternProperties:
+                ^.*$:
+                  format: hostname
+              additionalProperties: false
