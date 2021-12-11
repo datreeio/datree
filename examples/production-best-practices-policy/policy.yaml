@@ -25,8 +25,8 @@ policies:
         messageOnFailure: ''
       - identifier: CUSTOM_CONTAINERS_SECURITY_LABELS
         messageOnFailure: ''
-      #- identifier: CUSTOM_CONTAINERS_RESTRICT_ALPHA_BETA
-      #  messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_RESTRICT_ALPHA_BETA
+        messageOnFailure: ''
 
 customRules:
   ## METADATA.OWNERREFERENCES == REQUIRED
@@ -276,4 +276,4 @@ customRules:
       properties:
         apiVersion:
           type: string
-          pattern: ^.*(?!alpha|beta).*$
+          pattern: ^((?!alpha|beta).)*$
