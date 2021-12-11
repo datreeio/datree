@@ -9,6 +9,8 @@ policies:
         messageOnFailure: ""
       - identifier: CUSTOM_CONTAINERS_INCORRECT_PROCESS_PERMISSION
         messageOnFailure: ""
+      - identifier: CUSTOM_CONTAINERS_EXPOSED_SENSITIVE_HOST_SYSTEM_DIRECTORY
+        messageOnFailure: ""
 
 customRules:
   - identifier: CUSTOM_CONTAINERS_INCORRECT_ROOT_FILESYSTEM_PERMISSION
@@ -94,6 +96,35 @@ customRules:
                       - securityContext
       allOf:
         - $ref: "#/definitions/processPermissionPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - identifier: CUSTOM_CONTAINERS_EXPOSED_SENSITIVE_HOST_SYSTEM_DIRECTORY
+    name: Ensure containers do not expose sensitive host system directories [CUSTOM RULE]
+    defaultMessageOnFailure: Do not expose sensitive host system directories in the container (/dev, /proc, /sys, /boot, /etc, /lib, /usr)
+    schema:
+      definitions:
+        sensitiveHostSystemDirectoryPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      volumeMounts:
+                        type: array
+                        items:
+                          properties:
+                            mountPath:
+                              pattern: ^(?!/(dev|proc|sys|boot|etc|lib|usr)).*$
+                          required:
+                            - mountPath
+                    required:
+                      - volumeMounts
+      allOf:
+        - $ref: "#/definitions/sensitiveHostSystemDirectoryPattern"
       additionalProperties:
         $ref: "#"
       items:

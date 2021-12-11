@@ -25,6 +25,9 @@ spec:
         allowPrivilegeEscalation: true
         runAsUser: 0
         runAsNonRoot: false
+      volumeMounts:
+        - name: nginx-certs
+          mountPath: /etc/nginx/certs
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -57,3 +60,6 @@ spec:
             allowPrivilegeEscalation: true
             runAsUser: 0
             runAsNonRoot: false
+          volumeMounts:
+            - name: nginx-certs
+              mountPath: /etc/nginx/certs
