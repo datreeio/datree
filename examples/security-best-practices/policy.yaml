@@ -20,6 +20,8 @@ customRules:
           kind:
             enum:
               - Pod
+              - Deployment
+              - StatefulSet
       then:
         properties:
           spec:
@@ -33,6 +35,13 @@ customRules:
                   - runAsUser
             required:
               - securityContext
+      else:
+        properties:
+          wrongkind:
+            enum:
+              - wrong
+        required:
+          - wrongkind
 
   - identifier: CUSTOM_SECURITY_GROUPS_CHECK
     name: Check for runAsGroup field setting [CUSTOM_RULE]
@@ -43,6 +52,8 @@ customRules:
           kind:
             enum:
               - Pod
+              - Deployment
+              - StatefulSet
       then:
         properties:
           spec:
@@ -56,6 +67,13 @@ customRules:
                   - runAsGroup
             required:
               - securityContext
+      else:
+        properties:
+          wrongkind:
+            enum:
+              - wrong
+        required:
+          - wrongkind
 
   - identifier: CUSTOM_SECURITY_PRIVILEGE_CHECK
     name: Check for allowPrivilegeEscalation setting [CUSTOM_RULE]
@@ -66,6 +84,8 @@ customRules:
           kind:
             enum:
               - Pod
+              - Deployment
+              - StatefulSet
       then:
         properties:
           spec:
@@ -80,4 +100,11 @@ customRules:
                   - allowPrivilegeEscalation
             required:
               - securityContext
+      else:
+        properties:
+          wrongkind:
+            enum:
+              - wrong
+        required:
+          - wrongkind
               

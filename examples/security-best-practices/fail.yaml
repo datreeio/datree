@@ -1,6 +1,6 @@
 ---
 apiVersion: apps/v1
-kind: Pod
+kind: Service
 metadata:
   name: fail-user-permission
 spec:

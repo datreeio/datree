@@ -1,6 +1,7 @@
 # Policy: security_best_practices
 This policy allows DevOps engineers or developers to enforce industry-standard recommended security
-best practices such as setting user permissions and more.
+best practices such as setting user permissions and more. This policy requires the `kind`
+to be set to Pod, Deployment or StatefulSet.
 
 __This policy helps to enforce the following security best practices:__
 * Ensuring the user permission is set
