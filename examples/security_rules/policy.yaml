@@ -1,6 +1,6 @@
 apiVersion: v1
 policies:
-  - name: security_checks
+  - name: security_rules
     isDefault: true
     rules:
       - identifier: CHECK_PRIVILEGE_ESCALATION_DISALLOW
@@ -66,3 +66,51 @@ customRules:
     name: Ensure root filesystem is read-only
     defaultMessageOnFailure: Set securityContext of containers to readOnylRootFilesystem equal to false
     schema:
+      if:
+        properties:
+          kind:
+            enum:
+            - Deployment
+            - StatefulSet
+      then:
+        properties:
+          spec:
+            type: object
+            properties:
+              template:
+                type: object
+                properties:
+                  spec:
+                    type: object
+                    properties:
+                      containers:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            securityContext:
+                              type: object
+                              properties:
+                                readOnlyRootFilesystem:
+                                  enum:
+                                  - true
+                          required:
+                          - securityContext
+      else:
+        properties:
+          spec:
+            type: object
+            properties:
+              containers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    securityContext:
+                      type: object
+                      properties:
+                        readOnlyRootFilesystem:
+                          enum:
+                          - true
+                  required:
+                  - securityContext
