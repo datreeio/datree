@@ -3,12 +3,12 @@ policies:
   - name: Default
     isDefault: true
     rules:
-      - identifier: REVISION_HISTORY_RESULT
+      - identifier: REVISION_HISTORY_LIMIT
         messageOnFailure: Set Revision History Limit for getting Previous Version History
       - identifier: ROLLING_UPDATE_DEPLOYMENT
         messageOnFailure: Error in Defining Rolling Update Strategy
 customRules:
-  - identifier: REVISION_HISTORY_RESULT
+  - identifier: REVISION_HISTORY_LIMIT
     name: Ensure revisionHistoryLimit was Set
     defaultMessageOnFailure: Set Revision History Limit for getting Previous Version History
     schema:
