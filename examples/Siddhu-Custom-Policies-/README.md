@@ -9,6 +9,7 @@ __This custom policies helps to enforce the following labels best practices for 
 * [Ensure pre-defined DnsPolicy labels are used for pods](#ensure-pre-defined-DnsPolicy-labels-are-used-for-pods)
 * [Ensure custom nodeselector has pre-defined label](#ensure-custom-nodeselector-has-pre-defined-label)
 
+
 ## Ensure strategy has pre-defined labels 
 Kubernetes deployment strategies are use to replace existing pods with new ones. This rule will also ensure that only pre-approved `strategy` label values are used:
 * `Recreate`
@@ -29,5 +30,31 @@ spec:
   strategy:
     type: Ab
 ```
+
+
 ## Ensure RollingUpdate strategy has maxSurge and maxUnavailable labels
-sgadg
+RollingUpdate strategy replace the old ReplicaSets by new one using rolling update i.e gradually scale down the old ReplicaSets and scale up the new one.
+Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. This rule will ensure that `rollingupdate` labels are numeric
+* `maxSurge`
+* `maxUnavailable`  
+params control the desired behavior of rolling update.
+### When this rule is failing?
+while `DeploymentStrategyType` = `RollingUpdate` but `maxSurge` and `maxUnavailable`  are not defined
+```
+kind: Deployment
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+```
+__OR__ assigned non-numeric labels
+
+```
+kind: Deployment
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+     maxSurge: ab
+     maxUnavailable: aa
+```
