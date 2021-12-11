@@ -22,6 +22,7 @@ spec:
           memory: "3072Mi"
       securityContext:
         readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -51,3 +52,4 @@ spec:
               memory: "3072Mi"
           securityContext:
             readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false

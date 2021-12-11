@@ -5,6 +5,8 @@ policies:
     rules:
       - identifier: CUSTOM_CONTAINERS_INCORRECT_ROOT_FILESYSTEM_PERMISSION
         messageOnFailure: ""
+      - identifier: CUSTOM_CONTAINERS_INCORRECT_PRIVILEGE_ESCALATION_PERMISSION
+        messageOnFailure: ""
 
 customRules:
   - identifier: CUSTOM_CONTAINERS_INCORRECT_ROOT_FILESYSTEM_PERMISSION
@@ -31,6 +33,34 @@ customRules:
                       - securityContext
       allOf:
         - $ref: "#/definitions/readOnlyRootFilesystemPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - identifier: CUSTOM_CONTAINERS_INCORRECT_PRIVILEGE_ESCALATION_PERMISSION
+    name: Ensure containers do not allow privilege escalation [CUSTOM RULE]
+    defaultMessageOnFailure: Set allowPrivilegeEscalation to false in the container securityContext
+    schema:
+      definitions:
+        allowPrivilegeEscalationPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      securityContext:
+                        properties:
+                          allowPrivilegeEscalation:
+                            enum:
+                              - false
+                        required:
+                          - allowPrivilegeEscalation
+                    required:
+                      - securityContext
+      allOf:
+        - $ref: "#/definitions/allowPrivilegeEscalationPattern"
       additionalProperties:
         $ref: "#"
       items:

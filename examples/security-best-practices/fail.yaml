@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: fail-resource-quotas-for-pod
+  name: fail-security-best-practices-for-pod
   labels:
     environment: prod
     app: test
@@ -22,11 +22,12 @@ spec:
           memory: "5120Mi"
       securityContext:
         readOnlyRootFilesystem: false
+        allowPrivilegeEscalation: true
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fail-resource-quotas-for-deployment
+  name: fail-security-best-practices-for-deployment
 spec:
   selector:
     matchLabels:
@@ -51,3 +52,4 @@ spec:
               memory: "5120Mi"
           securityContext:
             readOnlyRootFilesystem: false
+            allowPrivilegeEscalation: true
