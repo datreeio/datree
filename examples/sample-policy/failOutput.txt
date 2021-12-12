@@ -1,0 +1,434 @@
+#./invokeFailPolicies.sh
+
+Published successfully
+>>  File: fail-startingDeadlineSeconds.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure min value is set for startingDeadlineSeconds [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: OmiCronJob (kind: CronJob)
+💡  Provide min value of 10 seconds for startingDeadlineSeconds as CronJob may not be scheduled
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++----------------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “startingDeadlineSeconds_min_accepted_value” | 1                                                        |
+| Configs tested against policy                                        | 1                                                        |
+| Total rules evaluated                                                | 1                                                        |
+| Total rules failed                                                   | 1                                                        |
+| Total rules passed                                                   | 0                                                        |
+| See all rules in policy                                              | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++----------------------------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-ttlSecondsAfterFinished.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure ttlSecondsAfterFinished is set to ensure jobs are not left around [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: job-with-ttl (kind: Job)
+💡  Add ttlSecondsAfterFinished to ensure unmanaged jobs are not left around after Job is fully deleted
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++-------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “ttlSecondsAfterFinished_set” | 1                                                        |
+| Configs tested against policy                         | 1                                                        |
+| Total rules evaluated                                 | 1                                                        |
+| Total rules failed                                    | 1                                                        |
+| Total rules passed                                    | 0                                                        |
+| See all rules in policy                               | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++-------------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-revisionHistoryLimit.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure min value set for revisionHistoryLimit is atleast 1 [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: nginx-deployment (kind: Deployment)
+💡  Provide min value of atleast 1 for revisionHistoryLimit to ensure rollback of deployment
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++-------------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “revisionHistoryLimit_min_accepted_value” | 1                                                        |
+| Configs tested against policy                                     | 1                                                        |
+| Total rules evaluated                                             | 1                                                        |
+| Total rules failed                                                | 1                                                        |
+| Total rules passed                                                | 0                                                        |
+| See all rules in policy                                           | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++-------------------------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-namespacePolicy.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure workload has a configured `namespace` [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: mypod (kind: Pod)
+💡  Add a proper namespace from accidently creating pods in the active namespace
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++---------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “namespace_present” | 1                                                        |
+| Configs tested against policy               | 1                                                        |
+| Total rules evaluated                       | 1                                                        |
+| Total rules failed                          | 1                                                        |
+| Total rules passed                          | 0                                                        |
+| See all rules in policy                     | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++---------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-podDisruptionBudget.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure `minAvailable` is set to protect from voluntary disruption [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: pdb (kind: PodDisruptionBudget)
+💡  Add minAvailable for PDB to ensure that the number of replicas running is never brought below the number needed
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++----------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “poddisruptionbudget_minAvailable_set” | 1                                                        |
+| Configs tested against policy                                  | 1                                                        |
+| Total rules evaluated                                          | 1                                                        |
+| Total rules failed                                             | 1                                                        |
+| Total rules passed                                             | 0                                                        |
+| See all rules in policy                                        | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++----------------------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-startupProbe.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure startupProbe options is used to determine app start state within the container [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: etcd-pod (kind: Pod)
+💡  Missing property object `startupProbe` - add a properly configured startupProbe to ensure app within the container is started properly
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++----------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “startup_probe_configured” | 1                                                        |
+| Configs tested against policy                      | 1                                                        |
+| Total rules evaluated                              | 1                                                        |
+| Total rules failed                                 | 1                                                        |
+| Total rules passed                                 | 0                                                        |
+| See all rules in policy                            | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++----------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-imageAvoidLatest.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure images do not use the latest tag as its difficult to track and rollback properly [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: pass-policy (kind: N/A)
+💡  Avoid using the latest tag for images used in prod as its hard to track image version used
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++--------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “image_avoid_latest_tag” | 1                                                        |
+| Configs tested against policy                    | 1                                                        |
+| Total rules evaluated                            | 1                                                        |
+| Total rules failed                               | 1                                                        |
+| Total rules passed                               | 0                                                        |
+| See all rules in policy                          | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++--------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-ipFamilyPolicy.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure correct ipFamilyPolicy options are used to determine IPv4 and/or IPv6 addressed [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: my-service (kind: Service)
+💡  Use only the accepted ipFamilyPolicy options (`SingleStack` or `PreferDualStack`)
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++-----------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “ipfamilypolicy_accepted_options” | 1                                                        |
+| Configs tested against policy                             | 1                                                        |
+| Total rules evaluated                                     | 1                                                        |
+| Total rules failed                                        | 1                                                        |
+| Total rules passed                                        | 0                                                        |
+| See all rules in policy                                   | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++-----------------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-concurrencyPolicy.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure correct concurrencyPolicy options are used [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: OmiCronJob (kind: CronJob)
+💡  Use only the accepted concurrencyPolicy options (`Allow`, `Forbid` and `Replace`)
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++--------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “concurrencyPolicy_accepted_options” | 1                                                        |
+| Configs tested against policy                                | 1                                                        |
+| Total rules evaluated                                        | 1                                                        |
+| Total rules failed                                           | 1                                                        |
+| Total rules passed                                           | 0                                                        |
+| See all rules in policy                                      | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++--------------------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-limitRangeType.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure correct LimitRange type options are used [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: mem-limit-range (kind: LimitRange)
+💡  Use only the accepted LimitRange type options (`Container`)
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++-----------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “limitrangetype_accepted_options” | 1                                                        |
+| Configs tested against policy                             | 1                                                        |
+| Total rules evaluated                                     | 1                                                        |
+| Total rules failed                                        | 1                                                        |
+| Total rules passed                                        | 0                                                        |
+| See all rules in policy                                   | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++-----------------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-deploymentStrategy.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure correct strategy options are used for deployment [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: recreate-strategy (kind: Deployment)
+💡  Use only the accepted strategy options (`Recreate` or `RollingUpdate`)
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++---------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “deploymentStrategy_accepted_options” | 1                                                        |
+| Configs tested against policy                                 | 1                                                        |
+| Total rules evaluated                                         | 1                                                        |
+| Total rules failed                                            | 1                                                        |
+| Total rules passed                                            | 0                                                        |
+| See all rules in policy                                       | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++---------------------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-imagePullPolicy.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure correct imagePullPolicy options are used [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: fail-policy (kind: N/A)
+💡  Use only approved imagePullPolicy options (`Always`, `IfNotPresent` and `Never`)
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “imagePullPolicy_accepted_options” | 1                                                        |
+| Configs tested against policy                              | 1                                                        |
+| Total rules evaluated                                      | 1                                                        |
+| Total rules failed                                         | 1                                                        |
+| Total rules passed                                         | 0                                                        |
+| See all rules in policy                                    | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++------------------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-imagePullSecrets.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure secrets name is present when imagePullSecrets option is used [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: fail-policy (kind: N/A)
+💡  Add proper secrets to make sure the image pull happens without failure while using private registry
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++----------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “imagePullSecrets_contains_name” | 1                                                        |
+| Configs tested against policy                            | 1                                                        |
+| Total rules evaluated                                    | 1                                                        |
+| Total rules failed                                       | 1                                                        |
+| Total rules passed                                       | 0                                                        |
+| See all rules in policy                                  | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++----------------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-seLinuxOptions.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure seLinuxOptions is assigned to the containers [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: security-context (kind: Pod)
+💡  Add proper `seLinuxOptions` SELinux level for your container
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++---------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “seLinuxOptions_contains_level” | 1                                                        |
+| Configs tested against policy                           | 1                                                        |
+| Total rules evaluated                                   | 1                                                        |
+| Total rules failed                                      | 1                                                        |
+| Total rules passed                                      | 0                                                        |
+| See all rules in policy                                 | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++---------------------------------------------------------+----------------------------------------------------------+

@@ -1,0 +1,17 @@
+
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_PDB_MISSING_MINAVAILABLE_VALUE
+    name: 'Ensure `minAvailable` is set to protect from voluntary disruption [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Add minAvailable for PDB to ensure that the number of replicas running is never brought below the number needed'
+    schema:
+      properties:
+        spec:
+          required:
+            - minAvailable
+policies:
+  - name: poddisruptionbudget_minAvailable_set
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_PDB_MISSING_MINAVAILABLE_VALUE
+        messageOnFailure: 'Add minAvailable for PDB to ensure that the number of replicas running is never brought below the number needed'

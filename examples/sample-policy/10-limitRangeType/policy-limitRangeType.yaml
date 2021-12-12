@@ -1,0 +1,22 @@
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_INCORRECT_LIMITRANGETYPE
+    name: 'Ensure correct LimitRange type options are used [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Use only the accepted LimitRange type options (`Container`)'
+    schema:
+      properties:
+        spec:
+          properties:
+            limits:
+              type: array
+              items:
+                properties:
+                  type:
+                    enum:
+                      - Container
+policies:
+  - name: limitrangetype_accepted_options
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_INCORRECT_LIMITRANGETYPE
+        messageOnFailure: 'Use only the accepted LimitRange type options (`Container`)'

@@ -1,0 +1,254 @@
+#./invokePassPolicies.sh
+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++----------------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “startingDeadlineSeconds_min_accepted_value” | 1                                                        |
+| Configs tested against policy                                        | 1                                                        |
+| Total rules evaluated                                                | 1                                                        |
+| Total rules failed                                                   | 0                                                        |
+| Total rules passed                                                   | 1                                                        |
+| See all rules in policy                                              | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++----------------------------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++-------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “ttlSecondsAfterFinished_set” | 1                                                        |
+| Configs tested against policy                         | 1                                                        |
+| Total rules evaluated                                 | 1                                                        |
+| Total rules failed                                    | 0                                                        |
+| Total rules passed                                    | 1                                                        |
+| See all rules in policy                               | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++-------------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++-------------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “revisionHistoryLimit_min_accepted_value” | 1                                                        |
+| Configs tested against policy                                     | 1                                                        |
+| Total rules evaluated                                             | 1                                                        |
+| Total rules failed                                                | 0                                                        |
+| Total rules passed                                                | 1                                                        |
+| See all rules in policy                                           | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++-------------------------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++---------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “namespace_present” | 1                                                        |
+| Configs tested against policy               | 1                                                        |
+| Total rules evaluated                       | 1                                                        |
+| Total rules failed                          | 0                                                        |
+| Total rules passed                          | 1                                                        |
+| See all rules in policy                     | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++---------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++----------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “poddisruptionbudget_minAvailable_set” | 1                                                        |
+| Configs tested against policy                                  | 1                                                        |
+| Total rules evaluated                                          | 1                                                        |
+| Total rules failed                                             | 0                                                        |
+| Total rules passed                                             | 1                                                        |
+| See all rules in policy                                        | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++----------------------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++----------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “startup_probe_configured” | 1                                                        |
+| Configs tested against policy                      | 1                                                        |
+| Total rules evaluated                              | 1                                                        |
+| Total rules failed                                 | 0                                                        |
+| Total rules passed                                 | 1                                                        |
+| See all rules in policy                            | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++----------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++--------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “image_avoid_latest_tag” | 1                                                        |
+| Configs tested against policy                    | 1                                                        |
+| Total rules evaluated                            | 1                                                        |
+| Total rules failed                               | 0                                                        |
+| Total rules passed                               | 1                                                        |
+| See all rules in policy                          | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++--------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++-----------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “ipfamilypolicy_accepted_options” | 1                                                        |
+| Configs tested against policy                             | 1                                                        |
+| Total rules evaluated                                     | 1                                                        |
+| Total rules failed                                        | 0                                                        |
+| Total rules passed                                        | 1                                                        |
+| See all rules in policy                                   | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++-----------------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++--------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “concurrencyPolicy_accepted_options” | 1                                                        |
+| Configs tested against policy                                | 1                                                        |
+| Total rules evaluated                                        | 1                                                        |
+| Total rules failed                                           | 0                                                        |
+| Total rules passed                                           | 1                                                        |
+| See all rules in policy                                      | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++--------------------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++-----------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “limitrangetype_accepted_options” | 1                                                        |
+| Configs tested against policy                             | 1                                                        |
+| Total rules evaluated                                     | 1                                                        |
+| Total rules failed                                        | 0                                                        |
+| Total rules passed                                        | 1                                                        |
+| See all rules in policy                                   | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++-----------------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++---------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “deploymentStrategy_accepted_options” | 1                                                        |
+| Configs tested against policy                                 | 1                                                        |
+| Total rules evaluated                                         | 1                                                        |
+| Total rules failed                                            | 0                                                        |
+| Total rules passed                                            | 1                                                        |
+| See all rules in policy                                       | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++---------------------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “imagePullPolicy_accepted_options” | 1                                                        |
+| Configs tested against policy                              | 1                                                        |
+| Total rules evaluated                                      | 1                                                        |
+| Total rules failed                                         | 0                                                        |
+| Total rules passed                                         | 1                                                        |
+| See all rules in policy                                    | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++------------------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++----------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “imagePullSecrets_contains_name” | 1                                                        |
+| Configs tested against policy                            | 1                                                        |
+| Total rules evaluated                                    | 1                                                        |
+| Total rules failed                                       | 0                                                        |
+| Total rules passed                                       | 1                                                        |
+| See all rules in policy                                  | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++----------------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++---------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “seLinuxOptions_contains_level” | 1                                                        |
+| Configs tested against policy                           | 1                                                        |
+| Total rules evaluated                                   | 1                                                        |
+| Total rules failed                                      | 0                                                        |
+| Total rules passed                                      | 1                                                        |
+| See all rules in policy                                 | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++---------------------------------------------------------+----------------------------------------------------------+

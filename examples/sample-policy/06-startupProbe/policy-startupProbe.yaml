@@ -13,7 +13,7 @@ customRules:
                 required:
                   - startupProbe
 policies:
-  - name: imagePullPolicy_accepted_options
+  - name: startup_probe_configured
     isDefault: true
     rules:
       - identifier: CONTAINERS_MISSING_STARTUPPROBE_KEY

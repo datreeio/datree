@@ -10,7 +10,7 @@ customRules:
             revisionHistoryLimit:
               minimum: 1
 policies:
-  - name: startingDeadlineSeconds_min_accepted_value
+  - name: revisionHistoryLimit_min_accepted_value
     isDefault: true
     rules:
       - identifier: CUSTOM_WORKLOAD_MINIMUM_REVISIONHISTORYLIMIT_VALUE

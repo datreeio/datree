@@ -1,0 +1,16 @@
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_MISSING_NAMESPACE
+    name: 'Ensure workload has a configured `namespace` [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Add a proper namespace from accidently creating pods in the active namespace'
+    schema:
+      properties:
+        metadata:
+          required:
+            - namespace
+policies:
+  - name: namespace_present
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_MISSING_NAMESPACE
+        messageOnFailure: 'Add a proper namespace from accidently creating pods in the active namespace'

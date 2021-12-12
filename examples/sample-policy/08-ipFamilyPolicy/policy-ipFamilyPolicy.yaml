@@ -1,0 +1,19 @@
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_INCORRECT_IPFAMILYPOLICY
+    name: 'Ensure correct ipFamilyPolicy options are used to determine IPv4 and/or IPv6 addressed [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Use only the accepted ipFamilyPolicy options (`SingleStack` or `PreferDualStack`)'
+    schema:
+      properties:
+        spec:
+          properties:
+            ipFamilyPolicy:
+              enum:
+                - SingleStack
+                - PreferDualStack
+policies:
+  - name: ipfamilypolicy_accepted_options
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_INCORRECT_IPFAMILYPOLICY
+        messageOnFailure: 'Use only the accepted ipFamilyPolicy options (`SingleStack` or `PreferDualStack`)'
