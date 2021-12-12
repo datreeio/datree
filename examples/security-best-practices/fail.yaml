@@ -41,6 +41,21 @@ spec:
     - containerPort: 80
 ---
 apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: fail-root-filesystem
+spec:
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0
+    privileged: false
+  containers:
+    - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
 kind: PodSecurityPolicy
 metadata:
   name: fail-deprecated
@@ -70,4 +85,18 @@ spec:
         - containerPort: 80
   allowedFlexVolumes:
     - driver: example/cifs
+---
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: fail-proc-mount
+spec:
+  securityContext:
+    runAsUser: 0
+    allowPrivilegedEscalation: true
+  containers:
+    - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPost: 80
     
