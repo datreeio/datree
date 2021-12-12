@@ -1,0 +1,23 @@
+apiVersion: v1
+policies:
+  - name: check_port_exposed
+    isDefault: true
+    rules:
+      - identifier: CHECK_PORT_EXPOSED
+        messageOnFailure: ""
+
+customRules:
+  - identifier: CHECK_PORT_EXPOSED
+    name: Ensure that your container port is exposed
+    defaultMessageOnFailure: Container port should be exposed to communicate with other pod [ containerPort = 80]
+    schema:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                required:
+                  - ports
+          required:
+            - containers

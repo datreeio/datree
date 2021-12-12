@@ -1,0 +1,24 @@
+apiVersion: v1
+policies:
+  - name: multi_container_check
+    isDefault: true
+    rules:
+      - identifier: MULTI_CONTAINER_CHECK
+        messageOnFailure: ""
+
+customRules:
+  - identifier: MULTI_CONTAINER_CHECK
+    name: Ensure that it has only single conatiner active
+    defaultMessageOnFailure: Should have only one Container running ('container-1')
+    schema:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              minItems: 1
+              maxItems: 1
+          required:
+            - containers
+      required:
+        - spec

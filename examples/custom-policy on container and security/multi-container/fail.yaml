@@ -1,0 +1,10 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: multi-container
+spec:
+  containers:
+    - name: container-1
+      image: nginx
+    - name: container-2
+      image: ubuntu
