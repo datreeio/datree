@@ -11,7 +11,7 @@ __This policy helps to enforce the following HPA workloads:__
 The field `targetCPUUtilizationPercentage` defines the target for when the pods are to be scaled. CPU Utilization is the average CPU usage of all pods in a deployment divided by the requested CPU of the deployment. If the mean of CPU utilization is higher than the target, then the pod replicas will be readjusted.
 
 ### When this rule is failing?
-If the `targetCPUUtilizationPercentage` key is missing from the labels section:  
+If the `targetCPUUtilizationPercentage` key is missing from the spec section:  
 ```
 kind: HorizontalPodAutoscaler
 spec:
@@ -27,14 +27,23 @@ spec:
 ```
 
 ## Ensure max replicas is set and valid
+The field `maxReplicas` is vital because it sets the maximum number of Pod replicas for the autoscaler. It is a value betweent the range of 1 and 10.
 
 ### When this rule is failing?
-If the `owner` key is missing from the labels section:  
+If the `maxReplicas` key is missing from the spec section:
 ```
 kind: HorizontalPodAutoscaler
-metadata:
-  labels:
-    name: app-back
+spec:
+  minReplicas: 5
+  targetCPUUtilizationPercentage: 40
+```
+
+__OR__ a value outside of the range, 1 - 10 was used:
+```
+kind: HorizontalPodAutoscaler
+spec:
+  maxReplicas: 12
+  minReplicas: 2
 ```
 
 ## Ensure min replicas is set and valid
