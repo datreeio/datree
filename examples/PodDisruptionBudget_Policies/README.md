@@ -7,7 +7,7 @@ A `PodDisruptionBudget` can be created for each Application.A `PodDisruptionBudg
 __This policy helps to Check the following Pod_Disruption_Budget:__
 * __Only one of the following Policies Should Be used__
 * [Ensure Pod Disruption Budget with minAvailable Selector is Set](#Ensure-Pod-Disruption-Budget-with-minAvailable-Selector-is-Set)
-* [Ensure Pod Disruption Budget with maxUnvailable Selector is Set](#Ensure-Pod-Disruption-Budget-with-maxUnvailable-Selector-is-Set)
+* [Ensure Pod Disruption Budget with maxUnvailable Selector is Set](#Ensure-Pod-Disruption-Budget-with-maxUnavailable-Selector-is-Set)
 
 ## Ensure Pod Disruption Budget with minAvailable Selector is Set
 Having a `PodDisruptionBudget` hepls K8's Admis to Set Minimum Number of Pods that should be Available When `voluntary disruptions by K8's Admins` Occur like 
