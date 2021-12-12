@@ -19,7 +19,13 @@ Ensure containers has valid its valid state.
 
 # When this rule is failing?
 
-If the environment key is missing from the labels section or if a different environment value is used.
+*If the environment key is missing from the labels section or if a different environment value is used.
+
+*This policy fails when it could not find appropriate container state label during container running.
+
+# When this policy is Pass?
+
+* This policy will pass when state includes information like the container’s sate label for each process.
 
 # Ensure that each container has its correct state which are used (mentioned below):
 
