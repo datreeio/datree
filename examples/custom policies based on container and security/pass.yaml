@@ -1,0 +1,11 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: pass-policy
+  namespace: test
+spec:
+  containers:
+    - name: container-1
+      image: ubuntu
+      ports:
+        - containerPort: 80
