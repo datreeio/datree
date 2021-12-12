@@ -122,3 +122,7 @@ customRules:
                       required:
                         - limits
                         - requests
+                  required:
+                    - resources
+            required:
+              - containers

@@ -9,6 +9,11 @@ spec:
   containers:
   - name: nginx
     image: nginx:1.14.2
+    resources:
+      limits:
+        memory: "200Mi"
+      requests:
+        memory: "100Mi"
     ports:
     - containerPort: 80
   targetCPUUtilizationPercentage: 50
