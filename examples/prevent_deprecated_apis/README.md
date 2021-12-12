@@ -1,4 +1,4 @@
-# Policy: preventing_use_of_removed_deprecated_apis(example policy)
+# Policy: preventing_use_of_removed_deprecated_apis
 
 Deprecated apis are those that are not under active development and are scheduled to
 be removed/stopped being supported in the future versions. The rules in this policy help detect the use of those apis that have been dropped in the version of kubernetes that is mentioned in the corresponding rule name and prevent them from landing in the kubernetes configuration file.
