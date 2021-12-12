@@ -1,128 +1,128 @@
-# # NOTE :- The comments "Test using ....." mean that these tests will only work for the specified or later
-# # version because that is the version in which that particular apiVersion was first introduced.
+# NOTE :- The comments "Test using ....." mean that these tests will only work for the specified or later
+# version because that is the version in which that particular apiVersion was first introduced.
 
-# # # # # # # #
-# # v1.26
-# # # # # # # #
+# # # # # # #
+# v1.26
+# # # # # # #
 
-# # Test using v1.23 or later
-# apiVersion: autoscaling/v2
-# kind: HorizontalPodAutoscaler
-# ---
-# # # # # # # #
-# # v1.25
-# # # # # # # #
+# Test using v1.23 or later
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+---
+# # # # # # #
+# v1.25
+# # # # # # #
 
-# # Test using v1.21 or later
-# apiVersion: batch/v1
-# kind: CronJob
-# ---
-# # Test using v1.21 or later
-# apiVersion: discovery.k8s.io/v1
-# kind: EndpointSlice
-# addressType: IPv4
-# endpoints:
-# ---
-# # Test using v1.19 or later
-# apiVersion: events.k8s.io/v1
-# kind: Event
-# eventTime:
-# ---
-# # Test using v1.23 or later
-# apiVersion: autoscaling/v2
-# kind: HorizontalPodAutoscaler
-# ---
-# # Test using v1.21 or later
-# apiVersion: policy/v1
-# kind: PodDisruptionBudget
-# ---
-# # Test using v1.20 or later
-# apiVersion: node.k8s.io/v1
-# kind: RuntimeClass
-# handler:
-# ---
-# # # # # # # #
-# # v1.22
-# # # # # # # #
+# Test using v1.21 or later
+apiVersion: batch/v1
+kind: CronJob
+---
+# Test using v1.21 or later
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+addressType: IPv4
+endpoints:
+---
+# Test using v1.19 or later
+apiVersion: events.k8s.io/v1
+kind: Event
+eventTime:
+---
+# Test using v1.23 or later
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+---
+# Test using v1.21 or later
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+---
+# Test using v1.20 or later
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+handler:
+---
+# # # # # # #
+# v1.22
+# # # # # # #
 
-# # Test using v1.16 or later
-# apiVersion: admissionregistration.k8s.io/v1
-# kind: MutatingWebhookConfiguration
-# ---
-# # Test using v1.16 or later
-# apiVersion: admissionregistration.k8s.io/v1
-# kind: ValidatingWebhookConfiguration
-# ---
-# # Test using v1.16 or later
-# apiVersion: apiextensions.k8s.io/v1
-# kind: CustomResourceDefinition
-# ---
-# # Test using v1.10 or later
-# apiVersion: apiregistration.k8s.io/v1
-# kind: APIService
-# ---
-# # Test using v1.6 or later
-# apiVersion: authentication.k8s.io/v1
-# kind: TokenReview
-# spec:
-# ---
-# # Test using v1.6 or later
-# apiVersion: authorization.k8s.io/v1
-# kind: LocalSubjectAccessReview
-# spec:
-# ---
-# # Test using v1.6 or later
-# apiVersion: authorization.k8s.io/v1
-# kind: SelfSubjectAccessReview
-# spec:
-# ---
-# # Test using v1.6 or later
-# apiVersion: authorization.k8s.io/v1
-# kind: SubjectAccessReview
-# spec:
-# ---
-# # Test using v1.19 or later
-# apiVersion: certificates.k8s.io/v1
-# kind: CertificateSigningRequest
-# spec:
-# ---
-# # Test using v1.14 or later
-# apiVersion: coordination.k8s.io/v1
-# kind: Lease
-# ---
-# # Test using v1.19 or later
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# ---
-# # Test using v1.19 or later
-# apiVersion: networking.k8s.io/v1
-# kind: IngressClass
-# ---
-# # Test using v1.8 or later
-# apiVersion: rbac.authorization.k8s.io/v1
-# kind: ClusterRole
-# ---
-# # Test using v1.14 or later
-# apiVersion: scheduling.k8s.io/v1
-# kind: PriorityClass
-# value:
-# ---
-# # Test using v1.19 or later
-# apiVersion: storage.k8s.io/v1
-# kind: CSIDriver
-# spec:
-# ---
-# # Test using v1.17 or later
-# apiVersion: storage.k8s.io/v1
-# kind: CSINode
-# spec:
-# ---
-# # Test using v1.6 or later
-# apiVersion: storage.k8s.io/v1
-# kind: StorageClass
-# provisioner:
-# ---
-# # Test using v1.13 or later
-# apiVersion: storage.k8s.io/v1
-# kind: VolumeAttachment
-# spec:
+# Test using v1.16 or later
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+---
+# Test using v1.16 or later
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+---
+# Test using v1.16 or later
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+---
+# Test using v1.10 or later
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+---
+# Test using v1.6 or later
+apiVersion: authentication.k8s.io/v1
+kind: TokenReview
+spec:
+---
+# Test using v1.6 or later
+apiVersion: authorization.k8s.io/v1
+kind: LocalSubjectAccessReview
+spec:
+---
+# Test using v1.6 or later
+apiVersion: authorization.k8s.io/v1
+kind: SelfSubjectAccessReview
+spec:
+---
+# Test using v1.6 or later
+apiVersion: authorization.k8s.io/v1
+kind: SubjectAccessReview
+spec:
+---
+# Test using v1.19 or later
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+spec:
+---
+# Test using v1.14 or later
+apiVersion: coordination.k8s.io/v1
+kind: Lease
+---
+# Test using v1.19 or later
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+---
+# Test using v1.19 or later
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+---
+# Test using v1.8 or later
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+---
+# Test using v1.14 or later
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+value:
+---
+# Test using v1.19 or later
+apiVersion: storage.k8s.io/v1
+kind: CSIDriver
+spec:
+---
+# Test using v1.17 or later
+apiVersion: storage.k8s.io/v1
+kind: CSINode
+spec:
+---
+# Test using v1.6 or later
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+provisioner:
+---
+# Test using v1.13 or later
+apiVersion: storage.k8s.io/v1
+kind: VolumeAttachment
+spec:
