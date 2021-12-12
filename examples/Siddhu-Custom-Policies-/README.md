@@ -7,7 +7,7 @@ __This custom policies helps to enforce the following labels best practices for 
 * [Ensure strategy has pre-defined labels ](#ensure-strategy-has-pre-defined-labels)
 * [Ensure RollingUpdate strategy has maxSurge and maxUnavailable labels](#ensure-RollingUpdate-strategy-has-maxSurge-and-maxUnavailable-labels)
 * [Ensure pre-defined DnsPolicy values are used for pods](#ensure-pre-defined-DnsPolicy-values-are-used-for-pods)
-* [Ensure custom nodeselector has pre-defined value](#ensure-custom-nodeselector-has-pre-defined-value)
+* [Ensure custom nodeselector has pre-defined disktype value](#ensure-custom-nodeselector-has-pre-defined-disktype-value)
 
 
 ## Ensure strategy has pre-defined labels 
@@ -87,3 +87,29 @@ spec:
   dnsPolicy: Ab
   template:
 ```
+
+## Ensure custom nodeselector has pre-defined disktype value
+`nodeSelector` is the simplest recommended form of node selection constraint. nodeSelector is a field of PodSpec. It specifies a map of key-value pairs. For the pod to be eligible to run on a node, the node must have each of the indicated key-value pairs as labels (it can have additional labels as well). The most common usage is one key-value pair.
+
+`nodeSelector:
+   disktype: ssd`   
+### When this rule is failing?
+If the `nodeSelector` key is missing from the spec section:
+```
+kind: Deployment
+spec:
+  replicas: 3
+  template:
+```
+__OR__ `nodeSelector.disktype` value is not equal to `ssd`:
+```
+kind: Deployment
+spec:
+  replicas: 3
+  template:
+  nodeSelector:
+     disktype : hdd
+```
+
+
+
