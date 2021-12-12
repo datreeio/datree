@@ -56,10 +56,10 @@ spec:
 ```
 
 #### WORKLOAD_MISSING_NAMESPACE_FOR_NAMESPACED_RESOURCES
-This rule ensures that all the namespace scoped resources are namescoped as it prevents kubernetes users from accidently deploying workloads into default namespace when they don't specify namespace.
+This rule ensures that all the namespace scoped resources are namescoped as it prevents kubernetes users from accidentally deploying workloads into default namespace when they don't specify namespace.
 
 ##### When this rule is failing?
-When any namespace scoped resource does not have any namespace specified.
+When any namespace scoped resource does not have a namespace specified.
 
 ```
 apiVersion: v1
