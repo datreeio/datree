@@ -13,9 +13,11 @@ policies:
         messageOnFailure: ''
       - identifier: CUSTOM_SECURITY_DEPRECATED_CHECK
         messageOnFailure: ''
-      - idenitifer: CUSTOM_SECURITY_PRIVILEGED_CHECK
+      - identifier: CUSTOM_SECURITY_PRIVILEGED_CHECK
         messageOnFailure: ''
       - identifier: CUSTOM_SECURITY_IMAGE_PULL
+        messageOnFailure: ''
+      - identifier: CUSTOM_SECURITY_FLEX_VOLUME_CHECK
         messageOnFailure: ''
 
 customRules:
@@ -149,7 +151,7 @@ customRules:
 
   - identifier: CUSTOM_SECURITY_IMAGE_PULL
     name: Ensure imagePullPolicy is set to always [CUSTOM RULE]
-    defaultMessageOnFailure:
+    defaultMessageOnFailure: Set imagePullPolicy to Always
     schema:
       properties:
         kind:
@@ -167,3 +169,23 @@ customRules:
                   imagePullPolicy:
                     enum:
                       - Always
+
+  - identifier: CUSTOM_SECURITY_FLEX_VOLUME_CHECK
+    name: Check for the presence of flexVolume when allowedFlexVolumes is declared [CUSTOM RULE]
+    defaultMessageOnFailure: Ensure allowedFlexVolumes is present
+    schema:
+      if:
+        properties:
+          spec:
+            required:
+              - allowedFlexVolumes
+      then:
+        properties:
+          spec:
+            properties:
+              volumes:
+                type: array
+                contains:
+                  const: flexVolume
+            required:
+              - volumes

@@ -10,6 +10,10 @@ spec:
     readOnlyRootFilesystem: false
     allowPrivilegeEscalation: false
     privileged: false
+  volumes:
+    - flexVolume
+  allowedFlexVolumes:
+    - driver: example/lvm
   containers:
   - name: nginx
     image: nginx:1.14.2
