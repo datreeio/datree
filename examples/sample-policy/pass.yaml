@@ -1,15 +1,17 @@
----
 apiVersion: apps/v1
 kind: Pod
-metadata:
-  name: pass-policy
-  labels:
-    owner: me
-    environment: prod
-    app: web
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - containerPort: 80
+schema:
+  metadata:
+    name: pass-policy
+    labels:
+      owner: me
+      size: g3.k3s.small
+      app: web
+  spec:
+    containers:
+    - name: nginx
+      image: nginx:1.14.2
+      securityContext:  
+        runAsUser: 1000
+      ports:
+      - containerPort: 80
