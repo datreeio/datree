@@ -9,7 +9,7 @@ While starting the configuration it's essential to make sure that there is `name
 * `name: demo-application-deployment`
 
 ### When this rule is failing?
-If the `apiVersion` tag is not included at the starting of the configuration file
+If the `name` tag is not included in the file (Generally under `metadata`)
 ```
 apiVersion: apps/v1
 kind: Deployment
@@ -19,7 +19,7 @@ metadata:
 ```
 
 ### When this rule pass?
-The policy passes when provided with `apiVersion` at starting of the file
+The policy passes when provided with `name` of the deployment.
 ```
 apiVersion: apps/v1
 kind: Deployment
