@@ -132,7 +132,7 @@ to list right here :-
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 ```
-#### You can check each config individually using the version specified in the comment i.e., v1.23.
+#### You can check each config individually using the version specified in the comment (v1.23 for this case).
 #### Example using the cli :- ```datree test `your config file here` --schema-version "1.23.0" ```
 
 ### Workaround 2 :-
