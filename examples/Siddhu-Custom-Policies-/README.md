@@ -42,6 +42,9 @@ Rolling update config params. Present only if `DeploymentStrategyType = RollingU
 * `maxSurge`
 * `maxUnavailable`  
 params control the desired behavior of rolling update.
+
+`NOTE : `
+* `In order to validate this rule you need to deactiavte [Ensure strategy has pre-defined labels] this policy `
 ### When this rule is failing?
 while `DeploymentStrategyType` = `RollingUpdate` but `maxSurge` and `maxUnavailable`  are not defined in spec.strategy.rollingUpdate section
 ```
