@@ -10,6 +10,7 @@ __This policy helps to enforce the following security best practices:__
 * Ensure that filesystem accessibility is set
 * Ensure deprecated resource is not used
 * Ensure privileged flag is set
+* Ensure that imagePullPolicy is set to Always
 
 ## Ensure user permission is set
 This flag controls which user ID the containers are run with. If this value is 0, then
@@ -114,6 +115,21 @@ spec:
     runAsUser: 1000
     runAsGroup: 1000
     allowPrivilegedEscalation: true
+```
+
+## Ensure that imagePullPolicy is set to Always
+The `imagePullPolicy` field for a container affect when the kubelet attempts to download
+the specified image. If the value is set to Always, then everytime the kubelet is launched
+the kubelet queries the container image and resolves the name to an image digest.
+
+### When this rule is failing?
+If the field is not Always:
+```
+kind: Pod
+spec:
+  containers:
+    - name: image
+      imagePullPolicy: Never
 ```
 
 ## Policy author
