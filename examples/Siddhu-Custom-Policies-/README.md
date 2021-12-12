@@ -20,6 +20,7 @@ This rule will also ensure that only pre-approved `strategy.type` label values a
 If the `strategy` key is missing from the spec section:  
 ```
 kind: Deployment
+metadata:
 spec:
   replicas: 2
   template:
@@ -29,6 +30,7 @@ __OR__ a different `strategy.type` value is used:
 ```
 kind: Deployment
 spec:
+  template:
   strategy:
     type: Ab
 ```
@@ -44,6 +46,7 @@ params control the desired behavior of rolling update.
 while `DeploymentStrategyType` = `RollingUpdate` but `maxSurge` and `maxUnavailable`  are not defined in spec.strategy.rollingUpdate section
 ```
 kind: Deployment
+metadata:
 spec:
   strategy:
     type: RollingUpdate
@@ -57,8 +60,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-     maxSurge: ab
-     maxUnavailable: aa
+      maxSurge: ab
+      maxUnavailable: aa
 ```
 
 
@@ -72,20 +75,27 @@ DNS policies can be set on a per-pod basis. Currently Kubernetes supports the fo
 These policies are specified in the `dnsPolicy` field of a PodSpec.
 
 ### When this rule is failing?
-If the `dndPolicy` key is missing from the spec section:
+If the `dndPolicy` key is missing from the template.spec section:
 ```
 kind: Deployment
 spec:
   replicas: 2
   template:
+     metadata:
+     spec:
+       container:
+       
 ```
 __OR__ a different `dnsPolicy` value is used:
 ```
 kind: Deployment
 spec:
-  replicas: 3
-  dnsPolicy: Ab
+  replicas: 2
   template:
+     metadata:
+     spec:
+       container:
+       dnsPolicy: ab
 ```
 
 ## Ensure custom nodeselector has pre-defined disktype value
@@ -98,17 +108,23 @@ If the `nodeSelector` key is missing from the spec section:
 ```
 kind: Deployment
 spec:
-  replicas: 3
+  replicas: 2
   template:
+     metadata:
+     spec:
+       container:
 ```
 __OR__ `nodeSelector.disktype` value is not equal to `ssd`:
 ```
 kind: Deployment
 spec:
-  replicas: 3
+  replicas: 2
   template:
-  nodeSelector:
-     disktype : hdd
+     metadata:
+     spec:
+       container:
+       nodeSelector:
+          disktype: hdd
 ```
 
 
