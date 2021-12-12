@@ -1,7 +1,7 @@
 # Recommended policies for production workloads
 It is recommended for the kubernetes workloads deployed in production to support the industry best practices and have hardened rules enforced on them.
 
-__The following policies are named as per their respectives use cases:__
+__The following policies are named as per their respective use cases:__
 * Governance
 * Cost Reduction
 * Security
