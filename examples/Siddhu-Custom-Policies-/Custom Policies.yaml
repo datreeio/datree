@@ -1,1 +1,119 @@
-
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_STRATEGY_DECLARATION_POLICY_TO_REPLACE_PODS
+    name:  Ensure strategy has pre-defined labels 
+    defaultMessageOnFailure: Incorrect value for key strategy - required values[ "Recreate" or "RollingUpdate"]
+    schema:
+      properties:
+        spec:
+          properties:
+            strategy:
+              properties:
+                type:
+                  enum:
+                    - Recreate
+                    - RollingUpdate
+              required:
+                - type
+          required:
+            - strategy
+            
+            
+  - identifier: CUSTOM_ROLLINGUPDATE_POLICY_TO_REPLACE_PODS
+    name: Ensure RollingUpdate strategy has maxSurge and maxUnavailable labels
+    defaultMessageOnFailure: Rolling update config present only if DeploymentStrategyType = RollingUpdate.  [maxSurge,maxUnavailable] values must be integers
+    schema:
+      if:
+        properties:
+          spec:
+            properties:
+              strategy:
+                properties:
+                  type:
+                    enum:
+                      - RollingUpdate
+      then:
+        properties:
+          spec:
+            properties:
+              strategy:
+                properties:
+                  rollingUpdate:
+                    properties:
+                      maxSurge:
+                        type: integer
+                      maxUnavailable:
+                        type: integer
+                    required:
+                      - maxSurge
+                      - maxUnavailable
+                required:
+                  - rollingUpdate
+            required:
+              - strategy
+                
+                
+  - identifier: CUSTOM_POLICY_FOR_DNS_POLICY_DECLARATION_FOR_PODS
+    name: Ensure pre-defined DnsPolicy values are used for pods
+    defaultMessageOnFailure: Kubernetes supports only pod-specific DNS policies [ Default, ClusterFirst, ClusterFirstWithHostNet, None]
+    schema:
+      properties:
+        spec:
+          properties:
+            template:
+              properties:
+                spec:
+                  properties:
+                    dnsPolicy:
+                      enum:
+                        - Default
+                        - ClusterFirst
+                        - ClusterFirstWithHostNet
+                        - None
+                  required:
+                    - dnsPolicy
+              required:
+                - spec
+          required:
+            - template
+            
+            
+            
+  - identifier: CUSTOM_RULE_TO_ASSIGN_POD_TO_NODES
+    name: Ensure custom nodeselector has pre-defined disktype value
+    defaultMessageOnFailure: nodeSelector supports only ["ssd"] disktype value for specific pod [Tip- use nodeAffinity instead of nodeSelector for custom modifications]
+    schema:
+      properties:
+        spec:
+          properties:
+            template:
+              properties:
+                spec:
+                  properties:
+                    nodeSelector:
+                      properties:
+                        disktype:
+                          enum:
+                            - ssd
+                      required:
+                        - disktype
+                  required:
+                    - nodeSelector
+              required:
+                - spec
+          required:
+            - template
+            
+            
+policies:
+  - name: siddhu
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_STRATEGY_DECLARATION_POLICY_TO_REPLACE_PODS
+        messageOnFailure: 'Incorrect value for key strategy - required values[ "Recreate" or "RollingUpdate"]'
+      - identifier: CUSTOM_ROLLINGUPDATE_POLICY_TO_REPLACE_PODS
+        messageOnFailure: Rolling update config present only if DeploymentStrategyType = RollingUpdate.  [maxSurge,maxUnavailable] values must be integers
+      - identifier: CUSTOM_POLICY_FOR_DNS_POLICY_DECLARATION_FOR_PODS
+        messageOnFailure: Kubernetes supports only pod-specific DNS policies [ Default, ClusterFirst, ClusterFirstWithHostNet, None]
+      - identifier: CUSTOM_RULE_TO_ASSIGN_POD_TO_NODES
+        messageOnFailure:  nodeSelector supports only ["ssd"] disktype value for specific pod [Tip- use nodeAffinity instead of nodeSelector for custom modifications]
