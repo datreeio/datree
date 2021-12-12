@@ -11,13 +11,11 @@ policies:
             messageOnFailure: ''
           - identifier: ENSURE_NO_NEW_PRIVILEGES_ARE_SET
             messageOnFailure: ''
-          # - identifier: CONTAINERS_MISSING_SELINUX
-          #   messageOnFailure: ''
+          - identifier: CONTAINERS_MISSING_SELINUX
+            messageOnFailure: ''
           - identifier: ENSURE_DEPRECATED_POD_SECURITY_POLICY_NOT_USED
             messageOnFailure: ''
           - identifier: ENSURE_IMAGE_PULL_POLICY_SET_TO_ALWAYS
-            messageOnFailure: ''
-          - identifier: ENSURE_EVENT_RATE_LIMIT_IS_ENABLED
             messageOnFailure: ''
           - identifier: ENSURE_DEFAULT_SERVICE_ACCOUNT_NOT_USED_IN_SERVICE_ACCOUNT
             messageOnFailure: ''
@@ -26,8 +24,6 @@ policies:
           - identifier: ENSURE_ALL_CAPABILITIES_ARE_DROPED
             messageOnFailure: ''
           - identifier: ENSURE_SECCOMP_PROFILE_IS_SET
-            messageOnFailure: ''
-          - identifier: ENSURE_SENSITIVE_DATA_USES_METADATA_FOR_AUDIT
             messageOnFailure: ''
 
 customRules:
@@ -54,7 +50,7 @@ customRules:
           items:
               $ref: '#'
     - identifier: CONTAINERS_MISSING_ROOT_FILESYSTEM_TRUE
-      name: Ensure readOnlyRootFileSystem is set
+      name: Ensure readOnlyRootFilesystem is set
       defaultMessageOnFailure: Missing `readOnlyRootFilesystem` - make the root filesystem read-only for security reasons
       schema:
           if:
@@ -66,15 +62,19 @@ customRules:
               properties:
                   spec:
                       properties:
-                          securityContext:
-                              properties:
-                                  readOnlyRootFileSystem:
-                                      enum:
-                                          - true
-                              required:
-                                  - readOnlyRootFileSystem
-                      required:
-                          - securityContext
+                          containers:
+                              type: array
+                              items:
+                                  properties:
+                                      securityContext:
+                                          properties:
+                                              readOnlyRootFilesystem:
+                                                  enum:
+                                                      - true
+                                          required:
+                                              - readOnlyRootFilesystem
+                                  required:
+                                      - securityContext
     - identifier: ENSURE_CONTAINERS_RUN_AS_NON_ROOT
       name: Ensure Containers run with non root access
       defaultMessageOnFailure: Containers can be run as host with the current configuration. Set the `runAsUser` to 1000 so that containers can run as non-root only.
@@ -110,15 +110,19 @@ customRules:
               properties:
                   spec:
                       properties:
-                          securityContext:
-                              properties:
-                                  allowPrivilegeEscalation:
-                                      enum:
-                                          - false
-                              required:
-                                  - allowPrivilegeEscalation
-                      required:
-                          - securityContext
+                          containers:
+                              type: array
+                              items:
+                                  properties:
+                                      securityContext:
+                                          properties:
+                                              allowPrivilegeEscalation:
+                                                  enum:
+                                                      - false
+                                          required:
+                                              - allowPrivilegeEscalation
+                                  required:
+                                      - securityContext
     - identifier: ENSURE_ALL_CAPABILITIES_ARE_DROPED
       name: Check if all capabilities are droped
       defaultMessageOnFailure: All capabilities not droped - add `drop all` to capabilities and then add only the required capabilities
@@ -132,19 +136,26 @@ customRules:
               properties:
                   spec:
                       properties:
-                          securityContext:
-                              properties:
-                                  capabilities:
-                                      properties:
-                                          drop:
-                                              type: array
-                                              items:
-                                                  # properties:
-                                                  type: string
-                                                  enum:
-                                                      - all
-                                      required:
-                                          - drop
+                          containers:
+                              type: array
+                              items:
+                                  properties:
+                                      securityContext:
+                                          properties:
+                                              capabilities:
+                                                  properties:
+                                                      drop:
+                                                          type: array
+                                                          items:
+                                                              type: string
+                                                              enum:
+                                                                  - all
+                                                  required:
+                                                      - drop
+                                          required:
+                                              - capabilities
+                                  required:
+                                      - securityContext
     - identifier: ENSURE_DEPRECATED_POD_SECURITY_POLICY_NOT_USED
       name: Ensure deprecated Pod Security Policy not used
       defaultMessageOnFailure: Deprecated `pod security policy` used - use alternatives for `pod security policy`.
@@ -177,6 +188,8 @@ customRules:
                                           - level
                               required:
                                   - seLinuxOptions
+                      required:
+                          - securityContext
     - identifier: ENSURE_IMAGE_PULL_POLICY_SET_TO_ALWAYS
       name: Ensure imagePullPolicy is always set to Always
       defaultMessageOnFailure: Incorrect Value for `imagePullPolicy` - set `imagePullPolicy` to `Always`
@@ -195,32 +208,9 @@ customRules:
                               items:
                                   properties:
                                       imagePullPolicy:
+                                          type: string
                                           enum:
                                               - Always
-    - identifier: ENSURE_EVENT_RATE_LIMIT_IS_ENABLED
-      name: Check if EventRateLimit is set in AdmissionConfiguration
-      defaultMessageOnFailure: '`EventRateLimit` is not enabled - set it to limit the rate of api requests to kube-api-server'
-      schema:
-          if:
-              properties:
-                  kind:
-                      enum:
-                          - AdmissionConfiguration
-          then:
-              properties:
-                  plugins:
-                      type: array
-                      minItems: 1
-                      contains:
-                          properties:
-                              name:
-                                  enum:
-                                      - EventRateLimit
-                      # items:
-                      #     properties:
-                      #         name:
-                      #             enum:
-                      #                 - EventRateLimit
     - identifier: ENSURE_DEFAULT_SERVICE_ACCOUNT_NOT_USED_IN_SERVICE_ACCOUNT
       name: Ensure default service account are not used
       defaultMessageOnFailure: 'Missing `automountServiceAccountToken` key in ServiceAccount manifest - set it to false to ensure default service accounts are not used.'
@@ -268,43 +258,12 @@ customRules:
               properties:
                   spec:
                       properties:
-                          securityContext:
-                              required:
-                                - seccompProfile
-                      
-    - identifier: ENSURE_SENSITIVE_DATA_USES_METADATA_FOR_AUDIT
-      name: Check if sensitive data used for audit without metadata level
-      defaultMessageOnFailure: 'Incorrect level value of auditing - use `Metadata` instead for sensitive data'
-      schema:
-          if:
-              properties:
-                  apiVersion:
-                      enum:
-                          - audit.k8s.io/v1
-                  kind:
-                      enum:
-                          - Policy
-          then:
-              properties:
-                  rules:
-                      type: array
-                      items:
-                          if:
-                              properties:
-                                  resources:
-                                      type: array
-                                      items:
-                                          properties:
-                                              resources:
-                                                  type: array
-                                                  items:
-                                                      # properties:
-                                                      type: string
-                                                      enum:
-                                                          - configmaps
-                                                          - secrets
-                          then:
-                              properties:
-                                  level:
-                                      enum:
-                                          - Metadata
+                          containers:
+                              type: array
+                              items:
+                                  properties:
+                                      securityContext:
+                                          required:
+                                              - seccompProfile
+                                  required:
+                                      - securityContext
