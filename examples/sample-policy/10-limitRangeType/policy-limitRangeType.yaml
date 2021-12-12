@@ -15,7 +15,7 @@ customRules:
                     enum:
                       - Container
 policies:
-  - name: limitrangetype_accepted_options
+  - name: limitrangetype_only_container
     isDefault: true
     rules:
       - identifier: CUSTOM_WORKLOAD_INCORRECT_LIMITRANGETYPE

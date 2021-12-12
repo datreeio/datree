@@ -300,14 +300,14 @@ Published successfully
 
 - Passing policy check: 0/1
 
-+-----------------------------------------------------------+----------------------------------------------------------+
-| Enabled rules in policy “limitrangetype_accepted_options” | 1                                                        |
-| Configs tested against policy                             | 1                                                        |
-| Total rules evaluated                                     | 1                                                        |
-| Total rules failed                                        | 1                                                        |
-| Total rules passed                                        | 0                                                        |
-| See all rules in policy                                   | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
-+-----------------------------------------------------------+----------------------------------------------------------+
++---------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “limitrangetype_only_container” | 1                                                        |
+| Configs tested against policy                           | 1                                                        |
+| Total rules evaluated                                   | 1                                                        |
+| Total rules failed                                      | 1                                                        |
+| Total rules passed                                      | 0                                                        |
+| See all rules in policy                                 | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++---------------------------------------------------------+----------------------------------------------------------+
 
 
 Published successfully
@@ -319,7 +319,7 @@ Published successfully
 [X] Policy check
 
 ❌  Ensure correct strategy options are used for deployment [CUSTOM RULE]  [1 occurrence]
-    — metadata.name: recreate-strategy (kind: Deployment)
+    — metadata.name: rollingupdate-strategy (kind: Deployment)
 💡  Use only the accepted strategy options (`Recreate` or `RollingUpdate`)
 
 
@@ -331,14 +331,14 @@ Published successfully
 
 - Passing policy check: 0/1
 
-+---------------------------------------------------------------+----------------------------------------------------------+
-| Enabled rules in policy “deploymentStrategy_accepted_options” | 1                                                        |
-| Configs tested against policy                                 | 1                                                        |
-| Total rules evaluated                                         | 1                                                        |
-| Total rules failed                                            | 1                                                        |
-| Total rules passed                                            | 0                                                        |
-| See all rules in policy                                       | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
-+---------------------------------------------------------------+----------------------------------------------------------+
++------------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “deploymentStrategy_only_recreate” | 1                                                        |
+| Configs tested against policy                              | 1                                                        |
+| Total rules evaluated                                      | 1                                                        |
+| Total rules failed                                         | 1                                                        |
+| Total rules passed                                         | 0                                                        |
+| See all rules in policy                                    | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++------------------------------------------------------------+----------------------------------------------------------+
 
 
 Published successfully

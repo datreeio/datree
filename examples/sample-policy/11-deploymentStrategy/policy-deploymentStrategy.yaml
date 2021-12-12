@@ -12,9 +12,9 @@ customRules:
                 type:
                   enum:
                     - Recreate
-                    - RollingUpdate
+                    # - RollingUpdate
 policies:
-  - name: deploymentStrategy_accepted_options
+  - name: deploymentStrategy_only_recreate
     isDefault: true
     rules:
       - identifier: CUSTOM_WORKLOAD_INCORRECT_DEPLOYMENT_STRATEGY

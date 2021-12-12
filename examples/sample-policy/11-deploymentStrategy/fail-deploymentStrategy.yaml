@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: recreate-strategy
+  name: rollingupdate-strategy
 spec:
   strategy:
-    type: Create
+    type: RollingUpdate
   selector:
     matchLabels:
-      app: web-app-recreate-strategy
+      app: web-app-rollingupdate-strategy
       version: nanoserver-1809
   replicas: 3
   template:
     metadata:
       labels:
-        app: web-app-recreate-strategy
+        app: web-app-rollingupdate-strategy
     spec:
       containers:
-        - name: web-app-recreate-strategy
+        - name: web-app-rollingupdate-strategy
           image: hello-world:nanoserver-1809
