@@ -1,6 +1,9 @@
 # NOTE :- The comments "Test using ....." mean that these tests will only work for the specified or later
 # version because that is the version in which that particular apiVersion was first introduced.
 
+# use flag `--ignore-missing-schemas` to skip kubernetes schema validation.
+# Like this :- `datree test pass.yaml --ignore-missing-schemas`
+
 # # # # # # #
 # v1.26
 # # # # # # #
