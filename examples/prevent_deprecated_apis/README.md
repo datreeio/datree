@@ -25,11 +25,11 @@ All of the three rules are exactly the same except for the kubernetes versions t
 
 `apiVersion` :-
 
--autoscaling/v2beta2
+- autoscaling/v2beta2
 
 `kind` :-
 
--HorizontalPodAutoscaler
+- HorizontalPodAutoscaler
 
 #### In v1.25
 
@@ -38,59 +38,59 @@ All of the three rules are exactly the same except for the kubernetes versions t
 - batch/v1beta1
 - discovery.k8s.io/v1beta1
 - events.k8s.io/v1beta1
--autoscaling/v2beta1
--policy/v1beta1
--node.k8s.io/v1beta1
+- autoscaling/v2beta1
+- policy/v1beta1
+- node.k8s.io/v1beta1
 
 `kind` :-
 
--CronJob
--EndpointSlice
--Event
--HorizontalPodAutoscaler
--PodDisruptionBudget
--PodSecurityPolicy
--RuntimeClass
+- CronJob
+- EndpointSlice
+- Event
+- HorizontalPodAutoscaler
+- PodDisruptionBudget
+- PodSecurityPolicy
+- RuntimeClass
 
 #### In v1.22
 
 `apiVersion` :-
 
--admissionregistration.k8s.io/v1beta1
--apiextensions.k8s.io/v1beta1
--apiregistration.k8s.io/v1beta1
--authentication.k8s.io/v1beta1
--authorization.k8s.io/v1beta1
--certificates.k8s.io/v1beta1
--coordination.k8s.io/v1beta1
--extensions/v1beta1
--networking.k8s.io/v1beta1
--rbac.authorization.k8s.io/v1beta1
--scheduling.k8s.io/v1beta1
--storage.k8s.io/v1beta1
+- admissionregistration.k8s.io/v1beta1
+- apiextensions.k8s.io/v1beta1
+- apiregistration.k8s.io/v1beta1
+- authentication.k8s.io/v1beta1
+- authorization.k8s.io/v1beta1
+- certificates.k8s.io/v1beta1
+- coordination.k8s.io/v1beta1
+- extensions/v1beta1
+- networking.k8s.io/v1beta1
+- rbac.authorization.k8s.io/v1beta1
+- scheduling.k8s.io/v1beta1
+- storage.k8s.io/v1beta1
 
 `kind` :-
 
--MutatingWebhookConfiguration
--CustomResourceDefinition
--APIService
--TokenReview
--LocalSubjectAccessReview
--SelfSubjectAccessReview
--SubjectAccessReview
--CertificateSigningRequest
--Lease
--Ingress
--IngressClass
--ClusterRole
--ClusterRoleBinding
--Role
--RoleBinding
--PriorityClass
--CSIDriver
--CSINode
--StorageClass
--VolumeAttachment
+- MutatingWebhookConfiguration
+- CustomResourceDefinition
+- APIService
+- TokenReview
+- LocalSubjectAccessReview
+- SelfSubjectAccessReview
+- SubjectAccessReview
+- CertificateSigningRequest
+- Lease
+- Ingress
+- IngressClass
+- ClusterRole
+- ClusterRoleBinding
+- Role
+- RoleBinding
+- PriorityClass
+- CSIDriver
+- CSINode
+- StorageClass
+- VolumeAttachment
 
 Whenever a match is found the `datree` cli throws an error and a message describing the failure.
 
