@@ -1,7 +1,7 @@
 # Policy: stability_best_practices
 Kubernetes podAntiAffinity is a feature that helps you avoid placing pods on the same node to prevent downtime.
 
-__This policy helps to enforce the following labels best practices:__
+__This policy helps to enforce the following best practices:__
 * [Prevent containers from running on the same node if multiple replicas are specified](#prevent-containers-from-running-on-the-same-node-if-multiple-replicas-are-specified)
 
 ## Prevent containers from running on the same node if multiple replicas are specified

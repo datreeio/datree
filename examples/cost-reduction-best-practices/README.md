@@ -1,7 +1,7 @@
-# Policy: labels_best_practices
+# Policy: cost_reduction_best_practices
 Kubernetes resource requests and limits enable engineers to ensure that their workloads are not over or under-utilized. These policies are implemented with multiple property paths to provide adaptation to multiple Kubernetes objects such as Pod, Deployment.
 
-__This policy helps to enforce the following labels best practices:__
+__This policy helps to enforce the following best practices:__
 * [Ensure each container has a configured CPU request within range](#ensure-each-container-has-a-configured-cpu-request-within-range)
 * [Ensure each container has a configured CPU limit within range](#ensure-each-container-has-a-configured-cpu-limit-within-range)
 * [Ensure each container has a configured memory request within range](#ensure-each-container-has-a-configured-memory-request-within-range)
