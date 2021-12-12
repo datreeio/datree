@@ -11,6 +11,8 @@ policies:
         messageOnFailure: ''
       - identifier: CUSTOM_WORKLOAD_SCALE_TARGET_REF
         messageOnFailure: ''
+      - identifier: CUSTOM_WORKLOAD_RESOURCE_METRIC
+        messageOnFailure: ''
 
 customRules:
   - identifier: CUSTOM_WORKLOAD_TARGET_CPU_UTILIZATION
@@ -96,3 +98,27 @@ customRules:
                   - name
             required:
               - scaleTargetRef 
+
+  - identifier: CUSTOM_WORKLOAD_RESOURCE_METRIC
+    name: Ensure proper resource allocation is done [CUSTOM RULE]
+    defaultMessageOnFailure: spec.containers[].resource is configured improperly
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - Pod
+              - HorizontalPodAutoscaler
+      then:
+        properties:
+          spec:
+            properties:
+              containers:
+                type: array
+                contains:
+                  type: object
+                  properties:
+                    resources:
+                      required:
+                        - limits
+                        - requests
