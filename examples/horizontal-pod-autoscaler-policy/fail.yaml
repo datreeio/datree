@@ -4,7 +4,7 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: fail-target-cpu-utilization
 spec:
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 10
   containers:
   - name: nginx
@@ -17,7 +17,7 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: fail-max-replicas
 spec:
-  minReplicas: 1
+  minReplicas: 2 
   targetCPUUtilization: 50
   containers:
   - name: nginx

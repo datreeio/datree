@@ -1,58 +1,52 @@
-# Policy: labels_best_practices (example policy)
-Kubernetes labels enable engineers to perform in-cluster object searches, apply bulk configuration changes, and more. Labels can help simplify and solve many day-to-day challenges encountered in Kubernetes environments if they are set correctly.  
+# Policy: horizontal_pod_autoscaling
+Horizontal Pod Autoscaling allows automatic scaling of workload to match demand. This works by increasing or decreasing the number of Pods. This technique prevents unexpected cost explosions so you can focus on saving costs. With this configuration, Kubernetes engineers can work on actually reducing costs and scaling their pods rather than ensuring correct configuration. On top of that, this policy also verifies the usage of resources and resource metrics like cpu.
 
-__This policy helps to enforce the following labels best practices:__
-* [Ensure pre-defined environment labels are used](#ensure-pre-defined-environment-labels-are-used)
-* [Ensure the owner label is used](#ensure-the-owner-label-is-used)
-* [Ensure all labels have a valid label value (RFC 1123)](#ensure-all-labels-have-a-valid-label-value-rfc-1123)
+__This policy helps to enforce the following HPA workloads:__
+* [Ensure target cpu utilization is set](#ensure-target-cpu-utilization-is-set)
+* [Ensure max replicas is set and valid](#ensure-max-replicas-is-set-and-valid)
+* [Ensure min replicas is set and valid](#ensure-min-replicas-is-set-and-valid)
+* [Ensure scale target ref is configured properly](#ensure-scale-target-ref-is-configured-properly)
 
-## Ensure pre-defined environment labels are used
-Having an env label is useful for performing bulk operations in specific environments or for filtering workloads according to their stage. This rule will also ensure that only pre-approved `environment` label values are used:
-* `prod`
-* `staging`
-* `test`
+## Ensure target cpu utilization is set
+The field `targetCPUUtilizationPercentage` defines the target for when the pods are to be scaled. CPU Utilization is the average CPU usage of all pods in a deployment divided by the requested CPU of the deployment. If the mean of CPU utilization is higher than the target, then the pod replicas will be readjusted.
 
 ### When this rule is failing?
-If the `environment` key is missing from the labels section:  
+If the `targetCPUUtilizationPercentage` key is missing from the labels section:  
 ```
-kind: Deployment
-metadata:
-  labels:
-    owner: yoda-at-datree.io
-```
-
-__OR__ a different `environment` value is used:
-```
-kind: Deployment
-metadata:
-  labels:
-    environment: QA
+kind: HorizontalPodAutoscaler
+spec:
+  maxReplicas: 10
+  minReplicas: 1
 ```
 
-## Ensure the owner label is used
-An `owner` label is great not only for financial ownership but is also useful for operational ownership. Consider adding an owner label to your workload with the name, email alias or Slack channel of the team responsible for the service. This will make it easier to alert the relevant team or team member when necessary.
+__OR__ a value outside of the range, 1 - 100 was used:
+```
+kind: HorizontalPodAutoscaler
+spec:
+  targetCPUUtilizationPercentage: 200
+```
+
+## Ensure max replicas is set and valid
 
 ### When this rule is failing?
 If the `owner` key is missing from the labels section:  
 ```
-kind: Deployment
+kind: HorizontalPodAutoscaler
 metadata:
   labels:
     name: app-back
 ```
 
-## Ensure all labels have a valid label value (RFC 1123)
-Labels are nothing more than custom key-value pairs that are attached to objects and are used to describe and manage different Kubernetes resources. If the labels do not follow Kubernetes label syntax requirements (RFC-1123), they will not be applied properly.  
-
-A lowercase RFC-1123 label must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name', or '123-abc', regex used for validation is 'a-z0-9?')  
+## Ensure min replicas is set and valid
+The field `minReplicas` define the minimum number of replicas of a resource. As a best practice, it should be set to two, hence the minimum minReplicas one can set it 2.
 
 ### When this rule is failing?
-If one of the labels values doesn’t follow the RFC-1123 standard:  
+If `minReplicas` is not present:
 ```
-kind: Deployment
-metadata:
-  labels:
-    name: test@datree.io
+kind: HorizontalPodAutoscaler
+spec:
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
 ```
 ## Policy author
-Eyar Zilberman \\ [eyarz](https://github.com/eyarz)
+Nishant Verma \\ [theowlet](https://github.com/theowlet)

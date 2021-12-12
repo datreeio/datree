@@ -66,13 +66,13 @@ customRules:
             properties:
               minReplicas:
                 maximum: 9
-                minimum: 1
+                minimum: 2
             required:
               - minReplicas
 
   - identifier: CUSTOM_WORKLOAD_SCALE_TARGET_REF
     name: Ensure scaleTargetRef is present and contains valid fields [CUSTOM RULE]
-    defaultMessageOnFailure: spec.scaleTargetRef not found or does not contain valid fields: spec.scaleTargetRef.kind, spec.scaleTargetRef.apiVersion, spec.scaleTargetRed.name. 
+    defaultMessageOnFailure: spec.scaleTargetRef not found or does not contain valid fields - spec.scaleTargetRef.kind, spec.scaleTargetRef.apiVersion, spec.scaleTargetRed.name. 
     schema:
       if:
         properties:
