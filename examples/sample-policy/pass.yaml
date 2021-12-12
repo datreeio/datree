@@ -1,11 +1,10 @@
----
 apiVersion: apps/v1
 kind: Pod
 metadata:
   name: pass-policy
   labels:
     owner: me
-    environment: prod
+    instances: 4
     app: web
 spec:
   containers:
