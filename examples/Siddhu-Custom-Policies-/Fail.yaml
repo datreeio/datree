@@ -5,7 +5,17 @@ metadata:
   labels:
     owner: --
     environment: prod
-spec:
+spec: 
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      namespace: test
+      labels:
+        app: web
+    spec:
       dnsPolicy: wrong
       containers:
         - name: front-end
@@ -13,10 +23,9 @@ spec:
           ports:
             - containerPort: 80
       nodeSelector:
-        disktype: hdd          
+        disktype: hdd         
   strategy:
-    type: update
+    type: Update
     rollingUpdate:
       maxSurge: aa
-      maxUnavailable:     
-    
+      maxUnavailable: 
