@@ -133,12 +133,12 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 ```
 #### You can check each config individually using the version specified in the comment i.e., v1.23.
-#### Example using the cli :- datree test --schema-version "1.23.0" `your config file here`
+#### Example using the cli :- ```datree test `your config file here` --schema-version "1.23.0" ```
 
 ### Workaround 2 :-
 
 ##### Pass the `--ignore-missing-schemas` option to the datree test.
-##### Example using the cli :- datree test `your config file here` --ignore-missing-schemas
+##### Example using the cli :- ```datree test `your config file here` --ignore-missing-schemas```
 
 ## Policy author
 
