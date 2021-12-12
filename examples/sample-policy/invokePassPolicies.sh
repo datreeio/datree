@@ -4,7 +4,7 @@
 cd 01-startingDeadlineSeconds && datree publish policy-startingDeadlineSeconds.yaml && datree test pass-startingDeadlineSeconds.yaml --ignore-missing-schemas && cd ..
 
 # Invoke Policy 02 (PASS Scenario) - Check if unmanaged jobs are not left around after its fully deleted
-cd 02-ttlSecondsAfterFinished\ && datree publish policy-ttlSecondsAfterFinished.yaml && datree test pass-ttlSecondsAfterFinished.yaml --ignore-missing-schemas && cd ..
+cd 02-ttlSecondsAfterFinished && datree publish policy-ttlSecondsAfterFinished.yaml && datree test pass-ttlSecondsAfterFinished.yaml --ignore-missing-schemas && cd ..
 
 # Invoke Policy 03 (PASS Scenario) - Provide atleast 1 revisionHistoryLimit to ensure successful rollback of deployment
 cd 03-revisionHistoryLimit && datree publish policy-revisionHistoryLimit.yaml && datree test pass-revisionHistoryLimit.yaml --ignore-missing-schemas && cd ..
@@ -41,3 +41,6 @@ cd 13-imagePullSecrets && datree publish policy-imagePullSecrets.yaml && datree 
 
 # Invoke Policy 14 (PASS Scenario) - Add proper SELinux level for your container
 cd 14-seLinuxOptions && datree publish policy-seLinuxOptions.yaml && datree test pass-seLinuxOptions.yaml --ignore-missing-schemas && cd ..
+
+# Invoke Policy 15 (PASS Scenario) - Secrets should not have stringData that has plain-text values
+cd 15-stringDataPresent && datree publish policy-stringDataPresent.yaml && datree test pass-stringDataPresent.yaml --ignore-missing-schemas && cd ..

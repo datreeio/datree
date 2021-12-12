@@ -432,3 +432,34 @@ Published successfully
 | Total rules passed                                      | 0                                                        |
 | See all rules in policy                                 | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
 +---------------------------------------------------------+----------------------------------------------------------+
+
+
+Published successfully
+>>  File: fail-stringDataPresent.yaml
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+❌  Ensure `data` is provided with base64 encoded format only [CUSTOM RULE]  [1 occurrence]
+    — metadata.name: secret-basic-auth (kind: Secret)
+💡  Secrets should not have stringData that has plain-text values
+
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 0/1
+
++----------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “stringdata_present” | 1                                                        |
+| Configs tested against policy                | 1                                                        |
+| Total rules evaluated                        | 1                                                        |
+| Total rules failed                           | 1                                                        |
+| Total rules passed                           | 0                                                        |
+| See all rules in policy                      | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++----------------------------------------------+----------------------------------------------------------+

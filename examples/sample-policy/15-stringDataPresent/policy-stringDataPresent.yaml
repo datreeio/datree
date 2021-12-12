@@ -1,0 +1,14 @@
+apiVersion: v1
+customRules:
+  - identifier: CUSTOM_WORKLOAD_STRING_DATA_PRESENT
+    name: 'Ensure `data` is provided with base64 encoded format only [CUSTOM RULE]'
+    defaultMessageOnFailure: 'Secrets should not have stringData that has plain-text values'
+    schema:
+      required:
+        - data
+policies:
+  - name: stringdata_present
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_STRING_DATA_PRESENT
+        messageOnFailure: 'Secrets should not have stringData that has plain-text values'

@@ -311,6 +311,22 @@ spec:
         role: "admin"
 ```
 
+## Policy #15 - stringdata_present
+> Ensure only `data` is provided
+---
+Secreated should only be created with `data` that accepts base64 encoded format. It should not have *stringData* that accepts plain-text values
+### When this rule is failing?
+If *stringData* option is present for Secret kind
+```
+kind: Secret
+metadata:
+  name: secret-basic-auth
+type: kubernetes.io/basic-auth
+stringData:
+  username: admin
+  password: t0p-Secret
+```
+
 
 # Policy authored by
 Runcy Oommen \\ [https://runcy.me](https://runcy.me)

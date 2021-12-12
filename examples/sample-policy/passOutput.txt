@@ -16,7 +16,24 @@
 | Total rules passed                                                   | 1                                                        |
 | See all rules in policy                                              | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
 +----------------------------------------------------------------------+----------------------------------------------------------+
-./invokePassPolicies.sh: line 7: cd: 02-ttlSecondsAfterFinished : No such file or directory
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++-------------------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “ttlSecondsAfterFinished_set” | 1                                                        |
+| Configs tested against policy                         | 1                                                        |
+| Total rules evaluated                                 | 1                                                        |
+| Total rules failed                                    | 0                                                        |
+| Total rules passed                                    | 1                                                        |
+| See all rules in policy                               | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++-------------------------------------------------------+----------------------------------------------------------+
 Published successfully
 
 (Summary)
@@ -233,3 +250,21 @@ Published successfully
 | Total rules passed                                      | 1                                                        |
 | See all rules in policy                                 | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
 +---------------------------------------------------------+----------------------------------------------------------+
+Published successfully
+
+(Summary)
+
+- Passing YAML validation: 1/1
+
+- Passing Kubernetes (1.22.1) schema validation: 1/1
+
+- Passing policy check: 1/1
+
++----------------------------------------------+----------------------------------------------------------+
+| Enabled rules in policy “stringdata_present” | 1                                                        |
+| Configs tested against policy                | 1                                                        |
+| Total rules evaluated                        | 1                                                        |
+| Total rules failed                           | 0                                                        |
+| Total rules passed                           | 1                                                        |
+| See all rules in policy                      | https://app.datree.io/login?cliId=eAYZ8rjFbKYA3eJShymfD3 |
++----------------------------------------------+----------------------------------------------------------+

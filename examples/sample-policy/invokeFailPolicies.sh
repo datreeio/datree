@@ -41,3 +41,6 @@ cd .. && cd 13-imagePullSecrets && datree publish policy-imagePullSecrets.yaml &
 
 # Invoke Policy 14 (FAIL Scenario) - Add proper SELinux level for your container
 cd .. && cd 14-seLinuxOptions && datree publish policy-seLinuxOptions.yaml && datree test fail-seLinuxOptions.yaml --ignore-missing-schemas && cd ..
+
+# Invoke Policy 15 (FAIL Scenario) - Secrets should not have stringData that has plain-text values
+cd .. && cd 15-stringDataPresent && datree publish policy-stringDataPresent.yaml && datree test fail-stringDataPresent.yaml --ignore-missing-schemas && cd ..

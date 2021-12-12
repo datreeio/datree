@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  config.yaml: YXBpVXJsOiAiaHR0cHM6Ly9teS5hcGkuY29tL2FwaS92MSIKdXNlcm5hbWU6IHt7dXNlcm5hbWV9fQpwYXNzd29yZDoge3twYXNzd29yZH19
+kind: Secret
+metadata:
+  name: yaml-conf
+type: Opaque
