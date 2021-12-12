@@ -126,9 +126,9 @@ to list right here :-
 
 ### Workaround 1 :-
 
-##### Run the checks according to the version specified in the comments for each config in pass/fail yaml files. For example :- 
+#### Run the checks according to the version specified in the comments for each config in pass/fail yaml files. For example :- 
 ```
-# Test using v1.23 or later
+# Test using v1.23 or later    <-------------   THIS COMMENT
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 ```
@@ -137,8 +137,8 @@ kind: HorizontalPodAutoscaler
 
 ### Workaround 2 :-
 
-##### Pass the `--ignore-missing-schemas` option to the datree test.
-##### Example using the cli :- ```datree test `your config file here` --ignore-missing-schemas```
+#### Pass the `--ignore-missing-schemas` option to the datree test.
+#### Example using the cli :- ```datree test `your config file here` --ignore-missing-schemas```
 
 ## Policy author
 
