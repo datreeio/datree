@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: HorizontalPodAutoscaler 
+metadata:
+  name: pass-policy
+  namespace: pass
+spec:
+  maxReplicas: 10
+  minReplicas: 1
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+  targetCPUUtilizationPercentage: 50

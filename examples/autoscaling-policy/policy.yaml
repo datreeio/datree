@@ -1,0 +1,39 @@
+apiVersion: v1
+policies:
+  - name: labels_best_practices
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_POD_REPLICA_COUNT
+        messageOnFailure: ''
+
+customRules:
+  - identifier: CUSTOM_WORKLOAD_POD_REPLICA_COUNT
+    name: Ensuring correct configuration for HPA controllers [CUSTOM RULE]
+    defaultMessageOnFailure: Add the following fields - metadata.namespace, spec.maxReplicas, spec.minReplicas, spec.targetCPUUtilizationPercentage, and make sure apiVersion is HorizontalPodAutoscaler
+    schema:
+      if:
+        properties:
+          kind:
+           enum:
+             - HorizontalPodAutoscaler
+      then:
+        properties:
+          metadata:
+            required:
+              - namespace
+          spec:
+            properties:
+              maxReplicas:
+                maximum: 10
+                minimum: 1
+              minReplicas:
+                maximum: 9
+                minimum: 1
+              targetCPUUtilizationPercentage:
+                maximum: 100
+                minimum: 1
+            required:
+              - maxReplicas
+              - minReplicas
+              - targetCPUUtilizationPercentage
+
