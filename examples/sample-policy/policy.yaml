@@ -3,55 +3,27 @@ policies:
   - name: labels_best_practices
     isDefault: true
     rules:
-      - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
+      - identifier: CUSTOM_CONTAINER_INSTANCES
         messageOnFailure: ''
-      - identifier: CUSTOM_WORKLOAD_MISSING_LABEL_OWNER_VALUE
-        messageOnFailure: ''
-      - identifier: CUSTOM_WORKLOAD_INVALID_LABELS_VALUE
-        messageOnFailure: ''
+      
 
 customRules:
-  - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
-    name: Ensure correct environment labels are used [CUSTOM RULE]
-    defaultMessageOnFailure: Use only approved environment labels (`prod`, `staging` and `test`)
+  - identifier: CUSTOM_CONTAINER_INSTANCES
+    name: Ensure correct container instances
+    defaultMessageOnFailure: The container selected is very small
     schema:
-      properties:
+       properties:
         metadata:
           properties:
             labels:
               properties:
-                environment:
+                instances:
                   enum:
-                    - prod
-                    - staging
-                    - test
+                    - 4
+                    - 3
+                    - 2
               required:
-                - environment
+                - instances
           required:
             - labels
-
-  - identifier: CUSTOM_WORKLOAD_MISSING_LABEL_OWNER_VALUE
-    name: Ensure workload has a configured `owner` label [CUSTOM RULE]
-    defaultMessageOnFailure: Add a proper owner label to know which person/team to ping when needed
-    schema:
-      properties:
-        metadata:
-          properties:
-            labels:
-              required:
-                - owner
-          required:
-            - labels
-
-  - identifier: CUSTOM_WORKLOAD_INVALID_LABELS_VALUE
-    name: Ensure workload has valid label values [CUSTOM RULE]
-    defaultMessageOnFailure: All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)
-    schema:
-      properties:
-        metadata:
-          properties:
-            labels:
-              patternProperties:
-                ^.*$:
-                  format: hostname
-              additionalProperties: false
+         
