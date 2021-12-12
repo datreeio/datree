@@ -1,7 +1,7 @@
 # Policy: security_checks
 This policy checks for container level security parameters like privilege escalation and root filesystem permissions. 
 Developers and administrators usually skip over these parameters, since ignorance of these parameters can result in severe exploits therefore it is essential to check for them before deploying manifest files in production.
-Due to their severity these parameters are also a part of NSA Kubernetes Hardening Guide. More about NSA Kubernetes Hardening Guide can be read [here.](https://media.defense.gov/2021/Aug/03/2002820425/-1/-1/1/CTR_KUBERNETESHARDENINGGUIDANCE.PDF)
+Due to their severity and importance these parameters are also a part of NSA Kubernetes Hardening Guide. More about NSA Kubernetes Hardening Guide can be read [here.](https://media.defense.gov/2021/Aug/03/2002820425/-1/-1/1/CTR_KUBERNETESHARDENINGGUIDANCE.PDF)
 
 __This policy enforces the following best practices-__
 
