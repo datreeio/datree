@@ -4,12 +4,14 @@ best practices such as setting user permissions and more. This policy requires t
 to be set to Pod, Deployment, StatefulSet or DaemonSet.
 
 __This policy helps to enforce the following security best practices:__
-* Ensuring the user permission is set
-* Ensuring the groups permission is set
-* Ensuring a privilege escalation flag is set
+* Ensure user permission is set
+* Ensure groups permission is set
+* Ensure privilege escalation is set
+* Ensure that filesystem accessibility is set
 
 ## Ensure user permission is set
-This flag controls which user ID the containers are run with. 
+This flag controls which user ID the containers are run with. If this value is 0, then
+the pod is run with non-root user.
 
 ### When this rule is failing?
 If the `runAsUser` key is missing from the securityContext section:  
@@ -20,7 +22,7 @@ spec:
     runAsUser: 1000
 ```
 
-__OR__ a invalid value of `runAsUser` is used:
+__OR__ an invalid value of `runAsUser` is used:
 ```
 kind: Pod
 spec:
@@ -42,7 +44,15 @@ spec:
     runAsGroup: 3000
 ```
 
-## Ensure privelege escalation is set
+__OR__ an invalid value of `runAsGroup` is used:
+```
+kind: Pod
+spec:
+  securityContext:
+    runAsGroup: -1
+```
+
+## Ensure privilege escalation is set
 This flag controls whether process can gain more privileges than it's parent process.
 It controls the `no_new_privs` flag which is set on the container process.
 
@@ -55,9 +65,23 @@ spec:
     allowPrivilegeEscalation: false
 ```
 
+## Ensure that filesystem accessibility is set
+Requires containers to run with a read-only root filesystem if set to true i.e. no
+writeable layer.
+
+### When this rule is failing?
+If the flag is not a boolean:
+```
+kind: Pod
+spec:
+  securityContext:
+    readOnlyRootFilesystem: false
+```
+
 ## Policy author
 Antariksh Verma \\ [yummyweb](https://github.com/yummyweb)
 
 ## Policy Sources
-- [Kubernetes Documentation](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/)
-- [AquaSec Security Best Practices](https://www.aquasec.com/cloud-native-academy/kubernetes-in-production/kubernetes-security-best-practices-10-steps-to-securing-k8s/)
+- [Pod Security Policy Documentation](https://kubernetes.io/docs/concepts/policy/pod-security-policy/)
+- [Kubernetes Pod Configuration](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/)
+- [Aqua Security Best Practices](https://www.aquasec.com/cloud-native-academy/kubernetes-in-production/kubernetes-security-best-practices-10-steps-to-securing-k8s/)

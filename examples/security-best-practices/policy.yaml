@@ -9,6 +9,8 @@ policies:
         messageOnFailure: ''
       - identifier: CUSTOM_SECURITY_PRIVILEGE_CHECK
         messageOnFailure: ''
+      - identifier: CUSTOM_SECURITY_FILESYSTEM_ACCESSIBILITY
+        messageOnFailure: ''
 
 customRules:
   - identifier: CUSTOM_SECURITY_USER_CHECK
@@ -35,7 +37,7 @@ customRules:
             - securityContext
 
   - identifier: CUSTOM_SECURITY_GROUPS_CHECK
-    name: Check for runAsGroup field setting [CUSTOM_RULE]
+    name: Check for runAsGroup field setting [CUSTOM RULE]
     defaultMessageOnFailure: Add runAsGroup setting, ensure it is a number between range 0 and 10000
     schema:
       properties:
@@ -58,7 +60,7 @@ customRules:
             - securityContext
 
   - identifier: CUSTOM_SECURITY_PRIVILEGE_CHECK
-    name: Check for allowPrivilegeEscalation setting [CUSTOM_RULE]
+    name: Check for allowPrivilegeEscalation setting [CUSTOM RULE]
     defaultMessageOnFailure: Add allowPrivilegeEscalation setting, ensure it is a boolean
     schema:
       properties:
@@ -80,4 +82,28 @@ customRules:
                 - allowPrivilegeEscalation
           required:
             - securityContext
-              
+
+  - identifier: CUSTOM_SECURITY_FILESYSTEM_ACCESSIBILITY
+    name: Check for readOnlyRootFilesystem setting [CUSTOM RULE]
+    defaultMessageOnFailure: Add readOnlyRootFilesystem setting, ensure it is a boolean
+    schema:
+      properties:
+        kind:
+          enum:
+            - Pod
+            - Deployment
+            - StatefulSet
+            - DaemonSet
+        spec:
+          properties:
+            securityContext:
+              properties:
+                readOnlyRootFilesystem:
+                  enum:
+                    - true
+                    - false
+              required:
+                - readOnlyRootFilesystem
+          required:
+            - securityContext
+    
