@@ -1,103 +1,166 @@
-# Cloud Native Hackathon Guide - December 10-12, 2021
-### Datree’s mission: To improve the workflow of Kubernetes administrators and users
+# Recommended policies for production workloads
+It is recommended for the kubernetes workloads deployed in production to support the industry best practices and have hardened rules enforced on them.
 
-**If at any point you find yourself lost, join our [Slack community](https://bit.ly/3BHwCEG) for assistance.**
+__The following policies are named as per their respective use cases:__
+* Governance
+* Cost Reduction
+* Security
 
-### :trophy: Compete to win
-* 1st prize is a laptop  
-* 2nd prize is a mobile phone  
-* 3rd prize is an iPad or headphones  
+## Governance
 
-## :mortar_board: Required knowledge to participate in this Hackathon
-* Basic experience operating Git and GitHub
-* Basic experience reading and writing JSON and YAML
-* Basic experience using and writing [JSON Schema](https://json-schema.org/)
-* Familiarity with Datree's [Policy as code](https://hub.datree.io/policy-as-code) and [custom rules](https://hub.datree.io/custom-rules) concepts
+This policy consists of three custom rules
+1. `PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION`
+2. `WORKLOAD_MISSING_NAMESPACE_FOR_NAMESPACED_RESOURCES`
+3. `INGRESS_INCORRECT_DOMAIN_NAME`
 
-## :clipboard: Instructions
-1. Choose a use case that would help other Kubernetes admins or users in their work   
-   __Such as:__  
-   ㅤa. Stability  
-   ㅤb. Security  
-   ㅤc. Governance  
-   ㅤd. Cost reduction  
-   ㅤe. Industry best practices     
-   ㅤf. Any other creative idea you have will be welcomed  
+#### PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION
+This rule ensures that the our highly available worloads used in production are not denied any voluntary disruption. \
+If you set `maxUnavailable` to 0% or 0, or you set `minAvailable` to 100% or the number of replicas, you are requiring zero voluntary evictions. When you set zero voluntary evictions for a workload object such as ReplicaSet, then you cannot successfully drain a Node running one of those Pods. If you try to drain a Node where an unevictable Pod is running, the drain never completes. \
+ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
 
-2. Solve the use case by [creating a policy](#oncoming_police_car-how-to-write-a-policy) with relevant custom rules  
+##### When this rule is failing?
+When any PodDisruptionBudget resource has `maxUnavailable` set to **0** or **0%** or `minAvailable` is set to **100%**
+```
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: zk-pdb
+  namespace: zookeeper
+spec:
+  maxUnavailable: 0%
+  selector:
+    matchLabels:
+      app: zookeeper
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ms-pdb
+  namespace: mesos
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: mesos
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ka-pdb
+  namespace: kafka
+spec:
+  minAvailable: 100%
+  selector:
+    matchLabels:
+      app: kafka
+```
 
-3. Include well-written documentation in a README file   
-__The README should include the following information:__  
-   ㅤa. An overview of the use case that the policy solves  
-   ㅤb. An explanation for why it’s a worthy use case and how the use case helps Kubernetes admins in their work  
-   ㅤc. A list of the rules within the policy and how they support the use case  
-   ㅤd. The policy author - full name and GitHub handle (for teams: all team members)  
-   ㅤe. Any other type of documentation that can help us to evaluate and understand the rules in your policy, and how they are related to the use case you chose  
-   
-   
-4. Provide a basic Kubernetes manifests to test (failing & passing) for each custom rule ([see an example here](https://github.com/datreeio/datree/tree/main/examples/sample-policy))  
+#### WORKLOAD_MISSING_NAMESPACE_FOR_NAMESPACED_RESOURCES
+This rule ensures that all the namespace scoped resources are namescoped as it prevents kubernetes users from accidentally deploying workloads into default namespace when they don't specify namespace.
 
-### :warning: Important notes
-* Your policy must represent a workable solution
-* We also welcome all innovative uses of Datree that help the community - please get your innovative idea pre-approved by our judges
+##### When this rule is failing?
+When any namespace scoped resource does not have a namespace specified.
 
-## :tada: How to win
-1. Submit your work by opening a [pull request](#computer-how-to-submit-a-pull-request) to the examples directory (`datree/examples`) on Datree’s repo.  
-__You may submit more than one policy__.  
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+```
 
-2. Your score for winning will be based on whether your use case works according to what you present, including detailed documentation, and how useful the use case is to Kubernetes admins. Quality matters over quantity.  
+#### INGRESS_INCORRECT_DOMAIN_NAME
+This rule ensures that all the host domain names specified in the Ingress resource are valid. By default the kubernetes api does not disallow the creation of invalid hostnames.
 
-3. [OPTIONAL] Are you proud of your work:question::question:   
-If so, don’t forget to Tweet or post on LinkedIn that you’ve participated in this #CloudNativeHackathon and tag us so we can like and share!
 
-### YouTube Video
-[![You Tube Video](https://img.youtube.com/vi/Cgmvs3UFPIQ/0.jpg)](https://www.youtube.com/watch?v=Cgmvs3UFPIQ)
+##### When this rule is failing?
+When any `Ingress` resource does not have domain name in the valid format.
 
-## :oncoming_police_car: How to write a policy
-1. [Sign up](https://app.datree.io/#hackathon) for Datree and follow the instructions to install Datree’s CLI on your machine  
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tls-example-ingress
+  namespace: test
+spec:
+  rules:
+    - host: datree.io-com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: service1
+                port:
+                  number: 80
+```
 
-2. Using JSON Schema, create [custom rules](https://hub.datree.io/custom-rules-overview) that are relevant to your policy  
-:point_right:ㅤYou can use this [online YAML Schema Validator](https://yamlschemavalidator.datree.io/) to easily test your custom rule logic before adding it to your policy  
+## Cost Reduction
 
-3. Add the custom rules to your [policy file](https://hub.datree.io/policy-as-code#go-policiesyaml)  
+#### SERVICE_DENY_TYPE_LOADBALANCER
+This rule ensures that the kubernetes applications are not exposed using service type `LoadBalancer` as an additional load balancer is created each time when  any new application is exposed through this service type. Instead it is recommended to the clusterIP or Ingress to expose the same set of services without undergoing a cost overhead.
 
-4. Publish the policy (`datree publish policy-name.yaml`) and verify it's working as expected
+##### When this rule is failing?
+When any `Service` resource has type **LoadBalancer** specified.
 
-## :computer: How to submit a pull request
-1. Fork [Datree's project](https://github.com/datreeio/datree):
-  <img width="1679" alt="Screen Shot 2021-11-07 at 11 19 57" src="https://user-images.githubusercontent.com/1208902/142754175-099d9d47-fa83-415c-bec6-c0373a65e1cc.png">
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+  namespace: test
+spec:
+  selector:
+    app: MyApp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9376
+  type: LoadBalancer
 
-2. Clone the forked project to your local machine:  
-   * Click on the green code button<sup>[1]</sup>  
-   * Choose the cloning method (HTTPS, SSH, CLI)<sup>[2]</sup> 
-   * Copy the link<sup>[3]</sup>  
-   * Open a terminal or command line  
-   * Direct it to the directory where we want to store the local repo with the cd command  
-   * Run: `git clone <copied link>`  
-   * Run: `cd datree`  
+```
+## Security
 
-<img width="391" style="float: right;" alt="Screen Shot 2021-11-07 at 11 45 07" src="https://user-images.githubusercontent.com/1208902/142754350-8aca5344-08a1-4a07-aa02-a1f9e15f08e3.png"> 
+#### WORKLOAD_INVALID_CONTAINER_CAPABILITIES_VALUE
+This rule ensures that no container is allowed to use the insecure/dangerous linux capabilities which causes the applications in the cluster and the cluster itself to be vulnerable to security attacks.
 
-3. Add your policy:
-   * Open the project in your favorite IDE (e.g. VSCode, WebStorm, etc.)
-   * Go to the examples directory (`datree/examples`) and create a new directory with the name of your policy 
-   * Add your policy and additional required files (README, tests yamls, etc.)
-   * The code structure should resemble the [sample-policy](https://github.com/datreeio/datree/tree/main/examples/sample-policy) directory
-   
-4. Save the changes - once you made the changes save them with git locally by committing them:
-   * Run `git add .` to add all changed files.  
-     You can select specific files by running `git add [file1] [file2]`
-   * Run `git commit -m "[meaningful commit message]"`
-5. Run `git push` to push the changes to your remote (forked) repository
-6. When you’re satisfied with your work and you’re ready to submit it for review, create a pull request:
-   * Go to your forked repository in GitHub
-   * Click on the "**Compare & pull request**" button
-   ![Screen Shot 2021-11-08 at 15 00 40](https://user-images.githubusercontent.com/1208902/142755492-57262458-87d1-4f3c-a9e7-00bf00d1313c.png)
-    *Please note: the pull request is visible in the [origin repository](https://github.com/datreeio/datree)
-   * Write a title and a description using [this guide](https://github.com/datreeio/datree/blob/ada7baa263f7dee8b43c99bc50868bf6b90e0857/CONTRIBUTING.md#-commit-message-format) 
-7. The team will review and approve the request or will ask for changes and clarifications
-   * Please visit the pull request page often and see if any changes were requested  
-   
-## :ambulance: Support
-* If technical issues arise, support will be provided via our [Slack channel](https://bit.ly/3BHwCEG) 
-* If you find a bug, open an issue in [our project](https://github.com/datreeio/datree/issues) -- we’ll prioritize it and respond
+##### When this rule is failing?
+When any kubernetes workload uses the follwing linux capabilities.
+- ALL
+- SYS_ADMIN
+- NET_ADMIN
+- CHOWN
+- DAC_OVERRIDE
+- FSETID
+- FOWNER
+- MKNOD
+- NET_RAW
+- SETGID
+- SETUID
+- SETFCAP
+- SETPCAP
+- SYS_CHROOT
+- KILL
+- AUDIT_WRITE  
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo-4
+spec:
+  containers:
+  - name: sec-ctx-4
+    image: gcr.io/google-samples/node-hello:1.0
+    securityContext:
+      capabilities:
+        add: [ "NET_ADMIN","SYS_ADMIN"]
+```
+## Policy author
+Dhanush M / [dhanushm7](https://github.com/dhanushm7)
