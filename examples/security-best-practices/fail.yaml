@@ -39,3 +39,18 @@ spec:
     image: nginx:1.14.2
     ports:
     - containerPort: 80
+---
+apiVersion: apps/v1
+kind: PodSecurityPolicy
+metadata:
+  name: fail-deprecated
+spec:
+  securityContext:
+    runAsGroup: 1000
+    runAsUser: 0
+    allowPrivilegeEscalation: true
+  containers:
+    - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80

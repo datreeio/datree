@@ -11,6 +11,8 @@ policies:
         messageOnFailure: ''
       - identifier: CUSTOM_SECURITY_FILESYSTEM_ACCESSIBILITY
         messageOnFailure: ''
+      - identifier: CUSTOM_SECURITY_DEPRECATED_CHECK
+        messageOnFailure: ''
 
 customRules:
   - identifier: CUSTOM_SECURITY_USER_CHECK
@@ -106,4 +108,14 @@ customRules:
                 - readOnlyRootFilesystem
           required:
             - securityContext
+
+  - identifier: CUSTOM_SECURITY_DEPRECATED_CHECK
+    name: Check for use of PodSecurityPolicy (Deprecated) [CUSTOM RULE]
+    defaultMessageOnFailure: Change the `kind` field from PodSecurityPolicy to Pod
+    schema:
+      not:
+        properties:
+          kind:
+            enum:
+              - PodSecurityPolicy
     
