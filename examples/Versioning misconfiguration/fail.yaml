@@ -1,6 +1,6 @@
 ---
 apiVersion: apps/v1
-kind: Version
+kind: Pod
 metadata:
   name: fail-version-policy
   labels:
