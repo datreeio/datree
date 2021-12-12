@@ -104,7 +104,7 @@ spec:
 `nodeSelector:
    disktype: ssd`   
 ### When this rule is failing?
-If the `nodeSelector` key is missing from the spec section:
+If the `nodeSelector` key is missing from the template.spec section:
 ```
 kind: Deployment
 spec:
