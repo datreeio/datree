@@ -1,15 +1,34 @@
----
-apiVersion: apps/v1
+apiVersion: v1
 kind: Pod
 metadata:
-  name: pass-policy
+  name: backend
   labels:
-    owner: me
     environment: prod
-    app: web
 spec:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 2000
+    fsGroup: 3000
   containers:
   - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - containerPort: 80
+    image: eu.gcr.io/my-project/nginx-base:v1
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "300m"
+    securityContext:
+      allowPrivilegeEscalation: false
+  - name: app
+    image: asia.gcr.io/myproject/app:v3
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "300m"
+    securityContext:
+      allowPrivilegeEscalation: false

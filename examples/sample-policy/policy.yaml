@@ -1,19 +1,115 @@
 apiVersion: v1
 policies:
-  - name: labels_best_practices
+  - name: governance_policy
     isDefault: true
     rules:
-      - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
+      - identifier: CUSTOM_CONTAINERS_MAX_CPU_MEMORY_VALUE
         messageOnFailure: ''
-      - identifier: CUSTOM_WORKLOAD_MISSING_LABEL_OWNER_VALUE
+      - identifier: CUSTOM_PODS_MAX_CONTAINERS
         messageOnFailure: ''
-      - identifier: CUSTOM_WORKLOAD_INVALID_LABELS_VALUE
+  - name: security_policy
+    rules:
+      - identifier: CUSTOM_CONTAINERS_IMAGE_REGISTRY_RESTRICT
+        messageOnFailure: ''
+      - identifier: CUSTOM_PODS_RUN_AS_NON_ROOT_USER
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_RUN_AS_UNPRIVILEGED
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_NO_PRIVILEGE_ESCALATION_FOR_PROD
+        messageOnFailure: ''
+  - name: stability_policy
+    rules:
+      - identifier: CUSTOM_PODS_NO_SHARE_PROCESS_NAMESPACE
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_IMAGE_NO_LATEST_TAG
         messageOnFailure: ''
 
 customRules:
-  - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
-    name: Ensure correct environment labels are used [CUSTOM RULE]
-    defaultMessageOnFailure: Use only approved environment labels (`prod`, `staging` and `test`)
+  - identifier: CUSTOM_CONTAINERS_MAX_CPU_MEMORY_VALUE
+    name: Ensure each container has a configured CPU and memory less than max value [CUSTOM RULE]
+    defaultMessageOnFailure: Max value for CPU is 500m and max value for memory is 512Mi
+    schema:
+      properties:
+        spec:
+          properties:
+            containers:
+              items:
+                properties:
+                  resources:
+                    properties:
+                      limits:
+                        properties:
+                          cpu:
+                            resourceMaximum: 500m
+                          memory:
+                            resourceMaximum: 512Mi
+                      requests:
+                        properties:
+                          cpu:
+                            resourceMaximum: 500m
+                          memory:
+                            resourceMaximum: 512Mi
+  - identifier: CUSTOM_PODS_MAX_CONTAINERS
+    name: Ensure that we do not have more than 3 containers per pod [CUSTOM RULE]
+    defaultMessageOnFailure: Maximum number of containers allowed in a pod is 3
+    schema:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              maxItems: 3
+  - identifier: CUSTOM_CONTAINERS_IMAGE_REGISTRY_RESTRICT
+    name: Ensure that we use internal image registry for our docker images [CUSTOM RULE]
+    defaultMessageOnFailure: Please use eu.gcr.io, us.gcr.io or asia.gcr.io for image registry
+    schema:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  image:
+                    type: string
+                    pattern: ^(eu\.gcr\.io|us\.gcr\.io|asia\.gcr\.io)
+  - identifier: CUSTOM_PODS_RUN_AS_NON_ROOT_USER
+    name: Ensure that we run the containers as non-root users and runAsGroup & fsGroup values are set [CUSTOM RULE]
+    defaultMessageOnFailure: Please set the value of runAsUser greater than 0 and default values for runAsGroup & fsGroup
+    schema:
+      properties:
+        spec:
+          properties:
+            securityContext:
+              properties:
+                runAsUser:
+                  type: integer
+                  minimum: 1
+              required:
+                - runAsUser
+                - runAsGroup
+                - fsGroup
+          required:
+            - securityContext
+  - identifier: CUSTOM_CONTAINERS_RUN_AS_UNPRIVILEGED
+    name: Ensure that we run the containers in unprivileged mode [CUSTOM RULE]
+    defaultMessageOnFailure: Please set the value of privileged to false
+    schema:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  securityContext:
+                    properties:
+                      privileged:
+                        type: boolean
+                        const: false
+  - identifier: CUSTOM_CONTAINERS_NO_PRIVILEGE_ESCALATION_FOR_PROD
+    name: Ensure that we do not AllowPrivilegeEscalation for production containers [CUSTOM RULE]
+    defaultMessageOnFailure: Please set the value of AllowPrivilegeEscalation to false for prod containers
     schema:
       properties:
         metadata:
@@ -21,37 +117,62 @@ customRules:
             labels:
               properties:
                 environment:
-                  enum:
-                    - prod
-                    - staging
-                    - test
+                  type: string
               required:
                 - environment
           required:
             - labels
 
-  - identifier: CUSTOM_WORKLOAD_MISSING_LABEL_OWNER_VALUE
-    name: Ensure workload has a configured `owner` label [CUSTOM RULE]
-    defaultMessageOnFailure: Add a proper owner label to know which person/team to ping when needed
-    schema:
-      properties:
-        metadata:
-          properties:
-            labels:
-              required:
-                - owner
-          required:
-            - labels
+      if:
+        properties:
+          metadata:
+            properties:
+              labels:
+                properties:
+                  environment:
+                    type: string
+                    enum:
+                      - prod
+                      - production
 
-  - identifier: CUSTOM_WORKLOAD_INVALID_LABELS_VALUE
-    name: Ensure workload has valid label values [CUSTOM RULE]
-    defaultMessageOnFailure: All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)
+      then:
+        properties:
+          spec:
+            properties:
+              containers:
+                type: array
+                items:
+                  properties:
+                    securityContext:
+                      properties:
+                        allowPrivilegeEscalation:
+                          type: boolean
+                          const: false
+                      required:
+                        - allowPrivilegeEscalation
+                  required:
+                    - securityContext
+  - identifier: CUSTOM_PODS_NO_SHARE_PROCESS_NAMESPACE
+    name: Ensure that we do not configure process namespace sharing for a pod [CUSTOM RULE]
+    defaultMessageOnFailure: Please set the value of shareProcessNamespace to false
     schema:
       properties:
-        metadata:
+        spec:
           properties:
-            labels:
-              patternProperties:
-                ^.*$:
-                  format: hostname
-              additionalProperties: false
+            shareProcessNamespace:
+              type: boolean
+              const: false
+  - identifier: CUSTOM_CONTAINERS_IMAGE_NO_LATEST_TAG
+    name: Ensure that we do not use latest tag for our docker images [CUSTOM RULE]
+    defaultMessageOnFailure: Please use the tag id instead of latest in image name
+    schema:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  image:
+                    type: string
+                    pattern: (?<!latest)$

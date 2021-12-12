@@ -1,43 +1,55 @@
----
-apiVersion: apps/v1
+apiVersion: v1
 kind: Pod
 metadata:
-  name: fail-environment-label
-  labels:
-    environment: qa
-    app: test
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - containerPort: 80
----
-apiVersion: apps/v1
-kind: Pod
-metadata:
-  name: fail-owner-label
+  name: backend
   labels:
     environment: prod
-    app: test
 spec:
+  shareProcessNamespace: true
+  securityContext:
+    runAsUser: 0
   containers:
   - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - containerPort: 80
----
-apiVersion: apps/v1
-kind: Pod
-metadata:
-  name: fail-valid-label-value
-  labels:
-    environment: prod
-    app: test
-    owner: test@datree.io
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - containerPort: 80
+    image: nginx:latest
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "1300m"
+    securityContext:
+      privileged: true
+  - name: app
+    image: asia.gcr.io/myproject/app:v3
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "300m"
+    securityContext:
+      allowPrivilegeEscalation: true
+  - name: app2
+    image: asia.gcr.io/myproject/app2:v3
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "300m"
+    securityContext:
+      allowPrivilegeEscalation: false
+  - name: app3
+    image: asia.gcr.io/myproject/app3:v3
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "300m"
+    securityContext:
+      allowPrivilegeEscalation: false

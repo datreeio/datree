@@ -1,58 +1,143 @@
-# Policy: labels_best_practices (example policy)
-Kubernetes labels enable engineers to perform in-cluster object searches, apply bulk configuration changes, and more. Labels can help simplify and solve many day-to-day challenges encountered in Kubernetes environments if they are set correctly.  
+# Datree Custom Policy Example
+Datree policies help kubernetes administrators to enforce security and best practices policies on resource manifest files. It comes with a good set of default policies which can be found [here](https://hub.datree.io/built-in-rules).
 
-__This policy helps to enforce the following labels best practices:__
-* [Ensure pre-defined environment labels are used](#ensure-pre-defined-environment-labels-are-used)
-* [Ensure the owner label is used](#ensure-the-owner-label-is-used)
-* [Ensure all labels have a valid label value (RFC 1123)](#ensure-all-labels-have-a-valid-label-value-rfc-1123)
+In this example folder, we are showcasing how to create your own custom policies that satisfy your use case. Datree custom rule engine is based on powerful [JSON Schema](https://json-schema.org/ "https://json-schema.org/"), so it supports both YAML and JSON declarative syntax.
 
-## Ensure pre-defined environment labels are used
-Having an env label is useful for performing bulk operations in specific environments or for filtering workloads according to their stage. This rule will also ensure that only pre-approved `environment` label values are used:
-* `prod`
-* `staging`
-* `test`
+This sample policy file included in this folder defines three custom policies:
+* [governance_policy](#policy-governance_policy)
+* [security_policy](#policy-security_policy)
+* [stability_policy](#policy-stability_policy)
 
-### When this rule is failing?
-If the `environment` key is missing from the labels section:  
+## Policy: governance_policy
+
+This policy demonstrates how you can create rules that follow your organizations best practices.
+
+__Rules included:__
+* [Ensure each container has a configured CPU and memory less than max value](#ensure-each-container-has-a-configured-cpu-and-memory-less-than-max-value)
+* [Ensure that we do not have more than 3 containers per pod](#ensure-that-we-do-not-have-more-than-3-containers-per-pod)
+
+### Ensure each container has a configured CPU and memory less than max value
+An organization might have max limit on CPU and memory value possible for any container. This rule can be used to enforce that limit. In this example policy, the max value of CPU is set to `500m` and for Memory is set to `512Mi`.
+
+**When this rule is failing?**
+
+If the value of cpu/memory in requests OR limits section of resource is higher than max value defined in the rule.
 ```
-kind: Deployment
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "250m"
+  limits:
+    memory: "128Mi"
+    cpu: "1300m"
+ ```
+
+### Ensure that we do not have more than 3 containers per pod
+Pods can have multiple tightly coupled containers. An organization might want set a limit on max number of containers allowed in one pod for better policy management. In this rule, we have set the max number of containers in one pod to 3.
+
+**When this rule is failing?**
+
+When more than three containers are defined in the pod yaml file, this rule would fail.
+
+## Policy: security_policy
+
+This policy demonstrates how you can create rules that follow security best practices.
+
+__Rules included:__
+* [Ensure that we use internal image registry for our docker images](#ensure-that-we-use-internal-image-registry-for-our-docker-images)
+* [Ensure that we run the containers as non-root users and runAsGroup & fsGroup values are set](#ensure-that-we-run-the-containers-as-non-root-users-and-runasgroup--fsgroup-values-are-set)
+* [Ensure that we run the containers in unprivileged mode](#ensure-that-we-run-the-containers-in-unprivileged-mode)
+* [Ensure that we do not AllowPrivilegeEscalation for production containers](#ensure-that-we-do-not-allowprivilegeescalation-for-production-containers)
+
+### Ensure that we use internal image registry for our docker images
+Organization should restrict the image registry allowed for pulling docker images. Unknown registries might be holding images with severe security vulnerabilities. This rule can reduce the threat exposure caused by pulling risky images.
+Organizations can also choose to modify this rule to enforce that developers pull images from a particular publisher only. This publisher can be company's user account storing custom images.
+
+**When this rule is failing?**
+
+When image name does not start with `eu.gcr.io`, `asia.gcr.io` or `us.gcr.io`
+
+```
+containers:
+  - name: nginx
+    image: nginx:latest
+ ```
+
+### Ensure that we run the containers as non-root users and runAsGroup & fsGroup values are set
+It is a safe practice to not allow containers to run as root user. This rule ensures that the value of `runAsUser` is greater than 0. The rule also enforces the developers to define `runAsGroup` and `fsGroup` values in the `securityContext` section.
+
+**When this rule is failing?**
+
+When the manifest file specifies `runAsUser` less than 1 OR `runAsGroup`/`fsGroup` are missing
+
+```
+securityContext:
+    runAsUser: 0
+```
+
+### Ensure that we run the containers in unprivileged mode
+When the container is running in privileged mode, then it can access host's resources and kernel capabilities. An attacker can use this privilege to exploit our infrastructure. The rule enforces that no container runs with `privileged: true` setting.
+
+**When this rule is failing?**
+
+When the manifest file specifies `privileged: true` or any non-boolean value.
+```
+containers:
+  - name: nginx
+    image: nginx:latest
+    securityContext:
+      privileged: true
+```
+
+### Ensure that we do not AllowPrivilegeEscalation for production containers
+This rule is included to demonstrate the if/then condition of json schema. This rule enforces that `environment` label is set for the pod, and if the environment is production, then `allowPrivilegeEscalation` should be explicitly set to `false`. This behavior is required to effectively enforce `MustRunAsNonRoot`.
+
+**When this rule is failing?**
+
+When `environment` key is not included in list of labels
+```
 metadata:
+  name: backend
   labels:
-    owner: yoda-at-datree.io
+    name: backend
+```
+OR When `allowPrivilegeEscalation` is true or not defined for a production environment
+```
+name: app
+  image: asia.gcr.io/myproject/app:v3
+  securityContext:
+    allowPrivilegeEscalation: true
 ```
 
-__OR__ a different `environment` value is used:
+## Policy: stability_policy
+
+This policy demonstrates how you can create rules that ensure the stability of our kubernetes clusters.
+
+__Rules included:__
+* [Ensure that we do not configure process namespace sharing for a pod](#ensure-that-we-do-not-configure-process-namespace-sharing-for-a-pod)
+* [Ensure that we do not use latest tag for our docker images](#ensure-that-we-do-not-use-latest-tag-for-our-docker-images)
+
+### Ensure that we do not configure process namespace sharing for a pod
+This directive allows processes and filesystems in a container to be visible to all other containers in that pod. It can sometimes cause unexpected behavior. This rule ensures that `shareProcessNamespace` is not set to `true`
+
+**When this rule is failing?**
+
+When `shareProcessNamespace` is set to true or a non-boolean value.
 ```
-kind: Deployment
-metadata:
-  labels:
-    environment: QA
+spec:
+  shareProcessNamespace: true
 ```
 
-## Ensure the owner label is used
-An `owner` label is great not only for financial ownership but is also useful for operational ownership. Consider adding an owner label to your workload with the name, email alias or Slack channel of the team responsible for the service. This will make it easier to alert the relevant team or team member when necessary.
+### Ensure that we do not use latest tag for our docker images
+It is a best practice to not include `latest` tag in image name. This rule checks that the image name does not end with `latest` tag.
 
-### When this rule is failing?
-If the `owner` key is missing from the labels section:  
+**When this rule is failing?**
+
+When latest tag is used in image name
 ```
-kind: Deployment
-metadata:
-  labels:
-    name: app-back
-```
-
-## Ensure all labels have a valid label value (RFC 1123)
-Labels are nothing more than custom key-value pairs that are attached to objects and are used to describe and manage different Kubernetes resources. If the labels do not follow Kubernetes label syntax requirements (RFC-1123), they will not be applied properly.  
-
-A lowercase RFC-1123 label must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name', or '123-abc', regex used for validation is 'a-z0-9?')  
-
-### When this rule is failing?
-If one of the labels values doesn’t follow the RFC-1123 standard:  
-```
-kind: Deployment
-metadata:
-  labels:
-    name: test@datree.io
+containers:
+  - name: nginx
+    image: nginx:latest
 ```
 ## Policy author
-Eyar Zilberman \\ [eyarz](https://github.com/eyarz)
+Vijay Nandwani \\ [vijaynandwani](https://github.com/vijaynandwani/)
