@@ -11,18 +11,15 @@ from the newer kubernetes version. These rules would help identify what's breaki
 kubernetes configuration and also teach him to stop using those apis in future versions
 of kubernetes.
 
-**List of rules:**
+# List of rules
 
-- [Prevent deprecated APIs in Kubernetes v1.26 (v1.26 not yet released)](#prevent-depracated-apis-in-kubernetes-v1.26)
-- [Prevent deprecated APIs in Kubernetes v1.25 (v1.25 not yet released)](#prevent-depracated-apis-in-kubernetes-v1.25)
-- [Prevent deprecated APIs in Kubernetes v1.22](#prevent-depracated-apis-in-kubernetes-v1.22)
+- [Prevent deprecated APIs in Kubernetes v1.26 (v1.26 not yet released)]
+- [Prevent deprecated APIs in Kubernetes v1.25 (v1.25 not yet released)]
+- [Prevent deprecated APIs in Kubernetes v1.22]
 
-## Prevent deprecated APIs in Kubernetes v1.26 (v1.26 not yet released)
+# How these rules work
 
-### When these rules are failing?
-
-The rules check for two specific properties `apiVersion` and `kind` on each of the kubernetes config files (yaml files). All the deprecated values for `apiVersion` are matched with the corresponding values for `kind` as dictated by kubernetes schema
-validation. Here are those values :-
+All of the three rules are exactly the same except for the kubernetes versions they are defined for and the list of values they check against.The rules check for two specific properties `apiVersion` and `kind` on each of the kubernetes config files (yaml files). All the deprecated values for `apiVersion` are matched with the corresponding values for `kind` as dictated by the kubernetes schema validation. Here are those values :-
 
 #### In v1.26
 
