@@ -9,6 +9,7 @@ __This policy helps to enforce the following security best practices:__
 * Ensure privilege escalation is set
 * Ensure that filesystem accessibility is set
 * Ensure deprecated resource is not used
+* Ensure privileged flag is set
 
 ## Ensure user permission is set
 This flag controls which user ID the containers are run with. If this value is 0, then
@@ -42,7 +43,8 @@ If the `runAsGroup` key is missing from the securityContext section:
 kind: Pod
 spec:
   securityContext:
-    runAsGroup: 3000
+    runAsUser: 1000
+    allowPrivilegedEscalation: false
 ```
 
 __OR__ an invalid value of `runAsGroup` is used:
@@ -88,6 +90,30 @@ resources can be used in favor of it such as Pod or Deployment.
 If the `kind` field is set to PodSecurityPolicy:
 ```
 kind: PodSecurityPolicy
+```
+
+## Ensure privileged flag is set
+The `privileged` flag allows a container to run in privileged mode where processes are
+essentially equivalent to root on the host. It also allows the process to access host's
+resources and devices.
+
+### When this rule is failing?
+If the flag is not a boolean:
+```
+kind: Pod
+spec:
+  securityContext:
+    privileged: not-false
+```
+
+__OR__ it is missing from the securityContext section:
+```
+kind: Pod
+spec:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    allowPrivilegedEscalation: true
 ```
 
 ## Policy author

@@ -13,6 +13,8 @@ policies:
         messageOnFailure: ''
       - identifier: CUSTOM_SECURITY_DEPRECATED_CHECK
         messageOnFailure: ''
+      - idenitifer: CUSTOM_SECURITY_PRIVILEGED_CHECK
+        messageOnFailure: ''
 
 customRules:
   - identifier: CUSTOM_SECURITY_USER_CHECK
@@ -118,4 +120,27 @@ customRules:
           kind:
             enum:
               - PodSecurityPolicy
-    
+
+  - identifier: CUSTOM_SECURITY_PRIVILEGED_CHECK
+    name: Check for the privileged flag [CUSTOM RULE]
+    defaultMessageOnFailure: Add the privileged flag, ensure it is a boolean
+    schema:
+      properties:
+        kind:
+          enum:
+            - Pod
+            - Deployment
+            - StatefulSet
+            - DaemonSet
+        spec:
+          properties:
+            securityContext:
+              properties:
+                privileged:
+                  enum:
+                    - true
+                    - false
+              required:
+                - privileged
+          required:
+            - securityContext
