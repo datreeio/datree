@@ -1,12 +1,14 @@
 # Policy: security_best_practices
-Ingress host name should be a valid organization name. Invalid host names can cause problems with access to the API. These policies are implemented with multiple property paths to provide adaptation to multiple Kubernetes objects such as Pod, Deployment.
+To prevent unwanted changes to root-owned files, privilege escalation that could gain more privileges than its parent process, or issues with sensitive host system files, the following best practices are recommended. These policies are implemented with multiple property paths to provide adaptation to multiple Kubernetes objects such as Pod, Deployment.
 
 __This policy helps to enforce the following best practices:__
 * [Prevent containers from running without a read-only root filesystem](#prevent-containers-from-running-without-a-read-only-root-filesystem)
 * [Ensure containers do not allow privilege escalation](#ensure-containers-do-not-allow-privilege-escalation)
 * [Ensure containers do not run processes with root privileges](#ensure-containers-do-not-run-processes-with-root-privileges)
+* [Ensure containers do not expose sensitive host system directories](#ensure-containers-do-not-expose-sensitive-host-system-directories)
 
 ## Prevent containers from running without a read-only root filesystem
+`readOnlyRootFilesystem` requires that containers must run with a read-only root filesystem.
 ### When this rule is failing?
 If `securityContext.readOnlyRootFilesystem` is missing:
 ```
@@ -79,6 +81,7 @@ spec:
 
 
 ## Ensure containers do not allow privilege escalation
+`allowPrivilegeEscalation` restricts escalation to root privileges.
 
 ### When this rule is failing?
 If `securityContext.allowPrivilegeEscalation` is missing:
@@ -149,6 +152,7 @@ spec:
 ```
 
 ## Ensure containers do not run processes with root privileges
+`runAsUser` & `runAsNonRoot` restricts root privileges.
 
 ### When this rule is failing?
 If `securityContext.runAsUser` or `securityContext.runAsNonRoot` is missing:
