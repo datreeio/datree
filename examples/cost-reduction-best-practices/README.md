@@ -1,4 +1,4 @@
-# Policy: labels_best_practices (example policy)
+# Policy: labels_best_practices
 Kubernetes resource requests and limits enable engineers to ensure that their workloads are not over or under-utilized. These policies are implemented with multiple property paths to provide adaptation to multiple Kubernetes objects such as Pod, Deployment.
 
 __This policy helps to enforce the following labels best practices:__
