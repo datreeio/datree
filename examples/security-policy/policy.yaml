@@ -11,6 +11,8 @@ policies:
             messageOnFailure: ''
           - identifier: ENSURE_NO_NEW_PRIVILEGES_ARE_SET
             messageOnFailure: ''
+          - identifier: ENSURE_SECURITY_CONTEXT_IS_SET
+            messageOnFailure: ''
           - identifier: CONTAINERS_MISSING_SELINUX
             messageOnFailure: ''
           - identifier: ENSURE_DEPRECATED_POD_SECURITY_POLICY_NOT_USED
@@ -53,109 +55,135 @@ customRules:
       name: Ensure readOnlyRootFilesystem is set
       defaultMessageOnFailure: Missing `readOnlyRootFilesystem` - make the root filesystem read-only for security reasons
       schema:
-          if:
-              properties:
-                  kind:
-                      enum:
-                          - Pod
-          then:
-              properties:
-                  spec:
-                      properties:
-                          containers:
-                              type: array
-                              items:
-                                  properties:
-                                      securityContext:
-                                          properties:
-                                              readOnlyRootFilesystem:
-                                                  enum:
-                                                      - true
-                                          required:
-                                              - readOnlyRootFilesystem
-                                  required:
-                                      - securityContext
+          definitions:
+              podPattern:
+                  properties:
+                      spec:
+                          properties:
+                              containers:
+                                  type: array
+                                  items:
+                                      properties:
+                                          securityContext:
+                                              properties:
+                                                  readOnlyRootFilesystem:
+                                                      enum:
+                                                          - true
+                                              required:
+                                                  - readOnlyRootFilesystem
+                                      required:
+                                          - securityContext
+          allOf:
+              - $ref: '#/definitions/podPattern'
+          additionalProperties:
+              $ref: '#'
+          items:
+              $ref: '#'
     - identifier: ENSURE_CONTAINERS_RUN_AS_NON_ROOT
       name: Ensure Containers run with non root access
       defaultMessageOnFailure: Containers can be run as host with the current configuration. Set the `runAsUser` to 1000 so that containers can run as non-root only.
       schema:
-          if:
-              properties:
-                  kind:
-                      enum:
-                          - Pod
-          then:
-              properties:
-                  spec:
-                      properties:
-                          securityContext:
-                              properties:
-                                  runAsUser:
-                                      minimum: 0
-                                      maximum: 1000
-                              required:
-                                  - runAsUser
-                      required:
-                          - securityContext
+          definitions:
+              containerPattern:
+                  properties:
+                      securityContext:
+                          properties:
+                              runAsUser:
+                                  minimum: 0
+                                  maximum: 1000
+                          required:
+                              - runAsUser
+          allOf:
+              - $ref: '#/definitions/containerPattern'
+          additionalProperties:
+              $ref: '#'
+          items:
+              $ref: '#'
     - identifier: ENSURE_NO_NEW_PRIVILEGES_ARE_SET
       name: Check if no new priviliges are set
-      defaultMessageOnFailure: Incorrect value of `allowPrivilegeEscalation` - set it to false so that no new privileges are set
+      defaultMessageOnFailure: Incorrect value of `allowPrivilegeEscalation` - set it to false
       schema:
-          if:
-              properties:
-                  kind:
-                      enum:
-                          - Pod
-          then:
-              properties:
-                  spec:
-                      properties:
-                          containers:
-                              type: array
-                              items:
-                                  properties:
-                                      securityContext:
-                                          properties:
-                                              allowPrivilegeEscalation:
-                                                  enum:
-                                                      - false
+          definitions:
+              privilegePattern:
+                  properties:
+                      spec:
+                          properties:
+                              containers:
+                                  type: array
+                                  items:
+                                      properties:
+                                          securityContext:
+                                              properties:
+                                                  allowPrivilegeEscalation:
+                                                      enum:
+                                                          - false
+                                              required:
+                                                  - allowPrivilegeEscalation
+                                      required:
+                                          - securityContext
+    - identifier: ENSURE_SECURITY_CONTEXT_IS_SET
+      name: Check if securityContext is set
+      defaultMessageOnFailure: securityContext is not set - set it to modify security related configurations.
+      schema:
+          definitions:
+              securityContextPath:
+                  anyOf:
+                      - properties:
+                            spec:
+                                properties:
+                                    securityContext:
+                                        type: object
+                                required:
+                                    - securityContext
+                      - properties:
+                          spec:
+                              properties:
+                                  containers:
+                                      type: array
+                                      items:
                                           required:
-                                              - allowPrivilegeEscalation
-                                  required:
-                                      - securityContext
+                                              - securityContext
+          allOf:
+              - $ref: '#/definitions/securityContextPath'
+          additionalProperties:
+              $ref: '#'
+          items:
+              $ref: '#'
     - identifier: ENSURE_ALL_CAPABILITIES_ARE_DROPED
       name: Check if all capabilities are droped
       defaultMessageOnFailure: All capabilities not droped - add `drop all` to capabilities and then add only the required capabilities
       schema:
-          if:
-              properties:
-                  kind:
-                      enum:
-                          - Pod
-          then:
-              properties:
-                  spec:
-                      properties:
-                          containers:
-                              type: array
-                              items:
-                                  properties:
-                                      securityContext:
-                                          properties:
-                                              capabilities:
-                                                  properties:
-                                                      drop:
-                                                          type: array
-                                                          items:
-                                                              type: string
-                                                              enum:
-                                                                  - all
-                                                  required:
-                                                      - drop
-                                          required:
-                                              - capabilities
-                                  required:
-                                      - securityContext
+          definitions:
+              capabilityPattern:
+                  properties:
+                      spec:
+                          properties:
+                              containers:
+                                  type: array
+                                  items:
+                                      properties:
+                                          securityContext:
+                                              properties:
+                                                  capabilities:
+                                                      properties:
+                                                          drop:
+                                                              type: array
+                                                              items:
+                                                                  type: string
+                                                                  enum:
+                                                                      - all
+                                                      required:
+                                                          - drop
+                                              required:
+                                                  - capabilities
+                                      required:
+                                          - securityContext
+          allOf:
+              - $ref: '#/definitions/capabilityPattern'
+          additionalProperties:
+              $ref: '#'
+          items:
+              $ref: '#'
     - identifier: ENSURE_DEPRECATED_POD_SECURITY_POLICY_NOT_USED
       name: Ensure deprecated Pod Security Policy not used
       defaultMessageOnFailure: Deprecated `pod security policy` used - use alternatives for `pod security policy`.
@@ -169,48 +197,49 @@ customRules:
       name: Ensure SELinuxOptions are set
       defaultMessageOnFailure: Missing `seLinuxOptions` - it is used to lock down the container.
       schema:
-          if:
-              properties:
-                  kind:
-                      enum:
-                          - Pod
-          then:
-              properties:
-                  spec:
-                      properties:
-                          securityContext:
-                              properties:
-                                  seLinuxOptions:
-                                      properties:
-                                          level:
-                                              type: string
-                                      required:
-                                          - level
-                              required:
-                                  - seLinuxOptions
-                      required:
-                          - securityContext
+          definitions:
+              seLinuxPattern:
+                  properties:
+                      securityContext:
+                          properties:
+                              seLinuxOptions:
+                                  properties:
+                                      level:
+                                          type: string
+                                  required:
+                                      - level
+                          required:
+                              - seLinuxOptions
+          allOf:
+              - $ref: '#/definitions/seLinuxPattern'
+          additionalProperties:
+              $ref: '#'
+          items:
+              $ref: '#'
+          
     - identifier: ENSURE_IMAGE_PULL_POLICY_SET_TO_ALWAYS
       name: Ensure imagePullPolicy is always set to Always
       defaultMessageOnFailure: Incorrect Value for `imagePullPolicy` - set `imagePullPolicy` to `Always`
       schema:
-          if:
-              properties:
-                  kind:
-                      enum:
-                          - Pod
-          then:
-              properties:
-                  spec:
-                      properties:
-                          containers:
-                              type: array
-                              items:
-                                  properties:
-                                      imagePullPolicy:
-                                          type: string
-                                          enum:
-                                              - Always
+          definitions:
+              imagePullPattern:
+                  properties:
+                      spec:
+                          properties:
+                              containers:
+                                  type: array
+                                  items:
+                                      properties:
+                                          imagePullPolicy:
+                                              type: string
+                                              enum:
+                                                  - Always
+          allOf:
+              - $ref: '#/definitions/imagePullPattern'
+          additionalProperties:
+              $ref: '#'
+          items:
+              $ref: '#'
     - identifier: ENSURE_DEFAULT_SERVICE_ACCOUNT_NOT_USED_IN_SERVICE_ACCOUNT
       name: Ensure default service account are not used
       defaultMessageOnFailure: 'Missing `automountServiceAccountToken` key in ServiceAccount manifest - set it to false to ensure default service accounts are not used.'
