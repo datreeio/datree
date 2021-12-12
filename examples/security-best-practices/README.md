@@ -8,6 +8,7 @@ __This policy helps to enforce the following security best practices:__
 * Ensure groups permission is set
 * Ensure privilege escalation is set
 * Ensure that filesystem accessibility is set
+* Ensure deprecated resource is not used
 
 ## Ensure user permission is set
 This flag controls which user ID the containers are run with. If this value is 0, then
@@ -76,6 +77,17 @@ kind: Pod
 spec:
   securityContext:
     readOnlyRootFilesystem: false
+```
+
+## Ensure deprecated resource is not used
+PodSecurityPolicy is a type of resource that is deprecated in Kubernetes v1.21 and is
+set to be removed in Kubernetes v1.25. It is against security best practices and other
+resources can be used in favor of it such as Pod or Deployment.
+
+### When this rule is failing?
+If the `kind` field is set to PodSecurityPolicy:
+```
+kind: PodSecurityPolicy
 ```
 
 ## Policy author
