@@ -11,4 +11,8 @@ spec:
     image: nginx:1.14.2
     ports:
     - containerPort: 80
-  targetCPUUtilization: 50
+  targetCPUUtilizationPercentage: 50
+  scaleTargetRef:
+    apiVersion: 1
+    kind: Deployment
+    name: pass-ref

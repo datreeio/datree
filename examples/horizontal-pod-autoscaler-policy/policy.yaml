@@ -71,8 +71,8 @@ customRules:
               - minReplicas
 
   - identifier: CUSTOM_WORKLOAD_SCALE_TARGET_REF
-    name: Ensure targetCPUUtilizationPercentage is present [CUSTOM RULE]
-    defaultMessageOnFailure: metadata.namespace not found. Add the metadata.namespace field.
+    name: Ensure scaleTargetRef is present and contains valid fields [CUSTOM RULE]
+    defaultMessageOnFailure: spec.scaleTargetRef not found or does not contain valid fields: spec.scaleTargetRef.kind, spec.scaleTargetRef.apiVersion, spec.scaleTargetRed.name. 
     schema:
       if:
         properties:
