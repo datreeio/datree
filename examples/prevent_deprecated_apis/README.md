@@ -118,6 +118,28 @@ apiVersion: batch/v1beta1
 kind: CronJob
 ```
 
+## Note
+
+Kubernetes schema validation throws error of type `could not find schema for ....` whenever the `apiVersion` and `kind` properties
+do not match their definition for the current kubernetes version. To prevent this behaviour I have provided two workarounds that I'm going
+to list right here :-
+
+### Workaround 1 :-
+
+##### Run the checks according to the version specified in the comments for each config in pass/fail yaml files. For example :- 
+```
+# Test using v1.23 or later
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+```
+#### You can check each config individually using the version specified in the comment i.e., v1.23.
+#### Using the cli :- datree test --schema-version "1.23.0" `your config file here`
+
+### Workaround 2 :-
+
+##### Pass the `--ignore-missing-schemas` option to the datree test.
+##### Using the cli :- datree test `your config file here` --ignore-missing-schemas
+
 ## Policy author
 
 Adarsh Tiwari \\ [xoldyckk](https://github.com/xoldyckk)
