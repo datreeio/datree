@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pass-stability-best-practices-for-pod
+  name: pass-governance-best-practices-for-pod
   labels:
     environment: prod
     app: test
@@ -32,7 +32,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pass-stability-best-practices-for-deployment
+  name: pass-governance-best-practices-for-deployment
 spec:
   selector:
     matchLabels:
@@ -75,3 +75,20 @@ spec:
           volumeMounts:
             - name: test-volume
               mountPath: /test/dev
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pass-governance-best-practices-for-ingress
+spec:
+  rules:
+    - host: test.example.com
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: /
+            backend:
+              service:
+                name: nginx
+                port:
+                  number: 80
