@@ -1,1 +1,22 @@
-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-site
+  labels:
+    owner: --
+    environment: prod
+spec:
+      dnsPolicy: wrong
+      containers:
+        - name: front-end
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+      nodeSelector:
+        disktype: hdd          
+  strategy:
+    type: update
+    rollingUpdate:
+      maxSurge: aa
+      maxUnavailable:     
+    
