@@ -3,7 +3,7 @@ policies:
   - name: horizontal_pod_autoscaler
     isDefault: true
     rules:
-      - identifier: CUSTOM_WORKLOAD_NAMESPACE_CHECK
+      - identifier: CUSTOM_WORKLOAD_TARGET_CPU_UTILIZATION
         messageOnFailure: ''
       - identifier: CUSTOM_WORKLOAD_MAX_REPLICAS
         messageOnFailure: ''
@@ -11,8 +11,8 @@ policies:
         messageOnFailure: ''
 
 customRules:
-  - identifier: CUSTOM_WORKLOAD_NAMESPACE_CHECK
-    name: Ensure namespace field is present [CUSTOM RULE]
+  - identifier: CUSTOM_WORKLOAD_TARGET_CPU_UTILIZATION
+    name: Ensure targetCPUUtilizationPercentage is present [CUSTOM RULE]
     defaultMessageOnFailure: metadata.namespace not found. Add the metadata.namespace field.
     schema:
       if:
@@ -22,9 +22,13 @@ customRules:
              - HorizontalPodAutoscaler
       then:
         properties:
-          metadata:
+          spec:
+            properties:
+              targetCPUUtilizationPercentage:
+                maximum: 100
+                minimum: 1
             required:
-              - namespace
+              - targetCPUUtilizationPercentage
 
   - identifier: CUSTOM_WORKLOAD_MAX_REPLICAS
     name: Ensure maxReplicas is present along with correct value [CUSTOM RULE]
