@@ -15,96 +15,69 @@ customRules:
     name: Check for runAsUser field setting [CUSTOM RULE]
     defaultMessageOnFailure: Add runAsUser setting, ensure it is a number between range 0 and 10000
     schema:
-      if:
-        properties:
-          kind:
-            enum:
-              - Pod
-              - Deployment
-              - StatefulSet
-      then:
-        properties:
-          spec:
-            properties:
-              securityContext:
-                properties:
-                  runAsUser:
-                    minimum: 0
-                    maximum: 10000
-                required:
-                  - runAsUser
-            required:
-              - securityContext
-      else:
-        properties:
-          wrongkind:
-            enum:
-              - wrong
-        required:
-          - wrongkind
+      properties:
+        kind:
+          enum:
+            - Pod
+            - Deployment
+            - StatefulSet
+            - DaemonSet
+        spec:
+          properties:
+            securityContext:
+              properties:
+                runAsUser:
+                  minimum: 0
+                  maximum: 10000
+              required:
+                - runAsUser
+          required:
+            - securityContext
 
   - identifier: CUSTOM_SECURITY_GROUPS_CHECK
     name: Check for runAsGroup field setting [CUSTOM_RULE]
     defaultMessageOnFailure: Add runAsGroup setting, ensure it is a number between range 0 and 10000
     schema:
-      if:
-        properties:
-          kind:
-            enum:
-              - Pod
-              - Deployment
-              - StatefulSet
-      then:
-        properties:
-          spec:
-            properties:
-              securityContext:
-                properties:
-                  runAsGroup:
-                    minimum: 0
-                    maximum: 10000
-                required:
-                  - runAsGroup
-            required:
-              - securityContext
-      else:
-        properties:
-          wrongkind:
-            enum:
-              - wrong
-        required:
-          - wrongkind
+      properties:
+        kind:
+          enum:
+            - Pod
+            - Deployment
+            - StatefulSet
+            - DaemonSet
+        spec:
+          properties:
+            securityContext:
+              properties:
+                runAsGroup:
+                  minimum: 0
+                  maximum: 10000
+              required:
+                - runAsGroup
+          required:
+            - securityContext
 
   - identifier: CUSTOM_SECURITY_PRIVILEGE_CHECK
     name: Check for allowPrivilegeEscalation setting [CUSTOM_RULE]
     defaultMessageOnFailure: Add allowPrivilegeEscalation setting, ensure it is a boolean
     schema:
-      if:
-        properties:
-          kind:
-            enum:
-              - Pod
-              - Deployment
-              - StatefulSet
-      then:
-        properties:
-          spec:
-            properties:
-              securityContext:
-                properties:
-                  allowPrivilegeEscalation:
-                    enum:
-                      - true
-                      - false
-                required:
-                  - allowPrivilegeEscalation
-            required:
-              - securityContext
-      else:
-        properties:
-          wrongkind:
-            enum:
-              - wrong
-        required:
-          - wrongkind
+      properties:
+        kind:
+          enum:
+            - Pod
+            - Deployment
+            - StatefulSet
+            - DaemonSet
+        spec:
+          properties:
+            securityContext:
+              properties:
+                allowPrivilegeEscalation:
+                  enum:
+                    - true
+                    - false
+              required:
+                - allowPrivilegeEscalation
+          required:
+            - securityContext
               

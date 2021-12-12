@@ -5,7 +5,7 @@ metadata:
   name: fail-user-permission
 spec:
   securityContext:
-    runAsUser: 11000
+    runAsUser: 1000
   containers:
   - name: nginx
     image: nginx:1.14.2
