@@ -21,7 +21,7 @@ customRules:
             
   - identifier: CUSTOM_ROLLINGUPDATE_POLICY_TO_REPLACE_PODS
     name: Ensure RollingUpdate strategy has maxSurge and maxUnavailable labels
-    defaultMessageOnFailure: Rolling update config present only if DeploymentStrategyType = RollingUpdate.  [maxSurge,maxUnavailable] values must be integers
+    defaultMessageOnFailure: Rolling update config present only if DeploymentStrategyType = RollingUpdate.  [maxSurge,maxUnavailable] values must be numeric
     schema:
       if:
         properties:
@@ -112,7 +112,7 @@ policies:
       - identifier: CUSTOM_STRATEGY_DECLARATION_POLICY_TO_REPLACE_PODS
         messageOnFailure: 'Incorrect value for key strategy - required values[ "Recreate" or "RollingUpdate"]'
       - identifier: CUSTOM_ROLLINGUPDATE_POLICY_TO_REPLACE_PODS
-        messageOnFailure: Rolling update config present only if DeploymentStrategyType = RollingUpdate.  [maxSurge,maxUnavailable] values must be integers
+        messageOnFailure: Rolling update config present only if DeploymentStrategyType = RollingUpdate.  [maxSurge,maxUnavailable] values must be numeric
       - identifier: CUSTOM_POLICY_FOR_DNS_POLICY_DECLARATION_FOR_PODS
         messageOnFailure: Kubernetes supports only pod-specific DNS policies [ Default, ClusterFirst, ClusterFirstWithHostNet, None]
       - identifier: CUSTOM_RULE_TO_ASSIGN_POD_TO_NODES
