@@ -9,6 +9,8 @@ policies:
         messageOnFailure: ''
       - identifier: CUSTOM_WORKLOAD_MIN_REPLICAS
         messageOnFailure: ''
+      - identifier: CUSTOM_WORKLOAD_SCALE_TARGET_REF
+        messageOnFailure: ''
 
 customRules:
   - identifier: CUSTOM_WORKLOAD_TARGET_CPU_UTILIZATION
@@ -67,3 +69,30 @@ customRules:
                 minimum: 1
             required:
               - minReplicas
+
+  - identifier: CUSTOM_WORKLOAD_SCALE_TARGET_REF
+    name: Ensure targetCPUUtilizationPercentage is present [CUSTOM RULE]
+    defaultMessageOnFailure: metadata.namespace not found. Add the metadata.namespace field.
+    schema:
+      if:
+        properties:
+          kind:
+           enum:
+             - HorizontalPodAutoscaler
+      then:
+        properties:
+          spec:
+            properties:
+              scaleTargetRef:
+                properties:
+                  kind:
+                    enum:
+                      - Deployment
+                      - ReplicaSet
+                      - ReplicationController
+                required:
+                  - kind
+                  - apiVersion
+                  - name
+            required:
+              - scaleTargetRef 
