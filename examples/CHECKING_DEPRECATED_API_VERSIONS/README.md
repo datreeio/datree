@@ -164,7 +164,7 @@ If one of the following API versions is used
 
 ### How to fix this failure
 
-Use v1 instead of the deprecated version
+Use v2 instead of the deprecated version
 
 **YAML**
 
