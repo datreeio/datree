@@ -3,55 +3,39 @@ policies:
   - name: labels_best_practices
     isDefault: true
     rules:
-      - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
+      - identifier: CUSTOM_CONTAINER_SIZE
         messageOnFailure: ''
-      - identifier: CUSTOM_WORKLOAD_MISSING_LABEL_OWNER_VALUE
-        messageOnFailure: ''
-      - identifier: CUSTOM_WORKLOAD_INVALID_LABELS_VALUE
-        messageOnFailure: ''
+      
 
 customRules:
-  - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
-    name: Ensure correct environment labels are used [CUSTOM RULE]
-    defaultMessageOnFailure: Use only approved environment labels (`prod`, `staging` and `test`)
+  - identifier: CUSTOM_CONTAINER_SIZE
+    name: Ensure correct container size
+    defaultMessageOnFailure: The container selected is very small
     schema:
-      properties:
+       properties:
         metadata:
           properties:
             labels:
               properties:
-                environment:
+                size:
                   enum:
-                    - prod
-                    - staging
-                    - test
+                    - g3.k3s.small
+                    - g3.k3s.medium
               required:
-                - environment
+                - size
           required:
             - labels
 
-  - identifier: CUSTOM_WORKLOAD_MISSING_LABEL_OWNER_VALUE
-    name: Ensure workload has a configured `owner` label [CUSTOM RULE]
-    defaultMessageOnFailure: Add a proper owner label to know which person/team to ping when needed
+  - identifier: CUSTOM_USER_CHECK
+    name: Ensure runAsUser
+    defaultMessageOnFailure: You need to run this as User
     schema:
-      properties:
-        metadata:
+       properties:
+        spec:
           properties:
-            labels:
+            securityContext:
               required:
-                - owner
+                - sunAsUser
           required:
-            - labels
-
-  - identifier: CUSTOM_WORKLOAD_INVALID_LABELS_VALUE
-    name: Ensure workload has valid label values [CUSTOM RULE]
-    defaultMessageOnFailure: All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)
-    schema:
-      properties:
-        metadata:
-          properties:
-            labels:
-              patternProperties:
-                ^.*$:
-                  format: hostname
-              additionalProperties: false
+            - securityContext
+           
