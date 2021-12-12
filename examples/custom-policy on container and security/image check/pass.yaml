@@ -1,8 +1,0 @@
-kind: Pod
-apiVersion: v1
-metadata:
-  name: pass-image-container
-spec:
-  containers:
-    - name: container-1
-      image: ubuntu

@@ -1,8 +1,0 @@
-kind: Pod
-apiVersion: v1
-metadata:
-  name: pod-exposed-port
-spec:
-  containers:
-    - name: container-exposed-port
-      image: nginx
