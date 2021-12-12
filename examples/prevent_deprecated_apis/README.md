@@ -35,9 +35,9 @@ All of the three rules are exactly the same except for the kubernetes versions t
 
 `apiVersion` :-
 
--batch/v1beta1
--discovery.k8s.io/v1beta1
--events.k8s.io/v1beta1
+- batch/v1beta1
+- discovery.k8s.io/v1beta1
+- events.k8s.io/v1beta1
 -autoscaling/v2beta1
 -policy/v1beta1
 -node.k8s.io/v1beta1
