@@ -115,5 +115,5 @@ spec:
 
 
 ## Policy author
-Vinay swami (aka siddhu)\\ [siddhusniper](https://github.com/siddhusniper)
+Kapakayala Naga sai krishna vinay swami (aka siddhu)\\ [siddhusniper](https://github.com/siddhusniper)
 
