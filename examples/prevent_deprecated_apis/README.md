@@ -137,7 +137,7 @@ kind: HorizontalPodAutoscaler
 
 ### Workaround 2 :-
 
-#### Pass the `--ignore-missing-schemas` option to the datree test.
+#### Pass the `--ignore-missing-schemas` flag to the datree test.
 #### Example using the cli :- ```datree test `your config file here` --ignore-missing-schemas```
 
 ## Policy author
