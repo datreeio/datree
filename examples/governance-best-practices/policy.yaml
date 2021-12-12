@@ -27,3 +27,5 @@ customRules:
                     host:
                       type: string
                       pattern: (.*example.com)$
+                  required:
+                    - host

@@ -39,7 +39,7 @@ spec:
             - containerPort: 80
 ```
 
-__OR__ a value is outside of the configured range (100m-250m):
+__OR__ the value is outside of the configured range (100m-250m):
 ```
 kind: Pod
 spec:
@@ -107,7 +107,7 @@ spec:
             - containerPort: 80
 ```
 
-__OR__ a value is outside of the configured range (500m-1000m):
+__OR__ the value is outside of the configured range (500m-1000m):
 ```
 kind: Pod
 spec:
@@ -175,7 +175,7 @@ spec:
             - containerPort: 80
 ```
 
-__OR__ a value is outside of the configured range (512Mi-1024Mi):
+__OR__ the value is outside of the configured range (512Mi-1024Mi):
 ```
 kind: Pod
 spec:
@@ -244,7 +244,7 @@ spec:
             - containerPort: 80
 ```
 
-__OR__ a value is outside of the configured range (2048Mi-4096Mi):
+__OR__ the value is outside of the configured range (2048Mi-4096Mi):
 ```
 kind: Pod
 spec:
