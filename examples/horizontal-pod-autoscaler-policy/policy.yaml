@@ -1,15 +1,19 @@
 apiVersion: v1
 policies:
-  - name: labels_best_practices
+  - name: horizontal_pod_autoscaler
     isDefault: true
     rules:
-      - identifier: CUSTOM_WORKLOAD_POD_REPLICA_COUNT
+      - identifier: CUSTOM_WORKLOAD_NAMESPACE_CHECK
+        messageOnFailure: ''
+      - identifier: CUSTOM_WORKLOAD_MAX_REPLICAS
+        messageOnFailure: ''
+      - identifier: CUSTOM_WORKLOAD_MIN_REPLICAS
         messageOnFailure: ''
 
 customRules:
-  - identifier: CUSTOM_WORKLOAD_POD_REPLICA_COUNT
-    name: Ensuring correct configuration for HPA controllers [CUSTOM RULE]
-    defaultMessageOnFailure: Add the following fields - metadata.namespace, spec.maxReplicas, spec.minReplicas, spec.targetCPUUtilizationPercentage, and make sure apiVersion is HorizontalPodAutoscaler
+  - identifier: CUSTOM_WORKLOAD_NAMESPACE_CHECK
+    name: Ensure namespace field is present [CUSTOM RULE]
+    defaultMessageOnFailure: metadata.namespace not found. Add the metadata.namespace field.
     schema:
       if:
         properties:
@@ -21,19 +25,41 @@ customRules:
           metadata:
             required:
               - namespace
+
+  - identifier: CUSTOM_WORKLOAD_MAX_REPLICAS
+    name: Ensure maxReplicas is present along with correct value [CUSTOM RULE]
+    defaultMessageOnFailure: spec.maxReplicas not found or invalid value, ensure it is a number between 1 and 10
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - HorizontalPodAutoscaler
+      then:
+        properties:
           spec:
             properties:
               maxReplicas:
                 maximum: 10
                 minimum: 1
+            required:
+              - maxReplicas
+
+  - identifier: CUSTOM_WORKLOAD_MIN_REPLICAS
+    name: Ensure minReplicas is present along with correct value [CUSTOM RULE]
+    defaultMessageOnFailure: spec.minReplicas not found or invalid value, ensure it is a number between 1 and 9
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - HorizontalPodAutoscaler
+      then:
+        properties:
+          spec:
+            properties:
               minReplicas:
                 maximum: 9
                 minimum: 1
-              targetCPUUtilizationPercentage:
-                maximum: 100
-                minimum: 1
             required:
-              - maxReplicas
               - minReplicas
-              - targetCPUUtilizationPercentage
-
