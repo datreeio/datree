@@ -1,43 +1,17 @@
----
 apiVersion: apps/v1
 kind: Pod
-metadata:
-  name: fail-environment-label
-  labels:
-    environment: qa
-    app: test
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - containerPort: 80
----
-apiVersion: apps/v1
-kind: Pod
-metadata:
-  name: fail-owner-label
-  labels:
-    environment: prod
-    app: test
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - containerPort: 80
----
-apiVersion: apps/v1
-kind: Pod
-metadata:
-  name: fail-valid-label-value
-  labels:
-    environment: prod
-    app: test
-    owner: test@datree.io
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - containerPort: 80
+schema:
+  metadata:
+    name: pass-policy
+    labels:
+      owner: me
+      size: g3.k3s.large
+      app: web
+  spec:
+    containers:
+    - name: nginx
+      image: nginx:1.14.2
+      securityContext: 
+        runAsGroup: 3000
+      ports:
+      - containerPort: 80
