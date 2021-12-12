@@ -3,6 +3,9 @@
 # Test each one using v1.25 or below
 # # # # # # #
 
+# If you get k8s schema validation error use flag `--ignore-missing-schemas` to skip k8s schema validation check.
+# Like this :- `datree test fail.yaml --ignore-missing-schemas`
+
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 ---
