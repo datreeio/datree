@@ -1,15 +1,11 @@
 # Policy: preventing_use_of_removed_deprecated_apis
 
-Deprecated apis are those that are not under active development and are scheduled to
-be removed/stopped being supported in the future versions. The rules in this policy help detect the use of those apis that have been dropped in the version of kubernetes that is mentioned in the corresponding rule name and prevent them from landing in the kubernetes configuration file.
+Deprecated apis are those that are not under active development and are scheduled to be removed/stopped being supported in the newer/future versions. The rules in this policy help detect the use of those apiVersions that have been/will be dropped in the corresponding version of kubernetes that is mentioned in the rule name and prevent them from landing in the kubernetes configuration objects/files.
 
 # How this helps
 
-Many times developers don't have time to keep track of all the breaking changes happening within a software ecosystem. In this context for example a developer
-might not even know that the `apiVersion` he/she is using has been deprecated/removed
-from the newer kubernetes version. These rules would help identify what's breaking his
-kubernetes configuration and also teach him to stop using those apis in future versions
-of kubernetes.
+Many a times developers don't have time to keep track of all the breaking changes happening within a software ecosystem. In this context for example a developer
+might not even know that the `apiVersion` he/she is using has been deprecated/removed from the newer kubernetes version. These rules would help identify what's breaking his kubernetes configuration and also keep him updated to these latest changes so that he/she stops using those apiVersions in their kubernetes configuration so that it works for newer kubernetes versions as well.
 
 # List of rules
 
@@ -19,102 +15,77 @@ of kubernetes.
 
 # How these rules work
 
-All of the three rules are exactly the same except for the kubernetes versions they are defined for and the list of values they check against.The rules check for two specific properties `apiVersion` and `kind` on each of the kubernetes config files (yaml files). All the deprecated values for `apiVersion` are matched with the corresponding values for `kind` as dictated by the kubernetes schema validation. Here are those values :-
+All of the three rules are exactly the same except for the kubernetes versions they are defined for and the set of values they check against. The rules check for two specific properties `apiVersion` and `kind` on each of the kubernetes config files (yaml files). All the deprecated values for `apiVersion` are matched with the corresponding values for `kind` as dictated by the kubernetes schema validation. Here are those set of apiVersions that are/will be no longer served by kubernetes in the versions specified and onwards :-
 
 #### In v1.26
 
-`apiVersion` :-
-
-- autoscaling/v2beta2
-
-`kind` :-
-
-- HorizontalPodAutoscaler
+| deprecated `apiVersion` |         `kind`          | recommended `apiVersion` |
+| :---                    |          :---:          |                     ---: |
+| autoscaling/v2beta2     | HorizontalPodAutoscaler |           autoscaling/v2 |
 
 #### In v1.25
 
-`apiVersion` :-
-
-- batch/v1beta1
-- discovery.k8s.io/v1beta1
-- events.k8s.io/v1beta1
-- autoscaling/v2beta1
-- policy/v1beta1
-- node.k8s.io/v1beta1
-
-`kind` :-
-
-- CronJob
-- EndpointSlice
-- Event
-- HorizontalPodAutoscaler
-- PodDisruptionBudget
-- PodSecurityPolicy
-- RuntimeClass
+| deprecated `apiVersion`  |        `kind`           |       recommended `apiVersion` |
+| :---                     |         :---:           |                           ---: |
+| batch/v1beta1            |         CronJob         |                       batch/v1 | 
+| discovery.k8s.io/v1beta1 |      EndpointSlice      |            discovery.k8s.io/v1 | 
+| events.k8s.io/v1beta1    |         Event           |               events.k8s.io/v1 | 
+| autoscaling/v2beta1      | HorizontalPodAutoscaler |                 autoscaling/v2 | 
+| policy/v1beta1           |   PodDisruptionBudget   |                      policy/v1 | 
+| policy/v1beta1           |   PodSecurityPolicy     | `No official replacements yet` | 
+| node.k8s.io/v1beta1      |      RuntimeClass       |                 node.k8s.io/v1 | 
 
 #### In v1.22
 
-`apiVersion` :-
 
-- admissionregistration.k8s.io/v1beta1
-- apiextensions.k8s.io/v1beta1
-- apiregistration.k8s.io/v1beta1
-- authentication.k8s.io/v1beta1
-- authorization.k8s.io/v1beta1
-- certificates.k8s.io/v1beta1
-- coordination.k8s.io/v1beta1
-- extensions/v1beta1
-- networking.k8s.io/v1beta1
-- rbac.authorization.k8s.io/v1beta1
-- scheduling.k8s.io/v1beta1
-- storage.k8s.io/v1beta1
+| deprecated `apiVersion`              |            `kind`              |        recommended `apiVersion` |
+| :---                                 |            :---:               |                            ---: |
+| admissionregistration.k8s.io/v1beta1 |  MutatingWebhookConfiguration  | admissionregistration.k8s.io/v1 | 
+| admissionregistration.k8s.io/v1beta1 | ValidatingWebhookConfiguration | admissionregistration.k8s.io/v1 | 
+| apiextensions.k8s.io/v1beta1         |    CustomResourceDefinition    |         apiextensions.k8s.io/v1 | 
+| apiregistration.k8s.io/v1beta1       |          APIService            |       apiregistration.k8s.io/v1 | 
+| authentication.k8s.io/v1beta1        |          TokenReview           |        authentication.k8s.io/v1 | 
+| authorization.k8s.io/v1beta1         |    LocalSubjectAccessReview    |         authorization.k8s.io/v1 | 
+| authorization.k8s.io/v1beta1         |    SelfSubjectAccessReview     |         authorization.k8s.io/v1 | 
+| authorization.k8s.io/v1beta1         |      SubjectAccessReview       |         authorization.k8s.io/v1 | 
+| certificates.k8s.io/v1beta1          |   CertificateSigningRequest    |          certificates.k8s.io/v1 | 
+| coordination.k8s.io/v1beta1          |             Lease              |          coordination.k8s.io/v1 | 
+| extensions/v1beta1                   |           Ingress              |            networking.k8s.io/v1 | 
+| networking.k8s.io/v1beta1            |           Ingress              |            networking.k8s.io/v1 | 
+| networking.k8s.io/v1beta1            |         IngressClass           |            networking.k8s.io/v1 | 
+| rbac.authorization.k8s.io/v1beta1    |         ClusterRole            |    rbac.authorization.k8s.io/v1 | 
+| rbac.authorization.k8s.io/v1beta1    |       ClusterRoleBinding       |    rbac.authorization.k8s.io/v1 | 
+| rbac.authorization.k8s.io/v1beta1    |            Role                |    rbac.authorization.k8s.io/v1 | 
+| rbac.authorization.k8s.io/v1beta1    |         RoleBinding            |    rbac.authorization.k8s.io/v1 | 
+| scheduling.k8s.io/v1beta1            |        PriorityClass           |            scheduling.k8s.io/v1 | 
+| storage.k8s.io/v1beta1               |          CSIDriver             |               storage.k8s.io/v1 | 
+| storage.k8s.io/v1beta1               |           CSINode              |               storage.k8s.io/v1 | 
+| storage.k8s.io/v1beta1               |         StorageClass           |               storage.k8s.io/v1 | 
+| storage.k8s.io/v1beta1               |        VolumeAttachment        |               storage.k8s.io/v1 | 
 
-`kind` :-
-
-- MutatingWebhookConfiguration
-- CustomResourceDefinition
-- APIService
-- TokenReview
-- LocalSubjectAccessReview
-- SelfSubjectAccessReview
-- SubjectAccessReview
-- CertificateSigningRequest
-- Lease
-- Ingress
-- IngressClass
-- ClusterRole
-- ClusterRoleBinding
-- Role
-- RoleBinding
-- PriorityClass
-- CSIDriver
-- CSINode
-- StorageClass
-- VolumeAttachment
-
-Whenever a match is found the `datree` cli throws an error and a message describing the failure.
+#### Whenever a `deprecated apiVersion` ends up with the corresponding `kind` in a kubernetes configuration object `datree` cli throws an error and a message describing the failure.
 
 ## Example
 
-### api `batch/v1beta1` is not supported in v1.25 for kind `CronJob`
+### apiVersion `batch/v1beta1` will not be supported in v1.25 for kind `CronJob`
 
-#### YAML
+##### YAML
 
 ```
 apiVersion: batch/v1beta1
 kind: CronJob
 ```
 
-### Output on datree cli
+##### Output on the datree cli
 
 ![image](https://github.com/xoldyckk/image/blob/main/customError.png?raw=true)
 
-### api `batch/v1` recommended by kubernetes to be used with kind `CronJob` v1.25 & onwards
+### apiVersion `batch/v1` is recommended by kubernetes to be used with kind `CronJob` in v1.25 & onwards
 
-#### YAML
+##### YAML
 
 ```
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 ```
 
