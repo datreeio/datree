@@ -3,6 +3,9 @@
 
 Kubernetes labels enable engineers to perform in-cluster object searches, apply bulk configuration changes, and more. Labels can help simplify and solve many day-to-day challenges encountered in Kubernetes environments if they are set correctly.
 
+
+## demo video : https://youtu.be/6WVGgxbpgng
+
 __This custom policies helps to enforce the following labels best practices for use cases:__
 * [Ensure strategy has pre-defined labels ](#ensure-strategy-has-pre-defined-labels)
 * [Ensure RollingUpdate strategy has maxSurge and maxUnavailable labels](#ensure-RollingUpdate-strategy-has-maxSurge-and-maxUnavailable-labels)
