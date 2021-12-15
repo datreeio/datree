@@ -6,10 +6,12 @@ This policy helps to ensure following security best practices:
 - [Ensure read only root file system is true](#ensure-read-only-root-file-system-is-true)
 - [Ensure containers run with non root access](#ensure-containers-run-with-non-root-access)
 - [Ensure no new privileges are set](#ensure-no-new-privileges-are-set)
+- [Ensure security context is set](#ensure-security-context-is-set)
 - [Missing seLinuxOptions in the securityContext](#missing-selinuxoptions-in-the-securitycontext)
 - [Ensure deprecated Pod Security Policy not used](#ensure-deprecated-pod-security-policy-not-used)
 - [Ensure imagePullPolicy set to Always](#ensure-imagepullpolicy-set-to-always)
 - [Ensure default service account is not used](#ensure-default-service-account-is-not-used)
+- [Check no default service account is used](#check-no-default-service-account-is-used)
 - [Ensure all capabilities are droped](#ensure-all-capabilities-are-droped)
 - [Ensure seccompProfile is set](#ensure-seccompprofile-is-set)
 
@@ -98,6 +100,49 @@ spec:
     securityContext:
       allowPrivilegeEscalation: true
 ```
+## Ensure security context is set
+
+Security context in container and pod configurations is almost essential to keep the cluster secure. So, this rule ensure that all forms of pod and container configurations have set their security context.
+
+### When this rule is failing?
+
+If security context is not set.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deployment
+  labels:
+    app: test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      # securityContext:
+      #     # runAsUser: 1000
+      #     runAsGroup: 3000
+      #     fsGroup: 2000
+      containers:
+      - name: test
+        image: busybox@sha256:23whsy235hshlkjglho355
+        imagePullPolicy: Always
+        # securityContext:
+        #     readOnlyRootFilesystem: true
+        #     runAsUser: 5000
+        #     seLinuxOptions:
+        #       level: RunDefault
+        ports:
+        - containerPort: 80
+        command: [ "sh", "-c", "sleep 1h" ]
+
+```
 
 ## Missing seLinuxOptions in the securityContext
 seLinuxOptions gives more security to cluster. Note you have to enable seLinux for it. This rule is disabled by default. This checks if seLinuxOptions is set or not.
@@ -173,6 +218,23 @@ metadata:
   resourceVersion: "272500"
   uid: 721ab723-13bc-11e5-aec2-42010af0021e
 # automountServiceAccountToken: false
+```
+
+## Check no default service account is used
+
+This is similar to the above rule but for pods. It checks whether `automountServiceAccountToken` is set to `false` for pod or not.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  serviceAccountName: build-robot
+  automountServiceAccountToken: true
+  volumes:
+  - name: sec-ctx-vol
+  [...]
 ```
 
 ## Ensure all capabilities are droped

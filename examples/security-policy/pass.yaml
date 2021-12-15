@@ -1,3 +1,5 @@
+# ensure image digest is used
+
 apiVersion: v1
 kind: Pod
 metadata:
@@ -10,6 +12,7 @@ spec:
     - containerPort: 80
 
 ---
+# ensure readOnlyRootFilesystem is true
 
 apiVersion: v1
 kind: Pod
@@ -25,6 +28,7 @@ spec:
     - containerPort: 80
 
 ---
+# ensure runAsUser is limited
 
 apiVersion: v1
 kind: Pod
@@ -45,6 +49,7 @@ spec:
       mountPath: /data/demo
 
 ---
+# ensure allowPrivilegeEscalation is false
 
 apiVersion: v1
 kind: Pod
@@ -65,6 +70,7 @@ spec:
       allowPrivilegeEscalation: false
 
 ---
+# security context must be used
 
 apiVersion: apps/v1
 kind: Deployment
@@ -94,6 +100,7 @@ spec:
         command: [ "sh", "-c", "sleep 1h" ]
 
 ---
+# drop all capabilities
 
 apiVersion: v1
 kind: Pod
@@ -116,6 +123,26 @@ spec:
               - all
 
 ---
+# Deprecated Pod Security Policy not used
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  volumes:
+  - name: sec-ctx-vol
+    emptyDir: {}
+  containers:
+  - name: sec-ctx-demo
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+    volumeMounts:
+    - name: sec-ctx-vol
+      mountPath: /data/demo
+
+---
+# set seLinuxOptions
 
 apiVersion: v1
 kind: Pod
@@ -137,6 +164,7 @@ spec:
       mountPath: /data/demo
 
 ---
+# imagePullPolicy always
 
 apiVersion: v1
 kind: Pod
@@ -156,6 +184,7 @@ spec:
       mountPath: /data/demo
 
 ---
+# automountServiceAccountToken false for service-account
 
 apiVersion: v1
 kind: ServiceAccount
@@ -168,6 +197,7 @@ metadata:
 automountServiceAccountToken: false
 
 ---
+# automountServiceAccountToken false for pod
 
 apiVersion: v1
 kind: Pod
@@ -189,6 +219,7 @@ spec:
       mountPath: /data/demo
 
 ---
+# ensure seccompProfile is set
 
 apiVersion: v1
 kind: Pod

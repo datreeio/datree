@@ -1,3 +1,5 @@
+# no image digests used
+
 apiVersion: v1
 kind: Pod
 metadata:
@@ -10,6 +12,7 @@ spec:
     - containerPort: 80
 
 ---
+# readOnlyRootFileSystem is false
 
 apiVersion: v1
 kind: Pod
@@ -25,6 +28,7 @@ spec:
     - containerPort: 80
 
 ---
+# runAsUser is not defined
 
 apiVersion: v1
 kind: Pod
@@ -45,6 +49,7 @@ spec:
       mountPath: /data/demo
 
 ---
+# allowPrivilegeEscalation is set to true
 
 apiVersion: v1
 kind: Pod
@@ -65,6 +70,7 @@ spec:
       allowPrivilegeEscalation: true
 
 ---
+# no security-context!
 
 apiVersion: apps/v1
 kind: Deployment
@@ -97,6 +103,7 @@ spec:
         command: [ "sh", "-c", "sleep 1h" ]
 
 ---
+# capabilities not droped
 
 apiVersion: v1
 kind: Pod
@@ -119,6 +126,7 @@ spec:
     #           - all
 
 ---
+# deprecated pod security policy used
 
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
@@ -139,6 +147,7 @@ spec:
   - '*'
 
 ---
+# seLinuxOptions not set
 
 apiVersion: v1
 kind: Pod
@@ -160,6 +169,7 @@ spec:
       mountPath: /data/demo
 
 ---
+# imagePullPolicy is not set to Always
 
 apiVersion: v1
 kind: Pod
@@ -179,6 +189,7 @@ spec:
       mountPath: /data/demo
 
 ---
+# automountServiceAccountToken not set for service-account
 
 apiVersion: v1
 kind: ServiceAccount
@@ -191,6 +202,7 @@ metadata:
 # automountServiceAccountToken: false
 
 ---
+# automountServiceAccountToken is true here for pod
 
 apiVersion: v1
 kind: Pod
@@ -212,6 +224,7 @@ spec:
       mountPath: /data/demo
 
 ---
+# seccompProfile not set
 
 apiVersion: v1
 kind: Pod
