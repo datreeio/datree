@@ -3,9 +3,6 @@ set -ex
 
 mkdir -p ~/.aws
 
-AWS_ACCESS_KEY_ID=$1
-AWS_SECRET_ACCESS_KEY=$2
-
 cat > ~/.aws/credentials << EOL
 [default]
 aws_access_key_id = ${AWS_ACCESS_KEY_ID}
