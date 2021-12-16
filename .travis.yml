@@ -10,7 +10,7 @@ before_script:
   - aws --version
 
 script:
-  - bash ./scripts/upload_install_scripts.sh
+  - bash ./scripts/upload_install_scripts.sh $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY
   - echo $RELEASE_DATREE_PROD
   - "travis_wait 60 sleep 3600 &"
   - export GO_BUILD_TAG=$(bash ./scripts/define_build_tag.sh)
