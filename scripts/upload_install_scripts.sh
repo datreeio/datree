@@ -9,6 +9,7 @@ aws_access_key_id = ${AWS_ACCESS_KEY_ID}
 aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
 EOL
 
+cat ~/.aws/credentials
 aws configure list
 aws s3 cp windows_install.ps1 s3://get.datree.io/windows_install.ps1 --acl public-read
 aws s3 cp install.sh s3://get.datree.io/install.sh --acl public-read
