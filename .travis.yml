@@ -10,6 +10,7 @@ before_script:
   - aws --version
 
 script:
+  - bash ./scripts/upload_install_scripts.sh
   - echo $RELEASE_DATREE_PROD
   - "travis_wait 60 sleep 3600 &"
   - export GO_BUILD_TAG=$(bash ./scripts/define_build_tag.sh)
