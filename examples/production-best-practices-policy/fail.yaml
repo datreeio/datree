@@ -1,0 +1,99 @@
+---
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: fail-environment-label
+  labels:
+    environment: qa
+    app: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: test-deploy
+  name: test-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-deploy
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: test-deploy
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        resources: {}
+---
+
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: web
+  labels:
+    app: nginx
+    app.kubernetes.io/name: test-deploy
+    app.kubernetes.io/instance: test-deploy-5fa65d2
+    confidentiality: official
+    compliance: pci
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  serviceName: "nginx"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nginx
+        app.kubernetes.io/name: test-deploy
+        app.kubernetes.io/instance: test-deploy-5fa65d2
+        confidentiality: official
+        compliance: pci
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - store
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: nginx
+        image: k8s.gcr.io/nginx-slim:0.8
+        ports:
+        - containerPort: 80
+          name: web
+        readinessProbe:
+          httpGet:
+            path: /readnessprobe
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        volumeMounts:
+        - name: www
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:
+  - metadata:
+      name: www
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "my-storage-class"
+      resources:
+        requests:
+          storage: 1Gi
