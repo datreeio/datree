@@ -1,0 +1,37 @@
+apiVersion: v1
+policies:
+  - name: stability_best_practices
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_CONTAINERS_MISSING_POD_ANTI_AFFINITY
+        messageOnFailure: ""
+
+customRules:
+  - identifier: CUSTOM_CONTAINERS_MISSING_POD_ANTI_AFFINITY
+    name: Prevent containers from running on the same node if multiple replicas are specified [CUSTOM RULE]
+    defaultMessageOnFailure: Set podAntiAffinity rules if multiple replicas are specified
+    schema:
+      if:
+        properties:
+          kind:
+            type: string
+            enum:
+              - Deployment
+          spec:
+            properties:
+              replicas:
+                type: integer
+                minimum: 2
+      then:
+        properties:
+          spec:
+            properties:
+              template:
+                properties:
+                  spec:
+                    properties:
+                      affinity:
+                        required:
+                          - podAntiAffinity
+                    required:
+                      - affinity
