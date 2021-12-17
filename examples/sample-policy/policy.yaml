@@ -4,11 +4,11 @@ policies:
     isDefault: true
     rules:
       - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
-        messageOnFailure: ''
+        messageOnFailure: ""
       - identifier: CUSTOM_WORKLOAD_MISSING_LABEL_OWNER_VALUE
-        messageOnFailure: ''
+        messageOnFailure: ""
       - identifier: CUSTOM_WORKLOAD_INVALID_LABELS_VALUE
-        messageOnFailure: ''
+        messageOnFailure: ""
 
 customRules:
   - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
