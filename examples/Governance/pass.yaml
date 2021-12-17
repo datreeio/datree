@@ -1,0 +1,51 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tls-example-ingress
+  namespace: test
+spec:
+  rules:
+    - host: datree.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: service1
+                port:
+                  number: 80
+    - host: google.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: service1
+                port:
+                  number: 80
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: zk-pdb
+  namespace: zookeeper
+spec:
+  maxUnavailable: 50%
+  selector:
+    matchLabels:
+      app: zookeeper
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  namespace: web
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+
