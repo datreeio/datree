@@ -1,0 +1,279 @@
+apiVersion: v1
+policies:
+  - name: production_best_practices
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_CONTAINERS_PODS_MISSING_OWNERS
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_MISSING_LIVENESSPROBE
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_MISSING_READINESSPROBE
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_MISSING_IMAGE_TAG
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_MIN_REPLICAS
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_MISSING_PODANTIAFFINITY
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_RESOURCES_REQUESTS_AND_LIMITS
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_RESOURCES_REQUESTS_CPU_BELOW_1000M
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_TECHNICAL_LABELS
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_BUSINESS_LABELS
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_SECURITY_LABELS
+        messageOnFailure: ''
+      - identifier: CUSTOM_CONTAINERS_RESTRICT_ALPHA_BETA
+        messageOnFailure: ''
+
+customRules:
+  ## METADATA.OWNERREFERENCES == REQUIRED
+  - identifier: CUSTOM_CONTAINERS_PODS_MISSING_OWNERS
+    name: Ensure each pod has owner ReplicaSet,StatefulSet or DaemonSet [CUSTOM RULE]
+    defaultMessageOnFailure: Delete stand alone Pod
+    schema: 
+      if:
+        properties:
+          kind:
+            enum:
+              - Pod
+      then:
+        properties:
+          metadata:
+            properties:
+              ownerReferences:
+                properties:
+                  kind:
+                    enum:
+                      - ReplicaSet
+                      - StatefulSet
+                      - DaemonSet
+            required:
+              - ownerReferences
+  ## SPEC.ITEMS.LIVENESSPROBE == REQUIRED
+  - identifier: CUSTOM_CONTAINERS_MISSING_LIVENESSPROBE
+    name: Ensure each container has a configured liveness probe [CUSTOM RULE]
+    defaultMessageOnFailure: Add liveness probe
+    schema: 
+      definitions:
+        specContainers:
+          properties:
+            spec:
+              properties:
+                containers:
+                  items:
+                    required:
+                      - livenessProbe
+      allOf:
+        - $ref: '#/definitions/specContainers'
+      additionalProperties:
+        $ref: '#'
+      items:
+        $ref: '#'
+  ## SPEC.ITEMS.READINESSPROBE == REQUIRED
+  - identifier: CUSTOM_CONTAINERS_MISSING_READINESSPROBE
+    name: Ensure each container has a configured readiness probe [CUSTOM RULE]
+    defaultMessageOnFailure: Add readinessProbe
+    schema: 
+      definitions:
+        specContainers:
+          properties:
+            spec:
+              properties:
+                containers:
+                  items:
+                    required:
+                      - readinessProbe
+      allOf:
+        - $ref: '#/definitions/specContainers'
+      additionalProperties:
+        $ref: '#'
+      items:
+        $ref: '#'
+  ## SPEC.ITEMS.IMAGE.TAG != LATEST|EMPTY
+  - identifier: CUSTOM_CONTAINERS_MISSING_IMAGE_TAG
+    name: Ensure each container image has a pinned (tag) version [CUSTOM RULE]
+    defaultMessageOnFailure: Set image version
+    schema: 
+      definitions:
+        specContainers:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      image:
+                        type: string
+                        pattern: ^(?=.*[:|@](?=.+)(?!latest)).*$
+      allOf:
+        - $ref: '#/definitions/specContainers'
+      additionalProperties:
+        $ref: '#'
+      items:
+        $ref: '#'
+  ## SPEC.REPLICAS > 1
+  - identifier: CUSTOM_CONTAINERS_MIN_REPLICAS
+    name: Ensure Deployment or StatefulSet has replicas set between 2-10 [CUSTOM RULE]
+    defaultMessageOnFailure: Running 2 or more replicas will increase the availability of the service
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - Deployment
+              - StatefulSet
+      then:
+        properties:
+          spec:
+            properties:
+              replicas:
+                minimum: 2
+                maximum: 10
+            required:
+              - replicas
+  ## SPEC.AFFINITY.PODANTIAFFINITY == REQUIRED
+  - identifier: CUSTOM_CONTAINERS_MISSING_PODANTIAFFINITY
+    name: Ensure each container has a podAntiAffinity [CUSTOM RULE]
+    defaultMessageOnFailure: You should apply anti-affinity rules to your Deployments and StatefulSet so that Pods are spread in all the nodes of your cluster.
+    schema: 
+      if:
+        properties:
+          kind:
+            enum:
+              - Deployment
+              - StatefulSet
+      then:
+        properties:
+          spec:
+            properties:
+              affinity:
+                required:
+                  - podAntiAffinity
+  ## SPEC.CONTAINERS.RESOURCES [REQUESTS, LIMITS]
+  - identifier: CUSTOM_CONTAINERS_RESOURCES_REQUESTS_AND_LIMITS
+    name: Ensure each container has a requests and limits resources [CUSTOM RULE]
+    defaultMessageOnFailure: An unlimited number of Pods if schedulable on any nodes leading to resource overcommitment and potential node (and kubelet) crashes.
+    schema: 
+      definitions:
+        specContainers:
+          properties:
+            spec:
+              properties:
+                containers:
+                  items:
+                    properties:
+                      resources:
+                        required:
+                          - requests
+                          - limits
+                    required:
+                      - resources
+      allOf:
+        - $ref: '#/definitions/specContainers'
+      additionalProperties:
+        $ref: '#'
+      items:
+        $ref: '#'
+  ## SPEC.CONTAINERS.RESOURCES.REQUESTS.CPU <= 1000m
+  - identifier: CUSTOM_CONTAINERS_RESOURCES_REQUESTS_CPU_BELOW_1000M
+    name: Ensure each container has a configured requests CPU <= 1000m [CUSTOM RULE]
+    defaultMessageOnFailure: Unless you have computational intensive jobs, it is recommended to set the request to 1 CPU or below.
+    schema: 
+      definitions:
+        specContainers:
+          properties:
+            spec:
+              properties:
+                containers:
+                  items:
+                    properties:
+                      resources:
+                        properties:
+                          requests:
+                            properties:
+                              cpu:
+                                resourceMaximum: 1000m
+      allOf:
+        - $ref: '#/definitions/specContainers'
+      additionalProperties:
+        $ref: '#'
+      items:
+        $ref: '#'
+  ## *.METADATA.LABELS == REQUIRED ALL [name, instance, version, component, part-of, managed-by]
+  - identifier: CUSTOM_CONTAINERS_TECHNICAL_LABELS
+    name: Ensure each container has technical labels defined [CUSTOM RULE]
+    defaultMessageOnFailure: Those labels [name, instance, version, component, part-of, managed-by] are recommended by the official documentation.
+    schema: 
+      definitions:
+        specContainers:
+          properties:
+            metadata:
+              properties:
+                labels:
+                  required:
+                    - app.kubernetes.io/name
+                    - app.kubernetes.io/instance
+                    - app.kubernetes.io/version
+                    - app.kubernetes.io/component
+                    - app.kubernetes.io/part-of
+                    - app.kubernetes.io/managed-by
+      allOf:
+        - $ref: '#/definitions/specContainers'
+      additionalProperties:
+        $ref: '#'
+      items:
+        $ref: '#'
+  ## *.METADATA.LABELS == REQUIRED ALL [owner, project, business-unit]
+  - identifier: CUSTOM_CONTAINERS_BUSINESS_LABELS
+    name: Ensure each container has business labels defined [CUSTOM RULE]
+    defaultMessageOnFailure: You can explore labels and tagging for resources on the AWS tagging strategy page.
+    schema: 
+      definitions:
+        specContainers:
+          properties:
+            metadata:
+              properties:
+                labels:
+                  required:
+                    - owner
+                    - project
+                    - business-unit
+      allOf:
+        - $ref: '#/definitions/specContainers'
+      additionalProperties:
+        $ref: '#'
+      items:
+        $ref: '#'
+  ## *.METADATA.LABELS == REQUIRED ALL [confidentiality, compliance]
+  - identifier: CUSTOM_CONTAINERS_SECURITY_LABELS
+    name: Ensure each container has security labels defined [CUSTOM RULE]
+    defaultMessageOnFailure: You can explore labels and tagging for resources on the AWS tagging strategy page.
+    schema: 
+      definitions:
+        specContainers:
+          properties:
+            metadata:
+              properties:
+                labels:
+                  required:
+                    - confidentiality
+                    - compliance
+      allOf:
+        - $ref: '#/definitions/specContainers'
+      additionalProperties:
+        $ref: '#'
+      items:
+        $ref: '#'
+  ## APIVERSION != [*beta*, *alpha* ]
+  - identifier: CUSTOM_CONTAINERS_RESTRICT_ALPHA_BETA
+    name: Ensure each container a restrict access to alpha or beta features [CUSTOM RULE]
+    defaultMessageOnFailure: Alpha and beta Kubernetes features are in active development and may have limitations or bugs that result in security vulnerabilities.
+    schema: 
+      properties:
+        apiVersion:
+          type: string
+          pattern: ^((?!alpha|beta).)*$
