@@ -1,0 +1,128 @@
+apiVersion: v1
+policies:
+  - name: horizontal_pod_autoscaler
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_WORKLOAD_TARGET_CPU_UTILIZATION
+        messageOnFailure: ''
+      - identifier: CUSTOM_WORKLOAD_MAX_REPLICAS
+        messageOnFailure: ''
+      - identifier: CUSTOM_WORKLOAD_MIN_REPLICAS
+        messageOnFailure: ''
+      - identifier: CUSTOM_WORKLOAD_SCALE_TARGET_REF
+        messageOnFailure: ''
+      - identifier: CUSTOM_WORKLOAD_RESOURCE_METRIC
+        messageOnFailure: ''
+
+customRules:
+  - identifier: CUSTOM_WORKLOAD_TARGET_CPU_UTILIZATION
+    name: Ensure targetCPUUtilizationPercentage is present [CUSTOM RULE]
+    defaultMessageOnFailure: metadata.namespace not found. Add the metadata.namespace field.
+    schema:
+      if:
+        properties:
+          kind:
+           enum:
+             - HorizontalPodAutoscaler
+      then:
+        properties:
+          spec:
+            properties:
+              targetCPUUtilizationPercentage:
+                maximum: 100
+                minimum: 1
+            required:
+              - targetCPUUtilizationPercentage
+
+  - identifier: CUSTOM_WORKLOAD_MAX_REPLICAS
+    name: Ensure maxReplicas is present along with correct value [CUSTOM RULE]
+    defaultMessageOnFailure: spec.maxReplicas not found or invalid value, ensure it is a number between 1 and 10
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - HorizontalPodAutoscaler
+      then:
+        properties:
+          spec:
+            properties:
+              maxReplicas:
+                maximum: 10
+                minimum: 1
+            required:
+              - maxReplicas
+
+  - identifier: CUSTOM_WORKLOAD_MIN_REPLICAS
+    name: Ensure minReplicas is present along with correct value [CUSTOM RULE]
+    defaultMessageOnFailure: spec.minReplicas not found or invalid value, ensure it is a number between 1 and 9
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - HorizontalPodAutoscaler
+      then:
+        properties:
+          spec:
+            properties:
+              minReplicas:
+                maximum: 9
+                minimum: 2
+            required:
+              - minReplicas
+
+  - identifier: CUSTOM_WORKLOAD_SCALE_TARGET_REF
+    name: Ensure scaleTargetRef is present and contains valid fields [CUSTOM RULE]
+    defaultMessageOnFailure: spec.scaleTargetRef not found or does not contain valid fields - spec.scaleTargetRef.kind, spec.scaleTargetRef.apiVersion, spec.scaleTargetRed.name. 
+    schema:
+      if:
+        properties:
+          kind:
+           enum:
+             - HorizontalPodAutoscaler
+      then:
+        properties:
+          spec:
+            properties:
+              scaleTargetRef:
+                properties:
+                  kind:
+                    enum:
+                      - Deployment
+                      - ReplicaSet
+                      - ReplicationController
+                required:
+                  - kind
+                  - apiVersion
+                  - name
+            required:
+              - scaleTargetRef 
+
+  - identifier: CUSTOM_WORKLOAD_RESOURCE_METRIC
+    name: Ensure proper resource allocation is done [CUSTOM RULE]
+    defaultMessageOnFailure: spec.containers[].resource is configured improperly
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - Pod
+              - HorizontalPodAutoscaler
+      then:
+        properties:
+          spec:
+            properties:
+              containers:
+                type: array
+                contains:
+                  type: object
+                  properties:
+                    resources:
+                      required:
+                        - limits
+                        - requests
+                  required:
+                    - resources
+            required:
+              - containers
