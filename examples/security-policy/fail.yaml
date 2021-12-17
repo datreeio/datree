@@ -1,0 +1,249 @@
+# no image digests used
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.2.4
+    ports:
+    - containerPort: 80
+
+---
+# readOnlyRootFileSystem is false
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+    securityContext:
+        readOnlyRootFilesystem: false
+    ports:
+    - containerPort: 80
+
+---
+# runAsUser is not defined
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  # securityContext:
+  #   runAsUser: 1000
+  volumes:
+  - name: sec-ctx-vol
+    emptyDir: {}
+  containers:
+  - name: sec-ctx-demo
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+    volumeMounts:
+    - name: sec-ctx-vol
+      mountPath: /data/demo
+
+---
+# allowPrivilegeEscalation is set to true
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  volumes:
+  - name: sec-ctx-vol
+    emptyDir: {}
+  containers:
+  - name: sec-ctx-demo
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+    volumeMounts:
+    - name: sec-ctx-vol
+      mountPath: /data/demo
+    securityContext:
+      allowPrivilegeEscalation: true
+
+---
+# no security-context!
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deployment
+  labels:
+    app: test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      # securityContext:
+      #     runAsUser: 1000
+      #     runAsGroup: 3000
+      #     fsGroup: 2000
+      containers:
+      - name: test
+        image: busybox@sha256:23whsy235hshlkjglho355
+        # securityContext:
+        #     readOnlyRootFilesystem: true
+        #     runAsUser: 5000
+        ports:
+        - containerPort: 80
+        command: [ "sh", "-c", "sleep 1h" ]
+
+---
+# capabilities not droped
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  volumes:
+  - name: sec-ctx-vol
+    emptyDir: {}
+  containers:
+  - name: sec-ctx-demo
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+    volumeMounts:
+    - name: sec-ctx-vol
+      mountPath: /data/demo
+    # securityContext:
+    #   capabilities:
+    #       drop:
+    #           - all
+
+---
+# deprecated pod security policy used
+
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: example
+spec:
+  privileged: false  # Don't allow privileged pods!
+  # The rest fills in some required fields.
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  runAsUser:
+    rule: RunAsAny
+  fsGroup:
+    rule: RunAsAny
+  volumes:
+  - '*'
+
+---
+# seLinuxOptions not set
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  # securityContext:
+  #     seLinuxOptions:
+  #         level: "s0:c123,c456"
+  volumes:
+  - name: sec-ctx-vol
+    emptyDir: {}
+  containers:
+  - name: sec-ctx-demo
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+    volumeMounts:
+    - name: sec-ctx-vol
+      mountPath: /data/demo
+
+---
+# imagePullPolicy is not set to Always
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  volumes:
+  - name: sec-ctx-vol
+    emptyDir: {}
+  containers:
+  - name: sec-ctx-demo
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+    - name: sec-ctx-vol
+      mountPath: /data/demo
+
+---
+# automountServiceAccountToken not set for service-account
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: 2015-06-16T00:12:59Z
+  name: build-robot
+  namespace: default
+  resourceVersion: "272500"
+  uid: 721ab723-13bc-11e5-aec2-42010af0021e
+# automountServiceAccountToken: false
+
+---
+# automountServiceAccountToken is true here for pod
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  serviceAccountName: build-robot
+  automountServiceAccountToken: true
+  volumes:
+  - name: sec-ctx-vol
+    emptyDir: {}
+  containers:
+  - name: sec-ctx-demo
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+    imagePullPolicy: Always
+    volumeMounts:
+    - name: sec-ctx-vol
+      mountPath: /data/demo
+
+---
+# seccompProfile not set
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  serviceAccountName: build-robot
+  automountServiceAccountToken: false
+  volumes:
+  - name: sec-ctx-vol
+    emptyDir: {}
+  containers:
+  - name: sec-ctx-demo
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+    imagePullPolicy: Always
+    # securityContext:
+    #     seccompProfile:
+    #         type: RuntimeDefault
+    volumeMounts:
+    - name: sec-ctx-vol
+      mountPath: /data/demo
