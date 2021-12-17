@@ -1,0 +1,140 @@
+apiVersion: v1
+policies:
+  - name: security_rules
+    isDefault: true
+    rules:
+      - identifier: CHECK_PRIVILEGE_ESCALATION_DISALLOW
+        messageOnFailure: ''
+      - identifier: READ_ONLY_ROOT_FILESYSTEM_ALLOW
+        messageOnFailure: ''
+
+customRules:
+  - identifier: CHECK_PRIVILEGE_ESCALATION_DISALLOW
+    name: Ensure privilege escalation is set to false
+    defaultMessageOnFailure: Set securityContext of containers to allowPrivilegeEscalation equal to false
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+            - Deployment
+            - StatefulSet
+      then:
+        properties:
+          spec:
+            type: object
+            properties:
+              template:
+                type: object
+                properties:
+                  spec:
+                    type: object
+                    properties:
+                      containers:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            securityContext:
+                              type: object
+                              properties:
+                                allowPrivilegeEscalation:
+                                  enum:
+                                  - false
+                          required:
+                          - securityContext
+                    required:
+                    - containers 
+                required:
+                - spec    
+            required:
+            - template
+        required:
+        - spec                           
+      else:
+        properties:
+          spec:
+            type: object
+            properties:
+              containers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    securityContext:
+                      type: object
+                      properties:
+                        allowPrivilegeEscalation:
+                          enum:
+                          - false
+                  required:
+                  - securityContext
+            required:
+            - containers
+        required:
+        - spec                  
+
+  - identifier: READ_ONLY_ROOT_FILESYSTEM_ALLOW
+    name: Ensure root filesystem is read-only
+    defaultMessageOnFailure: Set securityContext of containers to readOnylRootFilesystem equal to false
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+            - Deployment
+            - StatefulSet
+      then:
+        properties:
+          spec:
+            type: object
+            properties:
+              template:
+                type: object
+                properties:
+                  spec:
+                    type: object
+                    properties:
+                      containers:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            securityContext:
+                              type: object
+                              properties:
+                                readOnlyRootFilesystem:
+                                  enum:
+                                  - true
+                          required:
+                          - securityContext
+                    required:
+                    - containers 
+                required:
+                - spec    
+            required:
+            - template
+        required:
+        - spec 
+      else:
+        properties:
+          spec:
+            type: object
+            properties:
+              containers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    securityContext:
+                      type: object
+                      properties:
+                        readOnlyRootFilesystem:
+                          enum:
+                          - true
+                  required:
+                  - securityContext
+            required:
+            - containers
+        required:
+        - spec
