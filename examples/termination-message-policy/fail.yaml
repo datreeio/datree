@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: termination-msg
+spec:
+  containers:
+    - name: termination-msg-example
+      image: termination-msg-example

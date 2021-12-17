@@ -1,0 +1,60 @@
+apiVersion: v1
+policies:
+  - name: deployment_best_practices
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_TERMINATION_MESSAGE_FIELD
+        messageOnFailure: ""
+      - identifier: CUSTOM_TERMINATION_MESSAGE_POLICY
+        messageOnFailure: ""
+
+customRules:
+  - identifier: CUSTOM_TERMINATION_MESSAGE_FIELD
+    name: Ensure termination message fields are provided for k8s to set container status on fail/pass scenarios [CUSTOM RULE]
+    defaultMessageOnFailure: Use terminationMessagePath for k8s to retrieve termination messages
+    schema:
+      definitions:
+        terminationMessageField:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      terminationMessagePath:
+                        type: string
+                        pattern: ^/|//|(/[\w-]+)+$
+                    required:
+                      - terminationMessagePath
+      allOf:
+        - $ref: "#/definitions/terminationMessageField"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - identifier: CUSTOM_TERMINATION_MESSAGE_POLICY
+    name: Ensure termination policy is provided to use last chunk of container logs writter under terminationMessagePath [CUSTOM RULE]
+    defaultMessageOnFailure: Use terminationMessagePolicy for k8s manifest to write last chunks of container logs under terminationMessagePath
+    schema:
+      definitions:
+        terminationMessagePolicy:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      terminationMessagePolicy:
+                        type: string
+                        enum:
+                          - FallbackToLogsOnError
+                    required:
+                      - terminationMessagePolicy
+      allOf:
+        - $ref: "#/definitions/terminationMessagePolicy"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
