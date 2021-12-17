@@ -9,7 +9,6 @@ As a contributor, here are the guidelines we would like you to follow:
  - [Feature Requests](#feature)
  - [Submission Guidelines](#submit)
  - [Commit Message Guidelines](#commit)
- - [Signing the CLA](#cla)
 
 
 ## <a name="coc"></a> Code of Conduct
@@ -22,17 +21,14 @@ Do not open issues for general support questions as we want to keep GitHub issue
 Instead, we recommend using "[Discussions](https://github.com/datreeio/datree/discussions)" to ask support-related questions.  
 You can also email is at oss+support@datree.io.
 
-
 ## <a name="issue"></a> Found a Bug?
 
 If you find a bug in the source code, you can help us by [submitting an issue](#submit-issue) or even better, you can [submit a Pull Request](#submit-pr) with a fix.
-
 
 ## <a name="feature"></a> Missing a Feature?
 You can *request* a new feature by [submitting an issue](#submit-issue) to our GitHub Repository.
 
 ## <a name="submit"></a> Submission Guidelines
-
 
 ### <a name="submit-issue"></a> Submitting an Issue
 
@@ -63,25 +59,21 @@ Before you submit your Pull Request (PR) consider the following guidelines:
 2. Be sure that an issue describes the problem you're fixing, or documents the design for the feature you'd like to add.
    Discussing the design upfront helps to ensure that we're ready to accept your work.
 
-3. Please sign our [Contributor License Agreement (CLA)](#cla) before sending PRs.
-   We cannot accept code without a signed CLA.
-   Make sure you author all contributed Git commits with email address associated with your CLA signature.
+3. [Fork](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) the datreeio/datree repo.
 
-4. [Fork](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) the datreeio/datree repo.
-
-5. In your forked repository, make your changes in a new git branch:
+4. In your forked repository, make your changes in a new git branch:
 
      ```shell
      git checkout -b my-fix-branch main
      ```
 
-6. Create your patch, **including appropriate test cases**.
+5. Create your patch, **including appropriate test cases**.
 
-7. Follow our [Coding Rules](#rules).
+6. Follow our [Coding Rules](#rules).
 
-8. Run the full test suite, as described in the [developer documentation][dev-doc], and ensure that all tests pass.
+7. Run the full test suite, as described in the [developer documentation][dev-doc], and ensure that all tests pass.
 
-9. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit).
+8. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit).
    Adherence to these conventions is necessary because release notes are automatically generated from these messages.
 
      ```shell
@@ -89,13 +81,13 @@ Before you submit your Pull Request (PR) consider the following guidelines:
      ```
     Note: the optional commit `-a` command line option will automatically "add" and "rm" edited files.
 
-10. Push your branch to GitHub:
+9. Push your branch to GitHub:
 
     ```shell
     git push origin my-fix-branch
     ```
 
-11. In GitHub, send a pull request to `datree:main`.
+10. In GitHub, send a pull request to `datree:main`.
 
 ### Reviewing a Pull Request
 
@@ -138,16 +130,7 @@ Use the summary field to provide a succinct description of the change:
 * don't capitalize the first letter
 * no dot (.) at the end
 
-## <a name="cla"></a> Signing the CLA
-
-Please sign our Contributor License Agreement (CLA) before sending pull requests. For any code
-changes to be accepted, the CLA must be signed. It's a quick process, we promise!
-
-For individuals and corporations, we have a [simple click-through form](https://cla-assistant.io/datreeio/datree).
-
-If you have more than one GitHub accounts, or multiple email addresses associated with a single GitHub account, you must sign the CLA using the primary email address of the GitHub account used to author Git commits and send pull requests.
-
-The following documents can help you sort out issues with GitHub accounts and multiple email addresses:
+If you have more than one GitHub accounts, the following documents can help you sort out issues with GitHub accounts and multiple email addresses:
 
   * https://help.github.com/articles/setting-your-commit-email-address-in-git/
   * https://stackoverflow.com/questions/37245303/what-does-usera-committed-with-userb-13-days-ago-on-github-mean

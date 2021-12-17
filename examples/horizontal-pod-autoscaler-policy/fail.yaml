@@ -1,0 +1,53 @@
+---
+apiVersion: apps/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: fail-target-cpu-utilization
+spec:
+  minReplicas: 2
+  maxReplicas: 10
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+---
+apiVersion: apps/v1
+kind: HorizontalPodAutoscaler 
+metadata:
+  name: fail-max-replicas
+spec:
+  minReplicas: 2 
+  targetCPUUtilization: 50
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+---
+apiVersion: apps/v1
+kind: HorizontalPodAutoscaler 
+metadata:
+  name: fail-min-replicas
+spec:
+  maxReplicas: 10
+  minReplicas: 0 
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+---
+apiVersion: apps/v1
+kind: HorizontalPodAutoscaler 
+metadata:
+  name: fail-scale-target-ref
+spec:
+  maxReplicas: 10
+  minReplicas: 5
+  targetCPUUtilization: 20
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80

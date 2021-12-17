@@ -1,0 +1,223 @@
+---
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: pass-policy
+  labels:
+    app.kubernetes.io/name: pass-policy
+    app.kubernetes.io/instance: pass-policy-5fa65d2
+    app.kubernetes.io/version: "42"
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: payment-gateway
+    app.kubernetes.io/managed-by: helm
+    owner: payment-team
+    project: fraud-detection
+    business-unit: "80432"
+    confidentiality: official
+    compliance: pci
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+spec:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: security
+            operator: In
+            values:
+            - S1
+        topologyKey: topology.kubernetes.io/zone
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 8080
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds: 3
+    readinessProbe:
+      httpGet:
+        path: /readnessprobe
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds: 3
+    resources:
+      limits:
+        cpu: 500m
+        memory: 4Gi
+      requests:
+        cpu: 200m
+        memory: 2Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: test-deploy
+  labels:
+    app: test-deploy
+    app.kubernetes.io/name: test-deploy
+    app.kubernetes.io/instance: test-deploy-5fa65d2
+    app.kubernetes.io/version: "42"
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: test-deploy
+    app.kubernetes.io/managed-by: kubectl
+    owner: payment-team
+    project: fraud-detection
+    business-unit: "80432"
+    confidentiality: official
+    compliance: pci
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test-deploy
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: test-deploy
+        app.kubernetes.io/name: test-deploy
+        app.kubernetes.io/instance: test-deploy-5fa65d2
+        app.kubernetes.io/version: "42"
+        app.kubernetes.io/component: api
+        app.kubernetes.io/part-of: test-deploy
+        app.kubernetes.io/managed-by: kubectl
+        owner: payment-team
+        project: fraud-detection
+        business-unit: "80432"
+        confidentiality: official
+        compliance: pci
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - store
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - image: nginx:1.14.2
+        name: nginx
+        resources:
+          limits:
+            cpu: 2
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /readnessprobe
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+  labels:
+    app: nginx
+    app.kubernetes.io/name: test-deploy
+    app.kubernetes.io/instance: test-deploy-5fa65d2
+    app.kubernetes.io/version: "42"
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: test-deploy
+    app.kubernetes.io/managed-by: kubectl
+    owner: payment-team
+    project: fraud-detection
+    business-unit: "80432"
+    confidentiality: official
+    compliance: pci
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  serviceName: "nginx"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nginx
+        app.kubernetes.io/name: test-deploy
+        app.kubernetes.io/instance: test-deploy-5fa65d2
+        app.kubernetes.io/version: "42"
+        app.kubernetes.io/component: api
+        app.kubernetes.io/part-of: test-deploy
+        app.kubernetes.io/managed-by: kubectl
+        owner: payment-team
+        project: fraud-detection
+        business-unit: "80432"
+        confidentiality: official
+        compliance: pci
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - store
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: nginx
+        image: k8s.gcr.io/nginx-slim:0.8
+        ports:
+        - containerPort: 80
+          name: web
+        resources:
+          limits:
+            cpu: 2
+            memory: 4Gi
+          requests:
+            cpu: 1
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /readnessprobe
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        volumeMounts:
+        - name: www
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:
+  - metadata:
+      name: www
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "my-storage-class"
+      resources:
+        requests:
+          storage: 1Gi
+
+---
