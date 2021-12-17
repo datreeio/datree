@@ -1,0 +1,14 @@
+---
+spec:
+  replicas: 3
+  strategy:
+       type: Recreate
+  revisionHistoryLimit: NA
+---
+spec:
+  replicas: 3
+  strategy:
+       type: RollingUpdate
+  revisionHistoryLimit: NA      
+ 
+
