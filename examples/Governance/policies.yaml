@@ -1,0 +1,118 @@
+apiVersion: v1
+policies:
+  - name: Governance 
+    isDefault: true
+    rules:
+      - identifier: PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION
+        messageOnFailure: Setting minAvailable to 100 and maxUnavailable to 0 is not allowed by the organization, as node on which the pod is running can never be drained.
+      - identifier: WORKLOAD_MISSING_NAMESPACE_FOR_NAMESPACED_RESOURCES
+        messageOnFailure: Namespaced resources without namespace is not allowed by the organization, please specify a valid namespace in the cluster.
+      - identifier: INGRESS_INCORRECT_DOMAIN_NAME
+        messageOnFailure: Incorrect value specified for domain name, please provide a valid name
+customRules:
+  - identifier: PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION
+    name: Allows pods to undergo least voluntary disruption
+    defaultMessageOnFailure: Setting minAvailable to 100 and maxUnavailable to 0 is not allowed by the organization, as node on which the pod is running can never be drained.
+    schema:
+      type: object
+      if:
+       properties:
+         kind:
+           enum:
+             - PodDisruptionBudget
+      then:
+       required:
+       - spec
+       properties:
+         metadata:
+           type: object
+         spec:
+           type: object
+           properties:
+             minAvailable:
+               not:
+                 const: '100%'
+             maxUnavailable:
+               allOf:
+               - not:
+                   const: 0
+               - not:
+                   const: '0%'
+  - identifier: WORKLOAD_MISSING_NAMESPACE_FOR_NAMESPACED_RESOURCES
+    name: Ensure namespaced resources have namespace specified
+    defaultMessageOnFailure: Namespaced resources without namespace is not allowed by the organization, please specify a valid namespace in the cluster
+    schema:
+      type: object
+      if:
+        properties:
+          kind:
+            type: string
+            enum:
+              - Binding
+              - ConfigMap
+              - Endpoints
+              - Event
+              - LimitRange
+              - PersistentVolumeClaim
+              - Pod
+              - PodTemplate
+              - ReplicationController
+              - ResourceQuota
+              - Secret
+              - ServiceAccount
+              - Service
+              - ControllerRevision
+              - DaemonSet
+              - Deployment
+              - ReplicaSet
+              - StatefulSet
+              - LocalSubjectAccessReview
+              - HorizontalPodAutoscaler
+              - CronJob
+              - Job
+              - Lease
+              - EndpointSlice
+              - Ingress
+              - NetworkPolicy
+              - PodDisruptionBudget
+              - RoleBinding
+              - Role
+      then:
+        required:
+          - metadata
+        properties:
+          metadata:
+            type: object
+            required:
+            - namespace
+            properties:
+              namespace:
+                type: string
+  - identifier: INGRESS_INCORRECT_DOMAIN_NAME
+    name: Deny invalid domain names in ingress hosts
+    defaultMessageOnFailure: Incorrect value specified for domain name, please provide a valid name
+    schema:
+      type: object
+      if:
+        properties:
+          kind:
+            type: string
+            enum:
+              - Ingress
+      then:
+       required:
+         - spec
+       properties:
+         spec:
+           type: object
+           required:
+             - rules
+           properties:
+             rules:
+               type: array
+               items:
+                 type: object
+                 properties:
+                   host:
+                     type: string
+                     pattern: "^(?!-)[A-Za-z0-9-]+([\\-\\.]{1}[a-z0-9]+)*\\.[A-Za-z]{2,6}$"

@@ -1,0 +1,63 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tls-example-ingress
+  namespace: test
+spec:
+  rules:
+    - host: datree.io-com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: service1
+                port:
+                  number: 80
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: zk-pdb
+  namespace: zookeeper
+spec:
+  maxUnavailable: 0%
+  selector:
+    matchLabels:
+      app: zookeeper
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ms-pdb
+  namespace: mesos
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: mesos
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ka-pdb
+  namespace: kafka
+spec:
+  minAvailable: 100%
+  selector:
+    matchLabels:
+      app: kafka
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+
+

@@ -20,7 +20,7 @@ echo "Installing Datree..."
 echo
 
 curl -sL $DOWNLOAD_URL -o $OUTPUT_BASENAME_WITH_POSTFIX
-echo -e "\033[32m[V] Downloaded Datree"
+echo -e "\033[32m[V] Downloaded Datree\033[0m"
 
 if ! unzip >/dev/null 2>&1;then
     echo -e "\033[31;1m error: unzip command not found \033[0m"
@@ -39,14 +39,14 @@ rm $OUTPUT_BASENAME_WITH_POSTFIX
 rm -rf $OUTPUT_BASENAME
 
 curl -s https://get.datree.io/k8s-demo.yaml > ~/.datree/k8s-demo.yaml
-echo -e "[V] Finished Installation"
+echo -e "\033[32m[V] Finished Installation\033[0m"
 
 echo
 
-echo -e "\033[35m Usage: $ datree test ~/.datree/k8s-demo.yaml"
+echo -e "\033[35m Usage: $ datree test ~/.datree/k8s-demo.yaml \033[0m"
 
-echo -e " Using Helm? => https://hub.datree.io/helm-plugin \033[0m"
+echo -e "\033[35m Using Helm? => https://hub.datree.io/helm-plugin \033[0m"
 
-tput init
+echo -e "\033[35m Run 'datree completion -h' to learn how to generate shell autocompletions \033[0m"
 
 echo

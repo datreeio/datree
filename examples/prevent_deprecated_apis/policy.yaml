@@ -1,0 +1,113 @@
+apiVersion: v1
+policies:
+  - name: prevent_deprecated_apis
+    isDefault: true
+    rules:
+      - identifier: K8S_DEPRECATED_APIVERSION_1_26
+        messageOnFailure: ""
+      - identifier: K8S_DEPRECATED_APIVERSION_1_25
+        messageOnFailure: ""
+      - identifier: K8S_DEPRECATED_APIVERSION_1_22
+        messageOnFailure: ""
+customRules:
+  # For use after release of v1.26. v1.26 will stop serving the mentioned apiVersion.
+  - identifier: K8S_DEPRECATED_APIVERSION_1_26
+    name: Prevent deprecated APIs in Kubernetes v1.26 (v1.26 not yet released)
+    defaultMessageOnFailure: Incorrect value for key `apiVersion` - the version you are trying to use will not be supported by the Kubernetes cluster version (>=1.26)
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - HorizontalPodAutoscaler
+        required:
+          - kind
+      then:
+        properties:
+          apiVersion:
+            not:
+              enum:
+                - autoscaling/v2beta2
+        required:
+          - apiVersion
+  - identifier: K8S_DEPRECATED_APIVERSION_1_25
+    # For use after release of v1.25. v1.25 will stop serving the mentioned apiVersions.
+    name: Prevent deprecated APIs in Kubernetes v1.25 (v1.25 not yet released)
+    defaultMessageOnFailure: Incorrect value for key `apiVersion` - the version you are trying to use will not be supported by the Kubernetes cluster version (>=1.25)
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - CronJob
+              - EndpointSlice
+              - Event
+              - HorizontalPodAutoscaler
+              - PodDisruptionBudget
+              - PodSecurityPolicy
+              - RuntimeClass
+        required:
+          - kind
+      then:
+        properties:
+          apiVersion:
+            not:
+              enum:
+                - batch/v1beta1
+                - discovery.k8s.io/v1beta1
+                - events.k8s.io/v1beta1
+                - autoscaling/v2beta1
+                - policy/v1beta1
+                - node.k8s.io/v1beta1
+        required:
+          - apiVersion
+
+  - identifier: K8S_DEPRECATED_APIVERSION_1_22
+    name: Prevent deprecated APIs in Kubernetes v1.22
+    defaultMessageOnFailure: Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.22)
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - MutatingWebhookConfiguration
+              - CustomResourceDefinition
+              - APIService
+              - TokenReview
+              - LocalSubjectAccessReview
+              - SelfSubjectAccessReview
+              - SubjectAccessReview
+              - CertificateSigningRequest
+              - Lease
+              - Ingress
+              - IngressClass
+              - ClusterRole
+              - ClusterRoleBinding
+              - Role
+              - RoleBinding
+              - PriorityClass
+              - CSIDriver
+              - CSINode
+              - StorageClass
+              - VolumeAttachment
+        required:
+          - kind
+      then:
+        properties:
+          apiVersion:
+            not:
+              enum:
+                - admissionregistration.k8s.io/v1beta1
+                - apiextensions.k8s.io/v1beta1
+                - apiregistration.k8s.io/v1beta1
+                - authentication.k8s.io/v1beta1
+                - authorization.k8s.io/v1beta1
+                - certificates.k8s.io/v1beta1
+                - coordination.k8s.io/v1beta1
+                - extensions/v1beta1
+                - networking.k8s.io/v1beta1
+                - rbac.authorization.k8s.io/v1beta1
+                - scheduling.k8s.io/v1beta1
+                - storage.k8s.io/v1beta1
+        required:
+          - apiVersion
