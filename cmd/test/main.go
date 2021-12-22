@@ -105,6 +105,11 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
+			err = validateK8sVersion(k8sVersion)
+			if err != nil {
+				return err
+			}
+
 			ignoreMissingSchemas, err := cmd.Flags().GetBool("ignore-missing-schemas")
 			if err != nil {
 				return err
@@ -144,6 +149,20 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	testCommand.Flags().StringArray("schema-location", []string{}, "Override schemas location search path (can be specified multiple times)")
 	testCommand.Flags().Bool("ignore-missing-schemas", false, "Ignore missing schemas when executing schema validation step")
 	return testCommand
+}
+
+func validateK8sVersion(k8sVersion string) error {
+	if k8sVersion == "" {
+		return nil
+	}
+
+	versions := getSupportedVersions()
+	for _, val := range versions {
+		if k8sVersion == val {
+			return nil
+		}
+	}
+	return fmt.Errorf("The specified schema-version %q is either invalid or not supported", k8sVersion)
 }
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
