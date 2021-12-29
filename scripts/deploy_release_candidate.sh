@@ -21,7 +21,7 @@ git push origin $DATREE_BUILD_VERSION
 # bash ./scripts/sign_application.sh
 # curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging VERSION=v$GORELEASER_VERSION bash
 GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging goreleaser --rm-dist --debug --release-notes <( echo "";
-    git log --pretty=oneline `git tag --sort=-committerdate | head -1`...`git tag --sort=-committerdate | head -2 | tail -1` |cut -d " " -f 2- |grep -v "Merge pull request"
-    echo "";)
+    git log --pretty="%h - %s (%an)" $latestRcTag..HEAD
+echo "";)
 
 # bash ./scripts/brew_push_formula.sh staging $DATREE_BUILD_VERSION
