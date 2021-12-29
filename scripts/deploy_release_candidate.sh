@@ -20,6 +20,6 @@ git push origin $DATREE_BUILD_VERSION
 
 # bash ./scripts/sign_application.sh
 # curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging VERSION=v$GORELEASER_VERSION bash
-GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging goreleaser --rm-dist
+GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging goreleaser --rm-dist --debug --release-notes <(echo "my custom release notes")
 
 # bash ./scripts/brew_push_formula.sh staging $DATREE_BUILD_VERSION
