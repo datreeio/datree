@@ -6,6 +6,7 @@ MINOR_VERSION=14
 
 latestRcTag=$(git tag --sort=-version:refname | grep "^${MAJOR_VERSION}.${MINOR_VERSION}.\d\+\-rc" | head -n 1 | grep --only-matching "^${MAJOR_VERSION}.${MINOR_VERSION}.\d\+" || true)
 
+
 if [ "$latestRcTag" == "" ]; then
     nextVersion=$MAJOR_VERSION.$MINOR_VERSION.0
 else
@@ -18,10 +19,11 @@ echo $DATREE_BUILD_VERSION
 git tag $DATREE_BUILD_VERSION -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 git push origin $DATREE_BUILD_VERSION
 
+latestRelease=$(git tag --sort=-version:refname | grep "\-rc$" | head -n 1)
 # bash ./scripts/sign_application.sh
 # curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging VERSION=v$GORELEASER_VERSION bash
 GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging goreleaser --rm-dist --debug --release-notes <( echo "";
-    git log --pretty="%h - %s (%an)" 0.14.87..HEAD
+    git log --pretty="%h - %s" ${latestRelease//-rc}..HEAD
 echo "";)
 
 # bash ./scripts/brew_push_formula.sh staging $DATREE_BUILD_VERSION
