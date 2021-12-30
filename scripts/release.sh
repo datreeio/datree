@@ -21,11 +21,8 @@ echo $DATREE_BUILD_VERSION
 
 # --skip-publish --rm-dist --release-notes ./scripts/custom_changelog.sh
 #
-curl -sL https://git.io/goreleaser > out.sh
 
-GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash out.sh --skip-publish --rm-dist --release-notes ./scripts/custom_changelog.sh
-
-# curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash
+curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash -- --skip-publish --rm-dist --release-notes ./scripts/custom_changelog.sh
 # bash ./scripts/upload_install_scripts.sh
 
 # bash ./scripts/brew_push_formula.sh production $DATREE_BUILD_VERSION
