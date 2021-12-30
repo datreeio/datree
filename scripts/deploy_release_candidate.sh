@@ -19,11 +19,11 @@ echo $DATREE_BUILD_VERSION
 git tag $DATREE_BUILD_VERSION -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 git push origin $DATREE_BUILD_VERSION
 
-latestRelease=$(git tag --sort=-version:refname | grep "\-rc$" | head -n 1)
 # bash ./scripts/sign_application.sh
 # curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging VERSION=v$GORELEASER_VERSION bash
-GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging goreleaser --rm-dist --debug --release-notes <( echo "";
-    git log --pretty="%h - %N %s" --decorate=full ${latestRelease//-rc}..HEAD
-echo "";)
+# latestRelease=$(git tag --sort=-version:refname | grep "\-rc$" | head -n 1)
+# GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging goreleaser --rm-dist --release-notes <( echo "";
+#     git log --pretty="%h - %N %s" --decorate=full ${latestRelease//-rc}..HEAD
+# echo "";)
 
 # bash ./scripts/brew_push_formula.sh staging $DATREE_BUILD_VERSION
