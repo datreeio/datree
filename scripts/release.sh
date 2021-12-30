@@ -2,7 +2,6 @@
 set -ex
 
 release_tag=0.14.143-rc-test-changelog
-# release_tag=$RELEASE_VERSION
 # if [ -z "$release_tag"]
 # then
 #     release_tag=$(git tag --sort=-version:refname | grep "\-rc$" | head -n 1)
