@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/datreeio/datree/pkg/extractor"
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
@@ -112,7 +113,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, error
 
 	// Return an error if no valid configurations found
 	// Empty files are throwing errors in k8s
-	if len(results) == 1 && results[0].Status == kubeconformValidator.Empty{
+	if len(results) == 1 && results[0].Status == kubeconformValidator.Empty {
 		return false, []error{&InvalidK8sSchemaError{ErrorMessage: "empty file"}}, nil
 	}
 
@@ -124,7 +125,8 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, error
 		// File starts with ---, the parser assumes a first empty resource
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
 			isValid = false
-			validationErrors = append(validationErrors, &InvalidK8sSchemaError{ErrorMessage: res.Err.Error()})
+			errorMessage := strings.ReplaceAll(res.Err.Error(), "-", "\n   ")
+			validationErrors = append(validationErrors, &InvalidK8sSchemaError{ErrorMessage: errorMessage})
 		}
 	}
 

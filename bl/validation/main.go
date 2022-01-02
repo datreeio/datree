@@ -10,7 +10,7 @@ type InvalidK8sSchemaError struct {
 }
 
 func (e *InvalidK8sSchemaError) Error() string {
-	return fmt.Sprintf("k8s schema validation error: %s\n%s", e.ErrorMessage, e.usageSuggestion())
+	return fmt.Sprintf("k8s schema validation error:\n    %s\n%s", e.ErrorMessage, e.usageSuggestion())
 }
 
 func (e *InvalidK8sSchemaError) usageSuggestion() string {
