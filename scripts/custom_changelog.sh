@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-latestRelease=$(git tag -l --sort=-v:refname | grep -v "\-rc$" | grep -v "pull"  | head -n 1)
+latestRelease=$(curl --silent "https://api.github.com/repos/datreeio/datree/releases/latest" | jq -r .tag_name )
 customChangeLog=$(git log --pretty="%h %N %s%n" --decorate=full ${latestRelease//-rc}..HEAD)
 
 echo $customChangeLog
