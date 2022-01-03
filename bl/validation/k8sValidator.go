@@ -125,8 +125,15 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, error
 		// File starts with ---, the parser assumes a first empty resource
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
 			isValid = false
-			errorMessage := strings.ReplaceAll(res.Err.Error(), "-", "\n   ")
-			validationErrors = append(validationErrors, &InvalidK8sSchemaError{ErrorMessage: errorMessage})
+			errorMessages := strings.Split(res.Err.Error(), "-")
+
+			// errorMessages slice is not empty
+			if len(errorMessages) > 0 {
+				for _, errorMessage := range errorMessages {
+					msg := strings.Trim(errorMessage, " ")
+					validationErrors = append(validationErrors, &InvalidK8sSchemaError{ErrorMessage: msg})
+				}
+			}
 		}
 	}
 
