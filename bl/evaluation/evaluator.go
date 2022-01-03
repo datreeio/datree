@@ -27,6 +27,10 @@ func New(c CLIClient) *Evaluator {
 
 type FileNameRuleMapper map[string]map[int]*Rule
 
+type ResultType struct {
+	EvaluationResults               *EvaluationResults
+	NonInteractiveEvaluationResults *NonInteractiveEvaluationResults
+}
 type EvaluationResults struct {
 	FileNameRuleMapper FileNameRuleMapper
 	Summary            struct {
@@ -78,10 +82,10 @@ func (e *Evaluator) UpdateFailedK8sValidation(invalidFiles []*validation.Invalid
 	return err
 }
 
-func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationId int) (*EvaluationResults, error) {
+func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationId int, nonInteractiveMode bool, rulesCount int, policyName string) (ResultType, error) {
 
 	if len(filesConfigurations) == 0 {
-		return &EvaluationResults{}, nil
+		return ResultType{}, nil
 	}
 
 	res, err := e.cliClient.RequestEvaluation(&cliClient.EvaluationRequest{
@@ -89,11 +93,51 @@ func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations
 		Files:        filesConfigurations,
 	})
 	if err != nil {
-		return nil, err
+		return ResultType{}, err
+	}
+	resultType := ResultType{}
+	resultType.EvaluationResults = e.formatEvaluationResults(res.Results, len(filesConfigurations))
+	if nonInteractiveMode {
+		resultType.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(resultType.EvaluationResults, res.Results, policyName, rulesCount)
+	}
+	return resultType, nil
+}
+
+// This method creates a NonInteractiveEvaluationResults structure
+// from EvaluationResults.
+func (e *Evaluator) formatNonInteractiveEvaluationResults(evaluationResults *EvaluationResults, listEvaluationResult []*cliClient.EvaluationResult, policyName string, totalRulesInPolicy int) *NonInteractiveEvaluationResults {
+	fileNameRuleMapper := evaluationResults.FileNameRuleMapper
+	ruleMapper := make(map[int]string)
+	for _, result := range listEvaluationResult {
+		ruleId := getRuleId(result)
+		ruleMapper[ruleId] = result.Rule.Identifier
+	}
+	nonInteractiveEvaluationResults := NonInteractiveEvaluationResults{}
+
+	for fileName, rules := range fileNameRuleMapper {
+		formattedEvaluationResults := FormattedEvaluationResults{}
+		formattedEvaluationResults.FileName = fileName
+
+		for _, rule := range rules {
+			ruleRObject := RulerObject{Identifier: ruleMapper[rule.ID], Name: rule.Name, MessageOnFailure: rule.FailSuggestion, OccurrencesDetails: rule.OccurrencesDetails}
+			formattedEvaluationResults.RuleRresults = append(
+				formattedEvaluationResults.RuleRresults,
+				&ruleRObject,
+			)
+		}
+		nonInteractiveEvaluationResults.FormattedEvaluationResults = append(
+			nonInteractiveEvaluationResults.FormattedEvaluationResults,
+			&formattedEvaluationResults,
+		)
+	}
+	nonInteractiveEvaluationResults.PolicySummary = PolicySummary{
+		PolicyName:         policyName,
+		TotalRulesInPolicy: totalRulesInPolicy,
+		TotalRulesFailed:   evaluationResults.Summary.TotalFailedRules,
+		TotalPassedCount:   evaluationResults.Summary.TotalPassedCount,
 	}
 
-	results := e.formatEvaluationResults(res.Results, len(filesConfigurations))
-	return results, nil
+	return &nonInteractiveEvaluationResults
 }
 
 func (e *Evaluator) formatEvaluationResults(evaluationResults []*cliClient.EvaluationResult, filesCount int) *EvaluationResults {

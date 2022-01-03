@@ -21,23 +21,41 @@ type Printer interface {
 	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 }
 
-type FormattedOutput struct {
-	EvaluationResults *EvaluationResults
-	EvaluationSummary printer.EvaluationSummary
-	InvalidYamlFiles  []*validation.InvalidYamlFile
-	InvalidK8sFiles   []*validation.InvalidK8sFile
-}
+func PrintResults(results ResultType, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string, policyName string) error {
+	if outputFormat == "json" || outputFormat == "yaml" || outputFormat == "xml" {
+		nonInteractiveEvaluationResults := results.NonInteractiveEvaluationResults
+		if nonInteractiveEvaluationResults == nil {
+			nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
+		}
+		formattedOutput := FormattedOutput{
+			PolicyValidationResults: nonInteractiveEvaluationResults.FormattedEvaluationResults,
+			PolicySummary:           nonInteractiveEvaluationResults.PolicySummary,
+			EvaluationSummary: struct {
+				ConfigsCount              int
+				FilesCount                int
+				PassedYamlValidationCount int
+				PassedK8sValidationCount  int
+				PassedPolicyCheckCount    int
+			}{
+				ConfigsCount:              evaluationSummary.ConfigsCount,
+				FilesCount:                evaluationSummary.FilesCount,
+				PassedYamlValidationCount: evaluationSummary.PassedYamlValidationCount,
+				PassedK8sValidationCount:  evaluationSummary.PassedK8sValidationCount,
+				PassedPolicyCheckCount:    evaluationSummary.PassedPolicyCheckCount,
+			},
+			YamlValidationResults: invalidYamlFiles,
+			K8sValidationResults:  invalidK8sFiles,
+		}
 
-func PrintResults(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string, policyName string) error {
-	switch {
-	case outputFormat == "json":
-		return jsonOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
-	case outputFormat == "yaml":
-		return yamlOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
-	case outputFormat == "xml":
-		return xmlOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
-	default:
-		return textOutput(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion, policyName)
+		if outputFormat == "json" {
+			return jsonOutput(&formattedOutput)
+		} else if outputFormat == "yaml" {
+			return yamlOutput(&formattedOutput)
+		} else {
+			return xmlOutput(&formattedOutput)
+		}
+	} else {
+		return textOutput(results.EvaluationResults, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion, policyName)
 	}
 }
 

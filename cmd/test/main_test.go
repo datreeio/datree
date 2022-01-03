@@ -18,9 +18,9 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationId int) (*evaluation.EvaluationResults, error) {
-	args := m.Called(filesConfigurationsChan, evaluationId)
-	return args.Get(0).(*evaluation.EvaluationResults), args.Error(1)
+func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationId int, nonInteractiveMode bool, rulesCount int, policyName string) (evaluation.ResultType, error) {
+	args := m.Called(filesConfigurationsChan, evaluationId, nonInteractiveMode, rulesCount, policyName)
+	return args.Get(0).(evaluation.ResultType), args.Error(1)
 }
 
 func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error) {
@@ -123,8 +123,9 @@ func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.ConfigContent, 
 
 func TestTestCommand(t *testing.T) {
 	evaluationId := 444
+	resultType := evaluation.ResultType{}
 
-	evaluationResults := &evaluation.EvaluationResults{
+	resultType.EvaluationResults = &evaluation.EvaluationResults{
 		FileNameRuleMapper: map[string]map[int]*evaluation.Rule{}, Summary: struct {
 			TotalFailedRules int
 			FilesCount       int
@@ -133,7 +134,7 @@ func TestTestCommand(t *testing.T) {
 	}
 
 	mockedEvaluator := &mockEvaluator{}
-	mockedEvaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything).Return(evaluationResults, nil)
+	mockedEvaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(resultType, nil)
 	mockedEvaluator.On("CreateEvaluation", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0", RulesCount: 21}, nil)
 	mockedEvaluator.On("UpdateFailedYamlValidation", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockedEvaluator.On("UpdateFailedK8sValidation", mock.Anything, mock.Anything, mock.Anything).Return(nil)
@@ -188,28 +189,28 @@ func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValida
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	evaluator.AssertCalled(t, "CreateEvaluation", "134kh", "", "1.18.0", "Default")
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, false, 21, "Default")
 }
 
 func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "json"})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, true, 21, "Default")
 }
 
 func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "yaml"})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, true, 21, "Default")
 }
 
 func test_testCommand_xml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "xml"})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId)
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, true, 21, "Default")
 }
 
 func test_testCommand_only_k8s_files(t *testing.T, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
