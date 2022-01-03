@@ -3,6 +3,7 @@
 project_name: datree-cli
 release:
   prerelease: auto
+  mode: append
   
 before:
   hooks:
@@ -46,4 +47,8 @@ checksum:
 snapshot:
   name_template: "{{ .Tag }}-next"
 changelog:
-  skip: true
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
