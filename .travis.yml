@@ -19,6 +19,7 @@ script:
 before_deploy:
   - curl -sfL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION sh -s -- check
   - HOMEBREW_NO_AUTO_UPDATE=1 brew install mitchellh/gon/gon
+  - HOMEBREW_NO_AUTO_UPDATE=1 brew install jq
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
