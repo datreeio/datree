@@ -14,7 +14,7 @@ release_tag=$RELEASE_VERSION
 # echo $DATREE_BUILD_VERSION
 
 bash ./scripts/custom_changelog.sh
-curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash -s -- --rm-dist --release-notes=dist/changelog.txt
+curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=0.14.91 GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash -s -- --rm-dist --release-notes=dist/changelog.txt
 
 # bash ./scripts/upload_install_scripts.sh
 
