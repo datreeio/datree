@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+# set -ex
 
 release_tag=$RELEASE_VERSION
 
@@ -13,7 +13,10 @@ bash ./scripts/sign_application.sh
 export DATREE_BUILD_VERSION=$release_tag
 echo $DATREE_BUILD_VERSION
 
-curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash
+custom_changelog_output=$(bash ./scripts/custom_changelog.sh)
+bash ./scripts/custom_changelog.sh
+
+curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash -s -- --rm-dist --release-notes=changelog.txt
 
 bash ./scripts/upload_install_scripts.sh
 

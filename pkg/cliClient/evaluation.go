@@ -59,6 +59,7 @@ type EvaluationResult struct {
 		Mismatches []*Match `json:"mismatches"`
 	} `json:"results"`
 	Rule struct {
+		Identifier     string     `json:"identifier"`
 		Name           string     `json:"name"`
 		FailSuggestion string     `json:"failSuggestion"`
 		Origin         RuleOrigin `json:"origin"`
