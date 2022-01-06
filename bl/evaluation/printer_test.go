@@ -134,46 +134,49 @@ func createFormattedOutput() FormattedOutput {
 			TotalRulesFailed:   4,
 			TotalPassedCount:   0,
 		},
-		FormattedEvaluationResults: []*FormattedEvaluationResults{&FormattedEvaluationResults{
-			FileName: "File1",
-			RuleRresults: []*RulerObject{&RulerObject{
-				Identifier:       "CONTAINERS_MISSING_IMAGE_VALUE_VERSION",
-				Name:             "Ensure each container image has a pinned (tag) version",
-				MessageOnFailure: "Incorrect value for key `image` - specify an image version to avoid unpleasant \"version surprises\" in the future",
-				OccurrencesDetails: []OccurrenceDetails{{
-					MetadataName: "rss-site",
-					Kind:         "Deployment",
-				}},
+		FormattedEvaluationResults: []*FormattedEvaluationResults{
+			{
+				FileName: "File1",
+				RuleRresults: []*RulerObject{
+					{
+						Identifier:       "CONTAINERS_MISSING_IMAGE_VALUE_VERSION",
+						Name:             "Ensure each container image has a pinned (tag) version",
+						MessageOnFailure: "Incorrect value for key `image` - specify an image version to avoid unpleasant \"version surprises\" in the future",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+						}},
+					},
+					{
+						Identifier:       "CONTAINERS_MISSING_MEMORY_LIMIT_KEY",
+						Name:             "Ensure each container has a configured memory limit",
+						MessageOnFailure: "Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+						}},
+					},
+					{
+						Identifier:       "WORKLOAD_INVALID_LABELS_VALUE",
+						Name:             "Ensure workload has valid label values",
+						MessageOnFailure: "Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+						}},
+					},
+					{
+						Identifier:       "CONTAINERS_MISSING_LIVENESSPROBE_KEY",
+						Name:             "Ensure each container has a configured liveness probe",
+						MessageOnFailure: "Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+						}},
+					},
+				},
 			},
-				&RulerObject{
-					Identifier:       "CONTAINERS_MISSING_MEMORY_LIMIT_KEY",
-					Name:             "Ensure each container has a configured memory limit",
-					MessageOnFailure: "Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization",
-					OccurrencesDetails: []OccurrenceDetails{{
-						MetadataName: "rss-site",
-						Kind:         "Deployment",
-					}},
-				},
-				&RulerObject{
-					Identifier:       "WORKLOAD_INVALID_LABELS_VALUE",
-					Name:             "Ensure workload has valid label values",
-					MessageOnFailure: "Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it",
-					OccurrencesDetails: []OccurrenceDetails{{
-						MetadataName: "rss-site",
-						Kind:         "Deployment",
-					}},
-				},
-				&RulerObject{
-					Identifier:       "CONTAINERS_MISSING_LIVENESSPROBE_KEY",
-					Name:             "Ensure each container has a configured liveness probe",
-					MessageOnFailure: "Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks",
-					OccurrencesDetails: []OccurrenceDetails{{
-						MetadataName: "rss-site",
-						Kind:         "Deployment",
-					}},
-				},
-			},
-		}},
+		},
 	}
 
 	return FormattedOutput{
