@@ -189,28 +189,28 @@ func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValida
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	evaluator.AssertCalled(t, "CreateEvaluation", "134kh", "", "1.18.0", "Default")
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, false, 21, "Default")
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, mock.Anything, mock.Anything, mock.Anything)
 }
 
 func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "json"})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, true, 21, "Default")
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, mock.Anything, mock.Anything, mock.Anything)
 }
 
 func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "yaml"})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, true, 21, "Default")
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, mock.Anything, mock.Anything, mock.Anything)
 }
 
 func test_testCommand_xml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{Output: "xml"})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, true, 21, "Default")
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, evaluationId, mock.Anything, mock.Anything, mock.Anything)
 }
 
 func test_testCommand_only_k8s_files(t *testing.T, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
