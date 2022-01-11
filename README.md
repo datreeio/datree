@@ -44,7 +44,7 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 ### 2. Pass Datree a Kubernetes manifest file to scan
 `datree test [k8s-manifest-file]`  
 
-...and voilà, you just ran your first invocation! 🥳    
+...and voilà, you just ran your first policy check! 🥳    
 
 ## [Command Line Interface](https://hub.datree.io/cli-output/#utm_source=github&utm_medium=organic_oss)
 <img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree-cli" width="60%" height="50%">  
