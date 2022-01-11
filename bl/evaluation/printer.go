@@ -25,23 +25,17 @@ func PrintResults(results ResultType, invalidYamlFiles []*validation.InvalidYaml
 	if outputFormat == "json" || outputFormat == "yaml" || outputFormat == "xml" {
 		nonInteractiveEvaluationResults := results.NonInteractiveEvaluationResults
 		if nonInteractiveEvaluationResults == nil {
-			nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
+			return fmt.Errorf("results not found")
 		}
 		formattedOutput := FormattedOutput{
 			PolicyValidationResults: nonInteractiveEvaluationResults.FormattedEvaluationResults,
 			PolicySummary:           nonInteractiveEvaluationResults.PolicySummary,
-			EvaluationSummary: struct {
-				ConfigsCount              int
-				FilesCount                int
-				PassedYamlValidationCount int
-				PassedK8sValidationCount  int
-				PassedPolicyCheckCount    int
-			}{
-				ConfigsCount:              evaluationSummary.ConfigsCount,
-				FilesCount:                evaluationSummary.FilesCount,
-				PassedYamlValidationCount: evaluationSummary.PassedYamlValidationCount,
-				PassedK8sValidationCount:  evaluationSummary.PassedK8sValidationCount,
-				PassedPolicyCheckCount:    evaluationSummary.PassedPolicyCheckCount,
+			EvaluationSummary: NonInteractiveEvaluationSummary{
+				ConfigsCount:                evaluationSummary.ConfigsCount,
+				FilesCount:                  evaluationSummary.FilesCount,
+				PassedYamlValidationCount:   evaluationSummary.PassedYamlValidationCount,
+				PassedK8sValidationCount:    evaluationSummary.PassedK8sValidationCount,
+				PassedPolicyValidationCount: evaluationSummary.PassedPolicyCheckCount,
 			},
 			YamlValidationResults: invalidYamlFiles,
 			K8sValidationResults:  invalidK8sFiles,

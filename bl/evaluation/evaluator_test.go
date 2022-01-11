@@ -107,7 +107,7 @@ func TestEvaluate(t *testing.T) {
 			}
 
 			// TODO: define and check the rest of the values
-			results, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.evaluationId, tt.args.nonInteractiveMode, tt.args.rulesCount, tt.args.policyName)
+			results, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.response, tt.args.isInteractiveMode)
 
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
@@ -122,11 +122,10 @@ func TestEvaluate(t *testing.T) {
 
 type evaluateArgs struct {
 	validFilesConfigurations []*extractor.FileConfigurations
-	evaluationId             int
 	osInfo                   *OSInfo
-	nonInteractiveMode       bool
+	isInteractiveMode        bool
 	rulesCount               int
-	policyName               string
+	response                 *cliClient.CreateEvaluationResponse
 }
 
 type evaluateExpected struct {
@@ -151,15 +150,17 @@ func request_evaluation_all_valid() *evaluateTestCase {
 		name: "should request validation without invalid files",
 		args: &evaluateArgs{
 			validFilesConfigurations: newFilesConfigurations(validFilePath),
-			evaluationId:             1,
+			response: &cliClient.CreateEvaluationResponse{
+				EvaluationId: 1,
+				PolicyName:   "Default",
+				RulesCount:   21,
+			},
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
 				KernelVersion:   "4.5.6",
 			},
-			nonInteractiveMode: false,
-			rulesCount:         21,
-			policyName:         "Default",
+			isInteractiveMode: true,
 		},
 		mock: &evaluatorMock{
 			cliClient: &cliClientMockTestCase{
@@ -218,15 +219,17 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 		name: "should not request validation if there are no valid files",
 		args: &evaluateArgs{
 			validFilesConfigurations: []*extractor.FileConfigurations{},
-			evaluationId:             1,
+			response: &cliClient.CreateEvaluationResponse{
+				EvaluationId: 1,
+				PolicyName:   "Default",
+				RulesCount:   21,
+			},
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
 				KernelVersion:   "4.5.6",
 			},
-			nonInteractiveMode: false,
-			rulesCount:         21,
-			policyName:         "Default",
+			isInteractiveMode: true,
 		},
 		mock: &evaluatorMock{
 			cliClient: &cliClientMockTestCase{

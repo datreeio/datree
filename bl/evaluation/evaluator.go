@@ -82,14 +82,14 @@ func (e *Evaluator) UpdateFailedK8sValidation(invalidFiles []*validation.Invalid
 	return err
 }
 
-func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationId int, nonInteractiveMode bool, rulesCount int, policyName string) (ResultType, error) {
+func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, isInteractiveMode bool) (ResultType, error) {
 
 	if len(filesConfigurations) == 0 {
 		return ResultType{}, nil
 	}
 
 	res, err := e.cliClient.RequestEvaluation(&cliClient.EvaluationRequest{
-		EvaluationId: evaluationId,
+		EvaluationId: evaluationResponse.EvaluationId,
 		Files:        filesConfigurations,
 	})
 	if err != nil {
@@ -97,8 +97,8 @@ func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations
 	}
 	resultType := ResultType{}
 	resultType.EvaluationResults = e.formatEvaluationResults(res.Results, len(filesConfigurations))
-	if nonInteractiveMode {
-		resultType.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(resultType.EvaluationResults, res.Results, policyName, rulesCount)
+	if !isInteractiveMode {
+		resultType.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(resultType.EvaluationResults, res.Results, evaluationResponse.PolicyName, evaluationResponse.RulesCount)
 	}
 	return resultType, nil
 }
@@ -119,10 +119,10 @@ func (e *Evaluator) formatNonInteractiveEvaluationResults(evaluationResults *Eva
 		formattedEvaluationResults.FileName = fileName
 
 		for _, rule := range rules {
-			ruleRObject := RulerObject{Identifier: ruleMapper[rule.ID], Name: rule.Name, MessageOnFailure: rule.FailSuggestion, OccurrencesDetails: rule.OccurrencesDetails}
-			formattedEvaluationResults.RuleRresults = append(
-				formattedEvaluationResults.RuleRresults,
-				&ruleRObject,
+			ruleResult := RuleResult{Identifier: ruleMapper[rule.ID], Name: rule.Name, MessageOnFailure: rule.FailSuggestion, OccurrencesDetails: rule.OccurrencesDetails}
+			formattedEvaluationResults.RuleResults = append(
+				formattedEvaluationResults.RuleResults,
+				&ruleResult,
 			)
 		}
 		nonInteractiveEvaluationResults.FormattedEvaluationResults = append(

@@ -21,7 +21,7 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationId int, nonInteractiveMode bool, rulesCount int, policyName string) (evaluation.ResultType, error)
+	Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, isInteractiveMode bool) (evaluation.ResultType, error)
 	CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error)
 	UpdateFailedYamlValidation(invalidFiles []*validation.InvalidYamlFile, evaluationId int, stopEvaluation bool) error
 	UpdateFailedK8sValidation(invalidFiles []*validation.InvalidK8sFile, evaluationId int, stopEvaluation bool) error
@@ -322,11 +322,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 
 	validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan)
 
-	results, err := ctx.Evaluator.Evaluate(validationManager.ValidK8sFilesConfigurations(), createEvaluationResponse.EvaluationId, !isInteractiveMode, createEvaluationResponse.RulesCount, createEvaluationResponse.PolicyName)
+	results, err := ctx.Evaluator.Evaluate(validationManager.ValidK8sFilesConfigurations(), createEvaluationResponse, isInteractiveMode)
 
-	if err != nil {
-		return validationManager, createEvaluationResponse, results, err
-	}
-
-	return validationManager, createEvaluationResponse, results, nil
+	return validationManager, createEvaluationResponse, results, err
 }
