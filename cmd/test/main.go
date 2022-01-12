@@ -21,7 +21,7 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationId int) (*evaluation.EvaluationResults, error)
+	Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, isInteractiveMode bool) (evaluation.ResultType, error)
 	CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error)
 	UpdateFailedYamlValidation(invalidFiles []*validation.InvalidYamlFile, evaluationId int, stopEvaluation bool) error
 	UpdateFailedK8sValidation(invalidFiles []*validation.InvalidK8sFile, evaluationId int, stopEvaluation bool) error
@@ -207,8 +207,8 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	passedPolicyCheckCount := 0
-	if results != nil {
-		passedPolicyCheckCount = results.Summary.TotalPassedCount
+	if results.EvaluationResults != nil {
+		passedPolicyCheckCount = results.EvaluationResults.Summary.TotalPassedCount
 	}
 
 	passedYamlValidationCount := filesPathsLen - validationManager.InvalidYamlFilesCount()
@@ -243,14 +243,14 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 
 	if err != nil {
 		invocationFailedErr = err
-	} else if validationManager.InvalidYamlFilesCount() > 0 || validationManager.InvalidK8sFilesCount() > 0 || results.Summary.TotalFailedRules > 0 {
+	} else if validationManager.InvalidYamlFilesCount() > 0 || validationManager.InvalidK8sFilesCount() > 0 || results.EvaluationResults.Summary.TotalFailedRules > 0 {
 		invocationFailedErr = fmt.Errorf("")
 	}
 
 	return invocationFailedErr
 }
 
-func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFlags, cliId string) (*ValidationManager, *cliClient.CreateEvaluationResponse, *evaluation.EvaluationResults, error) {
+func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFlags, cliId string) (*ValidationManager, *cliClient.CreateEvaluationResponse, evaluation.ResultType, error) {
 	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml") && (flags.Output != "xml")
 
 	if isInteractiveMode {
@@ -281,7 +281,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 
 	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(cliId, ctx.CliVersion, flags.K8sVersion, flags.PolicyName)
 	if err != nil {
-		return validationManager, nil, nil, err
+		return validationManager, nil, evaluation.ResultType{}, err
 	}
 
 	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas, flags.SchemaLocations)
@@ -304,7 +304,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 	if validationManager.InvalidYamlFilesCount() > 0 {
 		err = ctx.Evaluator.UpdateFailedYamlValidation(validationManager.InvalidYamlFiles(), createEvaluationResponse.EvaluationId, noValidYamlFiles)
 		if err != nil {
-			return validationManager, createEvaluationResponse, nil, err
+			return validationManager, createEvaluationResponse, evaluation.ResultType{}, err
 		}
 	}
 
@@ -316,17 +316,13 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 	if validationManager.InvalidK8sFilesCount() > 0 {
 		err = ctx.Evaluator.UpdateFailedK8sValidation(validationManager.InvalidK8sFiles(), createEvaluationResponse.EvaluationId, noValidK8sFiles)
 		if err != nil {
-			return validationManager, createEvaluationResponse, nil, err
+			return validationManager, createEvaluationResponse, evaluation.ResultType{}, err
 		}
 	}
 
 	validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan)
 
-	results, err := ctx.Evaluator.Evaluate(validationManager.ValidK8sFilesConfigurations(), createEvaluationResponse.EvaluationId)
+	results, err := ctx.Evaluator.Evaluate(validationManager.ValidK8sFilesConfigurations(), createEvaluationResponse, isInteractiveMode)
 
-	if err != nil {
-		return validationManager, createEvaluationResponse, nil, err
-	}
-
-	return validationManager, createEvaluationResponse, results, nil
+	return validationManager, createEvaluationResponse, results, err
 }

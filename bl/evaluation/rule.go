@@ -12,6 +12,6 @@ func (rp *Rule) GetCount() int {
 }
 
 type OccurrenceDetails struct {
-	MetadataName string
-	Kind         string
+	MetadataName string `yaml:"metadataName" json:"metadataName"`
+	Kind         string `json:"kind"`
 }

@@ -23,8 +23,8 @@ func New() *K8sValidator {
 }
 
 type InvalidFile struct {
-	Path             string
-	ValidationErrors []error
+	Path             string  `json:"path"`
+	ValidationErrors []error `yaml:"errors" json:"errors" xml:"Errors"`
 }
 type InvalidYamlFile InvalidFile
 
