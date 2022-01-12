@@ -5,41 +5,41 @@ import (
 )
 
 type FormattedOutput struct {
-	PolicyValidationResults []*FormattedEvaluationResults   `yaml:"policyValidationResults" json:"policyValidationResults"`
-	PolicySummary           PolicySummary                   `yaml:"policySummary" json:"policySummary"`
-	EvaluationSummary       NonInteractiveEvaluationSummary `yaml:"evaluationSummary" json:"evaluationSummary"`
-	YamlValidationResults   []*validation.InvalidYamlFile   `yaml:"yamlValidationResults" json:"yamlValidationResults"`
-	K8sValidationResults    []*validation.InvalidK8sFile    `yaml:"k8sValidationResults" json:"k8sValidationResults"`
+	PolicyValidationResults []*FormattedEvaluationResults   `yaml:"policyValidationResults" json:"policyValidationResults" xml:"policyValidationResults"`
+	PolicySummary           *PolicySummary                  `yaml:"policySummary" json:"policySummary" xml:"policySummary"`
+	EvaluationSummary       NonInteractiveEvaluationSummary `yaml:"evaluationSummary" json:"evaluationSummary" xml:"evaluationSummary"`
+	YamlValidationResults   []*validation.InvalidYamlFile   `yaml:"yamlValidationResults" json:"yamlValidationResults" xml:"yamlValidationResults"`
+	K8sValidationResults    []*validation.InvalidK8sFile    `yaml:"k8sValidationResults" json:"k8sValidationResults" xml:"k8sValidationResults"`
 }
 
 type NonInteractiveEvaluationResults struct {
 	FormattedEvaluationResults []*FormattedEvaluationResults
-	PolicySummary              PolicySummary
+	PolicySummary              *PolicySummary
 }
 
 type FormattedEvaluationResults struct {
-	FileName    string        `yaml:"fileName" json:"fileName"`
-	RuleResults []*RuleResult `yaml:"ruleResults" json:"ruleResults"`
+	FileName    string        `yaml:"fileName" json:"fileName" xml:"fileName"`
+	RuleResults []*RuleResult `yaml:"ruleResults" json:"ruleResults" xml:"ruleResults"`
 }
 
 type RuleResult struct {
-	Identifier         string              `json:"identifier"`
-	Name               string              `json:"name"`
-	MessageOnFailure   string              `yaml:"messageOnFailure" json:"messageOnFailure"`
-	OccurrencesDetails []OccurrenceDetails `yaml:"occurrencesDetails" json:"occurrencesDetails"`
+	Identifier         string              `yaml:"identifier" json:"identifier" xml:"identifier"`
+	Name               string              `yaml:"name" json:"name" xml:"name"`
+	MessageOnFailure   string              `yaml:"messageOnFailure" json:"messageOnFailure" xml:"messageOnFailure"`
+	OccurrencesDetails []OccurrenceDetails `yaml:"occurrencesDetails" json:"occurrencesDetails" xml:"occurrencesDetails"`
 }
 
 type NonInteractiveEvaluationSummary struct {
-	ConfigsCount                int `yaml:"configsCount" json:"configsCount"`
-	FilesCount                  int `yaml:"filesCount" json:"filesCount"`
-	PassedYamlValidationCount   int `yaml:"passedYamlValidationCount" json:"passedYamlValidationCount"`
-	PassedK8sValidationCount    int `yaml:"passedK8sValidationCount" json:"passedK8sValidationCount"`
-	PassedPolicyValidationCount int `yaml:"passedPolicyValidationCount" json:"passedPolicyValidationCount"`
+	ConfigsCount                int `yaml:"configsCount" json:"configsCount" xml:"configsCount"`
+	FilesCount                  int `yaml:"filesCount" json:"filesCount" xml:"filesCount"`
+	PassedYamlValidationCount   int `yaml:"passedYamlValidationCount" json:"passedYamlValidationCount" xml:"passedYamlValidationCount"`
+	PassedK8sValidationCount    int `yaml:"passedK8sValidationCount" json:"passedK8sValidationCount" xml:"passedK8sValidationCount"`
+	PassedPolicyValidationCount int `yaml:"passedPolicyValidationCount" json:"passedPolicyValidationCount" xml:"passedPolicyValidationCount"`
 }
 
 type PolicySummary struct {
-	PolicyName         string `yaml:"policyName" json:"policyName"`
-	TotalRulesInPolicy int    `yaml:"totalRulesInPolicy" json:"totalRulesInPolicy"`
-	TotalRulesFailed   int    `yaml:"totalRulesFailed"  json:"totalRulesFailed"`
-	TotalPassedCount   int    `yaml:"totalPassedCount"  json:"totalPassedCount"`
+	PolicyName         string `yaml:"policyName" json:"policyName" xml:"policyName"`
+	TotalRulesInPolicy int    `yaml:"totalRulesInPolicy" json:"totalRulesInPolicy" xml:"totalRulesInPolicy"`
+	TotalRulesFailed   int    `yaml:"totalRulesFailed"  json:"totalRulesFailed" xml:"totalRulesFailed"`
+	TotalPassedCount   int    `yaml:"totalPassedCount"  json:"totalPassedCount" xml:"totalPassedCount"`
 }

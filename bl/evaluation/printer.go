@@ -25,7 +25,7 @@ func PrintResults(results ResultType, invalidYamlFiles []*validation.InvalidYaml
 	if outputFormat == "json" || outputFormat == "yaml" || outputFormat == "xml" {
 		nonInteractiveEvaluationResults := results.NonInteractiveEvaluationResults
 		if nonInteractiveEvaluationResults == nil {
-			return fmt.Errorf("results not found")
+			nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
 		}
 		formattedOutput := FormattedOutput{
 			PolicyValidationResults: nonInteractiveEvaluationResults.FormattedEvaluationResults,

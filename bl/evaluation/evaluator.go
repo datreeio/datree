@@ -130,7 +130,7 @@ func (e *Evaluator) formatNonInteractiveEvaluationResults(evaluationResults *Eva
 			&formattedEvaluationResults,
 		)
 	}
-	nonInteractiveEvaluationResults.PolicySummary = PolicySummary{
+	nonInteractiveEvaluationResults.PolicySummary = &PolicySummary{
 		PolicyName:         policyName,
 		TotalRulesInPolicy: totalRulesInPolicy,
 		TotalRulesFailed:   evaluationResults.Summary.TotalFailedRules,
