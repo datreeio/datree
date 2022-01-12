@@ -31,7 +31,7 @@ func (c *mockPrinter) PrintEvaluationSummary(summary printer.EvaluationSummary, 
 }
 
 type printResultsTestCaseArgs struct {
-	results           *EvaluationResults
+	results           ResultType
 	invalidYamlFiles  []*validation.InvalidYamlFile
 	invalidK8sFiles   []*validation.InvalidK8sFile
 	evaluationSummary printer.EvaluationSummary
@@ -76,7 +76,7 @@ func TestPrintResults(t *testing.T) {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
 			} else {
 				pwd, _ := os.Getwd()
-				warnings, _ := parseToPrinterWarnings(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0")
+				warnings, _ := parseToPrinterWarnings(tt.args.results.EvaluationResults, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0")
 				mockedPrinter.AssertCalled(t, "PrintWarnings", warnings)
 			}
 		})
@@ -127,75 +127,76 @@ func readOutput(outputFormat string, formattedOutput FormattedOutput) string {
 }
 
 func createFormattedOutput() FormattedOutput {
-	evaluationResults := &EvaluationResults{
-		Summary: struct {
-			TotalFailedRules int
-			FilesCount       int
-			TotalPassedCount int
-		}{
-			TotalFailedRules: 4,
-			FilesCount:       1,
-			TotalPassedCount: 0,
+	evaluationResults := &NonInteractiveEvaluationResults{
+		PolicySummary: PolicySummary{
+			PolicyName:         "Default",
+			TotalRulesInPolicy: 21,
+			TotalRulesFailed:   4,
+			TotalPassedCount:   0,
 		},
-		FileNameRuleMapper: FileNameRuleMapper{"File1": map[int]*Rule{
-			1: &Rule{
-				ID:             1,
-				Name:           "Ensure each container image has a pinned (tag) version",
-				FailSuggestion: "Incorrect value for key `image` - specify an image version to avoid unpleasant \"version surprises\" in the future",
-				OccurrencesDetails: []OccurrenceDetails{{
-					MetadataName: "rss-site",
-					Kind:         "Deployment",
-				}},
+		FormattedEvaluationResults: []*FormattedEvaluationResults{
+			{
+				FileName: "File1",
+				RuleResults: []*RuleResult{
+					{
+						Identifier:       "CONTAINERS_MISSING_IMAGE_VALUE_VERSION",
+						Name:             "Ensure each container image has a pinned (tag) version",
+						MessageOnFailure: "Incorrect value for key `image` - specify an image version to avoid unpleasant \"version surprises\" in the future",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+						}},
+					},
+					{
+						Identifier:       "CONTAINERS_MISSING_MEMORY_LIMIT_KEY",
+						Name:             "Ensure each container has a configured memory limit",
+						MessageOnFailure: "Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+						}},
+					},
+					{
+						Identifier:       "WORKLOAD_INVALID_LABELS_VALUE",
+						Name:             "Ensure workload has valid label values",
+						MessageOnFailure: "Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+						}},
+					},
+					{
+						Identifier:       "CONTAINERS_MISSING_LIVENESSPROBE_KEY",
+						Name:             "Ensure each container has a configured liveness probe",
+						MessageOnFailure: "Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+						}},
+					},
+				},
 			},
-			4: &Rule{
-				ID:             4,
-				Name:           "Ensure each container has a configured memory limit",
-				FailSuggestion: "Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization",
-				OccurrencesDetails: []OccurrenceDetails{{
-					MetadataName: "rss-site",
-					Kind:         "Deployment",
-				}},
-			},
-			9: &Rule{
-				ID:             9,
-				Name:           "Ensure workload has valid label values",
-				FailSuggestion: "Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it",
-				OccurrencesDetails: []OccurrenceDetails{{
-					MetadataName: "rss-site",
-					Kind:         "Deployment",
-				}},
-			},
-			11: &Rule{
-				ID:             11,
-				Name:           "Ensure each container has a configured liveness probe",
-				FailSuggestion: "Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks",
-				OccurrencesDetails: []OccurrenceDetails{{
-					MetadataName: "rss-site",
-					Kind:         "Deployment",
-				}},
-			},
-		}},
+		},
 	}
 
-	evaluationSummary := &printer.EvaluationSummary{
-		ConfigsCount:              1,
-		RulesCount:                21,
-		FilesCount:                1,
-		PassedYamlValidationCount: 1,
-		PassedK8sValidationCount:  1,
-		PassedPolicyCheckCount:    0,
-	}
 	return FormattedOutput{
-		EvaluationResults: evaluationResults,
-		EvaluationSummary: *evaluationSummary,
+		PolicyValidationResults: evaluationResults.FormattedEvaluationResults,
+		PolicySummary:           evaluationResults.PolicySummary,
+		EvaluationSummary: NonInteractiveEvaluationSummary{
+			ConfigsCount:                1,
+			FilesCount:                  1,
+			PassedYamlValidationCount:   1,
+			PassedK8sValidationCount:    1,
+			PassedPolicyValidationCount: 0,
+		},
 	}
 }
 
 func getExpectedOutputs() expectedOutputs {
 	return expectedOutputs{
-		json: "{\"EvaluationResults\":{\"FileNameRuleMapper\":{\"File1\":{\"1\":{\"ID\":1,\"Name\":\"Ensure each container image has a pinned (tag) version\",\"FailSuggestion\":\"Incorrect value for key `image` - specify an image version to avoid unpleasant \\\"version surprises\\\" in the future\",\"OccurrencesDetails\":[{\"MetadataName\":\"rss-site\",\"Kind\":\"Deployment\"}]},\"11\":{\"ID\":11,\"Name\":\"Ensure each container has a configured liveness probe\",\"FailSuggestion\":\"Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks\",\"OccurrencesDetails\":[{\"MetadataName\":\"rss-site\",\"Kind\":\"Deployment\"}]},\"4\":{\"ID\":4,\"Name\":\"Ensure each container has a configured memory limit\",\"FailSuggestion\":\"Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization\",\"OccurrencesDetails\":[{\"MetadataName\":\"rss-site\",\"Kind\":\"Deployment\"}]},\"9\":{\"ID\":9,\"Name\":\"Ensure workload has valid label values\",\"FailSuggestion\":\"Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it\",\"OccurrencesDetails\":[{\"MetadataName\":\"rss-site\",\"Kind\":\"Deployment\"}]}}},\"Summary\":{\"TotalFailedRules\":4,\"FilesCount\":1,\"TotalPassedCount\":0}},\"EvaluationSummary\":{\"ConfigsCount\":1,\"RulesCount\":21,\"FilesCount\":1,\"PassedYamlValidationCount\":1,\"PassedK8sValidationCount\":1,\"PassedPolicyCheckCount\":0},\"InvalidYamlFiles\":null,\"InvalidK8sFiles\":null}\n",
-		yaml: "evaluationresults:\n  filenamerulemapper:\n    File1:\n      1:\n        id: 1\n        name: Ensure each container image has a pinned (tag) version\n        failsuggestion: Incorrect value for key `image` - specify an image version\n          to avoid unpleasant \"version surprises\" in the future\n        occurrencesdetails:\n        - metadataname: rss-site\n          kind: Deployment\n      4:\n        id: 4\n        name: Ensure each container has a configured memory limit\n        failsuggestion: Missing property object `limits.memory` - value should be\n          within the accepted boundaries recommended by the organization\n        occurrencesdetails:\n        - metadataname: rss-site\n          kind: Deployment\n      9:\n        id: 9\n        name: Ensure workload has valid label values\n        failsuggestion: Incorrect value for key(s) under `labels` - the vales syntax\n          is not valid so the Kubernetes engine will not accept it\n        occurrencesdetails:\n        - metadataname: rss-site\n          kind: Deployment\n      11:\n        id: 11\n        name: Ensure each container has a configured liveness probe\n        failsuggestion: Missing property object `livenessProbe` - add a properly configured\n          livenessProbe to catch possible deadlocks\n        occurrencesdetails:\n        - metadataname: rss-site\n          kind: Deployment\n  summary:\n    totalfailedrules: 4\n    filescount: 1\n    totalpassedcount: 0\nevaluationsummary:\n  configscount: 1\n  rulescount: 21\n  filescount: 1\n  passedyamlvalidationcount: 1\n  passedk8svalidationcount: 1\n  passedpolicycheckcount: 0\ninvalidyamlfiles: []\ninvalidk8sfiles: []\n\n",
-		xml:  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<FormattedOutput>\n\t<EvaluationResults>\n\t\t<FileNameRuleMapper>\n\t\t\t<File filename=\"File1\">\n\t\t\t\t<Rule>\n\t\t\t\t\t<ID>1</ID>\n\t\t\t\t\t<Name>Ensure each container image has a pinned (tag) version</Name>\n\t\t\t\t\t<FailSuggestion>Incorrect value for key `image` - specify an image version to avoid unpleasant &#34;version surprises&#34; in the future</FailSuggestion>\n\t\t\t\t\t<OccurrencesDetails>\n\t\t\t\t\t\t<MetadataName>rss-site</MetadataName>\n\t\t\t\t\t\t<Kind>Deployment</Kind>\n\t\t\t\t\t</OccurrencesDetails>\n\t\t\t\t</Rule>\n\t\t\t</File>\n\t\t\t<File filename=\"File1\">\n\t\t\t\t<Rule>\n\t\t\t\t\t<ID>4</ID>\n\t\t\t\t\t<Name>Ensure each container has a configured memory limit</Name>\n\t\t\t\t\t<FailSuggestion>Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization</FailSuggestion>\n\t\t\t\t\t<OccurrencesDetails>\n\t\t\t\t\t\t<MetadataName>rss-site</MetadataName>\n\t\t\t\t\t\t<Kind>Deployment</Kind>\n\t\t\t\t\t</OccurrencesDetails>\n\t\t\t\t</Rule>\n\t\t\t</File>\n\t\t\t<File filename=\"File1\">\n\t\t\t\t<Rule>\n\t\t\t\t\t<ID>9</ID>\n\t\t\t\t\t<Name>Ensure workload has valid label values</Name>\n\t\t\t\t\t<FailSuggestion>Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it</FailSuggestion>\n\t\t\t\t\t<OccurrencesDetails>\n\t\t\t\t\t\t<MetadataName>rss-site</MetadataName>\n\t\t\t\t\t\t<Kind>Deployment</Kind>\n\t\t\t\t\t</OccurrencesDetails>\n\t\t\t\t</Rule>\n\t\t\t</File>\n\t\t\t<File filename=\"File1\">\n\t\t\t\t<Rule>\n\t\t\t\t\t<ID>11</ID>\n\t\t\t\t\t<Name>Ensure each container has a configured liveness probe</Name>\n\t\t\t\t\t<FailSuggestion>Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks</FailSuggestion>\n\t\t\t\t\t<OccurrencesDetails>\n\t\t\t\t\t\t<MetadataName>rss-site</MetadataName>\n\t\t\t\t\t\t<Kind>Deployment</Kind>\n\t\t\t\t\t</OccurrencesDetails>\n\t\t\t\t</Rule>\n\t\t\t</File>\n\t\t</FileNameRuleMapper>\n\t\t<Summary>\n\t\t\t<TotalFailedRules>4</TotalFailedRules>\n\t\t\t<FilesCount>1</FilesCount>\n\t\t\t<TotalPassedCount>0</TotalPassedCount>\n\t\t</Summary>\n\t</EvaluationResults>\n\t<EvaluationSummary>\n\t\t<ConfigsCount>1</ConfigsCount>\n\t\t<RulesCount>21</RulesCount>\n\t\t<FilesCount>1</FilesCount>\n\t\t<PassedYamlValidationCount>1</PassedYamlValidationCount>\n\t\t<PassedK8sValidationCount>1</PassedK8sValidationCount>\n\t\t<PassedPolicyCheckCount>0</PassedPolicyCheckCount>\n\t</EvaluationSummary>\n</FormattedOutput>\n",
+		json: "{\"policyValidationResults\":[{\"fileName\":\"File1\",\"ruleResults\":[{\"identifier\":\"CONTAINERS_MISSING_IMAGE_VALUE_VERSION\",\"name\":\"Ensure each container image has a pinned (tag) version\",\"messageOnFailure\":\"Incorrect value for key `image` - specify an image version to avoid unpleasant \\\"version surprises\\\" in the future\",\"occurrencesDetails\":[{\"metadataName\":\"rss-site\",\"kind\":\"Deployment\"}]},{\"identifier\":\"CONTAINERS_MISSING_MEMORY_LIMIT_KEY\",\"name\":\"Ensure each container has a configured memory limit\",\"messageOnFailure\":\"Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization\",\"occurrencesDetails\":[{\"metadataName\":\"rss-site\",\"kind\":\"Deployment\"}]},{\"identifier\":\"WORKLOAD_INVALID_LABELS_VALUE\",\"name\":\"Ensure workload has valid label values\",\"messageOnFailure\":\"Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it\",\"occurrencesDetails\":[{\"metadataName\":\"rss-site\",\"kind\":\"Deployment\"}]},{\"identifier\":\"CONTAINERS_MISSING_LIVENESSPROBE_KEY\",\"name\":\"Ensure each container has a configured liveness probe\",\"messageOnFailure\":\"Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks\",\"occurrencesDetails\":[{\"metadataName\":\"rss-site\",\"kind\":\"Deployment\"}]}]}],\"policySummary\":{\"policyName\":\"Default\",\"totalRulesInPolicy\":21,\"totalRulesFailed\":4,\"totalPassedCount\":0},\"evaluationSummary\":{\"configsCount\":1,\"filesCount\":1,\"passedYamlValidationCount\":1,\"passedK8sValidationCount\":1,\"passedPolicyValidationCount\":0},\"yamlValidationResults\":null,\"k8sValidationResults\":null}\n",
+		yaml: "policyValidationResults:\n- fileName: File1\n  ruleResults:\n  - identifier: CONTAINERS_MISSING_IMAGE_VALUE_VERSION\n    name: Ensure each container image has a pinned (tag) version\n    messageOnFailure: Incorrect value for key `image` - specify an image version to\n      avoid unpleasant \"version surprises\" in the future\n    occurrencesDetails:\n    - metadataName: rss-site\n      kind: Deployment\n  - identifier: CONTAINERS_MISSING_MEMORY_LIMIT_KEY\n    name: Ensure each container has a configured memory limit\n    messageOnFailure: Missing property object `limits.memory` - value should be within\n      the accepted boundaries recommended by the organization\n    occurrencesDetails:\n    - metadataName: rss-site\n      kind: Deployment\n  - identifier: WORKLOAD_INVALID_LABELS_VALUE\n    name: Ensure workload has valid label values\n    messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax\n      is not valid so the Kubernetes engine will not accept it\n    occurrencesDetails:\n    - metadataName: rss-site\n      kind: Deployment\n  - identifier: CONTAINERS_MISSING_LIVENESSPROBE_KEY\n    name: Ensure each container has a configured liveness probe\n    messageOnFailure: Missing property object `livenessProbe` - add a properly configured\n      livenessProbe to catch possible deadlocks\n    occurrencesDetails:\n    - metadataName: rss-site\n      kind: Deployment\npolicySummary:\n  policyName: Default\n  totalRulesInPolicy: 21\n  totalRulesFailed: 4\n  totalPassedCount: 0\nevaluationSummary:\n  configsCount: 1\n  filesCount: 1\n  passedYamlValidationCount: 1\n  passedK8sValidationCount: 1\n  passedPolicyValidationCount: 0\nyamlValidationResults: []\nk8sValidationResults: []\n\n",
+		xml:  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<FormattedOutput>\n\t<PolicyValidationResults>\n\t\t<FileName>File1</FileName>\n\t\t<RuleResults>\n\t\t\t<Identifier>CONTAINERS_MISSING_IMAGE_VALUE_VERSION</Identifier>\n\t\t\t<Name>Ensure each container image has a pinned (tag) version</Name>\n\t\t\t<MessageOnFailure>Incorrect value for key `image` - specify an image version to avoid unpleasant &#34;version surprises&#34; in the future</MessageOnFailure>\n\t\t\t<OccurrencesDetails>\n\t\t\t\t<MetadataName>rss-site</MetadataName>\n\t\t\t\t<Kind>Deployment</Kind>\n\t\t\t</OccurrencesDetails>\n\t\t</RuleResults>\n\t\t<RuleResults>\n\t\t\t<Identifier>CONTAINERS_MISSING_MEMORY_LIMIT_KEY</Identifier>\n\t\t\t<Name>Ensure each container has a configured memory limit</Name>\n\t\t\t<MessageOnFailure>Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization</MessageOnFailure>\n\t\t\t<OccurrencesDetails>\n\t\t\t\t<MetadataName>rss-site</MetadataName>\n\t\t\t\t<Kind>Deployment</Kind>\n\t\t\t</OccurrencesDetails>\n\t\t</RuleResults>\n\t\t<RuleResults>\n\t\t\t<Identifier>WORKLOAD_INVALID_LABELS_VALUE</Identifier>\n\t\t\t<Name>Ensure workload has valid label values</Name>\n\t\t\t<MessageOnFailure>Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it</MessageOnFailure>\n\t\t\t<OccurrencesDetails>\n\t\t\t\t<MetadataName>rss-site</MetadataName>\n\t\t\t\t<Kind>Deployment</Kind>\n\t\t\t</OccurrencesDetails>\n\t\t</RuleResults>\n\t\t<RuleResults>\n\t\t\t<Identifier>CONTAINERS_MISSING_LIVENESSPROBE_KEY</Identifier>\n\t\t\t<Name>Ensure each container has a configured liveness probe</Name>\n\t\t\t<MessageOnFailure>Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks</MessageOnFailure>\n\t\t\t<OccurrencesDetails>\n\t\t\t\t<MetadataName>rss-site</MetadataName>\n\t\t\t\t<Kind>Deployment</Kind>\n\t\t\t</OccurrencesDetails>\n\t\t</RuleResults>\n\t</PolicyValidationResults>\n\t<PolicySummary>\n\t\t<PolicyName>Default</PolicyName>\n\t\t<TotalRulesInPolicy>21</TotalRulesInPolicy>\n\t\t<TotalRulesFailed>4</TotalRulesFailed>\n\t\t<TotalPassedCount>0</TotalPassedCount>\n\t</PolicySummary>\n\t<EvaluationSummary>\n\t\t<ConfigsCount>1</ConfigsCount>\n\t\t<FilesCount>1</FilesCount>\n\t\t<PassedYamlValidationCount>1</PassedYamlValidationCount>\n\t\t<PassedK8sValidationCount>1</PassedK8sValidationCount>\n\t\t<PassedPolicyValidationCount>0</PassedPolicyValidationCount>\n\t</EvaluationSummary>\n</FormattedOutput>\n",
 	}
 }
 
@@ -203,16 +204,27 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 	return &printResultsTestCase{
 		name: "Print Results Text",
 		args: &printResultsTestCaseArgs{
-			results: &EvaluationResults{
-				FileNameRuleMapper: map[string]map[int]*Rule{},
-				Summary: struct {
-					TotalFailedRules int
-					FilesCount       int
-					TotalPassedCount int
-				}{
-					TotalFailedRules: 0,
-					FilesCount:       0,
-					TotalPassedCount: 0,
+			results: ResultType{
+				EvaluationResults: &EvaluationResults{
+					FileNameRuleMapper: map[string]map[int]*Rule{},
+					Summary: struct {
+						TotalFailedRules int
+						FilesCount       int
+						TotalPassedCount int
+					}{
+						TotalFailedRules: 0,
+						FilesCount:       0,
+						TotalPassedCount: 0,
+					},
+				},
+				NonInteractiveEvaluationResults: &NonInteractiveEvaluationResults{
+					PolicySummary: PolicySummary{
+						PolicyName:         "Default",
+						TotalRulesInPolicy: 0,
+						TotalRulesFailed:   0,
+						TotalPassedCount:   0,
+					},
+					FormattedEvaluationResults: []*FormattedEvaluationResults{},
 				},
 			},
 			invalidYamlFiles:  []*validation.InvalidYamlFile{},

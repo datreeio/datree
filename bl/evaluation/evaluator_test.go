@@ -107,12 +107,12 @@ func TestEvaluate(t *testing.T) {
 			}
 
 			// TODO: define and check the rest of the values
-			results, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.evaluationId)
+			results, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.response, tt.args.isInteractiveMode)
 
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
-				assert.Equal(t, tt.expected.response.Summary, results.Summary)
-				assert.Equal(t, tt.expected.response.FileNameRuleMapper, results.FileNameRuleMapper)
+				assert.Equal(t, tt.expected.response.EvaluationResults.Summary, results.EvaluationResults.Summary)
+				assert.Equal(t, tt.expected.response.EvaluationResults.FileNameRuleMapper, results.EvaluationResults.FileNameRuleMapper)
 			} else {
 				mockedCliClient.AssertNotCalled(t, "RequestEvaluation")
 			}
@@ -122,13 +122,14 @@ func TestEvaluate(t *testing.T) {
 
 type evaluateArgs struct {
 	validFilesConfigurations []*extractor.FileConfigurations
-	evaluationId             int
 	osInfo                   *OSInfo
+	isInteractiveMode        bool
 	rulesCount               int
+	response                 *cliClient.CreateEvaluationResponse
 }
 
 type evaluateExpected struct {
-	response                  *EvaluationResults
+	response                  ResultType
 	err                       error
 	isRequestEvaluationCalled bool
 	isCreateEvaluationCalled  bool
@@ -149,12 +150,17 @@ func request_evaluation_all_valid() *evaluateTestCase {
 		name: "should request validation without invalid files",
 		args: &evaluateArgs{
 			validFilesConfigurations: newFilesConfigurations(validFilePath),
-			evaluationId:             1,
+			response: &cliClient.CreateEvaluationResponse{
+				EvaluationId: 1,
+				PolicyName:   "Default",
+				RulesCount:   21,
+			},
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
 				KernelVersion:   "4.5.6",
 			},
+			isInteractiveMode: true,
 		},
 		mock: &evaluatorMock{
 			cliClient: &cliClientMockTestCase{
@@ -188,16 +194,18 @@ func request_evaluation_all_valid() *evaluateTestCase {
 			},
 		},
 		expected: &evaluateExpected{
-			response: &EvaluationResults{
-				FileNameRuleMapper: make(map[string]map[int]*Rule),
-				Summary: struct {
-					TotalFailedRules int
-					FilesCount       int
-					TotalPassedCount int
-				}{
-					TotalFailedRules: 0,
-					FilesCount:       1,
-					TotalPassedCount: 1,
+			response: ResultType{
+				EvaluationResults: &EvaluationResults{
+					FileNameRuleMapper: make(map[string]map[int]*Rule),
+					Summary: struct {
+						TotalFailedRules int
+						FilesCount       int
+						TotalPassedCount int
+					}{
+						TotalFailedRules: 0,
+						FilesCount:       1,
+						TotalPassedCount: 1,
+					},
 				},
 			},
 			err:                       nil,
@@ -211,12 +219,17 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 		name: "should not request validation if there are no valid files",
 		args: &evaluateArgs{
 			validFilesConfigurations: []*extractor.FileConfigurations{},
-			evaluationId:             1,
+			response: &cliClient.CreateEvaluationResponse{
+				EvaluationId: 1,
+				PolicyName:   "Default",
+				RulesCount:   21,
+			},
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
 				KernelVersion:   "4.5.6",
 			},
+			isInteractiveMode: true,
 		},
 		mock: &evaluatorMock{
 			cliClient: &cliClientMockTestCase{
@@ -250,16 +263,18 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 			},
 		},
 		expected: &evaluateExpected{
-			response: &EvaluationResults{
-				FileNameRuleMapper: make(map[string]map[int]*Rule),
-				Summary: struct {
-					TotalFailedRules int
-					FilesCount       int
-					TotalPassedCount int
-				}{
-					TotalFailedRules: 0,
-					FilesCount:       1,
-					TotalPassedCount: 0,
+			response: ResultType{
+				EvaluationResults: &EvaluationResults{
+					FileNameRuleMapper: make(map[string]map[int]*Rule),
+					Summary: struct {
+						TotalFailedRules int
+						FilesCount       int
+						TotalPassedCount int
+					}{
+						TotalFailedRules: 0,
+						FilesCount:       1,
+						TotalPassedCount: 0,
+					},
 				},
 			},
 			err:                       nil,
