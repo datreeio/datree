@@ -44,7 +44,7 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 ### 2. Pass Datree a Kubernetes manifest file to scan
 `datree test [k8s-manifest-file]`  
 
-...and voilà, you just ran your first invocation! 🥳    
+...and voilà, you just ran your first policy check! 🥳    
 
 ## [Command Line Interface](https://hub.datree.io/cli-output/#utm_source=github&utm_medium=organic_oss)
 <img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree-cli" width="60%" height="50%">  
@@ -52,11 +52,7 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 ## [Web Application Interface](https://hub.datree.io/centralized-policy/#utm_source=github&utm_medium=organic_oss)
 <img src="https://user-images.githubusercontent.com/19731161/130956287-ca44e831-46ba-48fa-96eb-be8e23d43bdf.png" alt="Datree-saas" width="60%" height="50%">  
 
-<img src="https://user-images.githubusercontent.com/19731161/130957021-4b825b82-01e1-47ba-bf6f-68003f08a532.png" alt="Datree-saas" width="60%" height="50%"> 
-
-## Playground
-[![katacoda-logo](https://raw.githubusercontent.com/datreeio/datree/main/images/katacoda-logo.png)](https://www.katacoda.com/datree/scenarios/datree-demo)  
-You can also checkout our [interactive demo scenario](https://www.katacoda.com/datree/scenarios/datree-demo) on Katacoda without having to install anything on your machine.  
+<img src="https://user-images.githubusercontent.com/19731161/130957021-4b825b82-01e1-47ba-bf6f-68003f08a532.png" alt="Datree-saas" width="60%" height="50%">  
 
 ## 🔌 Helm plugin
 [Datree's Helm plugin](https://hub.datree.io/helm-plugin/#utm_source=github&utm_medium=organic_oss) can be accessed through the helm CLI, to provide a seamless experience to Helm users:  
@@ -71,6 +67,7 @@ The policy rules cover a variety of [Kubernetes resources and use cases](https:/
 * CronJob
 * Containers
 * Networking
+* Security
 * Deprecation
 * Others
 
@@ -80,7 +77,11 @@ In addition to our built-in rules, you can write [any custom rule](https://hub.d
 ## 🔗 CI/CD integrations
 Like any linter or static code analysis tool, Datree's command-line tool can be **integrated with all CI/CD platforms** to automatically scan every code change and provide feedback as part of the workflow. In the [docs](https://hub.datree.io/integrations/#utm_source=github&utm_medium=organic_oss), you can find examples of some of the common CI/CD platforms.  
 
-If you run into any difficulties with CI/CD integrations, please join our [community Slack channel](https://bit.ly/3BHwCEG) or open an issue, and we'd be happy to guide you through it.  
+If you run into any difficulties with CI/CD integrations, please join our [community Slack channel](https://bit.ly/3BHwCEG) or open an issue, and we'd be happy to guide you through it. 
+
+## Playground
+[![katacoda-logo](https://raw.githubusercontent.com/datreeio/datree/main/images/katacoda-logo.png)](https://www.katacoda.com/datree/scenarios/datree-demo)  
+You can also checkout our [interactive demo scenario](https://www.katacoda.com/datree/scenarios/datree-demo) on Katacoda without having to install anything on your machine. 
 
 ## Disclaimer
 
