@@ -6,7 +6,7 @@ import (
 
 type FormattedOutput struct {
 	PolicyValidationResults []*FormattedEvaluationResults   `yaml:"policyValidationResults" json:"policyValidationResults" xml:"policyValidationResults"`
-	PolicySummary           PolicySummary                   `yaml:"policySummary" json:"policySummary" xml:"policySummary"`
+	PolicySummary           *PolicySummary                  `yaml:"policySummary" json:"policySummary" xml:"policySummary"`
 	EvaluationSummary       NonInteractiveEvaluationSummary `yaml:"evaluationSummary" json:"evaluationSummary" xml:"evaluationSummary"`
 	YamlValidationResults   []*validation.InvalidYamlFile   `yaml:"yamlValidationResults" json:"yamlValidationResults" xml:"yamlValidationResults"`
 	K8sValidationResults    []*validation.InvalidK8sFile    `yaml:"k8sValidationResults" json:"k8sValidationResults" xml:"k8sValidationResults"`
@@ -14,7 +14,7 @@ type FormattedOutput struct {
 
 type NonInteractiveEvaluationResults struct {
 	FormattedEvaluationResults []*FormattedEvaluationResults
-	PolicySummary              PolicySummary
+	PolicySummary              *PolicySummary
 }
 
 type FormattedEvaluationResults struct {

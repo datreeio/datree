@@ -128,7 +128,7 @@ func readOutput(outputFormat string, formattedOutput FormattedOutput) string {
 
 func createFormattedOutput() FormattedOutput {
 	evaluationResults := &NonInteractiveEvaluationResults{
-		PolicySummary: PolicySummary{
+		PolicySummary: &PolicySummary{
 			PolicyName:         "Default",
 			TotalRulesInPolicy: 21,
 			TotalRulesFailed:   4,
@@ -218,7 +218,7 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 					},
 				},
 				NonInteractiveEvaluationResults: &NonInteractiveEvaluationResults{
-					PolicySummary: PolicySummary{
+					PolicySummary: &PolicySummary{
 						PolicyName:         "Default",
 						TotalRulesInPolicy: 0,
 						TotalRulesFailed:   0,
