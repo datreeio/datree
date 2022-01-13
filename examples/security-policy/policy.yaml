@@ -30,7 +30,7 @@ policies:
 
 customRules:
     - identifier: USE_IMAGE_DIGEST_INSTEAD_OF_TAGS
-      name: check if a image have a tag instead of image digest
+      name: check if an image have image digest instead of tags
       defaultMessageOnFailure: Image is not using `image digests` - use image digests instead of tags.
       schema:
           definitions:
