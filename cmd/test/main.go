@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/datreeio/datree/bl/evaluation"
@@ -105,7 +106,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			err = validateK8sVersion(k8sVersion)
+			err = validateK8sVersionFormat(k8sVersion)
 			if err != nil {
 				return err
 			}
@@ -151,18 +152,15 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	return testCommand
 }
 
-func validateK8sVersion(k8sVersion string) error {
-	if k8sVersion == "" {
+func validateK8sVersionFormat(k8sVersion string) error {
+	var isK8sVersionInCorrectFormat, _ = regexp.MatchString(`^[0-9]+\.[0-9]+\.[0-9]+$`, k8sVersion)
+	if isK8sVersionInCorrectFormat {
 		return nil
+	} else {
+		return fmt.Errorf("The specified schema-version %q is not in the correct format.\n"+
+			"Make sure you are following the semantic versioning format <MAJOR>.<MINOR>.<PATCH>\n"+
+			"Read more about kubernetes versioning: https://kubernetes.io/releases/version-skew-policy/#supported-versions", k8sVersion)
 	}
-
-	versions := getSupportedVersions()
-	for _, val := range versions {
-		if k8sVersion == val {
-			return nil
-		}
-	}
-	return fmt.Errorf("The specified schema-version %q is either invalid or not supported", k8sVersion)
 }
 
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
