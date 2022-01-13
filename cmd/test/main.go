@@ -106,7 +106,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			err = validateK8sVersionFormat(k8sVersion)
+			err = validateK8sVersionFormatIfProvided(k8sVersion)
 			if err != nil {
 				return err
 			}
@@ -152,7 +152,11 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	return testCommand
 }
 
-func validateK8sVersionFormat(k8sVersion string) error {
+func validateK8sVersionFormatIfProvided(k8sVersion string) error {
+	if k8sVersion == "" {
+		return nil
+	}
+
 	var isK8sVersionInCorrectFormat, _ = regexp.MatchString(`^[0-9]+\.[0-9]+\.[0-9]+$`, k8sVersion)
 	if isK8sVersionInCorrectFormat {
 		return nil
