@@ -40,14 +40,12 @@ builds:
     ldflags:
       - -X github.com/datreeio/datree/cmd.CliVersion={{.Env.DATREE_BUILD_VERSION}}
     hooks:
-      post: gon gon.hcl
-
+     post: gon gon.hcl
 archives:
   - replacements:
       darwin: Darwin
       linux: Linux
       amd64: x86_64
-
     format: zip
     id: datree-zip
 checksum:

@@ -6,9 +6,7 @@ osName=$(uname -s)
 
 osArchitecture=$(uname -m)
 
-if [[ $osName == "Darwin" && $osArchitecture == 'arm64' ]]; then
-    osArchitecture='x86_64'
-elif [[ $osArchitecture == *'aarch'* || $osArchitecture == *'arm'* ]]; then
+if [[ $osArchitecture == *'aarch'* || $osArchitecture == *'arm'* ]]; then
 	osArchitecture='arm64'
 fi
 
