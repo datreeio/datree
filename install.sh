@@ -6,7 +6,7 @@ osName=$(uname -s)
 
 osArchitecture=$(uname -m)
 
-elif [[ $osArchitecture == *'aarch'* || $osArchitecture == *'arm'* ]]; then
+if [[ $osArchitecture == *'aarch'* || $osArchitecture == *'arm'* ]]; then
 	osArchitecture='arm64'
 fi
 
