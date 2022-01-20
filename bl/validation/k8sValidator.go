@@ -113,7 +113,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, error
 
 	// Return an error if no valid configurations found
 	// Empty files are throwing errors in k8s
-	if len(results) == 1 && results[0].Status == kubeconformValidator.Empty {
+	if isEveryResultStatusEmpty(results) {
 		return false, []error{&InvalidK8sSchemaError{ErrorMessage: "empty file"}}, nil
 	}
 
@@ -143,4 +143,14 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, error
 func newKubconformValidator(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) ValidationClient {
 	v, _ := kubeconformValidator.New(schemaLocations, kubeconformValidator.Opts{Strict: true, KubernetesVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas})
 	return v
+}
+
+func isEveryResultStatusEmpty(results []kubeconformValidator.Result) bool {
+	isEveryResultStatusEmpty := true
+	for _, result := range results {
+		if result.Status != kubeconformValidator.Empty {
+			isEveryResultStatusEmpty = false
+		}
+	}
+	return isEveryResultStatusEmpty
 }
