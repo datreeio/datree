@@ -31,6 +31,10 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 
 	jsonByte, err := yaml.YAMLToJSON([]byte(content))
 
+	if err != nil {
+		return &configurations, err
+	}
+
 	var doc = map[string]interface{}{}
 	err = yaml.Unmarshal(jsonByte, &doc)
 
