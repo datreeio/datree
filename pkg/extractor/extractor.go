@@ -1,11 +1,9 @@
 package extractor
 
 import (
-	"bytes"
-	"io"
 	"os"
 
-	"gopkg.in/yaml.v3"
+    "sigs.k8s.io/yaml"
 )
 
 type FileReader interface {
@@ -31,24 +29,15 @@ func ParseYaml(content string) (*[]Configuration, error) {
 func extractYamlConfigurations(content string) (*[]Configuration, error) {
 	var configurations []Configuration
 
-	yamlDecoder := yaml.NewDecoder(bytes.NewReader([]byte(content)))
+	jsonByte, err := yaml.YAMLToJSON([]byte(content)) 
 
-	var err error
-	for {
 		var doc = map[string]interface{}{}
-		err = yamlDecoder.Decode(&doc)
-		if err != nil {
-			break
-		}
+		err = yaml.Unmarshal(jsonByte, &doc)
 
 		if len(doc) > 0 {
 			configurations = append(configurations, doc)
 		}
-	}
 
-	if err == io.EOF {
-		err = nil
-	}
 
 	return &configurations, err
 }
