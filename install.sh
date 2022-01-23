@@ -10,6 +10,11 @@ if [[ $osArchitecture == *'aarch'* || $osArchitecture == *'arm'* ]]; then
 	osArchitecture='arm64'
 fi
 
+if ! [[ -d /usr/local/bin/ ]]
+then
+	mkdir -p "/usr/local/bin/" 2> /dev/null || sudo mkdir -p "/usr/local/bin/"
+fi
+
 DOWNLOAD_URL=$(curl --silent "https://api.github.com/repos/datreeio/datree/releases/latest" | grep -o "browser_download_url.*\_${osName}_${osArchitecture}.zip")
 DOWNLOAD_URL=${DOWNLOAD_URL//\"}
 DOWNLOAD_URL=${DOWNLOAD_URL/browser_download_url: /}
@@ -34,8 +39,8 @@ unzip -qq $OUTPUT_BASENAME_WITH_POSTFIX -d $OUTPUT_BASENAME
 
 mkdir -p ~/.datree
 
-rm -f /usr/local/bin/datree || sudo rm -f /usr/local/bin/datree
-cp $OUTPUT_BASENAME/datree /usr/local/bin || sudo cp $OUTPUT_BASENAME/datree /usr/local/bin
+rm -f /usr/local/bin/datree 2> /dev/null || sudo rm -f /usr/local/bin/datree
+cp $OUTPUT_BASENAME/datree /usr/local/bin 2> /dev/null || sudo cp $OUTPUT_BASENAME/datree /usr/local/bin
 
 rm $OUTPUT_BASENAME_WITH_POSTFIX
 rm -rf $OUTPUT_BASENAME
