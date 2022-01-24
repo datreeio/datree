@@ -1,5 +1,5 @@
 #!/bin/bash
-# set -ex
+set -ex
 
 release_tag=$RELEASE_VERSION
 
