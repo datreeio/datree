@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/localConfig"
+	"github.com/datreeio/datree/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -31,6 +32,10 @@ func New(ctx *ConfigCommandContext) *cobra.Command {
 		Use:   "config",
 		Short: "Configuration management",
 		Long:  `Internal configuration management for datree config file`,
+		Example: utils.Example(`
+		# Change the token in the datree config.yaml file
+		datree config set token MY_EXAMPLE_TOKEN
+		`),
 	}
 
 	configCommand.AddCommand(NewSetCommand(ctx))
