@@ -11,6 +11,7 @@ import (
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/localConfig"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -161,6 +162,7 @@ func TestTestCommand(t *testing.T) {
 	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 	printerMock.On("PrintPromptMessage", mock.Anything)
+	printerMock.On("SetTheme", mock.Anything)
 
 	readerMock := &ReaderMock{}
 	readerMock.On("FilterFiles", mock.Anything).Return([]string{"file/path"}, nil)
@@ -177,12 +179,65 @@ func TestTestCommand(t *testing.T) {
 		Reader:       readerMock,
 	}
 
+	test_testCommand_flags_validation(t, ctx)
 	test_testCommand_no_flags(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, &evaluationResponse, ctx)
 	test_testCommand_json_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, &evaluationResponse, ctx)
 	test_testCommand_yaml_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, &evaluationResponse, ctx)
 	test_testCommand_xml_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, &evaluationResponse, ctx)
 
 	test_testCommand_only_k8s_files(t, k8sValidatorMock, filesConfigurations, evaluationId, ctx)
+}
+
+func test_testCommand_flags_validation(t *testing.T, ctx *TestCommandContext) {
+
+	test_testCommand_output_flags_validation(t, ctx)
+	test_testCommand_version_flags_validation(t, ctx)
+}
+
+func executeTestCommand(ctx *TestCommandContext, args []string) error {
+	cmd := New(ctx)
+	cmd.SetArgs(args)
+	err := cmd.Execute()
+	return err
+}
+
+func test_testCommand_output_flags_validation(t *testing.T, ctx *TestCommandContext) {
+
+	validOutputValues := [4]string{"simple", "json", "yaml", "xml"}
+
+	for _, value := range validOutputValues {
+		flags := TestCommandFlags{Output: value}
+		err := flags.Validate()
+		assert.NoError(t, err)
+	}
+
+	values := []string{"Simple", "Json", "Yaml", "Xml", "invalid", "113", "true"}
+
+	for _, value := range values {
+		err := executeTestCommand(ctx, []string{"test", "8/*", "--output=" + value})
+		expectedErrorStr := "Invalid --output option - \"" + value + "\"\n" +
+			"Valid output values are - simple, yaml, json, xml\n"
+		assert.EqualError(t, err, expectedErrorStr)
+	}
+}
+
+func test_testCommand_version_flags_validation(t *testing.T, ctx *TestCommandContext) {
+	getExpectedErrorStr := func(value string) string {
+		expectedStr := "The specified schema-version \"" + value + "\" is not in the correct format.\n" +
+			"Make sure you are following the semantic versioning format <MAJOR>.<MINOR>.<PATCH>\n" +
+			"Read more about kubernetes versioning: https://kubernetes.io/releases/version-skew-policy/#supported-versions"
+		return expectedStr
+	}
+
+	values := []string{"1", "1.15", "1.15.", "1.15.0.", "1.15.0.1", "1..15.0", "str.12.bool"}
+	for _, value := range values {
+		err := executeTestCommand(ctx, []string{"test", "8/*", "--schema-version=" + value})
+		assert.EqualError(t, err, getExpectedErrorStr(value))
+	}
+
+	flags := TestCommandFlags{K8sVersion: "1.21.0"}
+	err := flags.Validate()
+	assert.NoError(t, err)
 }
 
 func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, ctx *TestCommandContext) {
