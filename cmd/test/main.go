@@ -134,6 +134,17 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			}
 			return nil
 		},
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			messages := make(chan *messager.VersionMessage, 1)
+			go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
+			defer func() {
+				msg, ok := <-messages
+				if ok {
+					ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+				}
+			}()
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 			cmd.SilenceErrors = true
@@ -326,17 +337,6 @@ func test(ctx *TestCommandContext, paths []string, options *TestCommandOptions) 
 
 func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommandOptions) (*ValidationManager, *cliClient.CreateEvaluationResponse, evaluation.ResultType, error) {
 	isInteractiveMode := (options.Output != "json") && (options.Output != "yaml") && (options.Output != "xml")
-
-	if isInteractiveMode {
-		messages := make(chan *messager.VersionMessage, 1)
-		go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
-		defer func() {
-			msg, ok := <-messages
-			if ok {
-				ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
-			}
-		}()
-	}
 
 	var _spinner *spinner.Spinner
 	if isInteractiveMode && options.Output != "simple" {
