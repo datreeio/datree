@@ -53,9 +53,7 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 			}
 			return nil
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cmd.SilenceUsage = true
-			cmd.SilenceErrors = true
+		PreRunE: func(cmd *cobra.Command, args []string) error {
 			messages := make(chan *messager.VersionMessage, 1)
 			go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
 			defer func() {
@@ -64,6 +62,11 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 					ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
 				}
 			}()
+			return nil
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true
+			cmd.SilenceErrors = true
 
 			publishFailedResponse, err := publish(ctx, args[0])
 			if publishFailedResponse != nil {
