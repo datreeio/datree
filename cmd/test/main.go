@@ -86,6 +86,9 @@ func New(ctx *TestCommandContext) *cobra.Command {
 
 		# Test the configuration using glob pattern
 		datree test kube-*/*.yaml
+
+		# Test the configuration by sending manifests through stdin
+		cat kube-prod/deployment.yaml | datree test -
 		`),
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {

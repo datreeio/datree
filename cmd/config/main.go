@@ -34,7 +34,7 @@ func New(ctx *ConfigCommandContext) *cobra.Command {
 		Long:  `Internal configuration management for datree config file`,
 		Example: utils.Example(`
 		# Change the token in the datree config.yaml file
-		datree config set token MY_EXAMPLE_TOKEN
+		datree config set token <MY_EXAMPLE_TOKEN>
 		`),
 	}
 

@@ -44,8 +44,7 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 		# Publish the policies configuration YAML file
 		datree publish policies.yaml
 
-		# Note
-		You need to first enable Policy-as-Code (PaC) on the settings page in the dashboard
+		# Note You need to first enable Policy-as-Code (PaC) on the settings page in the dashboard
 		`),
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 1 {
