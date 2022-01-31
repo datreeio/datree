@@ -48,6 +48,27 @@ type TestCommandFlags struct {
 	SchemaLocations      []string
 }
 
+func (flags *TestCommandFlags) Validate() error {
+	outputValue := flags.Output
+
+	if outputValue != "" {
+		if (outputValue != "simple") && (outputValue != "json") && (outputValue != "yaml") && (outputValue != "xml") {
+
+			return fmt.Errorf("Invalid --output option - %q\n"+
+				"Valid output values are - simple, yaml, json, xml\n", outputValue)
+		}
+	}
+
+	err := validateK8sVersionFormatIfProvided(flags.K8sVersion)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
 type EvaluationPrinter interface {
 	PrintWarnings(warnings []printer.Warning)
 	PrintSummaryTable(summary printer.Summary)
@@ -117,11 +138,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			err = validateK8sVersionFormatIfProvided(k8sVersion)
-			if err != nil {
-				return err
-			}
-
 			ignoreMissingSchemas, err := cmd.Flags().GetBool("ignore-missing-schemas")
 			if err != nil {
 				return err
@@ -143,6 +159,11 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			}
 
 			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations, OnlyK8sFiles: onlyK8sFiles}
+			err = testCommandFlags.Validate()
+
+			if err != nil {
+				return err
+			}
 
 			err = test(ctx, args, testCommandFlags)
 			if err != nil {
