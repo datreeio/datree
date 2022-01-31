@@ -83,6 +83,13 @@ If you run into any difficulties with CI/CD integrations, please join our [commu
 [![katacoda-logo](https://raw.githubusercontent.com/datreeio/datree/main/images/katacoda-logo.png)](https://www.katacoda.com/datree/scenarios/datree-demo)  
 You can also checkout our [interactive demo scenario](https://www.katacoda.com/datree/scenarios/datree-demo) on Katacoda without having to install anything on your machine. 
 
+## Contributing
+[Contributions](https://github.com/datreeio/datree/issues?q=is%3Aissue+is%3Aopen+label%3A%22up+for+grabs%22) are welcome!
+
+[![Contributors](https://contrib.rocks/image?repo=datreeio/datree)](https://github.com/datreeio/datree/graphs/contributors)
+
+Thank you to all the people who already contributed to Datree ❤️
+
 ## Disclaimer
 
 We do our best to maintain backward compatibility, but there may be breaking changes in
