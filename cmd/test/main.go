@@ -15,6 +15,7 @@ import (
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
+	"github.com/datreeio/datree/pkg/utils"
 
 	"github.com/briandowns/spinner"
 	"github.com/eiannone/keyboard"
@@ -100,6 +101,16 @@ func New(ctx *TestCommandContext) *cobra.Command {
 		Use:   "test <pattern>",
 		Short: "Execute static analysis for given <pattern>",
 		Long:  "Execute static analysis for given <pattern>. Input should be glob or `-` for stdin",
+		Example: utils.Example(`
+		# Test the configuration using file path
+		datree test kube-prod/deployment.yaml
+
+		# Test the configuration using glob pattern
+		datree test kube-*/*.yaml
+
+		# Test the configuration by sending manifests through stdin
+		cat kube-prod/deployment.yaml | datree test -
+		`),
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				errMessage := "Requires at least 1 arg\n"
