@@ -7,6 +7,7 @@ import (
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/localConfig"
+	"github.com/datreeio/datree/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -39,6 +40,12 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 		Use:   "publish <fileName>",
 		Short: "Publish policies configuration for given <fileName>.",
 		Long:  "Publish policies configuration for given <fileName>. Input should be the path to the Policy-as-Code yaml configuration file",
+		Example: utils.Example(`
+		# Publish the policies configuration YAML file
+		datree publish policies.yaml
+
+		# Note You need to first enable Policy-as-Code (PaC) on the settings page in the dashboard
+		`),
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 1 {
 				errMessage := "Requires 1 arg\n"
