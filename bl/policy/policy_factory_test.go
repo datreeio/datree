@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const policiesJsonPath = "../../internal/fixtures/policyAsCode/prerun.json"
+const policiesJsonPath = "../../fixtures/policyAsCode/prerun.json"
 
 func TestCreatePolicy(t *testing.T) {
 	policiesJson := mockGetPreRunData()

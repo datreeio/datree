@@ -379,7 +379,7 @@ func newErrorsChan() chan error {
 }
 
 func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
-	const policiesJsonPath = "../../internal/fixtures/policyAsCode/prerun.json"
+	const policiesJsonPath = "../../fixtures/policyAsCode/prerun.json"
 
 	fileReader := fileReader.CreateFileReader(nil)
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)

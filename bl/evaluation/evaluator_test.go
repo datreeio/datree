@@ -173,7 +173,7 @@ type evaluateTestCase struct {
 }
 
 func request_evaluation_all_valid() *evaluateTestCase {
-	validFilePath := "internal/fixtures/kube/pass-all.yaml"
+	validFilePath := "../../fixtures/kube/pass-all.yaml"
 
 	prerunData := mockGetPreRunData()
 	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
@@ -276,7 +276,7 @@ func newFilesConfigurations(path string) []*extractor.FileConfigurations {
 }
 
 func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
-	const policiesJsonPath = "../../internal/fixtures/policyAsCode/prerun.json"
+	const policiesJsonPath = "../../fixtures/policyAsCode/prerun.json"
 
 	fileReader := fileReader.CreateFileReader(nil)
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)

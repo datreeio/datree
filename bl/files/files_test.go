@@ -35,11 +35,11 @@ func TestToAbsolutePath(t *testing.T) {
 }
 
 func test_existed_file() *toAbsolutePathsTestCase {
-	p, _ := filepath.Abs("../../internal/fixtures/kube/pass-all.yaml")
+	p, _ := filepath.Abs("../../fixtures/kube/pass-all.yaml")
 	return &toAbsolutePathsTestCase{
 		name: "existed file, should return abs path with no errors",
 		args: struct{ path string }{
-			path: "../../internal/fixtures/kube/pass-all.yaml",
+			path: "../../fixtures/kube/pass-all.yaml",
 		},
 		expected: struct {
 			path string
@@ -53,7 +53,7 @@ func test_not_existed_file() *toAbsolutePathsTestCase {
 	return &toAbsolutePathsTestCase{
 		name: "test not existed file, should return an error",
 		args: struct{ path string }{
-			path: "../../internal/fixtures/kube/bla.yaml",
+			path: "../../fixtures/kube/bla.yaml",
 		},
 		expected: struct {
 			path string
@@ -66,7 +66,7 @@ func test_not_existed_file() *toAbsolutePathsTestCase {
 func test_directory_file() *toAbsolutePathsTestCase {
 	return &toAbsolutePathsTestCase{
 		args: struct{ path string }{
-			path: "../../internal/fixtures/kube",
+			path: "../../fixtures/kube",
 		},
 		expected: struct {
 			path string
@@ -78,13 +78,13 @@ func test_directory_file() *toAbsolutePathsTestCase {
 
 func TestExtractYamlFileToUnknownStruct(t *testing.T) {
 	t.Run("valid yaml file, should return an unknown struct and no error", func(t *testing.T) {
-		actualResult, actualErr := ExtractYamlFileToUnknownStruct("../../internal/fixtures/policyAsCode/valid-schema.yaml")
+		actualResult, actualErr := ExtractYamlFileToUnknownStruct("../../fixtures/policyAsCode/valid-schema.yaml")
 		assert.NotEqual(t, nil, actualResult)
 		assert.Equal(t, nil, actualErr)
 	})
 
 	t.Run("invalid yaml file, should return an error", func(t *testing.T) {
-		actualResult, actualErr := ExtractYamlFileToUnknownStruct("../../internal/fixtures/policyAsCode/invalid-yaml.yaml")
+		actualResult, actualErr := ExtractYamlFileToUnknownStruct("../../fixtures/policyAsCode/invalid-yaml.yaml")
 		assert.Equal(t, UnknownStruct(nil), actualResult)
 		assert.NotEqual(t, nil, actualErr)
 		assert.Equal(t, errors.New("yaml: line 2: did not find expected key"), actualErr)

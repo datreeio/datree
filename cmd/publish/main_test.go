@@ -95,12 +95,12 @@ func TestPublishCommand(t *testing.T) {
 
 func testPublishCommandSuccess(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.LocalConfig) {
 	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(&cliClient.PublishFailedResponse{}, nil).Once()
-	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/valid-schema.yaml", localConfigContent)
+	_, err := publish(ctx, "../../fixtures/policyAsCode/valid-schema.yaml", localConfigContent)
 	assert.Equal(t, nil, err)
 }
 
 func testPublishCommandFailedYaml(t *testing.T, ctx *PublishCommandContext, localConfigContent *localConfig.LocalConfig) {
-	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-yaml.yaml", localConfigContent)
+	_, err := publish(ctx, "../../fixtures/policyAsCode/invalid-yaml.yaml", localConfigContent)
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, "yaml: line 2: did not find expected key", err.Error())
 }
@@ -115,7 +115,7 @@ func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, pu
 	}
 
 	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(publishFailedResponseMock, errors.New(errMessage)).Once()
-	publishFailedRes, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-schemas/duplicate-rule-id.yaml", localConfigContent)
+	publishFailedRes, err := publish(ctx, "../../fixtures/policyAsCode/invalid-schemas/duplicate-rule-id.yaml", localConfigContent)
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, errMessage, err.Error())
 	assert.Equal(t, publishFailedResponseMock, publishFailedRes)

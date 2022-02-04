@@ -27,7 +27,7 @@ type FileWithName struct {
 }
 
 func TestGetPoliciesFileFromPath(t *testing.T) {
-	policiesYamlPath := "../../internal/fixtures/policyAsCode/policies.yaml"
+	policiesYamlPath := "../../fixtures/policyAsCode/policies.yaml"
 	policies, err := GetPoliciesFileFromPath(policiesYamlPath)
 	if err != nil {
 		panic(err)

@@ -33,7 +33,7 @@ func TestPrintWarnings(t *testing.T) {
 			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
 		},
 		{
-			Title:          ">>  File: /datree/datree/internal/fixtures/kube/Chart.yaml\n",
+			Title:          ">>  File: /datree/datree/fixtures/kube/Chart.yaml\n",
 			FailedRules:    []FailedRule{},
 			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
 			ExtraMessages: []ExtraMessage{{Text: "Are you trying to test a raw helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree",
@@ -76,7 +76,7 @@ Failed with k8s validation
 
 [?] Policy check didn't run for this file
 
->>  File: /datree/datree/internal/fixtures/kube/Chart.yaml
+>>  File: /datree/datree/fixtures/kube/Chart.yaml
 
 [V] YAML validation
 [X] Kubernetes schema validation
@@ -128,7 +128,7 @@ Failed with k8s validation
 
 [?] Policy check didn't run for this file
 
->>  File: /datree/datree/internal/fixtures/kube/Chart.yaml
+>>  File: /datree/datree/fixtures/kube/Chart.yaml
 
 [V] YAML validation
 [X] Kubernetes schema validation

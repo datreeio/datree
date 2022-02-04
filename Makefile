@@ -1,5 +1,5 @@
 run: 
-	go run -tags $(or $(datree_build_env),staging) -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go test ./internal/fixtures/**/*.yaml
+	go run -tags $(or $(datree_build_env),staging) -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go test ./fixtures/**/*.yaml
 run-production:
 	make datree_build_env=main run
 run-staging:
@@ -29,4 +29,4 @@ set-token:
 	go run -tags=staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go config set token testtoken
 
 publish:
-	go run -tags=staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go publish ./internal/fixtures/policyAsCode/valid-schema.yaml
+	go run -tags=staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go publish ./fixtures/policyAsCode/valid-schema.yaml
