@@ -35,7 +35,7 @@ type Messager interface {
 
 type K8sValidator interface {
 	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile)
-	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
+	InitClient(k8sVersion string, ignoreMissingSchemas bool, strict bool, schemaLocations []string)
 	GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations)
 }
 
@@ -43,6 +43,7 @@ type TestCommandFlags struct {
 	Output               string
 	K8sVersion           string
 	IgnoreMissingSchemas bool
+	Strict               bool
 	OnlyK8sFiles         bool
 	PolicyName           string
 	SchemaLocations      []string
@@ -318,7 +319,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 		return validationManager, nil, evaluation.ResultType{}, err
 	}
 
-	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas, flags.SchemaLocations)
+	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas, flags.Strict, flags.SchemaLocations)
 
 	concurrency := 100
 
