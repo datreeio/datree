@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/code
+  postgres:
+    image: postgres:9.6.2-alpine
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_DB: dummydb

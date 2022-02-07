@@ -125,14 +125,15 @@ type TestCommandData struct {
 }
 
 type TestCommandContext struct {
-	CliVersion   string
-	LocalConfig  LocalConfig
-	Evaluator    Evaluator
-	Messager     Messager
-	K8sValidator K8sValidator
-	Printer      EvaluationPrinter
-	Reader       Reader
-	CliClient    CliClient
+	CliVersion     string
+	LocalConfig    LocalConfig
+	Evaluator      Evaluator
+	Messager       Messager
+	K8sValidator   K8sValidator
+	Printer        EvaluationPrinter
+	Reader         Reader
+	CliClient      CliClient
+	FilesExtractor files.FilesExtractorInterface
 }
 
 func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
@@ -416,7 +417,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	concurrency := 100
 
-	validYamlConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(filesPaths, concurrency)
+	validYamlConfigurationsChan, invalidYamlFilesChan := ctx.FilesExtractor.ExtractFilesConfigurations(filesPaths, concurrency)
 
 	validationManager.AggregateInvalidYamlFiles(invalidYamlFilesChan)
 
