@@ -32,7 +32,7 @@ type Evaluator interface {
 }
 
 type Messager interface {
-	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
+	LoadVersionMessages(cliVersion string) chan *messager.VersionMessage
 }
 
 type K8sValidator interface {
@@ -135,14 +135,16 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			return nil
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			messages := make(chan *messager.VersionMessage, 1)
-			go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
-			defer func() {
-				msg, ok := <-messages
-				if ok {
-					ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
-				}
-			}()
+			outputFlag, _ := cmd.Flags().GetString("output")
+			if (outputFlag != "json") && (outputFlag != "yaml") && (outputFlag != "xml") {
+
+				messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
+				defer func() {
+					for msg := range messages {
+						ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+					}
+				}()
+			}
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

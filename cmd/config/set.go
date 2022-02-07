@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/datreeio/datree/bl/messager"
 	"github.com/spf13/cobra"
 )
 
@@ -15,8 +14,7 @@ func NewSetCommand(ctx *ConfigCommandContext) *cobra.Command {
 		Short: "Set configuration value",
 		Long:  `Apply value for specific key in datree config.yaml file. Defaults to $HOME/.datree/config.yaml`,
 		Run: func(cmd *cobra.Command, args []string) {
-			messages := make(chan *messager.VersionMessage, 1)
-			go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
+			messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
 
 			err := set(ctx, args[0], args[1])
 			if err != nil {
