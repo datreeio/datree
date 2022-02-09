@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/stretchr/testify/assert"
@@ -72,6 +73,10 @@ func TestCreateEvaluation(t *testing.T) {
 				PlatformVersion: "1.2.3",
 				KernelVersion:   "4.5.6",
 			},
+			ciContext: &ciContext.CIContext{
+				IsCI:  true,
+				CIEnv: "travis",
+			},
 		}
 
 		cliId := "test_token"
@@ -104,6 +109,7 @@ func TestEvaluate(t *testing.T) {
 			evaluator := &Evaluator{
 				cliClient: mockedCliClient,
 				osInfo:    tt.args.osInfo,
+				ciContext: tt.args.ciContext,
 			}
 
 			// TODO: define and check the rest of the values
@@ -123,6 +129,7 @@ func TestEvaluate(t *testing.T) {
 type evaluateArgs struct {
 	validFilesConfigurations []*extractor.FileConfigurations
 	osInfo                   *OSInfo
+	ciContext                *ciContext.CIContext
 	isInteractiveMode        bool
 	rulesCount               int
 	response                 *cliClient.CreateEvaluationResponse
@@ -159,6 +166,10 @@ func request_evaluation_all_valid() *evaluateTestCase {
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
 				KernelVersion:   "4.5.6",
+			},
+			ciContext: &ciContext.CIContext{
+				IsCI:  true,
+				CIEnv: "travis",
 			},
 			isInteractiveMode: true,
 		},
@@ -228,6 +239,10 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
 				KernelVersion:   "4.5.6",
+			},
+			ciContext: &ciContext.CIContext{
+				IsCI:  true,
+				CIEnv: "travis",
 			},
 			isInteractiveMode: true,
 		},

@@ -4,14 +4,16 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/extractor"
 )
 
 type Metadata struct {
-	CliVersion      string `json:"cliVersion"`
-	Os              string `json:"os"`
-	PlatformVersion string `json:"platformVersion"`
-	KernelVersion   string `json:"kernelVersion"`
+	CliVersion      string               `json:"cliVersion"`
+	Os              string               `json:"os"`
+	PlatformVersion string               `json:"platformVersion"`
+	KernelVersion   string               `json:"kernelVersion"`
+	CIContext       *ciContext.CIContext `json:"ciContext"`
 }
 
 type CreateEvaluationRequest struct {

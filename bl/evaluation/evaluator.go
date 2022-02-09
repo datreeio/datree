@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 )
@@ -16,12 +17,14 @@ type CLIClient interface {
 type Evaluator struct {
 	cliClient CLIClient
 	osInfo    *OSInfo
+	ciContext *ciContext.CIContext
 }
 
 func New(c CLIClient) *Evaluator {
 	return &Evaluator{
 		cliClient: c,
 		osInfo:    NewOSInfo(),
+		ciContext: ciContext.Extract(),
 	}
 }
 
@@ -50,6 +53,7 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion
 			Os:              e.osInfo.OS,
 			PlatformVersion: e.osInfo.PlatformVersion,
 			KernelVersion:   e.osInfo.KernelVersion,
+			CIContext:       e.ciContext,
 		},
 	})
 

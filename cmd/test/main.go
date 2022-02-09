@@ -11,7 +11,9 @@ import (
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
+
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
@@ -48,6 +50,8 @@ type TestCommandFlags struct {
 	SchemaLocations      []string
 }
 
+//
+
 func (flags *TestCommandFlags) Validate() error {
 	outputValue := flags.Output
 
@@ -67,6 +71,12 @@ func (flags *TestCommandFlags) Validate() error {
 
 	return nil
 
+}
+
+func (flags *TestCommandFlags) Transform() {
+	if flags.Output == "" && ciContext.Extract().IsCI {
+		flags.Output = "simple"
+	}
 }
 
 type EvaluationPrinter interface {
@@ -160,6 +170,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 
 			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations, OnlyK8sFiles: onlyK8sFiles}
 			err = testCommandFlags.Validate()
+			testCommandFlags.Transform()
 
 			if err != nil {
 				return err
