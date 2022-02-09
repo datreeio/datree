@@ -21,7 +21,7 @@ This will build the executable file and place it in the project root.
 One way to run datree locally is to use the newly created executable file:
 
 ```
-$ ./datree test ./internal/fixtures/kube/k8s-demo.yaml
+$ ./datree test ./fixtures/kube/k8s-demo.yaml
 ```
 
 ## Running tests
