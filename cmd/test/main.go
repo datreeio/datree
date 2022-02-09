@@ -35,7 +35,7 @@ type Messager interface {
 
 type K8sValidator interface {
 	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile)
-	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
+	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string, isStrict bool)
 	GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations)
 }
 
@@ -44,6 +44,7 @@ type TestCommandFlags struct {
 	K8sVersion           string
 	IgnoreMissingSchemas bool
 	OnlyK8sFiles         bool
+	NotStrict            bool
 	PolicyName           string
 	SchemaLocations      []string
 }
@@ -158,7 +159,12 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations, OnlyK8sFiles: onlyK8sFiles}
+			notStrict, err := cmd.Flags().GetBool("not-strict")
+			if err != nil {
+				return err
+			}
+
+			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations, OnlyK8sFiles: onlyK8sFiles, NotStrict: notStrict}
 			err = testCommandFlags.Validate()
 
 			if err != nil {
@@ -181,6 +187,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	// kubeconform flags
 	testCommand.Flags().StringArray("schema-location", []string{}, "Override schemas location search path (can be specified multiple times)")
 	testCommand.Flags().Bool("ignore-missing-schemas", false, "Ignore missing schemas when executing schema validation step")
+	testCommand.Flags().Bool("not-strict", false, "Allow kuberenetes files to include additional properties")
 	return testCommand
 }
 
@@ -318,7 +325,8 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 		return validationManager, nil, evaluation.ResultType{}, err
 	}
 
-	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas, flags.SchemaLocations)
+	isStrict := !flags.NotStrict
+	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas, flags.SchemaLocations, isStrict)
 
 	concurrency := 100
 
