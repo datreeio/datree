@@ -16,8 +16,8 @@ Users want some more security features - not send data to datree
 
 We will make the cli should work without backend datree / without internet
 We will implement local evaluation:
-# We will add the ability to run datree offline
-# We will support --no-record flag
+* We will add the ability to run datree offline
+* We will support --no-record flag
 
 ## Consequences
 
