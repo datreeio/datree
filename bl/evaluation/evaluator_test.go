@@ -173,7 +173,7 @@ type evaluateTestCase struct {
 }
 
 func request_evaluation_all_valid() *evaluateTestCase {
-	validFilePath := "../../fixtures/kube/pass-all.yaml"
+	const validFilePath = "../../fixtures/kube/pass-all.yaml"
 
 	prerunData := mockGetPreRunData()
 	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")

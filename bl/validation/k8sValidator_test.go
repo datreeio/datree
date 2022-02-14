@@ -38,7 +38,7 @@ func test_valid_multiple_configurations(t *testing.T) {
 		validationClient: validationClient,
 	}
 
-	path := "../../fixtures/kube/pass-all.yaml"
+	const path = "../../fixtures/kube/pass-all.yaml"
 
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 	filesConfigurationsChan <- &extractor.FileConfigurations{
@@ -62,7 +62,7 @@ func test_valid_multiple_configurations_only_k8s_files(t *testing.T) {
 		validationClient: validationClient,
 	}
 
-	path := "../../fixtures/kube/Chart.yaml"
+	const path = "../../fixtures/kube/Chart.yaml"
 
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 	filesConfigurationsChan <- &extractor.FileConfigurations{
@@ -86,7 +86,7 @@ func test_invalid_file(t *testing.T) {
 		validationClient: validationClient,
 	}
 
-	path := "../../fixtures/kube/invalidK8sSchema.yaml"
+	const path = "../../fixtures/kube/invalidK8sSchema.yaml"
 
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 	filesConfigurationsChan <- &extractor.FileConfigurations{
@@ -110,7 +110,7 @@ func test_empty_file(t *testing.T) {
 		validationClient: validationClient,
 	}
 
-	path := "../../fixtures/kube/empty.yaml"
+	const path = "../../fixtures/kube/empty.yaml"
 
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 	filesConfigurationsChan <- &extractor.FileConfigurations{
