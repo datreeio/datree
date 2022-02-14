@@ -216,6 +216,10 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
+	if flags.K8sVersion == "" {
+		flags.K8sVersion = localConfigContent.SchemaVersion
+	}
+
 	if paths[0] == "-" {
 		if len(paths) > 1 {
 			return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(paths[1:], ",")))

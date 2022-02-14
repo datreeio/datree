@@ -10,7 +10,8 @@ import (
 )
 
 type ConfigContent struct {
-	CliId string
+	CliId         string
+	SchemaVersion string
 }
 
 type LocalConfig struct {
@@ -24,6 +25,7 @@ func (lc *LocalConfig) GetLocalConfiguration() (*ConfigContent, error) {
 	viper.SetEnvPrefix("datree")
 	viper.AutomaticEnv()
 	token := viper.GetString("token")
+	schemaVersion := viper.GetString("schema_version")
 
 	if token == "" {
 		configHome, configName, configType, err := setViperConfig()
@@ -55,7 +57,7 @@ func (lc *LocalConfig) GetLocalConfiguration() (*ConfigContent, error) {
 		}
 	}
 
-	return &ConfigContent{CliId: token}, nil
+	return &ConfigContent{CliId: token, SchemaVersion: schemaVersion}, nil
 }
 
 func (lc *LocalConfig) Set(key string, value string) error {
