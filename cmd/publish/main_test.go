@@ -113,9 +113,9 @@ func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, pu
 		Message: errMessage,
 		Payload: publishFailedPayloadMock,
 	}
-
+	const fileNamePath = "../../fixtures/policyAsCode/invalid-schemas/duplicate-rule-id.yaml"
 	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(publishFailedResponseMock, errors.New(errMessage)).Once()
-	publishFailedRes, err := publish(ctx, "../../fixtures/policyAsCode/invalid-schemas/duplicate-rule-id.yaml", localConfigContent)
+	publishFailedRes, err := publish(ctx, fileNamePath, localConfigContent)
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, errMessage, err.Error())
 	assert.Equal(t, publishFailedResponseMock, publishFailedRes)

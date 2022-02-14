@@ -35,11 +35,12 @@ func TestToAbsolutePath(t *testing.T) {
 }
 
 func test_existed_file() *toAbsolutePathsTestCase {
-	p, _ := filepath.Abs("../../fixtures/kube/pass-all.yaml")
+	const filePathName = "../../fixtures/kube/pass-all.yaml"
+	p, _ := filepath.Abs(filePathName)
 	return &toAbsolutePathsTestCase{
 		name: "existed file, should return abs path with no errors",
 		args: struct{ path string }{
-			path: "../../fixtures/kube/pass-all.yaml",
+			path: filePathName ,
 		},
 		expected: struct {
 			path string
@@ -50,10 +51,11 @@ func test_existed_file() *toAbsolutePathsTestCase {
 }
 
 func test_not_existed_file() *toAbsolutePathsTestCase {
+	const fileNamePath = "../../fixtures/kube/bla.yaml"
 	return &toAbsolutePathsTestCase{
 		name: "test not existed file, should return an error",
 		args: struct{ path string }{
-			path: "../../fixtures/kube/bla.yaml",
+			path: fileNamePath ,
 		},
 		expected: struct {
 			path string
@@ -64,9 +66,10 @@ func test_not_existed_file() *toAbsolutePathsTestCase {
 }
 
 func test_directory_file() *toAbsolutePathsTestCase {
+	const fileNamePath = "../../fixtures/kube"
 	return &toAbsolutePathsTestCase{
 		args: struct{ path string }{
-			path: "../../fixtures/kube",
+			path: fileNamePath,
 		},
 		expected: struct {
 			path string
@@ -77,14 +80,16 @@ func test_directory_file() *toAbsolutePathsTestCase {
 }
 
 func TestExtractYamlFileToUnknownStruct(t *testing.T) {
+	const fileNamePath = "../../fixtures/policyAsCode/valid-schema.yaml"
 	t.Run("valid yaml file, should return an unknown struct and no error", func(t *testing.T) {
-		actualResult, actualErr := ExtractYamlFileToUnknownStruct("../../fixtures/policyAsCode/valid-schema.yaml")
+		actualResult, actualErr := ExtractYamlFileToUnknownStruct(fileNamePath)
 		assert.NotEqual(t, nil, actualResult)
 		assert.Equal(t, nil, actualErr)
 	})
 
 	t.Run("invalid yaml file, should return an error", func(t *testing.T) {
-		actualResult, actualErr := ExtractYamlFileToUnknownStruct("../../fixtures/policyAsCode/invalid-yaml.yaml")
+		const fileNamePath = "../../fixtures/policyAsCode/invalid-yaml.yaml"
+		actualResult, actualErr := ExtractYamlFileToUnknownStruct(fileNamePath)
 		assert.Equal(t, UnknownStruct(nil), actualResult)
 		assert.NotEqual(t, nil, actualErr)
 		assert.Equal(t, errors.New("yaml: line 2: did not find expected key"), actualErr)
