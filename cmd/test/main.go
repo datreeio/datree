@@ -26,7 +26,7 @@ import (
 
 type Evaluator interface {
 	Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, isInteractiveMode bool) (evaluation.ResultType, error)
-	CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error)
+	CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext) (*cliClient.CreateEvaluationResponse, error)
 	UpdateFailedYamlValidation(invalidFiles []*validation.InvalidYamlFile, evaluationId int, stopEvaluation bool) error
 	UpdateFailedK8sValidation(invalidFiles []*validation.InvalidK8sFile, evaluationId int, stopEvaluation bool) error
 }
@@ -71,12 +71,6 @@ func (flags *TestCommandFlags) Validate() error {
 
 	return nil
 
-}
-
-func (flags *TestCommandFlags) Transform() {
-	if flags.Output == "" && ciContext.Extract().IsCI {
-		flags.Output = "simple"
-	}
 }
 
 type EvaluationPrinter interface {
@@ -170,7 +164,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 
 			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations, OnlyK8sFiles: onlyK8sFiles}
 			err = testCommandFlags.Validate()
-			testCommandFlags.Transform()
 
 			if err != nil {
 				return err
@@ -184,7 +177,11 @@ func New(ctx *TestCommandContext) *cobra.Command {
 		},
 	}
 
-	testCommand.Flags().StringP("output", "o", "", "Define output format")
+	if ciContext.Extract().IsCI {
+		testCommand.Flags().StringP("output", "o", "simple", "Define output format")
+	} else {
+		testCommand.Flags().StringP("output", "o", "", "Define output format")
+	}
 	testCommand.Flags().StringP("schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
 	testCommand.Flags().StringP("policy", "p", "", "Policy name to run against")
 	testCommand.Flags().Bool("only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
@@ -324,7 +321,9 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 	validationManager := &ValidationManager{}
 	filesPathsLen := len(filesPaths)
 
-	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(cliId, ctx.CliVersion, flags.K8sVersion, flags.PolicyName)
+	ciContext := ciContext.Extract()
+
+	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(cliId, ctx.CliVersion, flags.K8sVersion, flags.PolicyName, ciContext)
 	if err != nil {
 		return validationManager, nil, evaluation.ResultType{}, err
 	}
