@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/printer"
@@ -24,7 +25,7 @@ func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfig
 	return args.Get(0).(evaluation.ResultType), args.Error(1)
 }
 
-func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error) {
+func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext) (*cliClient.CreateEvaluationResponse, error) {
 	args := m.Called(cliId, cliVersion, k8sVersion, policyName)
 	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
 }

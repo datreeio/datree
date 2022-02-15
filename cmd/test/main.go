@@ -11,7 +11,9 @@ import (
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
+
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
@@ -24,7 +26,7 @@ import (
 
 type Evaluator interface {
 	Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, isInteractiveMode bool) (evaluation.ResultType, error)
-	CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error)
+	CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext) (*cliClient.CreateEvaluationResponse, error)
 	UpdateFailedYamlValidation(invalidFiles []*validation.InvalidYamlFile, evaluationId int, stopEvaluation bool) error
 	UpdateFailedK8sValidation(invalidFiles []*validation.InvalidK8sFile, evaluationId int, stopEvaluation bool) error
 }
@@ -47,6 +49,8 @@ type TestCommandFlags struct {
 	PolicyName           string
 	SchemaLocations      []string
 }
+
+//
 
 func (flags *TestCommandFlags) Validate() error {
 	outputValue := flags.Output
@@ -173,7 +177,11 @@ func New(ctx *TestCommandContext) *cobra.Command {
 		},
 	}
 
-	testCommand.Flags().StringP("output", "o", "", "Define output format")
+	if ciContext.Extract().IsCI {
+		testCommand.Flags().StringP("output", "o", "simple", "Define output format")
+	} else {
+		testCommand.Flags().StringP("output", "o", "", "Define output format")
+	}
 	testCommand.Flags().StringP("schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
 	testCommand.Flags().StringP("policy", "p", "", "Policy name to run against")
 	testCommand.Flags().Bool("only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
@@ -313,7 +321,9 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 	validationManager := &ValidationManager{}
 	filesPathsLen := len(filesPaths)
 
-	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(cliId, ctx.CliVersion, flags.K8sVersion, flags.PolicyName)
+	ciContext := ciContext.Extract()
+
+	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(cliId, ctx.CliVersion, flags.K8sVersion, flags.PolicyName, ciContext)
 	if err != nil {
 		return validationManager, nil, evaluation.ResultType{}, err
 	}
