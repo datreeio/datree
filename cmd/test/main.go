@@ -91,7 +91,7 @@ type LocalConfig interface {
 	GetLocalConfiguration() (*localConfig.ConfigContent, error)
 }
 
-var InvocationError = errors.New("Invocation error")
+var ViolationsFoundError = errors.New("")
 
 type TestCommandContext struct {
 	CliVersion   string
@@ -289,7 +289,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	}
 
 	if validationManager.InvalidYamlFilesCount() > 0 || validationManager.InvalidK8sFilesCount() > 0 || results.EvaluationResults.Summary.TotalFailedRules > 0 {
-		return InvocationError
+		return ViolationsFoundError
 	}
 
 	return nil

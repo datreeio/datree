@@ -8,11 +8,14 @@ import (
 	"github.com/datreeio/datree/cmd/test"
 )
 
+const DEFAULT_ERR_EXIT_CODE = 1
+const VIOLATIONS_FOUND_EXIT_CODE = 2
+
 func main() {
 	if err := cmd.Execute(); err != nil {
-		if errors.Is(err, test.InvocationError) {
-			os.Exit(9)
+		if errors.Is(err, test.ViolationsFoundError) {
+			os.Exit(VIOLATIONS_FOUND_EXIT_CODE)
 		}
-		os.Exit(1)
+		os.Exit(DEFAULT_ERR_EXIT_CODE)
 	}
 }
