@@ -3,6 +3,8 @@ package printer
 import (
 	"fmt"
 	"io"
+	"path/filepath"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
@@ -75,6 +77,11 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 		fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Error, validationError)
 	}
 	fmt.Fprintln(out)
+
+	if isFilesContainsHelmFiles(warning.Title) {
+		p.printInColor("Looks like you're using helm, check out our helm plugin - https://hub.datree.io/helm-plugin\n", p.Theme.Colors.Blue)
+	}
+
 	p.printSkippedPolicyCheck()
 	fmt.Fprintln(out)
 }
@@ -229,4 +236,19 @@ func (p *Printer) getStringOrNotAvailable(str string) string {
 	} else {
 		return str
 	}
+}
+
+func isFilesContainsHelmFiles(filePath string) bool {
+	cleanFilePath := strings.Replace(filePath, "\n", "", -1)
+	fileExtension := filepath.Ext(cleanFilePath)
+	if fileExtension != ".yml" && fileExtension != ".yaml" {
+		return false
+	}
+
+	if !strings.Contains(cleanFilePath, "Chart") && !strings.Contains(cleanFilePath, "chart") &&
+		!strings.Contains(cleanFilePath, "Values") && !strings.Contains(cleanFilePath, "values") {
+		return false
+	}
+
+	return true
 }
