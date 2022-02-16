@@ -78,7 +78,7 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 	}
 	fmt.Fprintln(out)
 
-	if isFilesContainsHelmFiles(warning.Title) {
+	if isHelmFile(warning.Title) {
 		p.printInColor("Looks like you're using helm, check out our helm plugin - https://hub.datree.io/helm-plugin\n", p.Theme.Colors.Blue)
 	}
 
@@ -238,7 +238,7 @@ func (p *Printer) getStringOrNotAvailable(str string) string {
 	}
 }
 
-func isFilesContainsHelmFiles(filePath string) bool {
+func isHelmFile(filePath string) bool {
 	cleanFilePath := strings.Replace(filePath, "\n", "", -1)
 	fileExtension := filepath.Ext(cleanFilePath)
 
