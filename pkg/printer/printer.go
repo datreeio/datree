@@ -241,6 +241,7 @@ func (p *Printer) getStringOrNotAvailable(str string) string {
 func isFilesContainsHelmFiles(filePath string) bool {
 	cleanFilePath := strings.Replace(filePath, "\n", "", -1)
 	fileExtension := filepath.Ext(cleanFilePath)
+
 	if fileExtension != ".yml" && fileExtension != ".yaml" {
 		return false
 	}
