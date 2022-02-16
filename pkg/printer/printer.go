@@ -2,6 +2,7 @@ package printer
 
 import (
 	"fmt"
+	"github.com/xeipuuv/gojsonschema"
 	"io"
 
 	"github.com/fatih/color"
@@ -53,6 +54,7 @@ type Warning struct {
 	InvalidK8sInfo  InvalidK8sInfo
 	ExtraMessages   []ExtraMessage
 }
+type JSONSchemaValidatorResult = gojsonschema.Result
 
 func (p *Printer) SetTheme(theme *Theme) {
 	p.Theme = theme
@@ -90,6 +92,28 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 
 	p.printSkippedPolicyCheck()
 	fmt.Fprintln(out)
+}
+
+func (p *Printer) PrintJsonSchemaResults(result *JSONSchemaValidatorResult, error error)  {
+	if result == nil {
+		p.printInColor("INVALID FILE PATH\n", p.Theme.Colors.RedBold)
+		return
+	}
+		if result.Errors() != nil {
+		p.printInColor("Input does NOT pass validation against schema\n", p.Theme.Colors.RedBold)
+		var errorsAsString = ""
+		for _, desc := range result.Errors() {
+			fmt.Printf("- %s\n", desc)
+			errorsAsString = errorsAsString + desc.String() + "\n"
+		}
+		p.printInColor(errorsAsString, p.Theme.Colors.RedBold)
+		return
+	}
+	if error == nil {
+		p.printInColor("Input PASSES validation against schema\n", p.Theme.Colors.Green)
+	} else {
+		p.printInColor("The File Is Invalid\n", p.Theme.Colors.RedBold)
+	}
 }
 
 func (p *Printer) PrintWarnings(warnings []Warning) {

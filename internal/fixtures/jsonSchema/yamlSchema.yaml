@@ -1,0 +1,6 @@
+type: object
+properties:
+  apiVersion:
+    type: string
+required:
+  - apiVersion
