@@ -1,15 +1,15 @@
 package evaluation
 
 import (
-	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/extractor"
 )
 
 type FormattedOutput struct {
 	PolicyValidationResults []*FormattedEvaluationResults   `yaml:"policyValidationResults" json:"policyValidationResults" xml:"policyValidationResults"`
 	PolicySummary           *PolicySummary                  `yaml:"policySummary" json:"policySummary" xml:"policySummary"`
 	EvaluationSummary       NonInteractiveEvaluationSummary `yaml:"evaluationSummary" json:"evaluationSummary" xml:"evaluationSummary"`
-	YamlValidationResults   []*validation.InvalidYamlFile   `yaml:"yamlValidationResults" json:"yamlValidationResults" xml:"yamlValidationResults"`
-	K8sValidationResults    []*validation.InvalidK8sFile    `yaml:"k8sValidationResults" json:"k8sValidationResults" xml:"k8sValidationResults"`
+	YamlValidationResults   []*extractor.InvalidFile   `yaml:"yamlValidationResults" json:"yamlValidationResults" xml:"yamlValidationResults"`
+	K8sValidationResults    []*extractor.InvalidFile    `yaml:"k8sValidationResults" json:"k8sValidationResults" xml:"k8sValidationResults"`
 }
 
 type NonInteractiveEvaluationResults struct {

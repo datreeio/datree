@@ -2,6 +2,7 @@ package files
 
 import (
 	"errors"
+	"github.com/datreeio/datree/pkg/extractor"
 	"path/filepath"
 	"testing"
 
@@ -26,7 +27,7 @@ func TestToAbsolutePath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			absolutePath, _ := ToAbsolutePath(tt.args.path)
+			absolutePath, _ := extractor.ToAbsolutePath(tt.args.path)
 			assert.Equal(t, tt.expected.path, absolutePath)
 		})
 	}

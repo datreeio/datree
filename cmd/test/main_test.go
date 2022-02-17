@@ -3,7 +3,6 @@ package test
 import (
 	"testing"
 
-	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -30,12 +29,12 @@ func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVer
 	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
 }
 
-func (m *mockEvaluator) UpdateFailedYamlValidation(invalidYamlFiles []*validation.InvalidYamlFile, evaluationId int, stopEvaluation bool) error {
+func (m *mockEvaluator) UpdateFailedYamlValidation(invalidYamlFiles []*extractor.InvalidFile, evaluationId int, stopEvaluation bool) error {
 	args := m.Called(invalidYamlFiles, evaluationId, stopEvaluation)
 	return args.Error(0)
 }
 
-func (m *mockEvaluator) UpdateFailedK8sValidation(invalidK8sFiles []*validation.InvalidK8sFile, evaluationId int, stopEvaluation bool) error {
+func (m *mockEvaluator) UpdateFailedK8sValidation(invalidK8sFiles []*extractor.InvalidFile, evaluationId int, stopEvaluation bool) error {
 	args := m.Called(invalidK8sFiles, evaluationId, stopEvaluation)
 	return args.Error(0)
 }
@@ -64,9 +63,9 @@ type K8sValidatorMock struct {
 	mock.Mock
 }
 
-func (kv *K8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile) {
+func (kv *K8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile) {
 	args := kv.Called(filesConfigurationsChan, concurrency)
-	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *validation.InvalidK8sFile)
+	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *extractor.InvalidFile)
 }
 
 func (kv *K8sValidatorMock) GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations) {
@@ -298,10 +297,10 @@ func newFilesConfigurations(path string) []*extractor.FileConfigurations {
 	return filesConfigurations
 }
 
-func newInvalidK8sFilesChan() chan *validation.InvalidK8sFile {
-	invalidFilesChan := make(chan *validation.InvalidK8sFile, 1)
+func newInvalidK8sFilesChan() chan *extractor.InvalidFile {
+	invalidFilesChan := make(chan *extractor.InvalidFile, 1)
 
-	invalidFile := &validation.InvalidK8sFile{
+	invalidFile := &extractor.InvalidFile{
 		Path:             "invalid/path",
 		ValidationErrors: []error{},
 	}

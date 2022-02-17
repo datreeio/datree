@@ -1,24 +1,23 @@
 package test
 
 import (
-	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 )
 
 type ValidationManager struct {
-	invalidYamlFiles            []*validation.InvalidYamlFile
-	invalidK8sFiles             []*validation.InvalidK8sFile
+	invalidYamlFiles            []*extractor.InvalidFile
+	invalidK8sFiles             []*extractor.InvalidFile
 	validK8sFilesConfigurations []*extractor.FileConfigurations
 	ignoredFiles                []extractor.FileConfigurations
 }
 
-func (v *ValidationManager) AggregateInvalidYamlFiles(invalidFilesChan chan *validation.InvalidYamlFile) {
+func (v *ValidationManager) AggregateInvalidYamlFiles(invalidFilesChan chan *extractor.InvalidFile) {
 	for invalidFile := range invalidFilesChan {
 		v.invalidYamlFiles = append(v.invalidYamlFiles, invalidFile)
 	}
 }
 
-func (v *ValidationManager) InvalidYamlFiles() []*validation.InvalidYamlFile {
+func (v *ValidationManager) InvalidYamlFiles() []*extractor.InvalidFile {
 	return v.invalidYamlFiles
 }
 
@@ -26,13 +25,13 @@ func (v *ValidationManager) InvalidYamlFilesCount() int {
 	return len(v.invalidYamlFiles)
 }
 
-func (v *ValidationManager) AggregateInvalidK8sFiles(invalidFilesChan chan *validation.InvalidK8sFile) {
+func (v *ValidationManager) AggregateInvalidK8sFiles(invalidFilesChan chan *extractor.InvalidFile) {
 	for invalidFile := range invalidFilesChan {
 		v.invalidK8sFiles = append(v.invalidK8sFiles, invalidFile)
 	}
 }
 
-func (v *ValidationManager) InvalidK8sFiles() []*validation.InvalidK8sFile {
+func (v *ValidationManager) InvalidK8sFiles() []*extractor.InvalidFile {
 	return v.invalidK8sFiles
 }
 
