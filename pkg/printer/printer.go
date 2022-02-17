@@ -2,9 +2,10 @@ package printer
 
 import (
 	"fmt"
+	"io"
+
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
-	"io"
 )
 
 var out io.Writer = color.Output

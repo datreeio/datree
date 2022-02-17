@@ -221,12 +221,15 @@ func IsHelmFile(filePath string) bool {
 		return false
 	}
 
-	if !strings.Contains(cleanFilePath, "Chart") && !strings.Contains(cleanFilePath, "chart") &&
-		!strings.Contains(cleanFilePath, "Values") && !strings.Contains(cleanFilePath, "values") {
-		return false
+	helmFilesExtensions := [...]string{"Chart", "chart", "Values", "values"}
+
+	for _, extension := range helmFilesExtensions {
+		if strings.Contains(cleanFilePath, extension) {
+			return true
+		}
 	}
 
-	return true
+	return false
 }
 
 type OutputTitle int
