@@ -137,6 +137,7 @@ func parseInvalidK8sFilesToWarnings(invalidK8sFiles []*validation.InvalidK8sFile
 				ValidationErrors: invalidFile.ValidationErrors,
 				K8sVersion:       k8sVersion,
 			},
+			ExtraMessages: GetWarningExtraMessages(invalidFile),
 		})
 	}
 
@@ -198,6 +199,34 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 	}
 
 	return warnings, nil
+}
+
+func GetWarningExtraMessages(invalidFile *validation.InvalidK8sFile) []printer.ExtraMessage {
+	var extraMessages []printer.ExtraMessage
+
+	if IsHelmFile(invalidFile.Path) {
+		extraMessages = append(extraMessages, printer.ExtraMessage{
+			Text:  "Looks like you’re trying to test against a raw helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree",
+			Color: "blue",
+		})
+	}
+	return extraMessages
+}
+
+func IsHelmFile(filePath string) bool {
+	cleanFilePath := strings.Replace(filePath, "\n", "", -1)
+	fileExtension := filepath.Ext(cleanFilePath)
+
+	if fileExtension != ".yml" && fileExtension != ".yaml" {
+		return false
+	}
+
+	if !strings.Contains(cleanFilePath, "Chart") && !strings.Contains(cleanFilePath, "chart") &&
+		!strings.Contains(cleanFilePath, "Values") && !strings.Contains(cleanFilePath, "values") {
+		return false
+	}
+
+	return true
 }
 
 type OutputTitle int

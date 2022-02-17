@@ -2,12 +2,9 @@ package printer
 
 import (
 	"fmt"
-	"io"
-	"path/filepath"
-	"strings"
-
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
+	"io"
 )
 
 var out io.Writer = color.Output
@@ -42,11 +39,18 @@ type InvalidK8sInfo struct {
 	ValidationErrors []error
 	K8sVersion       string
 }
+
+type ExtraMessage struct {
+	Text  string
+	Color string
+}
+
 type Warning struct {
 	Title           string
 	FailedRules     []FailedRule
 	InvalidYamlInfo InvalidYamlInfo
 	InvalidK8sInfo  InvalidK8sInfo
+	ExtraMessages   []ExtraMessage
 }
 
 func (p *Printer) SetTheme(theme *Theme) {
@@ -76,11 +80,12 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
 		fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Error, validationError)
 	}
-	fmt.Fprintln(out)
 
-	if isHelmFile(warning.Title) {
-		p.printInColor("Looks like you're using helm, check out our helm plugin - https://hub.datree.io/helm-plugin\n", p.Theme.Colors.Blue)
+	for _, extraMessage := range warning.ExtraMessages {
+		p.PrintMessage(extraMessage.Text, extraMessage.Color)
 	}
+
+	fmt.Fprintln(out)
 
 	p.printSkippedPolicyCheck()
 	fmt.Fprintln(out)
@@ -208,6 +213,8 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 		return p.Theme.Colors.Yellow
 	case "green":
 		return p.Theme.Colors.Green
+	case "blue":
+		return p.Theme.Colors.Blue
 	default:
 		return p.Theme.Colors.White
 	}
@@ -236,20 +243,4 @@ func (p *Printer) getStringOrNotAvailable(str string) string {
 	} else {
 		return str
 	}
-}
-
-func isHelmFile(filePath string) bool {
-	cleanFilePath := strings.Replace(filePath, "\n", "", -1)
-	fileExtension := filepath.Ext(cleanFilePath)
-
-	if fileExtension != ".yml" && fileExtension != ".yaml" {
-		return false
-	}
-
-	if !strings.Contains(cleanFilePath, "Chart") && !strings.Contains(cleanFilePath, "chart") &&
-		!strings.Contains(cleanFilePath, "Values") && !strings.Contains(cleanFilePath, "values") {
-		return false
-	}
-
-	return true
 }
