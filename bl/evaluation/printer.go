@@ -206,7 +206,7 @@ func GetWarningExtraMessages(invalidFile *validation.InvalidK8sFile) []printer.E
 
 	if IsHelmFile(invalidFile.Path) {
 		extraMessages = append(extraMessages, printer.ExtraMessage{
-			Text:  "Looks like you’re trying to test against a raw helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree",
+			Text:  "Are you trying to test a raw helm file ? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree",
 			Color: "blue",
 		})
 	}
