@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 )
@@ -40,7 +41,7 @@ type EvaluationResults struct {
 	}
 }
 
-func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string) (*cliClient.CreateEvaluationResponse, error) {
+func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext) (*cliClient.CreateEvaluationResponse, error) {
 	createEvaluationResponse, err := e.cliClient.CreateEvaluation(&cliClient.CreateEvaluationRequest{
 		K8sVersion: &k8sVersion,
 		CliId:      cliId,
@@ -50,6 +51,7 @@ func (e *Evaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion
 			Os:              e.osInfo.OS,
 			PlatformVersion: e.osInfo.PlatformVersion,
 			KernelVersion:   e.osInfo.KernelVersion,
+			CIContext:       ciContext,
 		},
 	})
 

@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/stretchr/testify/assert"
@@ -78,13 +79,27 @@ func TestCreateEvaluation(t *testing.T) {
 		cliVersion := "0.0.7"
 		k8sVersion := "1.18.1"
 		policyName := "Default"
+		ciContext := &ciContext.CIContext{
+			IsCI:  true,
+			CIEnv: "travis",
+		}
 
 		mockedCliClient.On("CreateEvaluation", mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: 1, K8sVersion: k8sVersion}, nil)
 
 		expectedCreateEvaluationResponse := &cliClient.CreateEvaluationResponse{EvaluationId: 1, K8sVersion: k8sVersion}
-		createEvaluationResponse, _ := evaluator.CreateEvaluation(cliId, cliVersion, k8sVersion, policyName)
-
-		mockedCliClient.AssertCalled(t, "CreateEvaluation", mock.Anything)
+		createEvaluationResponse, _ := evaluator.CreateEvaluation(cliId, cliVersion, k8sVersion, policyName, ciContext)
+		mockedCliClient.AssertCalled(t, "CreateEvaluation", &cliClient.CreateEvaluationRequest{
+			K8sVersion: &k8sVersion,
+			CliId:      cliId,
+			PolicyName: policyName,
+			Metadata: &cliClient.Metadata{
+				CliVersion:      cliVersion,
+				Os:              evaluator.osInfo.OS,
+				PlatformVersion: evaluator.osInfo.PlatformVersion,
+				KernelVersion:   evaluator.osInfo.KernelVersion,
+				CIContext:       ciContext,
+			},
+		})
 		assert.Equal(t, expectedCreateEvaluationResponse, createEvaluationResponse)
 
 	})
