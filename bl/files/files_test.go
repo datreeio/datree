@@ -2,6 +2,7 @@ package files
 
 import (
 	"errors"
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -9,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 )
-
+const FIXTURES_PATH string = "../../fixtures/kube";
 type toAbsolutePathsTestCase struct {
 	name string
 	args struct {
@@ -35,12 +36,13 @@ func TestToAbsolutePath(t *testing.T) {
 }
 
 func test_existed_file() *toAbsolutePathsTestCase {
-	const filePathName = "../../fixtures/kube/pass-all.yaml"
-	p, _ := filepath.Abs(filePathName)
+	filesPath := fmt.Sprintf("%s/pass-all.yaml", FIXTURES_PATH)
+
+	p, _ := filepath.Abs(filesPath)
 	return &toAbsolutePathsTestCase{
 		name: "existed file, should return abs path with no errors",
 		args: struct{ path string }{
-			path: filePathName ,
+			path: filesPath,
 		},
 		expected: struct {
 			path string
@@ -48,14 +50,15 @@ func test_existed_file() *toAbsolutePathsTestCase {
 			path: p,
 		},
 	}
-}
+} 
 
 func test_not_existed_file() *toAbsolutePathsTestCase {
-	const fileNamePath = "../../fixtures/kube/bla.yaml"
+	filesPath := fmt.Sprintf("%s/bla.yaml", FIXTURES_PATH)
+
 	return &toAbsolutePathsTestCase{
 		name: "test not existed file, should return an error",
 		args: struct{ path string }{
-			path: fileNamePath ,
+			path: filesPath,
 		},
 		expected: struct {
 			path string
@@ -66,10 +69,10 @@ func test_not_existed_file() *toAbsolutePathsTestCase {
 }
 
 func test_directory_file() *toAbsolutePathsTestCase {
-	const fileNamePath = "../../fixtures/kube"
+	
 	return &toAbsolutePathsTestCase{
 		args: struct{ path string }{
-			path: fileNamePath,
+			path: FIXTURES_PATH,
 		},
 		expected: struct {
 			path string

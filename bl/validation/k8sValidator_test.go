@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 )
-
+const FIXTURES_PATH string = "../../fixtures/kube";
 type mockValidationClient struct {
 	mock.Mock
 }
@@ -38,7 +38,7 @@ func test_valid_multiple_configurations(t *testing.T) {
 		validationClient: validationClient,
 	}
 
-	const path = "../../fixtures/kube/pass-all.yaml"
+	path :=  fmt.Sprintf("%s/pass-all.yaml", FIXTURES_PATH)
 
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 	filesConfigurationsChan <- &extractor.FileConfigurations{
@@ -62,7 +62,7 @@ func test_valid_multiple_configurations_only_k8s_files(t *testing.T) {
 		validationClient: validationClient,
 	}
 
-	const path = "../../fixtures/kube/Chart.yaml"
+	 path  := fmt.Sprintf("%s/Chart.yaml", FIXTURES_PATH)
 
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 	filesConfigurationsChan <- &extractor.FileConfigurations{
@@ -86,7 +86,7 @@ func test_invalid_file(t *testing.T) {
 		validationClient: validationClient,
 	}
 
-	const path = "../../fixtures/kube/invalidK8sSchema.yaml"
+	path  := fmt.Sprintf("%s/invalidK8sSchema.yaml", FIXTURES_PATH)
 
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 	filesConfigurationsChan <- &extractor.FileConfigurations{
@@ -110,7 +110,7 @@ func test_empty_file(t *testing.T) {
 		validationClient: validationClient,
 	}
 
-	const path = "../../fixtures/kube/empty.yaml"
+	path  := fmt.Sprintf("%s/empty.yaml", FIXTURES_PATH)
 
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 	filesConfigurationsChan <- &extractor.FileConfigurations{

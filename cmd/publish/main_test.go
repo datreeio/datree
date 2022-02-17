@@ -13,6 +13,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const FIXTURES_PATH string = "../../fixtures/policyAsCode"
+
 type LocalConfigMock struct {
 	mock.Mock
 }

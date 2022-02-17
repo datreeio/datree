@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -14,6 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+const FIXTURES_PATH string = "../../fixtures/kube"
 
 type mockCliClient struct {
 	mock.Mock
@@ -173,7 +176,7 @@ type evaluateTestCase struct {
 }
 
 func request_evaluation_all_valid() *evaluateTestCase {
-	const validFilePath = "../../fixtures/kube/pass-all.yaml"
+	validFilePath := fmt.Sprintf("%s/pass-all.yaml", FIXTURES_PATH)
 
 	prerunData := mockGetPreRunData()
 	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
