@@ -13,6 +13,7 @@ import (
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/pkg/errors"
 
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
@@ -89,6 +90,8 @@ type Reader interface {
 type LocalConfig interface {
 	GetLocalConfiguration() (*localConfig.ConfigContent, error)
 }
+
+var ViolationsFoundError = errors.New("")
 
 type TestCommandContext struct {
 	CliVersion   string
@@ -281,15 +284,15 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		}
 	}
 
-	var invocationFailedErr error = nil
-
 	if err != nil {
-		invocationFailedErr = err
-	} else if validationManager.InvalidYamlFilesCount() > 0 || validationManager.InvalidK8sFilesCount() > 0 || results.EvaluationResults.Summary.TotalFailedRules > 0 {
-		invocationFailedErr = fmt.Errorf("")
+		return err
 	}
 
-	return invocationFailedErr
+	if wereViolationsFound(validationManager, &results) {
+		return ViolationsFoundError
+	}
+
+	return nil
 }
 
 func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFlags, cliId string) (*ValidationManager, *cliClient.CreateEvaluationResponse, evaluation.ResultType, error) {
@@ -369,4 +372,8 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 	results, err := ctx.Evaluator.Evaluate(validationManager.ValidK8sFilesConfigurations(), createEvaluationResponse, isInteractiveMode)
 
 	return validationManager, createEvaluationResponse, results, err
+}
+
+func wereViolationsFound(validationManager *ValidationManager, results *evaluation.ResultType) bool {
+	return (validationManager.InvalidYamlFilesCount() > 0 || validationManager.InvalidK8sFilesCount() > 0 || results.EvaluationResults.Summary.TotalFailedRules > 0)
 }
