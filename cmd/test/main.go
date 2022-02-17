@@ -210,10 +210,6 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 	}
 }
 
-func WereViolationsFound(validationManager *ValidationManager, results *evaluation.ResultType) bool {
-	return (validationManager.InvalidYamlFilesCount() > 0 || validationManager.InvalidK8sFilesCount() > 0 || results.EvaluationResults.Summary.TotalFailedRules > 0)
-}
-
 func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
 	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
 	if err != nil {
@@ -292,7 +288,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return err
 	}
 
-	if WereViolationsFound(validationManager, &results) {
+	if wereViolationsFound(validationManager, &results) {
 		return ViolationsFoundError
 	}
 
@@ -376,4 +372,8 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 	results, err := ctx.Evaluator.Evaluate(validationManager.ValidK8sFilesConfigurations(), createEvaluationResponse, isInteractiveMode)
 
 	return validationManager, createEvaluationResponse, results, err
+}
+
+func wereViolationsFound(validationManager *ValidationManager, results *evaluation.ResultType) bool {
+	return (validationManager.InvalidYamlFilesCount() > 0 || validationManager.InvalidK8sFilesCount() > 0 || results.EvaluationResults.Summary.TotalFailedRules > 0)
 }
