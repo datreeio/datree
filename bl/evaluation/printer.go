@@ -201,7 +201,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 	return warnings, nil
 }
 
-func GetWarningExtraMessages(invalidFile *validation.InvalidK8sFile) []printer.ExtraMessage {
+func GetWarningExtraMessages(invalidFile *extractor.InvalidFile) []printer.ExtraMessage {
 	var extraMessages []printer.ExtraMessage
 
 	if IsHelmFile(invalidFile.Path) {

@@ -40,21 +40,10 @@ func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extracto
 
 		for _, path := range paths {
 
-			absolutePath, err := ToAbsolutePath(path)
-			if err != nil {
-				invalidFilesChan <- &validation.InvalidYamlFile{Path: path, ValidationErrors: []error{&validation.InvalidYamlError{ErrorMessage: err.Error()}}}
-				continue
-			}
+			configurations, absolutePath, invalidYamlFile := ExtractConfigurationsFromYamlFile(path)
 
-			content, err := extractor.ReadFileContent(absolutePath)
-			if err != nil {
-				invalidFilesChan <- &validation.InvalidYamlFile{Path: absolutePath, ValidationErrors: []error{&validation.InvalidYamlError{ErrorMessage: err.Error()}}}
-				continue
-			}
-
-			configurations, err := extractor.ParseYaml(content)
-			if err != nil {
-				invalidFilesChan <- &validation.InvalidYamlFile{Path: absolutePath, ValidationErrors: []error{&validation.InvalidYamlError{ErrorMessage: err.Error()}}}
+			if invalidYamlFile != nil {
+				invalidFilesChan <- invalidYamlFile
 				continue
 			}
 
@@ -63,6 +52,25 @@ func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extracto
 	}()
 
 	return filesConfigurationsChan, invalidFilesChan
+}
+
+func ExtractConfigurationsFromYamlFile(path string) (*[]extractor.Configuration, string, *validation.InvalidYamlFile) {
+	absolutePath, err := ToAbsolutePath(path)
+	if err != nil {
+		return nil, "", &validation.InvalidYamlFile{Path: path, ValidationErrors: []error{&validation.InvalidYamlError{ErrorMessage: err.Error()}}}
+	}
+
+	content, err := extractor.ReadFileContent(absolutePath)
+	if err != nil {
+		return nil, "", &validation.InvalidYamlFile{Path: absolutePath, ValidationErrors: []error{&validation.InvalidYamlError{ErrorMessage: err.Error()}}}
+	}
+
+	configurations, err := extractor.ParseYaml(content)
+	if err != nil {
+		return nil, "", &validation.InvalidYamlFile{Path: absolutePath, ValidationErrors: []error{&validation.InvalidYamlError{ErrorMessage: err.Error()}}}
+	}
+
+	return configurations, absolutePath, nil
 }
 
 func ExtractYamlFileToUnknownStruct(path string) (UnknownStruct, error) {
