@@ -40,11 +40,18 @@ type InvalidK8sInfo struct {
 	ValidationErrors []error
 	K8sVersion       string
 }
+
+type ExtraMessage struct {
+	Text  string
+	Color string
+}
+
 type Warning struct {
 	Title           string
 	FailedRules     []FailedRule
 	InvalidYamlInfo InvalidYamlInfo
 	InvalidK8sInfo  InvalidK8sInfo
+	ExtraMessages   []ExtraMessage
 }
 
 func (p *Printer) SetTheme(theme *Theme) {
@@ -74,7 +81,13 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
 		fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Error, validationError)
 	}
+
+	for _, extraMessage := range warning.ExtraMessages {
+		p.PrintMessage(extraMessage.Text, extraMessage.Color)
+	}
+
 	fmt.Fprintln(out)
+
 	p.printSkippedPolicyCheck()
 	fmt.Fprintln(out)
 }
@@ -201,6 +214,8 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 		return p.Theme.Colors.Yellow
 	case "green":
 		return p.Theme.Colors.Green
+	case "blue":
+		return p.Theme.Colors.Blue
 	default:
 		return p.Theme.Colors.White
 	}

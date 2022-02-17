@@ -1,0 +1,5 @@
+testService:
+  name: test-service
+  image:
+    tag: staging
+  certificateArn: arn:aws:acm
