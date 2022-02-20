@@ -17,12 +17,14 @@ type CLIClient interface {
 type Evaluator struct {
 	cliClient CLIClient
 	osInfo    *OSInfo
+	ciContext *ciContext.CIContext
 }
 
 func New(c CLIClient) *Evaluator {
 	return &Evaluator{
 		cliClient: c,
 		osInfo:    NewOSInfo(),
+		ciContext: ciContext.Extract(),
 	}
 }
 
