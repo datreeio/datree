@@ -93,6 +93,16 @@ type LocalConfig interface {
 
 var ViolationsFoundError = errors.New("")
 
+type TestCommandOptions struct {
+	Output               string
+	K8sVersion           string
+	IgnoreMissingSchemas bool
+	OnlyK8sFiles         bool
+	PolicyName           string
+	SchemaLocations      []string
+	Token                string
+}
+
 type TestCommandContext struct {
 	CliVersion   string
 	LocalConfig  LocalConfig
@@ -167,12 +177,18 @@ func New(ctx *TestCommandContext) *cobra.Command {
 
 			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations, OnlyK8sFiles: onlyK8sFiles}
 			err = testCommandFlags.Validate()
-
 			if err != nil {
 				return err
 			}
 
-			err = test(ctx, args, testCommandFlags)
+			localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
+			if err != nil {
+				return err
+			}
+
+			testCommandOptions := generateTestCommandOptions(&testCommandFlags, localConfigContent)
+
+			err = test(ctx, args, testCommandOptions)
 			if err != nil {
 				return err
 			}
@@ -195,6 +211,24 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	return testCommand
 }
 
+func generateTestCommandOptions(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.ConfigContent) *TestCommandOptions {
+	k8sVersion := testCommandFlags.K8sVersion
+	if k8sVersion == "" {
+		k8sVersion = localConfigContent.SchemaVersion
+	}
+
+	testCommandOptions := &TestCommandOptions{Output: testCommandFlags.Output,
+		K8sVersion:           k8sVersion,
+		IgnoreMissingSchemas: testCommandFlags.IgnoreMissingSchemas,
+		OnlyK8sFiles:         testCommandFlags.OnlyK8sFiles,
+		PolicyName:           testCommandFlags.PolicyName,
+		SchemaLocations:      testCommandFlags.SchemaLocations,
+		Token:                localConfigContent.CliId,
+	}
+
+	return testCommandOptions
+}
+
 func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 	if k8sVersion == "" {
 		return nil
@@ -210,15 +244,7 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 	}
 }
 
-func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error {
-	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
-	if err != nil {
-		return err
-	}
-
-	if flags.K8sVersion == "" {
-		flags.K8sVersion = localConfigContent.SchemaVersion
-	}
+func test(ctx *TestCommandContext, paths []string, options *TestCommandOptions) error {
 
 	if paths[0] == "-" {
 		if len(paths) > 1 {
@@ -246,11 +272,11 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		return noFilesErr
 	}
 
-	if flags.Output == "simple" {
+	if options.Output == "simple" {
 		ctx.Printer.SetTheme(printer.CreateSimpleTheme())
 	}
 
-	validationManager, createEvaluationResponse, results, err := evaluate(ctx, filesPaths, flags, localConfigContent.CliId)
+	validationManager, createEvaluationResponse, results, err := evaluate(ctx, filesPaths, options)
 	if err != nil {
 		return err
 	}
@@ -271,7 +297,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", localConfigContent.CliId), flags.Output, ctx.Printer, createEvaluationResponse.K8sVersion, createEvaluationResponse.PolicyName)
+	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", options.Token), options.Output, ctx.Printer, createEvaluationResponse.K8sVersion, createEvaluationResponse.PolicyName)
 
 	if len(createEvaluationResponse.PromptMessage) > 0 {
 		ctx.Printer.PrintPromptMessage(createEvaluationResponse.PromptMessage)
@@ -283,7 +309,7 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 		}
 
 		if strings.ToLower(string(answer)) != "n" {
-			promptLoginUrl := fmt.Sprintf("https://app.datree.io/promptLogin?cliId=%s", localConfigContent.CliId)
+			promptLoginUrl := fmt.Sprintf("https://app.datree.io/promptLogin?cliId=%s", options.Token)
 			openBrowser(promptLoginUrl)
 		}
 	}
@@ -299,8 +325,8 @@ func test(ctx *TestCommandContext, paths []string, flags TestCommandFlags) error
 	return nil
 }
 
-func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFlags, cliId string) (*ValidationManager, *cliClient.CreateEvaluationResponse, evaluation.ResultType, error) {
-	isInteractiveMode := (flags.Output != "json") && (flags.Output != "yaml") && (flags.Output != "xml")
+func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommandOptions) (*ValidationManager, *cliClient.CreateEvaluationResponse, evaluation.ResultType, error) {
+	isInteractiveMode := (options.Output != "json") && (options.Output != "yaml") && (options.Output != "xml")
 
 	if isInteractiveMode {
 		messages := make(chan *messager.VersionMessage, 1)
@@ -314,7 +340,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 	}
 
 	var _spinner *spinner.Spinner
-	if isInteractiveMode && flags.Output != "simple" {
+	if isInteractiveMode && options.Output != "simple" {
 		_spinner = createSpinner(" Loading...", "cyan")
 		_spinner.Start()
 	}
@@ -330,12 +356,12 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 
 	ciContext := ciContext.Extract()
 
-	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(cliId, ctx.CliVersion, flags.K8sVersion, flags.PolicyName, ciContext)
+	createEvaluationResponse, err := ctx.Evaluator.CreateEvaluation(options.Token, ctx.CliVersion, options.K8sVersion, options.PolicyName, ciContext)
 	if err != nil {
 		return validationManager, nil, evaluation.ResultType{}, err
 	}
 
-	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, flags.IgnoreMissingSchemas, flags.SchemaLocations)
+	ctx.K8sValidator.InitClient(createEvaluationResponse.K8sVersion, options.IgnoreMissingSchemas, options.SchemaLocations)
 
 	concurrency := 100
 
@@ -343,7 +369,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, flags TestCommandFla
 
 	validationManager.AggregateInvalidYamlFiles(invalidYamlFilesChan)
 
-	if flags.OnlyK8sFiles {
+	if options.OnlyK8sFiles {
 		var ignoredYamlFilesChan chan *extractor.FileConfigurations
 		validYamlConfigurationsChan, ignoredYamlFilesChan = ctx.K8sValidator.GetK8sFiles(validYamlConfigurationsChan, concurrency)
 		validationManager.AggregateIgnoredYamlFiles(ignoredYamlFilesChan)
