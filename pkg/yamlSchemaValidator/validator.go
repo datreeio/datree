@@ -1,21 +1,20 @@
-package jsonSchemaValidator
+package yamlSchemaValidator
 
 import (
 	"github.com/ghodss/yaml"
 	"github.com/xeipuuv/gojsonschema"
 )
 
-type JsonSchemaValidator struct {
-
+type YamlSchemaValidator struct {
 }
 
-func New() *JsonSchemaValidator {
-	return &JsonSchemaValidator{}
+func New() *YamlSchemaValidator {
+	return &YamlSchemaValidator{}
 }
 
 type Result = gojsonschema.Result
 
-func (jsv *JsonSchemaValidator) Validate(schemaContent string, yamlContent string) (*Result, error) {
+func (jsv *YamlSchemaValidator) Validate(schemaContent string, yamlContent string) (*Result, error) {
 
 	jsonSchema, _ := yaml.YAMLToJSON([]byte(schemaContent))
 

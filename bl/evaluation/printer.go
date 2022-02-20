@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/datreeio/datree/pkg/extractor"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"gopkg.in/yaml.v2"

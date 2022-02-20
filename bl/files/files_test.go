@@ -2,9 +2,10 @@ package files
 
 import (
 	"errors"
-	"github.com/datreeio/datree/pkg/extractor"
 	"path/filepath"
 	"testing"
+
+	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/stretchr/testify/assert"
 )

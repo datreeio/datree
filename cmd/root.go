@@ -7,15 +7,15 @@ import (
 	"github.com/datreeio/datree/cmd/completion"
 	"github.com/datreeio/datree/cmd/config"
 	"github.com/datreeio/datree/cmd/publish"
-	"github.com/datreeio/datree/cmd/schema-validator"
+	schema_validator "github.com/datreeio/datree/cmd/schema-validator"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/fileReader"
-	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
+	"github.com/datreeio/datree/pkg/yamlSchemaValidator"
 	"github.com/spf13/cobra"
 )
 
@@ -63,9 +63,9 @@ func init() {
 
 	rootCmd.AddCommand(completion.New())
 
-	rootCmd.AddCommand(schema_validator.New(&schema_validator.SchemaValidatorCommandContext{
-		JsonSchemaValidator: app.context.JsonSchemaValidator,
-		Printer: app.context.Printer,
+	rootCmd.AddCommand(schema_validator.New(&schema_validator.YamlSchemaValidatorCommandContext{
+		YamlSchemaValidator: app.context.YamlSchemaValidator,
+		Printer:             app.context.Printer,
 	}))
 }
 
@@ -81,7 +81,7 @@ type context struct {
 	Printer             *printer.Printer
 	Reader              *fileReader.FileReader
 	K8sValidator        *validation.K8sValidator
-	JsonSchemaValidator *jsonSchemaValidator.JsonSchemaValidator
+	YamlSchemaValidator *yamlSchemaValidator.YamlSchemaValidator
 }
 
 type app struct {
@@ -102,7 +102,7 @@ func startup() *app {
 			Printer:             printer,
 			Reader:              fileReader.CreateFileReader(nil),
 			K8sValidator:        validation.New(),
-			JsonSchemaValidator: jsonSchemaValidator.New(),
+			YamlSchemaValidator: yamlSchemaValidator.New(),
 		},
 	}
 }

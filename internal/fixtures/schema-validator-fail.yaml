@@ -1,7 +1,7 @@
 type: object
 properties:
   kind:
-    type: string
+    type: strings
     enum:
       - Ingress
       - Service

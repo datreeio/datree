@@ -2,11 +2,12 @@ package evaluation
 
 import (
 	"bytes"
-	"github.com/datreeio/datree/pkg/extractor"
 	"io"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/stretchr/testify/assert"

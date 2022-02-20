@@ -10,8 +10,6 @@ import (
 
 type UnknownStruct map[string]interface{}
 
-
-
 func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile) {
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
 	invalidFilesChan := make(chan *extractor.InvalidFile, concurrency)
