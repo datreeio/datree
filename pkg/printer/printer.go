@@ -214,8 +214,8 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 		return p.Theme.Colors.Yellow
 	case "green":
 		return p.Theme.Colors.Green
-	case "blue":
-		return p.Theme.Colors.Blue
+	case "cyan":
+		return p.Theme.Colors.Cyan
 	default:
 		return p.Theme.Colors.White
 	}
