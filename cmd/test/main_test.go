@@ -189,7 +189,7 @@ func TestTestCommand(t *testing.T) {
 
 	test_testCommand_only_k8s_files(t, k8sValidatorMock, filesConfigurations, evaluationId, ctx)
 
-	test_testCommand_demo_yaml(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, evaluationId, ctx)
+	test_testCommand_demo_yaml(t, k8sValidatorMock, filesConfigurations, evaluationId, ctx)
 }
 
 func test_testCommand_flags_validation(t *testing.T, ctx *TestCommandContext) {
@@ -281,13 +281,13 @@ func test_testCommand_only_k8s_files(t *testing.T, k8sValidator *K8sValidatorMoc
 }
 
 
-func test_testCommand_demo_yaml(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
+func test_testCommand_demo_yaml(t *testing.T, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
 	test(ctx, []string{"8/*"}, TestCommandFlags{OnlyK8sFiles: true, Output: ""})
 
-	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	k8sValidator.AssertCalled(t, "GetK8sFiles", mock.Anything, 100)
+	k8sValidator.AssertCalled(t, "ValidateResources", 100)
+	k8sValidator.AssertCalled(t, "GetK8sFiles",100)
 	evaluator.AssertCalled(t, "CreateEvaluation", "134kh", "", "1.18.0", "Default")
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, mock.Anything, mock.Anything)
+	evaluator.AssertCalled(t, "Evaluate", filesConfigurations)
 
 }
 
