@@ -1,0 +1,5 @@
+napiVersion: v1
+policies:
+  - name: "policy1"
+    isDefault: true
+  - name: "policy1"

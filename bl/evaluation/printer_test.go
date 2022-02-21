@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/stretchr/testify/assert"
@@ -32,8 +32,8 @@ func (c *mockPrinter) PrintEvaluationSummary(summary printer.EvaluationSummary, 
 
 type printResultsTestCaseArgs struct {
 	results           ResultType
-	invalidYamlFiles  []*validation.InvalidYamlFile
-	invalidK8sFiles   []*validation.InvalidK8sFile
+	invalidYamlFiles  []*extractor.InvalidFile
+	invalidK8sFiles   []*extractor.InvalidFile
 	evaluationSummary printer.EvaluationSummary
 	loginURL          string
 	outputFormat      string
@@ -227,8 +227,8 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 					FormattedEvaluationResults: []*FormattedEvaluationResults{},
 				},
 			},
-			invalidYamlFiles:  []*validation.InvalidYamlFile{},
-			invalidK8sFiles:   []*validation.InvalidK8sFile{},
+			invalidYamlFiles:  []*extractor.InvalidFile{},
+			invalidK8sFiles:   []*extractor.InvalidFile{},
 			evaluationSummary: printer.EvaluationSummary{},
 			loginURL:          "login/url",
 			outputFormat:      outputFormat,

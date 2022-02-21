@@ -19,11 +19,3 @@ func (e *InvalidK8sSchemaError) usageSuggestion() string {
 	}
 	return ""
 }
-
-type InvalidYamlError struct {
-	ErrorMessage string
-}
-
-func (e *InvalidYamlError) Error() string {
-	return fmt.Sprintf("yaml validation error: %s\n", e.ErrorMessage)
-}

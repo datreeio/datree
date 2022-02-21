@@ -22,21 +22,13 @@ func New() *K8sValidator {
 	return &K8sValidator{}
 }
 
-type InvalidFile struct {
-	Path             string  `yaml:"path" json:"path" xml:"path"`
-	ValidationErrors []error `yaml:"errors" json:"errors" xml:"errors"`
-}
-type InvalidYamlFile InvalidFile
-
-type InvalidK8sFile InvalidFile
-
 func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) {
 	val.validationClient = newKubconformValidator(k8sVersion, ignoreMissingSchemas, schemaLocations)
 }
 
-func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *InvalidK8sFile) {
+func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile) {
 	validK8sFilesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
-	invalidK8sFilesChan := make(chan *InvalidK8sFile, concurrency)
+	invalidK8sFilesChan := make(chan *extractor.InvalidFile, concurrency)
 
 	go func() {
 		defer func() {
@@ -48,7 +40,7 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 
 			isValid, validationErrors, err := val.validateResource(fileConfigurations.FileName)
 			if err != nil {
-				invalidK8sFilesChan <- &InvalidK8sFile{
+				invalidK8sFilesChan <- &extractor.InvalidFile{
 					Path:             fileConfigurations.FileName,
 					ValidationErrors: []error{err},
 				}
@@ -57,7 +49,7 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 			if isValid {
 				validK8sFilesConfigurationsChan <- fileConfigurations
 			} else {
-				invalidK8sFilesChan <- &InvalidK8sFile{
+				invalidK8sFilesChan <- &extractor.InvalidFile{
 					Path:             fileConfigurations.FileName,
 					ValidationErrors: validationErrors,
 				}

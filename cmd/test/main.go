@@ -10,7 +10,6 @@ import (
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
-	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/pkg/errors"
@@ -28,8 +27,8 @@ import (
 type Evaluator interface {
 	Evaluate(filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, isInteractiveMode bool) (evaluation.ResultType, error)
 	CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext) (*cliClient.CreateEvaluationResponse, error)
-	UpdateFailedYamlValidation(invalidFiles []*validation.InvalidYamlFile, evaluationId int, stopEvaluation bool) error
-	UpdateFailedK8sValidation(invalidFiles []*validation.InvalidK8sFile, evaluationId int, stopEvaluation bool) error
+	UpdateFailedYamlValidation(invalidFiles []*extractor.InvalidFile, evaluationId int, stopEvaluation bool) error
+	UpdateFailedK8sValidation(invalidFiles []*extractor.InvalidFile, evaluationId int, stopEvaluation bool) error
 }
 
 type Messager interface {
@@ -37,7 +36,7 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *validation.InvalidK8sFile)
+	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile)
 	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
 	GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations)
 }

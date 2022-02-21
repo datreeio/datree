@@ -7,6 +7,7 @@ import (
 	"github.com/datreeio/datree/cmd/completion"
 	"github.com/datreeio/datree/cmd/config"
 	"github.com/datreeio/datree/cmd/publish"
+	schema_validator "github.com/datreeio/datree/cmd/schema-validator"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -14,6 +15,7 @@ import (
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
+	"github.com/datreeio/datree/pkg/yamlSchemaValidator"
 	"github.com/spf13/cobra"
 )
 
@@ -60,6 +62,11 @@ func init() {
 	}))
 
 	rootCmd.AddCommand(completion.New())
+
+	rootCmd.AddCommand(schema_validator.New(&schema_validator.YamlSchemaValidatorCommandContext{
+		YamlSchemaValidator: app.context.YamlSchemaValidator,
+		Printer:             app.context.Printer,
+	}))
 }
 
 func Execute() error {
@@ -67,13 +74,14 @@ func Execute() error {
 }
 
 type context struct {
-	LocalConfig  *localConfig.LocalConfig
-	Evaluator    *evaluation.Evaluator
-	CliClient    *cliClient.CliClient
-	Messager     *messager.Messager
-	Printer      *printer.Printer
-	Reader       *fileReader.FileReader
-	K8sValidator *validation.K8sValidator
+	LocalConfig         *localConfig.LocalConfig
+	Evaluator           *evaluation.Evaluator
+	CliClient           *cliClient.CliClient
+	Messager            *messager.Messager
+	Printer             *printer.Printer
+	Reader              *fileReader.FileReader
+	K8sValidator        *validation.K8sValidator
+	YamlSchemaValidator *yamlSchemaValidator.YamlSchemaValidator
 }
 
 type app struct {
@@ -87,13 +95,14 @@ func startup() *app {
 
 	return &app{
 		context: &context{
-			LocalConfig:  localConfig,
-			Evaluator:    evaluation.New(cliClient),
-			CliClient:    cliClient,
-			Messager:     messager.New(cliClient),
-			Printer:      printer,
-			Reader:       fileReader.CreateFileReader(nil),
-			K8sValidator: validation.New(),
+			LocalConfig:         localConfig,
+			Evaluator:           evaluation.New(cliClient),
+			CliClient:           cliClient,
+			Messager:            messager.New(cliClient),
+			Printer:             printer,
+			Reader:              fileReader.CreateFileReader(nil),
+			K8sValidator:        validation.New(),
+			YamlSchemaValidator: yamlSchemaValidator.New(),
 		},
 	}
 }
