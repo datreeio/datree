@@ -139,11 +139,9 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			if (outputFlag != "json") && (outputFlag != "yaml") && (outputFlag != "xml") {
 
 				messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
-				defer func() {
-					for msg := range messages {
-						ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
-					}
-				}()
+				for msg := range messages {
+					ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+				}
 			}
 			return nil
 		},
