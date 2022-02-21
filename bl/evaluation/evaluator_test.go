@@ -80,8 +80,11 @@ func TestCreateEvaluation(t *testing.T) {
 		k8sVersion := "1.18.1"
 		policyName := "Default"
 		ciContext := &ciContext.CIContext{
-			IsCI:  true,
-			CIEnv: "travis",
+			IsCI: true,
+			CIMetadata: &ciContext.CIMetadata{
+				CIEnvValue:       "travis",
+				ShouldHideEmojis: false,
+			},
 		}
 
 		mockedCliClient.On("CreateEvaluation", mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: 1, K8sVersion: k8sVersion}, nil)

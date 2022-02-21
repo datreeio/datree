@@ -196,7 +196,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 		},
 	}
 
-	if ciContext.Extract().IsCI {
+	if ciContext.Extract() != nil && ciContext.Extract().CIMetadata.ShouldHideEmojis {
 		testCommand.Flags().StringP("output", "o", "simple", "Define output format")
 	} else {
 		testCommand.Flags().StringP("output", "o", "", "Define output format")
