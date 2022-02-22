@@ -1,0 +1,30 @@
+id: 20,
+name: 'Prevent containers from having root access capabilities'
+uniqueName: 'CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE'
+enabledByDefault: true,
+documentationUrl: 'https://hub.datree.io/prevent-privileged-containers'
+messageOnFailue: 'Incorrect value for key `privileged` - this mode will allow the container the same access as processes running on the host'
+category: RuleCategory.containers
+schema:
+  definitions:
+    specContainers:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  securityContext:
+                    properties:
+                      privileged:
+                        not:
+                          enum:
+                            - true
+                            - 'true'
+  allOf:
+    - $ref: "#/definitions/specContainers"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"

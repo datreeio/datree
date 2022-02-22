@@ -1,0 +1,18 @@
+id: 10,
+name: 'Ensure deployment-like resource is using a valid restart policy'
+uniqueName: 'WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS'
+enabledByDefault: true,
+documentationUrl: 'https://hub.datree.io/ensure-valid-restart-policy'
+messageOnFailue: 'Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource'
+category: RuleCategory.workload
+schema:
+  properties:
+    spec:
+      properties:
+        template:
+          properties:
+            spec:
+              properties:
+                restartPolicy:
+                  enum:
+                    - 'Always'

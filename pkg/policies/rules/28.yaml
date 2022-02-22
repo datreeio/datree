@@ -1,0 +1,24 @@
+id: 28,
+name: 'Prevent containers from sharing the host's network namespace'
+uniqueName: 'CONTAINERS_INCORRECT_HOSTIPC_VALUE_TRUE'
+enabledByDefault: false,
+documentationUrl: 'https://hub.datree.io/prevent-using-host-network'
+messageOnFailue: 'Incorrect value for key `hostNetwork` - running on the host's network namespace can allow a compromised container to sniff network traffic'
+category: RuleCategory.containers
+schema:
+  definitions:
+    specContainers:
+      properties:
+        spec:
+          properties:
+            hostNetwork:
+              not:
+                enum:
+                  - true
+                  - 'true'
+  allOf:
+    - $ref: "#/definitions/specContainers"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"

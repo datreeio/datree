@@ -1,0 +1,27 @@
+id: 29,
+name: 'Prevent containers from accessing host files by using high UIDs'
+uniqueName: 'CONTAINERS_INCORRECT_RUNASUSER_VALUE_LOWUID'
+enabledByDefault: false,
+documentationUrl: 'https://hub.datree.io/prevent-uid-conflicts'
+messageOnFailue: 'Incorrect value for key `runAsUser` - value should be above 9999 to reduce the likelihood that the UID is already taken'
+category: RuleCategory.containers
+schema:
+  definitions:
+    specContainers:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  securityContext:
+                    properties:
+                      runAsUser:
+                        minimum: 10000
+  allOf:
+    - $ref: "#/definitions/specContainers"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"
