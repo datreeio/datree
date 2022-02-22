@@ -1,0 +1,29 @@
+id: 33,
+name: 'Prevent container security vulnerability (CVE-2021-25741)'
+uniqueName: 'CONTAINER_CVE2021_25741_INCORRECT_SUBPATH_KEY'
+enabledByDefault: false,
+documentationUrl: 'https://hub.datree.io/-prevent-container-security-vulnerability-cve-2021-25741'
+messageOnFailue: Forbidden property object `subPath` - malicious users can gain access to files & directories outside of the volume
+category: Security
+schema:
+  definitions:
+    subPathPattern:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  volumeMounts:
+                    type: array
+                    items:
+                      propertyNames:
+                        not:
+                          pattern: ^subPath$
+  allOf:
+    - $ref: "#/definitions/subPathPattern"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"

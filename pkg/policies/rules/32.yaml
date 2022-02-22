@@ -1,0 +1,21 @@
+id: 32,
+name: 'Prevent Ingress security vulnerability (CVE-2021-25742)'
+uniqueName: 'INGRESS_CVE2021_25742_INCORRECT_SERVER_SNIPPET_KEY'
+enabledByDefault: false,
+documentationUrl: 'https://hub.datree.io/-prevent-ingress-security-vulnerability-cve-2021-25742'
+messageOnFailue: Forbidden property object `server-snippet` - ingress-nginx custom snippets are not allowed
+category: Security
+schema:
+  if:
+    properties:
+      kind:
+        enum:
+          - Ingress
+  then:
+    properties:
+      metadata:
+        properties:
+          annotations:
+            not:
+              propertyNames:
+                pattern: ^.*server-snippet$
