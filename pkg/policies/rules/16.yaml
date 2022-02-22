@@ -1,0 +1,20 @@
+id: 16,
+name: 'Ensure Deployment has more than one replica configured'
+uniqueName: 'DEPLOYMENT_INCORRECT_REPLICAS_VALUE'
+enabledByDefault: true,
+documentationUrl: 'https://hub.datree.io/ensure-minimum-two-replicas'
+messageOnFailue: 'Incorrect value for key `replicas` - running 2 or more replicas will increase the availability of the service'
+category: Workload
+schema:
+  if:
+    properties:
+      kind:
+        enum:
+          - Deployment
+  then:
+    properties:
+      spec:
+        properties:
+          replicas:
+            minimum: 2
+
