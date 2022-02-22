@@ -4,7 +4,7 @@ uniqueName: 'CRONJOB_MISSING_STARTINGDEADLINESECOND_KEY'
 enabledByDefault: true,
 documentationUrl: 'https://hub.datree.io/ensure-cronjob-deadline'
 messageOnFailue: 'Missing property object `startingDeadlineSeconds` - set a time limit to the cron execution to allow killing it if exceeded'
-category: RuleCategory.cronjob
+category: CronJob
 schema:
   if:
     properties:

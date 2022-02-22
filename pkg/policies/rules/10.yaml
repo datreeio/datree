@@ -4,7 +4,7 @@ uniqueName: 'WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS'
 enabledByDefault: true,
 documentationUrl: 'https://hub.datree.io/ensure-valid-restart-policy'
 messageOnFailue: 'Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource'
-category: RuleCategory.workload
+category: Workload
 schema:
   properties:
     spec:

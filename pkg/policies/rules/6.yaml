@@ -4,7 +4,7 @@ uniqueName: 'INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE'
 enabledByDefault: true,
 documentationUrl: 'https://hub.datree.io/prevent-ingress-forwarding-traffic-to-single-container'
 messageOnFailue: 'Incorrect value for key `host` - specify host instead of using a wildcard character ("*")'
-category: RuleCategory.networking
+category: Networking
 schema:
   if:
     properties:

@@ -4,7 +4,7 @@ uniqueName: 'DEPLOYMENT_INCORRECT_REPLICAS_VALUE'
 enabledByDefault: true,
 documentationUrl: 'https://hub.datree.io/ensure-minimum-two-replicas'
 messageOnFailue: 'Incorrect value for key `replicas` - running 2 or more replicas will increase the availability of the service'
-category: RuleCategory.workload
+category: Workload
 schema:
   if:
     properties:

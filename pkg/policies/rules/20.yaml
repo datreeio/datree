@@ -4,7 +4,7 @@ uniqueName: 'CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE'
 enabledByDefault: true,
 documentationUrl: 'https://hub.datree.io/prevent-privileged-containers'
 messageOnFailue: 'Incorrect value for key `privileged` - this mode will allow the container the same access as processes running on the host'
-category: RuleCategory.containers
+category: Containers
 schema:
   definitions:
     specContainers:

@@ -4,7 +4,7 @@ uniqueName: 'CONTAINERS_INCORRECT_RUNASUSER_VALUE_LOWUID'
 enabledByDefault: false,
 documentationUrl: 'https://hub.datree.io/prevent-uid-conflicts'
 messageOnFailue: 'Incorrect value for key `runAsUser` - value should be above 9999 to reduce the likelihood that the UID is already taken'
-category: RuleCategory.containers
+category: Containers
 schema:
   definitions:
     specContainers:

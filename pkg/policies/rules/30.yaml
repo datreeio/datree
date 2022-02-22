@@ -4,7 +4,7 @@ uniqueName: 'CONTAINERS_INCORRECT_PATH_VALUE_DOCKERSOCKET'
 enabledByDefault: false,
 documentationUrl: 'https://hub.datree.io/prevent-mounting-docker-socket'
 messageOnFailue: 'Incorrect value for key `path` - avoid mounting the docker.socket becasue it can allow container breakout'
-category: RuleCategory.containers
+category: Containers
 schema:
 definitions:
   specContainers:

@@ -4,7 +4,7 @@ uniqueName: 'CRONJOB_MISSING_CONCURRENCYPOLICY_KEY'
 enabledByDefault: true,
 documentationUrl: 'https://hub.datree.io/prevent-cronjob-concurrency'
 messageOnFailue: 'Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently'
-category: RuleCategory.cronjob
+category: CronJob
 schema:
   if:
     properties:
