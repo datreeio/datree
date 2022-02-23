@@ -23,6 +23,23 @@ type YamlSchemaValidatorCommandContext struct {
 	Printer             YamlSchemaValidationPrinter
 }
 
+func ExtractYamlFilesContent(schemaPath string, yamlPath string) (string, string, error) {
+	_, _, invalidYamlFile := extractor.ExtractConfigurationsFromYamlFile(yamlPath)
+	if invalidYamlFile != nil {
+		return "", "", invalidYamlFile.ValidationErrors[0]
+	}
+	schemaContent, err := extractor.ReadFileContent(schemaPath)
+	if err != nil {
+		return "", "", err
+	}
+	yamlContent, err := extractor.ReadFileContent(yamlPath)
+	if err != nil {
+		return "", "", err
+	}
+
+	return schemaContent, yamlContent, nil
+}
+
 func New(ctx *YamlSchemaValidatorCommandContext) *cobra.Command {
 	schemaValidator := &cobra.Command{
 		Use:    "schema-validator",
@@ -40,30 +57,16 @@ func New(ctx *YamlSchemaValidatorCommandContext) *cobra.Command {
 			schemaPath := args[0]
 			yamlPath := args[1]
 
-			_, _, invalidYamlFile := extractor.ExtractConfigurationsFromYamlFile(yamlPath)
-			if invalidYamlFile != nil {
-				ctx.Printer.PrintYamlSchemaResults(nil, invalidYamlFile.ValidationErrors[0])
-				return invalidYamlFile.ValidationErrors[0]
-			}
-
-			schemaContent, err := extractor.ReadFileContent(schemaPath)
+			schemaContent, yamlContent, err := ExtractYamlFilesContent(schemaPath, yamlPath)
 			if err != nil {
 				ctx.Printer.PrintYamlSchemaResults(nil, err)
 				return err
 			}
-			yamlContent, err := extractor.ReadFileContent(yamlPath)
-			if err != nil {
-				ctx.Printer.PrintYamlSchemaResults(nil, err)
-				return err
-			}
-
 			result, err := ctx.YamlSchemaValidator.Validate(schemaContent, yamlContent)
 			ctx.Printer.PrintYamlSchemaResults(result, err)
-
 			if err != nil {
 				return err
 			}
-
 			return nil
 		},
 	}
