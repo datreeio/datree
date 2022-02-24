@@ -10,7 +10,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 )
-const FIXTURES_PATH string = "../../fixtures/kube";
+
+const FIXTURES_PATH string = "../../fixtures/kube"
+
 type toAbsolutePathsTestCase struct {
 	name string
 	args struct {
@@ -50,7 +52,7 @@ func test_existed_file() *toAbsolutePathsTestCase {
 			path: p,
 		},
 	}
-} 
+}
 
 func test_not_existed_file() *toAbsolutePathsTestCase {
 	filesPath := fmt.Sprintf("%s/bla.yaml", FIXTURES_PATH)
@@ -69,7 +71,7 @@ func test_not_existed_file() *toAbsolutePathsTestCase {
 }
 
 func test_directory_file() *toAbsolutePathsTestCase {
-	
+
 	return &toAbsolutePathsTestCase{
 		args: struct{ path string }{
 			path: FIXTURES_PATH,
