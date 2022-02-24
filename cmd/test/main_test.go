@@ -43,7 +43,8 @@ type mockMessager struct {
 	mock.Mock
 }
 
-func (m *mockMessager) LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string) {
+func (m *mockMessager) LoadVersionMessages(cliVersion string) chan *messager.VersionMessage {
+	messages := make(chan *messager.VersionMessage, 1)
 	go func() {
 		messages <- &messager.VersionMessage{
 			CliVersion:   "1.2.3",
@@ -52,7 +53,8 @@ func (m *mockMessager) LoadVersionMessages(messages chan *messager.VersionMessag
 		close(messages)
 	}()
 
-	m.Called(messages, cliVersion)
+	m.Called(cliVersion)
+	return messages
 }
 
 func (m *mockMessager) HandleVersionMessage(messageChannel <-chan *messager.VersionMessage) {
@@ -141,7 +143,7 @@ func TestTestCommand(t *testing.T) {
 	mockedEvaluator.On("UpdateFailedYamlValidation", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockedEvaluator.On("UpdateFailedK8sValidation", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	messager := &mockMessager{}
-	messager.On("LoadVersionMessages", mock.Anything, mock.Anything)
+	messager.On("LoadVersionMessages", mock.Anything)
 
 	k8sValidatorMock := &K8sValidatorMock{}
 

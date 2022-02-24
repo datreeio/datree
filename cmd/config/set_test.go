@@ -13,7 +13,8 @@ type mockMessager struct {
 	mock.Mock
 }
 
-func (m *mockMessager) LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string) {
+func (m *mockMessager) LoadVersionMessages(cliVersion string) chan *messager.VersionMessage {
+	messages := make(chan *messager.VersionMessage, 1)
 	go func() {
 		messages <- &messager.VersionMessage{
 			CliVersion:   "1.2.3",
@@ -23,6 +24,7 @@ func (m *mockMessager) LoadVersionMessages(messages chan *messager.VersionMessag
 	}()
 
 	m.Called(messages, cliVersion)
+	return messages
 }
 
 func (m *mockMessager) HandleVersionMessage(messageChannel <-chan *messager.VersionMessage) {
@@ -65,7 +67,7 @@ func (lc *LocalConfigMock) Set(key string, value string) error {
 
 func TestSetCommand(t *testing.T) {
 	messager := &mockMessager{}
-	messager.On("LoadVersionMessages", mock.Anything, mock.Anything)
+	messager.On("LoadVersionMessages", mock.Anything)
 
 	printerMock := &PrinterMock{}
 	printerMock.On("PrintWarnings", mock.Anything)

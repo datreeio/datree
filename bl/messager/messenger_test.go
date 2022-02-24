@@ -50,9 +50,7 @@ func TestLoadVersionMessages(t *testing.T) {
 				defaultTimeout: tt.mock.timeout,
 				messagesClient: mockedMessagesClient,
 			}
-			messager.LoadVersionMessages(tt.args.messagesChan, tt.args.cliVersion)
-
-			msg := <-tt.args.messagesChan
+			msg := <-messager.LoadVersionMessages(tt.args.cliVersion)
 
 			if tt.mock.message != nil {
 				assert.Equal(t, tt.mock.message.CliVersion, msg.CliVersion)

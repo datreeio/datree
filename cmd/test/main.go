@@ -32,7 +32,7 @@ type Evaluator interface {
 }
 
 type Messager interface {
-	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
+	LoadVersionMessages(cliVersion string) chan *messager.VersionMessage
 }
 
 type K8sValidator interface {
@@ -131,6 +131,17 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			if len(args) < 1 {
 				errMessage := "Requires at least 1 arg\n"
 				return fmt.Errorf(errMessage)
+			}
+			return nil
+		},
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			outputFlag, _ := cmd.Flags().GetString("output")
+			if (outputFlag != "json") && (outputFlag != "yaml") && (outputFlag != "xml") {
+
+				messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
+				for msg := range messages {
+					ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+				}
 			}
 			return nil
 		},
@@ -326,17 +337,6 @@ func test(ctx *TestCommandContext, paths []string, options *TestCommandOptions) 
 
 func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommandOptions) (*ValidationManager, *cliClient.CreateEvaluationResponse, evaluation.ResultType, error) {
 	isInteractiveMode := (options.Output != "json") && (options.Output != "yaml") && (options.Output != "xml")
-
-	if isInteractiveMode {
-		messages := make(chan *messager.VersionMessage, 1)
-		go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
-		defer func() {
-			msg, ok := <-messages
-			if ok {
-				ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
-			}
-		}()
-	}
 
 	var _spinner *spinner.Spinner
 	if isInteractiveMode && options.Output != "simple" {

@@ -26,7 +26,8 @@ type MessagerMock struct {
 	mock.Mock
 }
 
-func (m *MessagerMock) LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string) {
+func (m *MessagerMock) LoadVersionMessages(cliVersion string) chan *messager.VersionMessage {
+	messages := make(chan *messager.VersionMessage, 1)
 	go func() {
 		messages <- &messager.VersionMessage{
 			CliVersion:   "1.2.3",
@@ -36,6 +37,7 @@ func (m *MessagerMock) LoadVersionMessages(messages chan *messager.VersionMessag
 	}()
 
 	m.Called(messages, cliVersion)
+	return messages
 }
 
 type PrinterMock struct {
@@ -60,7 +62,7 @@ func TestPublishCommand(t *testing.T) {
 	localConfigMock.On("GetLocalConfiguration")
 
 	messagerMock := &MessagerMock{}
-	messagerMock.On("LoadVersionMessages", mock.Anything, mock.Anything)
+	messagerMock.On("LoadVersionMessages", mock.Anything)
 
 	printerMock := &PrinterMock{}
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)

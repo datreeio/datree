@@ -26,7 +26,8 @@ type VersionMessage struct {
 	MessageColor string
 }
 
-func (m *Messager) LoadVersionMessages(messages chan *VersionMessage, cliVersion string) {
+func (m *Messager) LoadVersionMessages(cliVersion string) chan *VersionMessage {
+	messages := make(chan *VersionMessage, 1)
 	go func() {
 		msg, _ := m.messagesClient.GetVersionMessage(cliVersion, 900)
 		if msg != nil {
@@ -34,6 +35,7 @@ func (m *Messager) LoadVersionMessages(messages chan *VersionMessage, cliVersion
 		}
 		close(messages)
 	}()
+	return messages
 }
 
 func (m *Messager) toVersionMessage(msg *cliClient.VersionMessage) *VersionMessage {
