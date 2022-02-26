@@ -18,6 +18,7 @@ type Printer interface {
 type LocalConfig interface {
 	GetLocalConfiguration() (*localConfig.LocalConfig, error)
 	Set(key string, value string) error
+	Get(key string) string
 }
 
 type ConfigCommandContext struct {
@@ -35,10 +36,14 @@ func New(ctx *ConfigCommandContext) *cobra.Command {
 		Example: utils.Example(`
 		# Change the token in the datree config.yaml file
 		datree config set token <MY_EXAMPLE_TOKEN>
+
+		# Get the token from datree config.yaml file
+		datree config get token
 		`),
 	}
 
 	configCommand.AddCommand(NewSetCommand(ctx))
+	configCommand.AddCommand(NewGetCommand(ctx))
 
 	return configCommand
 }
