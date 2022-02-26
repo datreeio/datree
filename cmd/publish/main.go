@@ -36,6 +36,8 @@ type PublishCommandContext struct {
 }
 
 func New(ctx *PublishCommandContext) *cobra.Command {
+	var localConfigContent *localConfig.ConfigContent
+
 	publishCommand := &cobra.Command{
 		Use:   "publish <fileName>",
 		Short: "Publish policies configuration for given <fileName>.",
@@ -62,13 +64,18 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 					ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
 				}
 			}
+			var err error
+			localConfigContent, err = ctx.LocalConfig.GetLocalConfiguration()
+			if err != nil {
+				return err
+			}
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 			cmd.SilenceErrors = true
 
-			publishFailedResponse, err := publish(ctx, args[0])
+			publishFailedResponse, err := publish(ctx, args[0], localConfigContent)
 			if publishFailedResponse != nil {
 				ctx.Printer.PrintMessage("Publish failed:\n", "error")
 				for _, message := range publishFailedResponse.Payload {
@@ -95,12 +102,7 @@ type MessagesContext struct {
 	CliClient   *cliClient.CliClient
 }
 
-func publish(ctx *PublishCommandContext, path string) (*cliClient.PublishFailedResponse, error) {
-	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
-	if err != nil {
-		return nil, err
-	}
-
+func publish(ctx *PublishCommandContext, path string, localConfigContent *localConfig.ConfigContent) (*cliClient.PublishFailedResponse, error) {
 	policiesConfiguration, err := files.ExtractYamlFileToUnknownStruct(path)
 	if err != nil {
 		return nil, err
