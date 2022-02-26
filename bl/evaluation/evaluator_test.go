@@ -50,11 +50,6 @@ func TestSendEvaluationResult(t *testing.T) {
 		mockedCliClient := &mockCliClient{}
 		evaluator := &Evaluator{
 			cliClient: mockedCliClient,
-			osInfo: &OSInfo{
-				OS:              "darwin",
-				PlatformVersion: "1.2.3",
-				KernelVersion:   "4.5.6",
-			},
 		}
 
 		token := "test_token"
@@ -71,6 +66,7 @@ func TestSendEvaluationResult(t *testing.T) {
 			},
 		}
 
+		osInfo := NewOSInfo()
 		mockedCliClient.On("SendEvaluationResult", mock.Anything).Return(&cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}, nil)
 
 		expectedSendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}
@@ -98,9 +94,9 @@ func TestSendEvaluationResult(t *testing.T) {
 			PolicyName: evaluationRequestData.PolicyName,
 			Metadata: &cliClient.Metadata{
 				CliVersion:      evaluationRequestData.CliVersion,
-				Os:              evaluator.osInfo.OS,
-				PlatformVersion: evaluator.osInfo.PlatformVersion,
-				KernelVersion:   evaluator.osInfo.KernelVersion,
+				Os:              osInfo.OS,
+				PlatformVersion: osInfo.PlatformVersion,
+				KernelVersion:   osInfo.KernelVersion,
 				CIContext:       evaluationRequestData.CiContext,
 			},
 			FailedYamlFiles:    evaluationRequestData.FailedYamlFiles,
@@ -130,7 +126,6 @@ func TestEvaluate(t *testing.T) {
 
 			evaluator := &Evaluator{
 				cliClient: mockedCliClient,
-				osInfo:    tt.args.osInfo,
 			}
 
 			policyCheckData := PolicyCheckData{
@@ -187,11 +182,6 @@ func request_evaluation_all_valid() *evaluateTestCase {
 				PolicyName:          "Default",
 				Policy:              policy,
 			},
-			osInfo: &OSInfo{
-				OS:              "darwin",
-				PlatformVersion: "1.2.3",
-				KernelVersion:   "4.5.6",
-			},
 		},
 		mock: &evaluatorMock{
 			cliClient: &cliClientMockTestCase{
@@ -239,11 +229,6 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 				IsInteractiveMode:   true,
 				PolicyName:          "Default",
 				Policy:              policy,
-			},
-			osInfo: &OSInfo{
-				OS:              "darwin",
-				PlatformVersion: "1.2.3",
-				KernelVersion:   "4.5.6",
 			},
 		},
 		mock: &evaluatorMock{
