@@ -281,8 +281,8 @@ func test_testCommand_only_k8s_files(t *testing.T, k8sValidator *K8sValidatorMoc
 }
 
 
-func test_testCommand_demo_yaml(t *testing.T,evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
-	test(ctx, []string{"8/*"}, TestCommandFlags{OnlyK8sFiles: true, Output: ""})
+func test_testCommand_demo_yaml(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
+	test(ctx, []string{"8/*"}, TestCommandFlags{OnlyK8sFiles: true, Output: "yaml"})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", 100)
 	k8sValidator.AssertCalled(t, "GetK8sFiles",100)
