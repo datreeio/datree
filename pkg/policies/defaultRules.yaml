@@ -1,11 +1,11 @@
 apiVersion: v1
 rules:
-  - id: 6,
+  - id: 6
     name: 'Prevent Ingress from forwarding all traffic to a single container'
     uniqueName: 'INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE'
     enabledByDefault: true,
     documentationUrl: 'https://hub.datree.io/prevent-ingress-forwarding-traffic-to-single-container'
-    messageOnFailue: 'Incorrect value for key `host` - specify host instead of using a wildcard character ("*")'
+    messageOnFailure: 'Incorrect value for key `host` - specify host instead of using a wildcard character ("*")'
     category: Networking
     schema:
       if:
@@ -26,12 +26,12 @@ rules:
                       not:
                         enum:
                           - '*'
-  - id: 10,
+  - id: 10
     name: 'Ensure deployment-like resource is using a valid restart policy'
     uniqueName: 'WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS'
     enabledByDefault: true,
     documentationUrl: 'https://hub.datree.io/ensure-valid-restart-policy'
-    messageOnFailue: 'Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource'
+    messageOnFailure: 'Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource'
     category: Workload
     schema:
       properties:
@@ -44,12 +44,12 @@ rules:
                     restartPolicy:
                       enum:
                         - 'Always'
-  - id: 16,
+  - id: 16
     name: 'Ensure Deployment has more than one replica configured'
     uniqueName: 'DEPLOYMENT_INCORRECT_REPLICAS_VALUE'
     enabledByDefault: true,
     documentationUrl: 'https://hub.datree.io/ensure-minimum-two-replicas'
-    messageOnFailue: 'Incorrect value for key `replicas` - running 2 or more replicas will increase the availability of the service'
+    messageOnFailure: 'Incorrect value for key `replicas` - running 2 or more replicas will increase the availability of the service'
     category: Workload
     schema:
       if:
@@ -63,12 +63,12 @@ rules:
             properties:
               replicas:
                 minimum: 2
-  - id: 17,
+  - id: 17
     name: 'Ensure CronJob has a configured deadline'
     uniqueName: 'CRONJOB_MISSING_STARTINGDEADLINESECOND_KEY'
     enabledByDefault: true,
     documentationUrl: 'https://hub.datree.io/ensure-cronjob-deadline'
-    messageOnFailue: 'Missing property object `startingDeadlineSeconds` - set a time limit to the cron execution to allow killing it if exceeded'
+    messageOnFailure: 'Missing property object `startingDeadlineSeconds` - set a time limit to the cron execution to allow killing it if exceeded'
     category: CronJob
     schema:
       if:
@@ -84,12 +84,12 @@ rules:
                 type: number
             required:
               - startingDeadlineSeconds
-  - id: 20,
+  - id: 20
     name: 'Prevent containers from having root access capabilities'
     uniqueName: 'CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE'
     enabledByDefault: true,
     documentationUrl: 'https://hub.datree.io/prevent-privileged-containers'
-    messageOnFailue: 'Incorrect value for key `privileged` - this mode will allow the container the same access as processes running on the host'
+    messageOnFailure: 'Incorrect value for key `privileged` - this mode will allow the container the same access as processes running on the host'
     category: Containers
     schema:
       definitions:
@@ -114,12 +114,12 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
-  - id: 24,
+  - id: 24
     name: 'Prevent CronJob from executing jobs concurrently'
     uniqueName: 'CRONJOB_MISSING_CONCURRENCYPOLICY_KEY'
     enabledByDefault: true,
     documentationUrl: 'https://hub.datree.io/prevent-cronjob-concurrency'
-    messageOnFailue: Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently
+    messageOnFailure: Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently
     category: CronJob
     schema:
       if:
@@ -137,12 +137,12 @@ rules:
                   - 'Replace'
             required:
               - concurrencyPolicy
-  - id: 26,
+  - id: 26
     name: Prevent containers from sharing the host's PID namespace
     uniqueName: 'CONTAINERS_INCORRECT_HOSTPID_VALUE_TRUE'
     enabledByDefault: false,
     documentationUrl: 'https://hub.datree.io/prevent-using-host-pid'
-    messageOnFailue: Incorrect value for key `hostPID` - running on the host's PID namespace enables access to sensitive information from processes running outside the container
+    messageOnFailure: Incorrect value for key `hostPID` - running on the host's PID namespace enables access to sensitive information from processes running outside the container
     category: Containers
     schema:
       definitions:
@@ -161,12 +161,12 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
-  - id: 27,
+  - id: 27
     name: 'Prevent containers from sharing the host`s IPC namespace'
     uniqueName: 'CONTAINERS_INCORRECT_HOSTIPC_VALUE_TRUE'
     enabledByDefault: false,
     documentationUrl: 'https://hub.datree.io/prevent-using-host-ipc'
-    messageOnFailue: 'Incorrect value for key `hostIPC` - running on the host`s IPC namespace can be (maliciously) used to interact with other processes running outside the container'
+    messageOnFailure: 'Incorrect value for key `hostIPC` - running on the host`s IPC namespace can be (maliciously) used to interact with other processes running outside the container'
     category: Containers
     schema:
       definitions:
@@ -185,12 +185,12 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
-  - id: 28,
+  - id: 28
     name: Prevent containers from sharing the host's network namespace
     uniqueName: 'CONTAINERS_INCORRECT_HOSTIPC_VALUE_TRUE'
     enabledByDefault: false,
     documentationUrl: 'https://hub.datree.io/prevent-using-host-network'
-    messageOnFailue: Incorrect value for key `hostNetwork` - running on the host's network namespace can allow a compromised container to sniff network traffic
+    messageOnFailure: Incorrect value for key `hostNetwork` - running on the host's network namespace can allow a compromised container to sniff network traffic
     category: Containers
     schema:
       definitions:
@@ -209,12 +209,12 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
-  - id: 29,
+  - id: 29
     name: 'Prevent containers from accessing host files by using high UIDs'
     uniqueName: 'CONTAINERS_INCORRECT_RUNASUSER_VALUE_LOWUID'
     enabledByDefault: false,
     documentationUrl: 'https://hub.datree.io/prevent-uid-conflicts'
-    messageOnFailue: 'Incorrect value for key `runAsUser` - value should be above 9999 to reduce the likelihood that the UID is already taken'
+    messageOnFailure: 'Incorrect value for key `runAsUser` - value should be above 9999 to reduce the likelihood that the UID is already taken'
     category: Containers
     schema:
       definitions:
@@ -236,12 +236,12 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
-  - id: 30,
+  - id: 30
     name: 'Prevent containers from mounting Docker socket'
     uniqueName: 'CONTAINERS_INCORRECT_PATH_VALUE_DOCKERSOCKET'
     enabledByDefault: false,
     documentationUrl: 'https://hub.datree.io/prevent-mounting-docker-socket'
-    messageOnFailue: 'Incorrect value for key `path` - avoid mounting the docker.socket becasue it can allow container breakout'
+    messageOnFailure: 'Incorrect value for key `path` - avoid mounting the docker.socket becasue it can allow container breakout'
     category: Containers
     schema:
       definitions:
@@ -282,12 +282,12 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
-  - id: 31,
+  - id: 31
     name: 'Prevent ConfigMap security vulnerability (CVE-2021-25742)'
     uniqueName: 'CONFIGMAP_CVE2021_25742_INCORRECT_SNIPPET_ANNOTATIONS_VALUE'
     enabledByDefault: false,
     documentationUrl: 'https://hub.datree.io/-prevent-configmap-security-vulnerability-cve-2021-25742'
-    messageOnFailue: Missing property object `allow-snippet-annotations` - set it to "false" to override default behaviour
+    messageOnFailure: Missing property object `allow-snippet-annotations` - set it to "false" to override default behaviour
     category: Security
     schema:
       if:
@@ -304,12 +304,12 @@ rules:
                     - 'false'
             required:
               - allow-snippet-annotations
-  - id: 32,
+  - id: 32
     name: 'Prevent Ingress security vulnerability (CVE-2021-25742)'
     uniqueName: 'INGRESS_CVE2021_25742_INCORRECT_SERVER_SNIPPET_KEY'
     enabledByDefault: false,
     documentationUrl: 'https://hub.datree.io/-prevent-ingress-security-vulnerability-cve-2021-25742'
-    messageOnFailue: Forbidden property object `server-snippet` - ingress-nginx custom snippets are not allowed
+    messageOnFailure: Forbidden property object `server-snippet` - ingress-nginx custom snippets are not allowed
     category: Security
     schema:
       if:
@@ -325,12 +325,12 @@ rules:
                 not:
                   propertyNames:
                     pattern: ^.*server-snippet$
-  - id: 33,
+  - id: 33
     name: 'Prevent container security vulnerability (CVE-2021-25741)'
     uniqueName: 'CONTAINER_CVE2021_25741_INCORRECT_SUBPATH_KEY'
     enabledByDefault: false,
     documentationUrl: 'https://hub.datree.io/-prevent-container-security-vulnerability-cve-2021-25741'
-    messageOnFailue: Forbidden property object `subPath` - malicious users can gain access to files & directories outside of the volume
+    messageOnFailure: Forbidden property object `subPath` - malicious users can gain access to files & directories outside of the volume
     category: Security
     schema:
       definitions:
@@ -354,12 +354,12 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
-  - id: 34,
+  - id: 34
     name: 'Prevent EndpointSlice security vulnerability (CVE-2021-25737)'
     uniqueName: 'ENDPOINTSLICE_CVE2021_25373_INCORRECT_ADDRESSES_VALUE'
     enabledByDefault: false,
     documentationUrl: 'https://hub.datree.io/-prevent-endpointslice-validation-from-enabling-host-network-hijack-cve-2021-25737'
-    messageOnFailue: Incorrect value for key `addresses` - IP address is within vulnerable ranges (127.0.0.0/8 and 169.254.0.0/16)
+    messageOnFailure: Incorrect value for key `addresses` - IP address is within vulnerable ranges (127.0.0.0/8 and 169.254.0.0/16)
     category: Security
     schema:
       if:
