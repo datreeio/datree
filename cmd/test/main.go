@@ -50,6 +50,18 @@ type TestCommandFlags struct {
 	SchemaLocations      []string
 }
 
+// TestCommandFlags constructor
+func NewTestCommandFlags() *TestCommandFlags {
+	return &TestCommandFlags{
+		Output:               "",
+		K8sVersion:           "",
+		IgnoreMissingSchemas: false,
+		OnlyK8sFiles:         false,
+		PolicyName:           "",
+		SchemaLocations:      make([]string, 0),
+	}
+}
+
 //
 
 func (flags *TestCommandFlags) Validate() error {
@@ -113,6 +125,7 @@ type TestCommandContext struct {
 }
 
 func New(ctx *TestCommandContext) *cobra.Command {
+	testCommandFlags := NewTestCommandFlags()
 	testCommand := &cobra.Command{
 		Use:   "test <pattern>",
 		Short: "Execute static analysis for given <pattern>",
@@ -205,20 +218,24 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			return nil
 		},
 	}
-
-	if ciContext.Extract() != nil && ciContext.Extract().CIMetadata.ShouldHideEmojis {
-		testCommand.Flags().StringP("output", "o", "simple", "Define output format")
-	} else {
-		testCommand.Flags().StringP("output", "o", "", "Define output format")
-	}
-	testCommand.Flags().StringP("schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
-	testCommand.Flags().StringP("policy", "p", "", "Policy name to run against")
-	testCommand.Flags().Bool("only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
-
-	// kubeconform flags
-	testCommand.Flags().StringArray("schema-location", []string{}, "Override schemas location search path (can be specified multiple times)")
-	testCommand.Flags().Bool("ignore-missing-schemas", false, "Ignore missing schemas when executing schema validation step")
+	testCommandFlags.AddFlags(testCommand)
 	return testCommand
+}
+
+// AddFlags registers flags for a cli
+func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
+	if ciContext.Extract() != nil && ciContext.Extract().CIMetadata.ShouldHideEmojis {
+		cmd.Flags().StringVarP(&flags.Output, "output", "o", "simple", "Define output format")
+	} else {
+		cmd.Flags().StringVarP(&flags.Output, "output", "o", "", "Define output format")
+	}
+	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
+	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
+	cmd.Flags().BoolVarP(&flags.OnlyK8sFiles, "only-k8s-files", "", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
+
+	// kubeconform flag
+	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
+	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 }
 
 func generateTestCommandOptions(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.ConfigContent) *TestCommandOptions {
