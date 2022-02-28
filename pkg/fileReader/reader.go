@@ -80,3 +80,33 @@ func (fr *FileReader) ReadFileContent(filepath string) (string, error) {
 
 	return string(dat), nil
 }
+
+func (fr *FileReader) ReadDir(dirpath string) ([]string, error) {
+	stat, err := fr.stat(dirpath)
+	if err != nil {
+		return []string{}, err
+	}
+	if !stat.IsDir() {
+		return []string{}, nil
+	}
+
+	files, err := fr.glob(dirpath + "/**/*")
+	if err != nil {
+		return []string{}, err
+	}
+
+	return files, nil
+}
+
+func (fr *FileReader) GetFilename(path string) (string, error) {
+	stat, err := fr.stat(path)
+	if err != nil {
+		return "", err
+	}
+
+	if stat.IsDir() {
+		return "", nil
+	}
+
+	return stat.Name(), nil
+}
