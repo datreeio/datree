@@ -18,7 +18,7 @@ type DefaultRuleDefinition struct {
 	UniqueName       string                 `yaml:"uniqueName"`
 	EnabledByDefault bool                   `yaml:"enabledByDefault"`
 	DocumentationUrl string                 `yaml:"documentationUrl"`
-	MessageOnFailure string                 `yaml:"messageOnFailue"`
+	MessageOnFailure string                 `yaml:"messageOnFailure"`
 	Category         string                 `yaml:"category"`
 	Schema           map[string]interface{} `yaml:"schema"`
 }
