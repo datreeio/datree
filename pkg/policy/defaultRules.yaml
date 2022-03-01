@@ -580,7 +580,7 @@ rules:
         $ref: "#"
   - id: 28
     name: Prevent containers from sharing the host's network namespace
-    uniqueName: 'CONTAINERS_INCORRECT_HOSTIPC_VALUE_TRUE'
+    uniqueName: 'CONTAINERS_INCORRECT_HOSTNETWORK_VALUE_TRUE'
     enabledByDefault: false
     documentationUrl: 'https://hub.datree.io/prevent-using-host-network'
     messageOnFailure: Incorrect value for key `hostNetwork` - running on the host's network namespace can allow a compromised container to sniff network traffic
