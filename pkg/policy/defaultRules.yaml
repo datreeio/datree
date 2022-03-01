@@ -193,7 +193,7 @@ rules:
     uniqueName: CRONJOB_INVALID_SCHEDULE_VALUE
     enabledByDefault: true
     documentationUrl: 'https://hub.datree.io/ensure-cronjob-scheduler-valid'
-    messageOnFailue: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected'
+    messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected'
     category: CronJob
     schema:
       if:
