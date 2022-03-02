@@ -55,7 +55,7 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 <img src="https://user-images.githubusercontent.com/19731161/130957021-4b825b82-01e1-47ba-bf6f-68003f08a532.png" alt="Datree-saas" width="60%" height="50%">  
 
 ## 🔌 Helm plugin
-[Datree's Helm plugin](https://hub.datree.io/helm-plugin/#utm_source=github&utm_medium=organic_oss) can be accessed through the helm CLI, to provide a seamless experience to Helm users:  
+[Datree's Helm plugin](https://github.com/datreeio/helm-datree) can be accessed through the helm CLI, to provide a seamless experience to Helm users:  
 
 `helm plugin install https://github.com/datreeio/helm-datree`  
 
