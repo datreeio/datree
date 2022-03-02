@@ -20,7 +20,6 @@ require (
 	github.com/yannh/kubeconform v0.4.8
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
-	sigs.k8s.io/yaml v1.2.0
 )
 
 require (
@@ -53,3 +52,5 @@ require (
 	golang.org/x/text v0.3.3 // indirect
 	gopkg.in/ini.v1 v1.51.0 // indirect
 )
+
+require sigs.k8s.io/yaml v1.2.0 // indirect
