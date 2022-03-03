@@ -23,7 +23,7 @@ func New() *K8sValidator {
 }
 
 func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) {
-	val.validationClient = newKubconformValidator(k8sVersion, ignoreMissingSchemas, schemaLocations)
+	val.validationClient = newKubconformValidator(k8sVersion, ignoreMissingSchemas, append(getDefaultSchemaLocation(), schemaLocations...))
 }
 
 func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile) {
@@ -145,4 +145,17 @@ func isEveryResultStatusEmpty(results []kubeconformValidator.Result) bool {
 		}
 	}
 	return isEveryResultStatusEmpty
+}
+
+func getDefaultSchemaLocation() []string {
+	defaultSchemaLocations := [...]string{
+		"default",
+		getDatreeCRDSchemaByName("argo"),
+	}
+	return (defaultSchemaLocations[:])
+}
+
+func getDatreeCRDSchemaByName(crdCatalogName string) string {
+	crdCatalog := "https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/" + crdCatalogName + "/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
+	return crdCatalog
 }
