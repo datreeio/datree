@@ -14,12 +14,20 @@ func ReportCliError(panicErr interface{}) {
 	reporter.ReportCliError(panicErr)
 }
 
-type ErrorReporter struct {
-	client *cliClient.CliClient
-	config *localConfig.LocalConfig
+type LocalConfig interface {
+	GetLocalConfiguration() (*localConfig.ConfigContent, error)
 }
 
-func NewErrorReporter(client *cliClient.CliClient, localConfig *localConfig.LocalConfig) *ErrorReporter {
+type CliClient interface {
+	ReportCliError(reportCliErrorRequest cliClient.ReportCliErrorRequest) (StatusCode int, Error error)
+}
+
+type ErrorReporter struct {
+	config LocalConfig
+	client CliClient
+}
+
+func NewErrorReporter(client CliClient, localConfig LocalConfig) *ErrorReporter {
 	return &ErrorReporter{
 		client: client,
 		config: localConfig,
