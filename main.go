@@ -2,10 +2,11 @@ package main
 
 import (
 	"errors"
+	"os"
+
 	"github.com/datreeio/datree/bl/errorReporter"
 	"github.com/datreeio/datree/cmd"
 	"github.com/datreeio/datree/cmd/test"
-	"os"
 )
 
 const DEFAULT_ERR_EXIT_CODE = 1

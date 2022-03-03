@@ -2,11 +2,12 @@ package errorReporter
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/datreeio/datree/cmd"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/stretchr/testify/assert"
-	"testing"
 
 	"github.com/stretchr/testify/mock"
 )

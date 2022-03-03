@@ -2,11 +2,12 @@ package errorReporter
 
 import (
 	"fmt"
+	"runtime/debug"
+
 	"github.com/datreeio/datree/cmd"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/localConfig"
-	"runtime/debug"
 )
 
 func ReportCliError(panicErr interface{}) {
