@@ -19,10 +19,10 @@ rules:
                       properties:
                         image:
                           # catch all strings with image tag version
-                          pattern: @sha.*|:(\w|\.|\-)+$
+                          pattern: "\\@sha.*|:(\\w|\\.|\\-)+$"
                           not:
                             # ignore `latest` as image tag version
-                            pattern: .*:(latest|LATEST)$
+                            pattern: ".*:(latest|LATEST)$"
       allOf:
         - $ref: "#/definitions/imageValuePattern"
       additionalProperties:
