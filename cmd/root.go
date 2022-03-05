@@ -51,15 +51,15 @@ func init() {
 		K8sValidator: app.context.K8sValidator,
 	}, &kustomize.KustomizeContext{}))
 
-	// rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
-	// 	CliVersion:   CliVersion,
-	// 	Evaluator:    app.context.Evaluator,
-	// 	LocalConfig:  app.context.LocalConfig,
-	// 	Messager:     app.context.Messager,
-	// 	Printer:      app.context.Printer,
-	// 	Reader:       app.context.Reader,
-	// 	K8sValidator: app.context.K8sValidator,
-	// }, &kustomize.KustomizeContext{}))
+	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
+		CliVersion:   CliVersion,
+		Evaluator:    app.context.Evaluator,
+		LocalConfig:  app.context.LocalConfig,
+		Messager:     app.context.Messager,
+		Printer:      app.context.Printer,
+		Reader:       app.context.Reader,
+		K8sValidator: app.context.K8sValidator,
+	}, &kustomize.KustomizeContext{}))
 
 	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
 		CliVersion: CliVersion,
@@ -124,7 +124,6 @@ func startup() *app {
 			Reader:              fileReader.CreateFileReader(nil),
 			K8sValidator:        validation.New(),
 			YamlSchemaValidator: yamlSchemaValidator.New(),
-			// CommandRunner:       executor.CreateNewCommandRunner(),
 		},
 	}
 }
