@@ -24,6 +24,8 @@ func TestValidateResources(t *testing.T) {
 	test_valid_multiple_configurations(t)
 	test_valid_multiple_configurations_only_k8s_files(t)
 	test_invalid_file(t)
+	test_default_schema_location(t)
+	test_get_datree_crd_schema_by_name(t)
 	t.Run("test empty file", test_empty_file)
 }
 
@@ -120,5 +122,21 @@ func test_empty_file(t *testing.T) {
 
 	for p := range invalidFilesChan {
 		assert.Equal(t, path, p.Path)
+	}
+}
+
+func test_default_schema_location(t *testing.T) {
+	expectedOutput := []string{"default", "https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/argo/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"}
+	actual := getDefaultSchemaLocation()
+	assert.Equal(t, expectedOutput, actual)
+}
+
+func test_get_datree_crd_schema_by_name(t *testing.T) {
+	input := "argo"
+	expectedOutput := "https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/argo/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
+	actual := getDatreeCRDSchemaByName(input)
+
+	if actual != expectedOutput {
+		t.Errorf("Expected: %s, Actual: %s", expectedOutput, actual)
 	}
 }
