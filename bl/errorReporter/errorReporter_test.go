@@ -64,7 +64,7 @@ func TestErrorReporter(t *testing.T) {
 			errorReporter.ReportCliError(tt.args.panicErr)
 			reportCliErrorCalledArgs := (mockedCliClient.Calls[0].Arguments.Get(0)).(cliClient.ReportCliErrorRequest)
 			assert.Equal(t, tt.expected.ErrorMessage, reportCliErrorCalledArgs.ErrorMessage)
-			assert.Equal(t, tt.expected.CliId, reportCliErrorCalledArgs.CliId)
+			assert.Equal(t, tt.expected.Token, reportCliErrorCalledArgs.Token)
 			assert.Equal(t, tt.expected.CliVersion, reportCliErrorCalledArgs.CliVersion)
 		})
 	}
@@ -77,7 +77,7 @@ func reportErrorWithError() *ErrorReporterTestCase {
 			panicErr: errors.New("this is the error message"),
 		},
 		expected: cliClient.ReportCliErrorRequest{
-			CliId:        "2qRg9jzJGcA73ftqEcXuBp",
+			Token:        "2qRg9jzJGcA73ftqEcXuBp",
 			CliVersion:   cmd.CliVersion,
 			ErrorMessage: "this is the error message",
 			StackTrace:   mock.Anything,
@@ -92,7 +92,7 @@ func reportErrorWithStringError() *ErrorReporterTestCase {
 			panicErr: "this is the error message",
 		},
 		expected: cliClient.ReportCliErrorRequest{
-			CliId:        "2qRg9jzJGcA73ftqEcXuBp",
+			Token:        "2qRg9jzJGcA73ftqEcXuBp",
 			CliVersion:   cmd.CliVersion,
 			ErrorMessage: "this is the error message",
 			StackTrace:   mock.Anything,

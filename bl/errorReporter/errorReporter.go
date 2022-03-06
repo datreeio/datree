@@ -37,15 +37,15 @@ func NewErrorReporter(client CliClient, localConfig LocalConfig) *ErrorReporter 
 
 func (reporter *ErrorReporter) ReportCliError(panicErr interface{}) {
 	status, err := reporter.client.ReportCliError(cliClient.ReportCliErrorRequest{
-		CliId:        reporter.getCliId(),
+		Token:        reporter.getCliId(),
 		CliVersion:   cmd.CliVersion,
 		ErrorMessage: parsePanicError(panicErr),
 		StackTrace:   string(debug.Stack()),
 	})
 	if err != nil {
-		fmt.Println("failed to report unexpected panic:\nstatus code:", status, "\nerror:", err.Error())
+		fmt.Println("failed to report unexpected error:\nstatus code:", status, "\nerror:", err.Error())
 	} else {
-		fmt.Println("panic reported")
+		fmt.Println("unexpected error reported")
 	}
 }
 

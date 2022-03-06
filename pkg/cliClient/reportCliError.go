@@ -5,7 +5,7 @@ import (
 )
 
 type ReportCliErrorRequest struct {
-	CliId        string `json:"cliId"`
+	Token        string `json:"token"`
 	CliVersion   string `json:"cliVersion"`
 	ErrorMessage string `json:"errorMessage"`
 	StackTrace   string `json:"stackTrace"`
