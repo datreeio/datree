@@ -49,7 +49,13 @@ func (reporter *ErrorReporter) ReportCliError(panicErr interface{}) {
 	}
 }
 
-func (reporter *ErrorReporter) getCliId() string {
+func (reporter *ErrorReporter) getCliId() (cliId string) {
+	defer func() {
+		if panicErr := recover(); panicErr != nil {
+			cliId = "unknown"
+		}
+	}()
+
 	config, err := reporter.config.GetLocalConfiguration()
 	if err != nil {
 		return "unknown"
