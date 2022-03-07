@@ -17,7 +17,6 @@ func main() {
 	defer func() {
 		if panicErr := recover(); panicErr != nil {
 			errorReporter.ReportCliError(panicErr)
-			panic(panicErr)
 		}
 	}()
 

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"runtime/debug"
 
+	"github.com/datreeio/datree/pkg/printer"
+
 	"github.com/datreeio/datree/cmd"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/deploymentConfig"
@@ -11,7 +13,7 @@ import (
 )
 
 func ReportCliError(panicErr interface{}) {
-	reporter := NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfig())
+	reporter := NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfig(), printer.CreateNewPrinter())
 	reporter.ReportCliError(panicErr)
 }
 
@@ -23,30 +25,38 @@ type CliClient interface {
 	ReportCliError(reportCliErrorRequest cliClient.ReportCliErrorRequest) (StatusCode int, Error error)
 }
 
-type ErrorReporter struct {
-	config LocalConfig
-	client CliClient
+type Printer interface {
+	PrintMessage(messageText string, messageColor string)
 }
 
-func NewErrorReporter(client CliClient, localConfig LocalConfig) *ErrorReporter {
+type ErrorReporter struct {
+	config  LocalConfig
+	client  CliClient
+	printer Printer
+}
+
+func NewErrorReporter(client CliClient, localConfig LocalConfig, printer Printer) *ErrorReporter {
 	return &ErrorReporter{
-		client: client,
-		config: localConfig,
+		client:  client,
+		config:  localConfig,
+		printer: printer,
 	}
 }
 
 func (reporter *ErrorReporter) ReportCliError(panicErr interface{}) {
-	status, err := reporter.client.ReportCliError(cliClient.ReportCliErrorRequest{
-		Token:        reporter.getCliId(),
+	errorMessage := parsePanicError(panicErr)
+	cliId := reporter.getCliId()
+	_, err := reporter.client.ReportCliError(cliClient.ReportCliErrorRequest{
+		ClientId:     cliId,
+		Token:        cliId,
 		CliVersion:   cmd.CliVersion,
-		ErrorMessage: parsePanicError(panicErr),
+		ErrorMessage: errorMessage,
 		StackTrace:   string(debug.Stack()),
 	})
 	if err != nil {
-		fmt.Println("failed to report unexpected error:\nstatus code:", status, "\nerror:", err.Error())
-	} else {
-		fmt.Println("unexpected error reported")
+		// do nothing
 	}
+	reporter.printer.PrintMessage(fmt.Sprintf("Unexpected error: %s\n", errorMessage), "error")
 }
 
 func (reporter *ErrorReporter) getCliId() (cliId string) {
