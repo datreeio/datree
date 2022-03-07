@@ -35,6 +35,15 @@ func (lc *mockConfig) GetLocalConfiguration() (*localConfig.ConfigContent, error
 	}, nil
 }
 
+// printer mock
+type mockPrinter struct {
+	mock.Mock
+}
+
+func (mp *mockPrinter) PrintMessage(messageText string, messageColor string) {
+	mp.Called()
+}
+
 // test type
 type ErrorReporterTestCaseArgs struct {
 	panicErr interface{}
@@ -52,11 +61,14 @@ func TestErrorReporter(t *testing.T) {
 	}
 	mockedCliClient := &mockCliClient{}
 	mockedConfig := &mockConfig{}
+	mockedPrinter := &mockPrinter{}
 	mockedCliClient.On("ReportCliError", mock.Anything).Return(nil)
 	mockedConfig.On("GetLocalConfiguration").Return(nil)
+	mockedPrinter.On("PrintMessage", mock.Anything, mock.Anything).Return()
 	errorReporter := &ErrorReporter{
-		client: mockedCliClient,
-		config: mockedConfig,
+		client:  mockedCliClient,
+		config:  mockedConfig,
+		printer: mockedPrinter,
 	}
 
 	for _, tt := range tests {
@@ -64,6 +76,7 @@ func TestErrorReporter(t *testing.T) {
 			errorReporter.ReportCliError(tt.args.panicErr)
 			reportCliErrorCalledArgs := (mockedCliClient.Calls[0].Arguments.Get(0)).(cliClient.ReportCliErrorRequest)
 			assert.Equal(t, tt.expected.ErrorMessage, reportCliErrorCalledArgs.ErrorMessage)
+			assert.Equal(t, tt.expected.ClientId, reportCliErrorCalledArgs.ClientId)
 			assert.Equal(t, tt.expected.Token, reportCliErrorCalledArgs.Token)
 			assert.Equal(t, tt.expected.CliVersion, reportCliErrorCalledArgs.CliVersion)
 		})
@@ -77,6 +90,7 @@ func reportErrorWithError() *ErrorReporterTestCase {
 			panicErr: errors.New("this is the error message"),
 		},
 		expected: cliClient.ReportCliErrorRequest{
+			ClientId:     "2qRg9jzJGcA73ftqEcXuBp",
 			Token:        "2qRg9jzJGcA73ftqEcXuBp",
 			CliVersion:   cmd.CliVersion,
 			ErrorMessage: "this is the error message",
@@ -92,6 +106,7 @@ func reportErrorWithStringError() *ErrorReporterTestCase {
 			panicErr: "this is the error message",
 		},
 		expected: cliClient.ReportCliErrorRequest{
+			ClientId:     "2qRg9jzJGcA73ftqEcXuBp",
 			Token:        "2qRg9jzJGcA73ftqEcXuBp",
 			CliVersion:   cmd.CliVersion,
 			ErrorMessage: "this is the error message",
