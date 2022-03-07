@@ -3,7 +3,7 @@ go:
   - "1.17"
 
 os: osx
-osx_image: xcode13.2
+osx_image: xcode13.3
 
 before_script:
   - HOMEBREW_NO_AUTO_UPDATE=1 brew install awscli
