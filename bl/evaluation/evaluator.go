@@ -59,8 +59,10 @@ type EvaluationRequestData struct {
 	PolicyCheckResults FailedRulesByFiles
 }
 
+var OSInfoFn = NewOSInfo
+
 func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
-	osInfo := NewOSInfo()
+	osInfo := OSInfoFn()
 	sendEvaluationResultsResponse, err := e.cliClient.SendEvaluationResult(&cliClient.EvaluationResultRequest{
 		K8sVersion: evaluationRequestData.K8sVersion,
 		ClientId:   evaluationRequestData.ClientId,

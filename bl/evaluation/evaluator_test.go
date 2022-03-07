@@ -66,9 +66,12 @@ func TestSendEvaluationResult(t *testing.T) {
 			},
 		}
 
-		osInfo := NewOSInfo()
-		mockedCliClient.On("SendEvaluationResult", mock.Anything).Return(&cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}, nil)
+		osInfo := &OSInfo{OS: "darwin", PlatformVersion: "1.2.3", KernelVersion: "4.5.6"}
+		OSInfoFn = func() *OSInfo {
+			return osInfo
+		}
 
+		mockedCliClient.On("SendEvaluationResult", mock.Anything).Return(&cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}, nil)
 		expectedSendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}
 
 		evaluationRequestData := EvaluationRequestData{
