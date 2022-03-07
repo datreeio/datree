@@ -8,7 +8,7 @@ import (
 )
 
 type Messager interface {
-	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
+	LoadVersionMessages(cliVersion string) chan *messager.VersionMessage
 }
 
 type Printer interface {
@@ -21,8 +21,7 @@ type VersionCommandContext struct {
 }
 
 func version(ctx *VersionCommandContext) {
-	messages := make(chan *messager.VersionMessage, 1)
-	go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
+	messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
 	fmt.Println(ctx.CliVersion)
 	msg, ok := <-messages
 	if ok {

@@ -32,7 +32,7 @@ type Evaluator interface {
 }
 
 type Messager interface {
-	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
+	LoadVersionMessages(cliVersion string) chan *messager.VersionMessage
 }
 
 type K8sValidator interface {
@@ -48,6 +48,18 @@ type TestCommandFlags struct {
 	OnlyK8sFiles         bool
 	PolicyName           string
 	SchemaLocations      []string
+}
+
+// TestCommandFlags constructor
+func NewTestCommandFlags() *TestCommandFlags {
+	return &TestCommandFlags{
+		Output:               "",
+		K8sVersion:           "",
+		IgnoreMissingSchemas: false,
+		OnlyK8sFiles:         false,
+		PolicyName:           "",
+		SchemaLocations:      make([]string, 0),
+	}
 }
 
 //
@@ -112,7 +124,25 @@ type TestCommandContext struct {
 	Reader       Reader
 }
 
+func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
+	outputFlag, _ := cmd.Flags().GetString("output")
+	if (outputFlag != "json") && (outputFlag != "yaml") && (outputFlag != "xml") {
+
+		messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
+		for msg := range messages {
+			ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+		}
+	}
+	return nil
+}
+
+func SetSilentMode(cmd *cobra.Command) {
+	cmd.SilenceUsage = true
+	cmd.SilenceErrors = true
+}
+
 func New(ctx *TestCommandContext) *cobra.Command {
+	testCommandFlags := NewTestCommandFlags()
 	testCommand := &cobra.Command{
 		Use:   "test <pattern>",
 		Short: "Execute static analysis for given <pattern>",
@@ -132,11 +162,17 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				errMessage := "Requires at least 1 arg\n"
 				return fmt.Errorf(errMessage)
 			}
+			err := testCommandFlags.Validate()
+			if err != nil {
+				return err
+			}
 			return nil
 		},
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return LoadVersionMessages(ctx, args, cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cmd.SilenceUsage = true
-			cmd.SilenceErrors = true
+			SetSilentMode(cmd)
 			var err error = nil
 			defer func() {
 				if err != nil {
@@ -144,37 +180,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				}
 			}()
 
-			outputFlag, err := cmd.Flags().GetString("output")
-			if err != nil {
-				return err
-			}
-
-			k8sVersion, err := cmd.Flags().GetString("schema-version")
-			if err != nil {
-				return err
-			}
-
-			ignoreMissingSchemas, err := cmd.Flags().GetBool("ignore-missing-schemas")
-			if err != nil {
-				return err
-			}
-
-			onlyK8sFiles, err := cmd.Flags().GetBool("only-k8s-files")
-			if err != nil {
-				return err
-			}
-
-			policy, err := cmd.Flags().GetString("policy")
-			if err != nil {
-				return err
-			}
-
-			schemaLocations, err := cmd.Flags().GetStringArray("schema-location")
-			if err != nil {
-				return err
-			}
-
-			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations, OnlyK8sFiles: onlyK8sFiles}
 			err = testCommandFlags.Validate()
 			if err != nil {
 				return err
@@ -185,32 +190,36 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			testCommandOptions := generateTestCommandOptions(&testCommandFlags, localConfigContent)
+			testCommandOptions := GenerateTestCommandOptions(testCommandFlags, localConfigContent)
 
-			err = test(ctx, args, testCommandOptions)
+			err = Test(ctx, args, testCommandOptions)
 			if err != nil {
 				return err
 			}
 			return nil
 		},
 	}
-
-	if ciContext.Extract() != nil && ciContext.Extract().CIMetadata.ShouldHideEmojis {
-		testCommand.Flags().StringP("output", "o", "simple", "Define output format")
-	} else {
-		testCommand.Flags().StringP("output", "o", "", "Define output format")
-	}
-	testCommand.Flags().StringP("schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
-	testCommand.Flags().StringP("policy", "p", "", "Policy name to run against")
-	testCommand.Flags().Bool("only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
-
-	// kubeconform flags
-	testCommand.Flags().StringArray("schema-location", []string{}, "Override schemas location search path (can be specified multiple times)")
-	testCommand.Flags().Bool("ignore-missing-schemas", false, "Ignore missing schemas when executing schema validation step")
+	testCommandFlags.AddFlags(testCommand)
 	return testCommand
 }
 
-func generateTestCommandOptions(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.ConfigContent) *TestCommandOptions {
+// AddFlags registers flags for a cli
+func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
+	if ciContext.Extract() != nil && ciContext.Extract().CIMetadata.ShouldHideEmojis {
+		cmd.Flags().StringVarP(&flags.Output, "output", "o", "simple", "Define output format")
+	} else {
+		cmd.Flags().StringVarP(&flags.Output, "output", "o", "", "Define output format")
+	}
+	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.18.0")
+	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
+	cmd.Flags().BoolVarP(&flags.OnlyK8sFiles, "only-k8s-files", "", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
+
+	// kubeconform flag
+	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
+	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
+}
+
+func GenerateTestCommandOptions(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.ConfigContent) *TestCommandOptions {
 	k8sVersion := testCommandFlags.K8sVersion
 	if k8sVersion == "" {
 		k8sVersion = localConfigContent.SchemaVersion
@@ -243,7 +252,7 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 	}
 }
 
-func test(ctx *TestCommandContext, paths []string, options *TestCommandOptions) error {
+func Test(ctx *TestCommandContext, paths []string, options *TestCommandOptions) error {
 
 	if paths[0] == "-" {
 		if len(paths) > 1 {
@@ -326,17 +335,6 @@ func test(ctx *TestCommandContext, paths []string, options *TestCommandOptions) 
 
 func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommandOptions) (*ValidationManager, *cliClient.CreateEvaluationResponse, evaluation.ResultType, error) {
 	isInteractiveMode := (options.Output != "json") && (options.Output != "yaml") && (options.Output != "xml")
-
-	if isInteractiveMode {
-		messages := make(chan *messager.VersionMessage, 1)
-		go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
-		defer func() {
-			msg, ok := <-messages
-			if ok {
-				ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
-			}
-		}()
-	}
 
 	var _spinner *spinner.Spinner
 	if isInteractiveMode && options.Output != "simple" {

@@ -26,7 +26,8 @@ type MessagerMock struct {
 	mock.Mock
 }
 
-func (m *MessagerMock) LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string) {
+func (m *MessagerMock) LoadVersionMessages(cliVersion string) chan *messager.VersionMessage {
+	messages := make(chan *messager.VersionMessage, 1)
 	go func() {
 		messages <- &messager.VersionMessage{
 			CliVersion:   "1.2.3",
@@ -36,6 +37,7 @@ func (m *MessagerMock) LoadVersionMessages(messages chan *messager.VersionMessag
 	}()
 
 	m.Called(messages, cliVersion)
+	return messages
 }
 
 type PrinterMock struct {
@@ -60,7 +62,7 @@ func TestPublishCommand(t *testing.T) {
 	localConfigMock.On("GetLocalConfiguration")
 
 	messagerMock := &MessagerMock{}
-	messagerMock.On("LoadVersionMessages", mock.Anything, mock.Anything)
+	messagerMock.On("LoadVersionMessages", mock.Anything)
 
 	printerMock := &PrinterMock{}
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
@@ -75,24 +77,26 @@ func TestPublishCommand(t *testing.T) {
 		PublishCliClient: publishClientMock,
 	}
 
-	testPublishCommandSuccess(t, ctx, publishClientMock)
-	testPublishCommandFailedYaml(t, ctx)
-	testPublishCommandFailedSchema(t, ctx, publishClientMock)
+	localConfigContent, _ := ctx.LocalConfig.GetLocalConfiguration()
+
+	testPublishCommandSuccess(t, ctx, publishClientMock, localConfigContent)
+	testPublishCommandFailedYaml(t, ctx, localConfigContent)
+	testPublishCommandFailedSchema(t, ctx, publishClientMock, localConfigContent)
 }
 
-func testPublishCommandSuccess(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock) {
+func testPublishCommandSuccess(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.ConfigContent) {
 	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(&cliClient.PublishFailedResponse{}, nil).Once()
-	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/valid-schema.yaml")
+	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/valid-schema.yaml", localConfigContent)
 	assert.Equal(t, nil, err)
 }
 
-func testPublishCommandFailedYaml(t *testing.T, ctx *PublishCommandContext) {
-	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-yaml.yaml")
+func testPublishCommandFailedYaml(t *testing.T, ctx *PublishCommandContext, localConfigContent *localConfig.ConfigContent) {
+	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-yaml.yaml", localConfigContent)
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, "yaml: line 2: did not find expected key", err.Error())
 }
 
-func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock) {
+func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.ConfigContent) {
 	publishFailedPayloadMock := []string{"first error", "second error"}
 	errMessage := strings.Join(publishFailedPayloadMock, ",")
 	publishFailedResponseMock := &cliClient.PublishFailedResponse{
@@ -102,7 +106,7 @@ func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, pu
 	}
 
 	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(publishFailedResponseMock, errors.New(errMessage)).Once()
-	publishFailedRes, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-schemas/duplicate-rule-id.yaml")
+	publishFailedRes, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-schemas/duplicate-rule-id.yaml", localConfigContent)
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, errMessage, err.Error())
 	assert.Equal(t, publishFailedResponseMock, publishFailedRes)

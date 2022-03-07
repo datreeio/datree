@@ -8,7 +8,7 @@ import (
 )
 
 type Messager interface {
-	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
+	LoadVersionMessages(cliVersion string) chan *messager.VersionMessage
 }
 
 type Printer interface {
