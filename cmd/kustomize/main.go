@@ -10,13 +10,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type KustomizeCommandRunner interface {
+	BuildCommandDescription(dir string, name string, args []string) string
+	RunCommand(name string, args []string) (executor.CommandOutput, error)
+	ExecuteKustomizeBin(args []string) ([]byte, error)
+	CreateTempFile(tempFilePrefix string, content []byte) (string, error)
+}
+
 type KustomizeContext struct {
-	CommandRunner executor.CommandRunner
+	CommandRunner KustomizeCommandRunner
 }
 
 func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobra.Command {
 	testCommandFlags := test.NewTestCommandFlags()
-	testCommand := &cobra.Command{
+	kustomizeTestCommand := &cobra.Command{
 		Use:   "test <args>",
 		Short: "Execute datree test for kustomize build <args>",
 		Long:  "Execute datree test for kustomize build <args>. Input should be a kustomize build directory or file.",
@@ -72,13 +79,13 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			return nil
 		},
 	}
-	testCommandFlags.AddFlags(testCommand)
+	testCommandFlags.AddFlags(kustomizeTestCommand)
 
 	kustomizeCommand := &cobra.Command{
 		Use: "kustomize",
 	}
 
-	kustomizeCommand.AddCommand(testCommand)
+	kustomizeCommand.AddCommand(kustomizeTestCommand)
 
 	return kustomizeCommand
 }
