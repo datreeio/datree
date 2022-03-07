@@ -6,12 +6,14 @@ import (
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/cmd/completion"
 	"github.com/datreeio/datree/cmd/config"
+	"github.com/datreeio/datree/cmd/kustomize"
 	"github.com/datreeio/datree/cmd/publish"
 	schema_validator "github.com/datreeio/datree/cmd/schema-validator"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/deploymentConfig"
+	"github.com/datreeio/datree/pkg/executor"
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
@@ -39,6 +41,16 @@ func init() {
 		Reader:       app.context.Reader,
 		K8sValidator: app.context.K8sValidator,
 	}))
+
+	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
+		CliVersion:   CliVersion,
+		Evaluator:    app.context.Evaluator,
+		LocalConfig:  app.context.LocalConfig,
+		Messager:     app.context.Messager,
+		Printer:      app.context.Printer,
+		Reader:       app.context.Reader,
+		K8sValidator: app.context.K8sValidator,
+	}, &kustomize.KustomizeContext{CommandRunner: app.context.CommandRunner}))
 
 	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
 		CliVersion: CliVersion,
@@ -82,6 +94,7 @@ type context struct {
 	Reader              *fileReader.FileReader
 	K8sValidator        *validation.K8sValidator
 	YamlSchemaValidator *yamlSchemaValidator.YamlSchemaValidator
+	CommandRunner       *executor.CommandRunner
 }
 
 type app struct {
@@ -103,6 +116,7 @@ func startup() *app {
 			Reader:              fileReader.CreateFileReader(nil),
 			K8sValidator:        validation.New(),
 			YamlSchemaValidator: yamlSchemaValidator.New(),
+			CommandRunner:       executor.CreateNewCommandRunner(),
 		},
 	}
 }
