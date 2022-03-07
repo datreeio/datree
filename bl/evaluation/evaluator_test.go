@@ -1,6 +1,7 @@
 package evaluation
 
 import (
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -125,8 +126,8 @@ func TestEvaluate(t *testing.T) {
 			}
 
 			// TODO: define and check the rest of the values
-			results, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.response, tt.args.isInteractiveMode)
-
+			results, rulesCount, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.response, tt.args.isInteractiveMode)
+			fmt.Println(rulesCount)
 			if tt.expected.isRequestEvaluationCalled {
 				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
 				assert.Equal(t, tt.expected.response.EvaluationResults.Summary, results.EvaluationResults.Summary)
@@ -147,7 +148,7 @@ type evaluateArgs struct {
 }
 
 type evaluateExpected struct {
-	response                  ResultType
+	response                  FormattedResults
 	err                       error
 	isRequestEvaluationCalled bool
 	isCreateEvaluationCalled  bool
@@ -212,7 +213,7 @@ func request_evaluation_all_valid() *evaluateTestCase {
 			},
 		},
 		expected: &evaluateExpected{
-			response: ResultType{
+			response: FormattedResults{
 				EvaluationResults: &EvaluationResults{
 					FileNameRuleMapper: make(map[string]map[int]*Rule),
 					Summary: struct {
@@ -281,7 +282,7 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 			},
 		},
 		expected: &evaluateExpected{
-			response: ResultType{
+			response: FormattedResults{
 				EvaluationResults: &EvaluationResults{
 					FileNameRuleMapper: make(map[string]map[int]*Rule),
 					Summary: struct {

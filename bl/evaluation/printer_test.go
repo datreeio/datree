@@ -31,7 +31,7 @@ func (c *mockPrinter) PrintEvaluationSummary(summary printer.EvaluationSummary, 
 }
 
 type printResultsTestCaseArgs struct {
-	results           ResultType
+	results           FormattedResults
 	invalidYamlFiles  []*extractor.InvalidFile
 	invalidK8sFiles   []*extractor.InvalidFile
 	evaluationSummary printer.EvaluationSummary
@@ -204,7 +204,7 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 	return &printResultsTestCase{
 		name: "Print Results Text",
 		args: &printResultsTestCaseArgs{
-			results: ResultType{
+			results: FormattedResults{
 				EvaluationResults: &EvaluationResults{
 					FileNameRuleMapper: map[string]map[int]*Rule{},
 					Summary: struct {

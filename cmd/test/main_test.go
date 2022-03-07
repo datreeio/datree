@@ -19,9 +19,9 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, isInteractiveMode bool) (evaluation.ResultType, error) {
+func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, isInteractiveMode bool) (evaluation.FormattedResults, error) {
 	args := m.Called(filesConfigurationsChan, evaluationResponse, isInteractiveMode)
-	return args.Get(0).(evaluation.ResultType), args.Error(1)
+	return args.Get(0).(evaluation.FormattedResults), args.Error(1)
 }
 
 func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext) (*cliClient.CreateEvaluationResponse, error) {
@@ -127,7 +127,7 @@ func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.ConfigContent, 
 func TestTestCommand(t *testing.T) {
 	evaluationId := 444
 	evaluationResponse := cliClient.CreateEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0", RulesCount: 21, PolicyName: "Default"}
-	resultType := evaluation.ResultType{}
+	resultType := evaluation.FormattedResults{}
 
 	resultType.EvaluationResults = &evaluation.EvaluationResults{
 		FileNameRuleMapper: map[string]map[int]*evaluation.Rule{}, Summary: struct {

@@ -40,6 +40,7 @@ func init() {
 		Printer:      app.context.Printer,
 		Reader:       app.context.Reader,
 		K8sValidator: app.context.K8sValidator,
+		CliClient:    app.context.CliClient,
 	}))
 
 	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
