@@ -164,10 +164,9 @@ type FileData struct {
 }
 
 type Configuration struct {
-	Name string `json:"metadataName"`
-	Kind string `json:"kind"`
-	//Occurrences int    `json:"occurrences"`
-	Occurrences int `json:"occurences"`
+	Name        string `json:"metadataName"`
+	Kind        string `json:"kind"`
+	Occurrences int    `json:"occurrences"`
 }
 
 type FailedRule struct {
