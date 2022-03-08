@@ -3,6 +3,8 @@ package test
 import (
 	"testing"
 
+	policy_factory "github.com/datreeio/datree/bl/policy"
+
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -19,9 +21,9 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, isInteractiveMode bool) (evaluation.FormattedResults, error) {
-	args := m.Called(filesConfigurationsChan, evaluationResponse, isInteractiveMode)
-	return args.Get(0).(evaluation.FormattedResults), args.Error(1)
+func (m *mockEvaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, isInteractiveMode bool, policyName string, policy policy_factory.Policy) (evaluation.FormattedResults, []cliClient.RuleData, []cliClient.FileData, map[string]map[string]cliClient.FailedRule, int, error) {
+	args := m.Called(filesConfigurations, isInteractiveMode, policyName, policy)
+	return args.Get(0).(evaluation.FormattedResults), args.Get(1).([]cliClient.RuleData), args.Get(2).([]cliClient.FileData), args.Get(3).(map[string]map[string]cliClient.FailedRule), args.Get(4).(int), args.Error(1)
 }
 
 func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext) (*cliClient.CreateEvaluationResponse, error) {
@@ -29,14 +31,14 @@ func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVer
 	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
 }
 
-func (m *mockEvaluator) UpdateFailedYamlValidation(invalidYamlFiles []*extractor.InvalidFile, evaluationId int, stopEvaluation bool) error {
-	args := m.Called(invalidYamlFiles, evaluationId, stopEvaluation)
-	return args.Error(0)
+func (m *mockEvaluator) SendLocalEvaluationResult(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext, rulesData []cliClient.RuleData, filesData []cliClient.FileData, failedYamlFiles []string, failedK8sFiles []string, policyCheckResult map[string]map[string]cliClient.FailedRule) (*cliClient.SendEvaluationResultsResponse, error) {
+	args := m.Called(cliId, cliVersion, k8sVersion, policyName, ciContext, rulesData, filesData, failedYamlFiles, failedK8sFiles, policyCheckResult)
+	return args.Get(0).(*cliClient.SendEvaluationResultsResponse), args.Error(1)
 }
 
-func (m *mockEvaluator) UpdateFailedK8sValidation(invalidK8sFiles []*extractor.InvalidFile, evaluationId int, stopEvaluation bool) error {
-	args := m.Called(invalidK8sFiles, evaluationId, stopEvaluation)
-	return args.Error(0)
+func (m *mockEvaluator) RequestPrerunDataForEvaluation(token string) (*cliClient.PrerunDataForEvaluationResponse, int, error) {
+	args := m.Called(token)
+	return args.Get(0).(*cliClient.PrerunDataForEvaluationResponse), args.Get(1).(int), args.Error(2)
 }
 
 type mockMessager struct {
@@ -126,11 +128,11 @@ func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.ConfigContent, 
 
 func TestTestCommand(t *testing.T) {
 	evaluationId := 444
-	evaluationResponse := cliClient.CreateEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0", RulesCount: 21, PolicyName: "Default"}
+	prerunDataForEvaluationResponse := cliClient.PrerunDataForEvaluationResponse{}
 	resultType := evaluation.FormattedResults{}
 
 	resultType.EvaluationResults = &evaluation.EvaluationResults{
-		FileNameRuleMapper: map[string]map[int]*evaluation.Rule{}, Summary: struct {
+		FileNameRuleMapper: map[string]map[string]*evaluation.Rule{}, Summary: struct {
 			TotalFailedRules int
 			FilesCount       int
 			TotalPassedCount int
@@ -138,10 +140,10 @@ func TestTestCommand(t *testing.T) {
 	}
 
 	mockedEvaluator := &mockEvaluator{}
-	mockedEvaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything).Return(resultType, nil)
-	mockedEvaluator.On("CreateEvaluation", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0", RulesCount: 21}, nil)
-	mockedEvaluator.On("UpdateFailedYamlValidation", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-	mockedEvaluator.On("UpdateFailedK8sValidation", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	mockedEvaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(resultType, nil)
+	mockedEvaluator.On("SendLocalEvaluationResult", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(resultType, nil)
+	mockedEvaluator.On("RequestPrerunDataForEvaluation", mock.Anything).Return(&cliClient.PrerunDataForEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0", RulesCount: 21}, nil)
+
 	messager := &mockMessager{}
 	messager.On("LoadVersionMessages", mock.Anything)
 
@@ -151,10 +153,10 @@ func TestTestCommand(t *testing.T) {
 	filesConfigurationsChan := newFilesConfigurationsChan(path)
 	filesConfigurations := newFilesConfigurations(path)
 
-	invelidK8sFilesChan := newInvalidK8sFilesChan()
+	invalidK8sFilesChan := newInvalidK8sFilesChan()
 	ignoredFilesChan := newIgnoredYamlFilesChan()
 
-	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invelidK8sFilesChan, newErrorsChan())
+	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidK8sFilesChan, newErrorsChan())
 	k8sValidatorMock.On("GetK8sFiles", mock.Anything, mock.Anything).Return(filesConfigurationsChan, ignoredFilesChan, newErrorsChan())
 	k8sValidatorMock.On("InitClient", mock.Anything, mock.Anything, mock.Anything).Return()
 
@@ -243,10 +245,9 @@ func test_testCommand_version_flags_validation(t *testing.T, ctx *TestCommandCon
 }
 
 func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, ctx *TestCommandContext) {
-	_ = Test(ctx, []string{"8/*"}, &TestCommandOptions{K8sVersion: "1.18.0", Output: "", PolicyName: "Default", Token: "134kh"})
+	_ = Test(ctx, []string{"8/*"}, &TestCommandOptions{K8sVersion: "1.18.0", Output: "", PolicyName: "Default", Token: "134kh"}, cliClient.PrerunPoliciesForEvaluation{})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "CreateEvaluation", "134kh", "", "1.18.0", "Default")
 	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, mock.Anything, mock.Anything)
 }
 

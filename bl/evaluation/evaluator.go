@@ -132,9 +132,15 @@ func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations
 
 	formattedResults := FormattedResults{}
 	formattedResults.EvaluationResults = e.formatEvaluationResults(failedDict, len(filesConfigurations))
+
 	if !isInteractiveMode {
 		formattedResults.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(formattedResults.EvaluationResults, failedDict, policyName, rulesCount)
 	}
+
+	if rulesData == nil {
+		rulesData = []cliClient.RuleData{}
+	}
+
 	return formattedResults, rulesData, filesData, failedDict, rulesCount, nil
 }
 

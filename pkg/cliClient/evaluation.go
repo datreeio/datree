@@ -138,19 +138,19 @@ type PrerunDataForEvaluationResponse struct {
 	DefaultK8sVersion string                       `json:"defaultK8sVersion"`
 }
 
-func (c *CliClient) RequestPrerunDataForEvaluation(tokenId string) (*PrerunDataForEvaluationResponse, error) {
+func (c *CliClient) RequestPrerunDataForEvaluation(tokenId string) (*PrerunDataForEvaluationResponse, int, error) {
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
 	if err != nil {
-		return &PrerunDataForEvaluationResponse{}, err
+		return &PrerunDataForEvaluationResponse{}, res.StatusCode, err
 	}
 
 	var prerunDataForEvaluationResponse = &PrerunDataForEvaluationResponse{}
 	err = json.Unmarshal(res.Body, &prerunDataForEvaluationResponse)
 	if err != nil {
-		return &PrerunDataForEvaluationResponse{}, err
+		return &PrerunDataForEvaluationResponse{}, res.StatusCode, err
 	}
 
-	return prerunDataForEvaluationResponse, nil
+	return prerunDataForEvaluationResponse, res.StatusCode, nil
 }
 
 type RuleData struct {

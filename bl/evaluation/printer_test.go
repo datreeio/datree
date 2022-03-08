@@ -206,7 +206,7 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 		args: &printResultsTestCaseArgs{
 			results: FormattedResults{
 				EvaluationResults: &EvaluationResults{
-					FileNameRuleMapper: map[string]map[int]*Rule{},
+					FileNameRuleMapper: map[string]map[string]*Rule{},
 					Summary: struct {
 						TotalFailedRules int
 						FilesCount       int

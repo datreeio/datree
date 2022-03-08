@@ -215,7 +215,7 @@ func request_evaluation_all_valid() *evaluateTestCase {
 		expected: &evaluateExpected{
 			response: FormattedResults{
 				EvaluationResults: &EvaluationResults{
-					FileNameRuleMapper: make(map[string]map[int]*Rule),
+					FileNameRuleMapper: make(map[string]map[string]*Rule),
 					Summary: struct {
 						TotalFailedRules int
 						FilesCount       int
@@ -284,7 +284,7 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 		expected: &evaluateExpected{
 			response: FormattedResults{
 				EvaluationResults: &EvaluationResults{
-					FileNameRuleMapper: make(map[string]map[int]*Rule),
+					FileNameRuleMapper: make(map[string]map[string]*Rule),
 					Summary: struct {
 						TotalFailedRules int
 						FilesCount       int

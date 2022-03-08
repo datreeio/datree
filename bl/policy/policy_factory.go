@@ -3,8 +3,6 @@ package policy
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
-
 	"github.com/datreeio/datree/pkg/cliClient"
 	internal_policy "github.com/datreeio/datree/pkg/policy"
 )
@@ -21,18 +19,14 @@ type RuleSchema struct {
 	MessageOnFailure string
 }
 
-func CreatePolicy(policies []*cliClient.Policy, customRules []*cliClient.CustomRule, policyName string) (Policy, error) {
+func CreatePolicy(policies *cliClient.PrerunPoliciesForEvaluation, policyName string) (Policy, error) {
 	defaultRules, err := internal_policy.GetDefaultRules()
+
 	if err != nil {
 		return Policy{}, err
 	}
 
 	var rules []RuleSchema
-
-	if policies == nil {
-		err := errors.New("There are no policies to run on")
-		return Policy{}, err
-	}
 
 	if policies != nil {
 		var chosenPolicy *cliClient.Policy
@@ -42,7 +36,7 @@ func CreatePolicy(policies []*cliClient.Policy, customRules []*cliClient.CustomR
 			getDefaultPolicy = true
 		}
 
-		for _, policy := range policies {
+		for _, policy := range policies.Policies {
 			if getDefaultPolicy && policy.IsDefault {
 				chosenPolicy = policy
 				break
@@ -59,10 +53,14 @@ func CreatePolicy(policies []*cliClient.Policy, customRules []*cliClient.CustomR
 
 		policyName = chosenPolicy.Name
 
+		if chosenPolicy.Rules == nil {
+			return Policy{policyName, []RuleSchema{}}, nil
+		}
+
 		for _, rule := range chosenPolicy.Rules {
 			var isCustomRule bool
 
-			for _, customRule := range customRules {
+			for _, customRule := range policies.CustomRules {
 				if rule.Identifier == customRule.Identifier {
 					rules = append(rules, RuleSchema{rule.Identifier, customRule.Name, customRule.Schema, customRule.DefaultMessageOnFailure})
 					isCustomRule = true
@@ -78,6 +76,11 @@ func CreatePolicy(policies []*cliClient.Policy, customRules []*cliClient.CustomR
 			}
 
 		}
+	} else {
+		for _, defaultRule := range defaultRules.Rules {
+			rules = append(rules, RuleSchema{defaultRule.UniqueName, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
+		}
+		policyName = "Default"
 	}
 
 	return Policy{policyName, rules}, nil

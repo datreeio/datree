@@ -104,7 +104,7 @@ type LocalConfig interface {
 var ViolationsFoundError = errors.New("")
 
 type CliClient interface {
-	RequestPrerunDataForEvaluation(token string) (*cliClient.PrerunDataForEvaluationResponse, error)
+	RequestPrerunDataForEvaluation(token string) (*cliClient.PrerunDataForEvaluationResponse, int, error)
 }
 
 type TestCommandOptions struct {
@@ -189,7 +189,13 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			prerunDataForEvaluation, err := ctx.CliClient.RequestPrerunDataForEvaluation(localConfigContent.CliId)
+			prerunDataForEvaluation, statusCode, err := ctx.CliClient.RequestPrerunDataForEvaluation(localConfigContent.CliId)
+
+			if err != nil {
+				if statusCode != 404 {
+					return err
+				}
+			}
 
 			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations, OnlyK8sFiles: onlyK8sFiles}
 			err = testCommandFlags.Validate()
@@ -295,7 +301,7 @@ func Test(ctx *TestCommandContext, paths []string, options *TestCommandOptions, 
 		ctx.Printer.SetTheme(printer.CreateSimpleTheme())
 	}
 
-	policy, err := policy_factory.CreatePolicy(policies.Policies, policies.CustomRules, options.PolicyName)
+	policy, err := policy_factory.CreatePolicy(policies, options.PolicyName)
 	if err != nil {
 		return err
 	}
