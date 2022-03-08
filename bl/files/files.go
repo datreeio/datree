@@ -26,27 +26,20 @@ func New() *FilesExtractor {
 func (f *FilesExtractor) ExtractFilesConfigurations(paths []string, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile) {
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
 	invalidFilesChan := make(chan *extractor.InvalidFile, concurrency)
-	pathsChan := make(chan string, concurrency)
+
+	pathsChan := parsePathsArrayToChan(paths, concurrency)
 
 	go func() {
-		defer close(pathsChan)
-		for _, path := range paths {
-			pathsChan <- path
-		}
-	}()
-
-	go func() {
-		defer func() {
-			close(filesConfigurationsChan)
-			close(invalidFilesChan)
-		}()
-
 		var wg sync.WaitGroup
 		wg.Add(concurrency)
 		for i := 0; i < concurrency; i++ {
 			go func() {
 				defer wg.Done()
-				for path := range pathsChan {
+				for {
+					path, ok := <-pathsChan
+					if !ok {
+						break
+					}
 					configurations, absolutePath, invalidYamlFile := extractor.ExtractConfigurationsFromYamlFile(path)
 
 					if invalidYamlFile != nil {
@@ -59,9 +52,24 @@ func (f *FilesExtractor) ExtractFilesConfigurations(paths []string, concurrency 
 			}()
 		}
 		wg.Wait()
+		close(filesConfigurationsChan)
+		close(invalidFilesChan)
 	}()
 
 	return filesConfigurationsChan, invalidFilesChan
+}
+
+func parsePathsArrayToChan(paths []string, concurrency int) chan string {
+	pathsChan := make(chan string, concurrency)
+
+	go func() {
+		for _, path := range paths {
+			pathsChan <- path
+		}
+		close(pathsChan)
+	}()
+
+	return pathsChan
 }
 
 func (f *FilesExtractor) ExtractYamlFileToUnknownStruct(path string) (UnknownStruct, error) {
