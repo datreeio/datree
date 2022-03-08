@@ -209,6 +209,11 @@ func GetWarningExtraMessages(invalidFile *extractor.InvalidFile) []printer.Extra
 			Text:  "Are you trying to test a raw helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree",
 			Color: "cyan",
 		})
+	} else if IsKustomizationFile(invalidFile.Path) {
+		extraMessages = append(extraMessages, printer.ExtraMessage{
+			Text:  "it seems your trying to test a Kustomize file, Please try using `datree kustomize test`",
+			Color: "cyan",
+		})
 	}
 	return extraMessages
 }
@@ -224,6 +229,20 @@ func IsHelmFile(filePath string) bool {
 	helmFilesExtensions := [...]string{"Chart", "chart", "Values", "values"}
 
 	for _, extension := range helmFilesExtensions {
+		if strings.Contains(cleanFilePath, extension) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func IsKustomizationFile(filePath string) bool {
+	cleanFilePath := strings.Replace(filePath, "\n", "", -1)
+
+	kustomizeFilesExtensions := [...]string{"kustomization.yml", "kustomization.yaml", "Kustomization"}
+
+	for _, extension := range kustomizeFilesExtensions {
 		if strings.Contains(cleanFilePath, extension) {
 			return true
 		}
