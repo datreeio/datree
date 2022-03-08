@@ -17,6 +17,7 @@ func main() {
 	defer func() {
 		if panicErr := recover(); panicErr != nil {
 			errorReporter.ReportCliError(panicErr)
+			os.Exit(DEFAULT_ERR_EXIT_CODE)
 		}
 	}()
 
