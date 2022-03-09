@@ -83,6 +83,7 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 			if rule.Identifier == customRule.Identifier {
 				rules = append(rules, RuleSchema{rule.Identifier, customRule.Name, customRule.Schema, customRule.DefaultMessageOnFailure})
 				isCustomRule = true
+				break
 			}
 		}
 
@@ -91,6 +92,7 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 				if rule.Identifier == defaultRule.UniqueName {
 					isDefaultRule = true
 					rules = append(rules, RuleSchema{rule.Identifier, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
+					break
 				}
 			}
 			if !isDefaultRule {
@@ -99,5 +101,6 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 			}
 		}
 	}
+
 	return rules, nil
 }
