@@ -86,14 +86,14 @@ func (e *Evaluator) SendLocalEvaluationResult(localEvaluationRequestData LocalEv
 	return sendLocalEvaluationResultsResponse, err
 }
 
-type DataForEvaluation struct {
+type DataForPolicyCheck struct {
 	FilesConfigurations []*extractor.FileConfigurations
 	IsInteractiveMode   bool
 	PolicyName          string
 	Policy              policy_factory.Policy
 }
 
-type EvaluationResultData struct {
+type PolicyCheckResultData struct {
 	FormattedResults FormattedResults
 	RulesData        []cliClient.RuleData
 	FilesData        []cliClient.FileData
@@ -101,10 +101,10 @@ type EvaluationResultData struct {
 	RulesCount       int
 }
 
-func (e *Evaluator) Evaluate(dataForEvaluation DataForEvaluation) (EvaluationResultData, error) {
+func (e *Evaluator) Evaluate(dataForEvaluation DataForPolicyCheck) (PolicyCheckResultData, error) {
 
 	if len(dataForEvaluation.FilesConfigurations) == 0 {
-		return EvaluationResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}, nil
+		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}, nil
 	}
 
 	rulesCount := len(dataForEvaluation.Policy.Rules)
@@ -113,6 +113,8 @@ func (e *Evaluator) Evaluate(dataForEvaluation DataForEvaluation) (EvaluationRes
 	failedDict := make(map[string]map[string]cliClient.FailedRule)
 	rulesData := []cliClient.RuleData{}
 	var filesData []cliClient.FileData
+
+	emptyPolicyCheckResult := PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}
 
 	for _, filesConfiguration := range dataForEvaluation.FilesConfigurations {
 		filesData = append(filesData, cliClient.FileData{FilePath: filesConfiguration.FileName, ConfigurationsCount: len(filesConfiguration.Configurations)})
@@ -127,20 +129,20 @@ func (e *Evaluator) Evaluate(dataForEvaluation DataForEvaluation) (EvaluationRes
 
 				configurationJson, err := json.Marshal(configuration)
 				if err != nil {
-					return EvaluationResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}, err
+					return emptyPolicyCheckResult, err
 				}
 
 				yamlSchemaValidatorInst := yamlSchemaValidator.New()
 
 				ruleSchemaJson, err := json.Marshal(rulesSchema.Schema)
 				if err != nil {
-					return EvaluationResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}, err
+					return emptyPolicyCheckResult, err
 				}
 
 				result, err := yamlSchemaValidatorInst.Validate(string(ruleSchemaJson), string(configurationJson))
 
 				if err != nil {
-					return EvaluationResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}, err
+					return emptyPolicyCheckResult, err
 				}
 
 				if len(result.Errors()) > 0 {
@@ -169,7 +171,7 @@ func (e *Evaluator) Evaluate(dataForEvaluation DataForEvaluation) (EvaluationRes
 		formattedResults.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(formattedResults.EvaluationResults, failedDict, dataForEvaluation.PolicyName, rulesCount)
 	}
 
-	return EvaluationResultData{formattedResults, rulesData, filesData, failedDict, rulesCount}, nil
+	return PolicyCheckResultData{formattedResults, rulesData, filesData, failedDict, rulesCount}, nil
 }
 
 // This method creates a NonInteractiveEvaluationResults structure

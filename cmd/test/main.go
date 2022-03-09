@@ -27,7 +27,7 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(dataForEvaluation evaluation.DataForEvaluation) (evaluation.EvaluationResultData, error)
+	Evaluate(dataForEvaluation evaluation.DataForPolicyCheck) (evaluation.PolicyCheckResultData, error)
 	SendLocalEvaluationResult(localEvaluationRequestData evaluation.LocalEvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error)
 }
 
@@ -311,21 +311,24 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 		ctx.Printer.SetTheme(printer.CreateSimpleTheme())
 	}
 
-	validationManager, rulesCount, results, promptMessage, err := evaluate(ctx, filesPaths, prerunData)
+	evaluationResultData, err := evaluate(ctx, filesPaths, prerunData)
 	if err != nil {
 		return err
 	}
 
+	results := evaluationResultData.FormattedResults
 	passedPolicyCheckCount := 0
 	if results.EvaluationResults != nil {
-		passedPolicyCheckCount = results.EvaluationResults.Summary.TotalPassedCount
+		passedPolicyCheckCount = evaluationResultData.FormattedResults.EvaluationResults.Summary.TotalPassedCount
 	}
+
+	validationManager := evaluationResultData.ValidationManager
 
 	passedYamlValidationCount := filesPathsLen - validationManager.InvalidYamlFilesCount()
 
 	evaluationSummary := printer.EvaluationSummary{
 		FilesCount:                filesPathsLen,
-		RulesCount:                rulesCount,
+		RulesCount:                evaluationResultData.RulesCount,
 		PassedYamlValidationCount: passedYamlValidationCount,
 		PassedK8sValidationCount:  validationManager.ValidK8sFilesConfigurationsCount(),
 		ConfigsCount:              validationManager.ValidK8sConfigurationsCount(),
@@ -334,8 +337,8 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 
 	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", prerunData.Token), prerunData.Output, ctx.Printer, prerunData.K8sVersion, prerunData.Policy.Name)
 
-	if len(promptMessage) > 0 {
-		ctx.Printer.PrintPromptMessage(promptMessage)
+	if len(evaluationResultData.PromptMessage) > 0 {
+		ctx.Printer.PrintPromptMessage(evaluationResultData.PromptMessage)
 		answer, _, err := keyboard.GetSingleKey()
 
 		if err != nil {
@@ -360,7 +363,14 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 	return nil
 }
 
-func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (*ValidationManager, int, evaluation.FormattedResults, string, error) {
+type EvaluationResultData struct {
+	ValidationManager *ValidationManager
+	RulesCount        int
+	FormattedResults  evaluation.FormattedResults
+	PromptMessage     string
+}
+
+func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (EvaluationResultData, error) {
 	isInteractiveMode := (prerunData.Output != "json") && (prerunData.Output != "yaml") && (prerunData.Output != "xml")
 
 	var _spinner *spinner.Spinner
@@ -402,16 +412,17 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	policyName := prerunData.Policy.Name
 
-	dataForEvaluation := evaluation.DataForEvaluation{
+	dataForEvaluation := evaluation.DataForPolicyCheck{
 		FilesConfigurations: validationManager.ValidK8sFilesConfigurations(),
 		IsInteractiveMode:   isInteractiveMode,
 		PolicyName:          policyName,
 		Policy:              prerunData.Policy,
 	}
 
-	evaluationResultData, err := ctx.Evaluator.Evaluate(dataForEvaluation)
+	emptyEvaluationResultData := EvaluationResultData{nil, 0, evaluation.FormattedResults{}, ""}
+	policyCheckResultData, err := ctx.Evaluator.Evaluate(dataForEvaluation)
 	if err != nil {
-		return nil, 0, evaluation.FormattedResults{}, "", err
+		return emptyEvaluationResultData, err
 	}
 
 	var failedYamlFiles []string
@@ -436,19 +447,26 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		K8sVersion:         prerunData.K8sVersion,
 		PolicyName:         policyName,
 		CiContext:          ciContext,
-		RulesData:          evaluationResultData.RulesData,
-		FilesData:          evaluationResultData.FilesData,
+		RulesData:          policyCheckResultData.RulesData,
+		FilesData:          policyCheckResultData.FilesData,
 		FailedYamlFiles:    failedYamlFiles,
 		FailedK8sFiles:     failedK8sFiles,
-		PolicyCheckResults: evaluationResultData.RawResults,
+		PolicyCheckResults: policyCheckResultData.RawResults,
 	}
 
 	sendEvaluationResultsResponse, err := ctx.Evaluator.SendLocalEvaluationResult(localEvaluationRequestData)
 	if err != nil {
-		return nil, 0, evaluation.FormattedResults{}, "", err
+		return emptyEvaluationResultData, err
 	}
 
-	return validationManager, evaluationResultData.RulesCount, evaluationResultData.FormattedResults, sendEvaluationResultsResponse.PromptMessage, err
+	evaluationResultData := EvaluationResultData{
+		ValidationManager: validationManager,
+		RulesCount:        policyCheckResultData.RulesCount,
+		FormattedResults:  policyCheckResultData.FormattedResults,
+		PromptMessage:     sendEvaluationResultsResponse.PromptMessage,
+	}
+
+	return evaluationResultData, err
 }
 
 func wereViolationsFound(validationManager *ValidationManager, results *evaluation.FormattedResults) bool {
