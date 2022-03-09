@@ -123,59 +123,6 @@ type PublishPoliciesTestCase struct {
 	}
 }
 
-func TestRequestEvaluation(t *testing.T) {
-	tests := []*RequestEvaluationTestCase{
-		test_requestEvaluation_success(),
-	}
-
-	httpClientMock := mockHTTPClient{}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			body, _ := json.Marshal(tt.mock.response.body)
-			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
-			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
-
-			client := &CliClient{
-				baseUrl:    "http://cli-service.test.io",
-				httpClient: &httpClientMock,
-			}
-
-			res, _ := client.RequestEvaluation(tt.args.evaluationRequest)
-
-			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
-			assert.Equal(t, tt.expected.response, res)
-
-		})
-	}
-}
-
-func TestCreateRequestEvaluation(t *testing.T) {
-	tests := []*CreateEvaluationTestCase{
-		test_createEvaluation_success(),
-	}
-
-	httpClientMock := mockHTTPClient{}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			body, _ := json.Marshal(tt.mock.response.body)
-			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
-			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
-
-			client := &CliClient{
-				baseUrl:    "http://cli-service.test.io",
-				httpClient: &httpClientMock,
-			}
-
-			res, _ := client.CreateEvaluation(tt.args.createEvaluationRequest)
-
-			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
-			assert.Equal(t, tt.expected.response, res)
-		})
-	}
-}
-
 func TestGetVersionMessage(t *testing.T) {
 	tests := []*GetVersionMessageTestCase{
 		test_getVersionMessage_success(),

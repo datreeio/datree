@@ -11,7 +11,6 @@ import (
 )
 
 type CLIClient interface {
-	RequestEvaluation(request *cliClient.EvaluationRequest) (*cliClient.EvaluationResponse, error)
 	SendLocalEvaluationResult(request *cliClient.LocalEvaluationResultRequest) (*cliClient.SendEvaluationResultsResponse, error)
 }
 

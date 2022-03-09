@@ -36,21 +36,6 @@ type SendEvaluationResultsResponse struct {
 	PromptMessage string `json:"promptMessage,omitempty"`
 }
 
-func (c *CliClient) CreateEvaluation(request *CreateEvaluationRequest) (*CreateEvaluationResponse, error) {
-	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/create", request, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var res = &CreateEvaluationResponse{}
-	err = json.Unmarshal(httpRes.Body, &res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
 type Match struct {
 	FileName     string `json:"fileName"`
 	Path         string `json:"path"`
@@ -94,21 +79,6 @@ type EvaluationResponse struct {
 type EvaluationRequest struct {
 	EvaluationId int                             `json:"evaluationId"`
 	Files        []*extractor.FileConfigurations `json:"files"`
-}
-
-func (c *CliClient) RequestEvaluation(request *EvaluationRequest) (*EvaluationResponse, error) {
-	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate", request, nil)
-	if err != nil {
-		return &EvaluationResponse{}, err
-	}
-
-	var evaluationResponse = &EvaluationResponse{}
-	err = json.Unmarshal(res.Body, &evaluationResponse)
-	if err != nil {
-		return &EvaluationResponse{}, err
-	}
-
-	return evaluationResponse, nil
 }
 
 type CustomRule struct {
@@ -209,22 +179,4 @@ type UpdateEvaluationValidationRequest struct {
 	EvaluationId   int       `json:"evaluationId"`
 	InvalidFiles   []*string `json:"failedFiles"`
 	StopEvaluation bool      `json:"stopEvaluation"`
-}
-
-func (c *CliClient) SendFailedYamlValidation(request *UpdateEvaluationValidationRequest) error {
-	_, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/validation/yaml", request, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *CliClient) SendFailedK8sValidation(request *UpdateEvaluationValidationRequest) error {
-	_, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/validation/k8s", request, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
