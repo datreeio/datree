@@ -54,6 +54,8 @@ echo -e "\033[35m Usage: $ datree test ~/.datree/k8s-demo.yaml \033[0m"
 
 echo -e "\033[35m Using Helm? => https://github.com/datreeio/helm-datree \033[0m"
 
+echo -e "\033[35m Using Kustomize? => https://hub.datree.io/kustomize-support \033[0m"
+
 echo -e "\033[35m Run 'datree completion -h' to learn how to generate shell autocompletions \033[0m"
 
 echo
