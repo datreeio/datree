@@ -77,6 +77,7 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 
 	for _, rule := range policyRules {
 		var isCustomRule bool
+		var isDefaultRule bool
 
 		for _, customRule := range customRules {
 			if rule.Identifier == customRule.Identifier {
@@ -88,11 +89,13 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 		if !isCustomRule {
 			for _, defaultRule := range defaultRules {
 				if rule.Identifier == defaultRule.UniqueName {
+					isDefaultRule = true
 					rules = append(rules, RuleSchema{rule.Identifier, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
-				} else {
-					rulesIsNotCustomNotDefaultErr := fmt.Errorf("rule %s is not custom nor default", rule.Identifier)
-					return nil, rulesIsNotCustomNotDefaultErr
 				}
+			}
+			if !isDefaultRule {
+				rulesIsNotCustomNotDefaultErr := fmt.Errorf("rule %s is not custom nor default", rule.Identifier)
+				return nil, rulesIsNotCustomNotDefaultErr
 			}
 		}
 	}
