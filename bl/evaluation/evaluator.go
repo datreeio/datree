@@ -12,9 +12,6 @@ import (
 
 type CLIClient interface {
 	RequestEvaluation(request *cliClient.EvaluationRequest) (*cliClient.EvaluationResponse, error)
-	CreateEvaluation(request *cliClient.CreateEvaluationRequest) (*cliClient.CreateEvaluationResponse, error)
-	SendFailedYamlValidation(request *cliClient.UpdateEvaluationValidationRequest) error
-	SendFailedK8sValidation(request *cliClient.UpdateEvaluationValidationRequest) error
 	SendLocalEvaluationResult(request *cliClient.LocalEvaluationResultRequest) (*cliClient.SendEvaluationResultsResponse, error)
 }
 
@@ -53,47 +50,75 @@ type FormattedResults struct {
 	NonInteractiveEvaluationResults *NonInteractiveEvaluationResults
 }
 
-func (e *Evaluator) SendLocalEvaluationResult(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext, rulesData []cliClient.RuleData, filesData []cliClient.FileData, failedYamlFiles []string, failedK8sFiles []string, policyCheckResults map[string]map[string]cliClient.FailedRule) (*cliClient.SendEvaluationResultsResponse, error) {
+type LocalEvaluationRequestData struct {
+	CliId              string
+	CliVersion         string
+	K8sVersion         string
+	PolicyName         string
+	CiContext          *ciContext.CIContext
+	RulesData          []cliClient.RuleData
+	FilesData          []cliClient.FileData
+	FailedYamlFiles    []string
+	FailedK8sFiles     []string
+	PolicyCheckResults map[string]map[string]cliClient.FailedRule
+}
+
+func (e *Evaluator) SendLocalEvaluationResult(localEvaluationRequestData LocalEvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
 	sendLocalEvaluationResultsResponse, err := e.cliClient.SendLocalEvaluationResult(&cliClient.LocalEvaluationResultRequest{
-		K8sVersion: k8sVersion,
-		ClientId:   cliId,
-		Token:      cliId,
-		PolicyName: policyName,
+		K8sVersion: localEvaluationRequestData.K8sVersion,
+		ClientId:   localEvaluationRequestData.CliId,
+		Token:      localEvaluationRequestData.CliId,
+		PolicyName: localEvaluationRequestData.PolicyName,
 		Metadata: &cliClient.Metadata{
-			CliVersion:      cliVersion,
+			CliVersion:      localEvaluationRequestData.CliVersion,
 			Os:              e.osInfo.OS,
 			PlatformVersion: e.osInfo.PlatformVersion,
 			KernelVersion:   e.osInfo.KernelVersion,
-			CIContext:       ciContext,
+			CIContext:       localEvaluationRequestData.CiContext,
 		},
-		FailedYamlFiles:    failedYamlFiles,
-		FailedK8sFiles:     failedK8sFiles,
-		AllExecutedRules:   rulesData,
-		AllEvaluatedFiles:  filesData,
-		PolicyCheckResults: policyCheckResults,
+		FailedYamlFiles:    localEvaluationRequestData.FailedYamlFiles,
+		FailedK8sFiles:     localEvaluationRequestData.FailedK8sFiles,
+		AllExecutedRules:   localEvaluationRequestData.RulesData,
+		AllEvaluatedFiles:  localEvaluationRequestData.FilesData,
+		PolicyCheckResults: localEvaluationRequestData.PolicyCheckResults,
 	})
 
 	return sendLocalEvaluationResultsResponse, err
 }
 
-func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, isInteractiveMode bool, policyName string, policy policy_factory.Policy) (FormattedResults, []cliClient.RuleData, []cliClient.FileData, map[string]map[string]cliClient.FailedRule, int, error) {
+type DataForEvaluation struct {
+	FilesConfigurations []*extractor.FileConfigurations
+	IsInteractiveMode   bool
+	PolicyName          string
+	Policy              policy_factory.Policy
+}
 
-	if len(filesConfigurations) == 0 {
-		return FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0, nil
+type EvaluationResultData struct {
+	FormattedResults FormattedResults
+	RulesData        []cliClient.RuleData
+	FilesData        []cliClient.FileData
+	RawResults       map[string]map[string]cliClient.FailedRule
+	RulesCount       int
+}
+
+func (e *Evaluator) Evaluate(dataForEvaluation DataForEvaluation) (EvaluationResultData, error) {
+
+	if len(dataForEvaluation.FilesConfigurations) == 0 {
+		return EvaluationResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}, nil
 	}
 
-	rulesCount := len(policy.Rules)
+	rulesCount := len(dataForEvaluation.Policy.Rules)
 
 	// map of files paths to map of rules to failed rule data
 	failedDict := make(map[string]map[string]cliClient.FailedRule)
-	var rulesData []cliClient.RuleData
+	rulesData := []cliClient.RuleData{}
 	var filesData []cliClient.FileData
 
-	for _, filesConfiguration := range filesConfigurations {
+	for _, filesConfiguration := range dataForEvaluation.FilesConfigurations {
 		filesData = append(filesData, cliClient.FileData{FilePath: filesConfiguration.FileName, ConfigurationsCount: len(filesConfiguration.Configurations)})
 
 		for _, configuration := range filesConfiguration.Configurations {
-			for _, rulesSchema := range policy.Rules {
+			for _, rulesSchema := range dataForEvaluation.Policy.Rules {
 				rulesData = append(rulesData, cliClient.RuleData{Identifier: rulesSchema.RuleIdentifier, Name: rulesSchema.RuleName})
 
 				kind := configuration["kind"].(string)
@@ -108,7 +133,7 @@ func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations
 				result, err := yamlSchemaValidatorInst.Validate(string(ruleSchemaJson), string(configurationJson))
 
 				if err != nil {
-					return FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0, err
+					return EvaluationResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}, err
 				}
 
 				if len(result.Errors()) > 0 {
@@ -131,17 +156,13 @@ func (e *Evaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations
 	}
 
 	formattedResults := FormattedResults{}
-	formattedResults.EvaluationResults = e.formatEvaluationResults(failedDict, len(filesConfigurations))
+	formattedResults.EvaluationResults = e.formatEvaluationResults(failedDict, len(dataForEvaluation.FilesConfigurations))
 
-	if !isInteractiveMode {
-		formattedResults.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(formattedResults.EvaluationResults, failedDict, policyName, rulesCount)
+	if !dataForEvaluation.IsInteractiveMode {
+		formattedResults.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(formattedResults.EvaluationResults, failedDict, dataForEvaluation.PolicyName, rulesCount)
 	}
 
-	if rulesData == nil {
-		rulesData = []cliClient.RuleData{}
-	}
-
-	return formattedResults, rulesData, filesData, failedDict, rulesCount, nil
+	return EvaluationResultData{formattedResults, rulesData, filesData, failedDict, rulesCount}, nil
 }
 
 // This method creates a NonInteractiveEvaluationResults structure

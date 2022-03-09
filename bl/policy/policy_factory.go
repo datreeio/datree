@@ -32,7 +32,7 @@ func CreatePolicy(policies *cliClient.PrerunPoliciesForEvaluation, policyName st
 		var chosenPolicy *cliClient.Policy
 		getDefaultPolicy := false
 
-		if policyName == "" || policyName == "default" {
+		if policyName == "" {
 			getDefaultPolicy = true
 		}
 
@@ -57,24 +57,10 @@ func CreatePolicy(policies *cliClient.PrerunPoliciesForEvaluation, policyName st
 			return Policy{policyName, []RuleSchema{}}, nil
 		}
 
-		for _, rule := range chosenPolicy.Rules {
-			var isCustomRule bool
+		rules, err = populateRules(chosenPolicy.Rules, policies.CustomRules, defaultRules.Rules)
 
-			for _, customRule := range policies.CustomRules {
-				if rule.Identifier == customRule.Identifier {
-					rules = append(rules, RuleSchema{rule.Identifier, customRule.Name, customRule.Schema, customRule.DefaultMessageOnFailure})
-					isCustomRule = true
-				}
-			}
-
-			if !isCustomRule {
-				for _, defaultRule := range defaultRules.Rules {
-					if rule.Identifier == defaultRule.UniqueName {
-						rules = append(rules, RuleSchema{rule.Identifier, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
-					}
-				}
-			}
-
+		if err != nil {
+			return Policy{}, err
 		}
 	} else {
 		for _, defaultRule := range defaultRules.Rules {
@@ -84,4 +70,31 @@ func CreatePolicy(policies *cliClient.PrerunPoliciesForEvaluation, policyName st
 	}
 
 	return Policy{policyName, rules}, nil
+}
+
+func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.CustomRule, defaultRules []internal_policy.DefaultRuleDefinition) ([]RuleSchema, error) {
+	var rules []RuleSchema
+
+	for _, rule := range policyRules {
+		var isCustomRule bool
+
+		for _, customRule := range customRules {
+			if rule.Identifier == customRule.Identifier {
+				rules = append(rules, RuleSchema{rule.Identifier, customRule.Name, customRule.Schema, customRule.DefaultMessageOnFailure})
+				isCustomRule = true
+			}
+		}
+
+		if !isCustomRule {
+			for _, defaultRule := range defaultRules {
+				if rule.Identifier == defaultRule.UniqueName {
+					rules = append(rules, RuleSchema{rule.Identifier, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
+				} else {
+					rulesIsNotCustomNotDefaultErr := fmt.Errorf("rule %s is not custom nor default", rule.Identifier)
+					return nil, rulesIsNotCustomNotDefaultErr
+				}
+			}
+		}
+	}
+	return rules, nil
 }

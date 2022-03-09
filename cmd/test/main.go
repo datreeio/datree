@@ -26,8 +26,8 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(filesConfigurations []*extractor.FileConfigurations, isInteractiveMode bool, policyName string, policy policy_factory.Policy) (evaluation.FormattedResults, []cliClient.RuleData, []cliClient.FileData, map[string]map[string]cliClient.FailedRule, int, error)
-	SendLocalEvaluationResult(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext, rulesData []cliClient.RuleData, filesData []cliClient.FileData, failedYamlFiles []string, failedK8sFiles []string, policyCheckResult map[string]map[string]cliClient.FailedRule) (*cliClient.SendEvaluationResultsResponse, error)
+	Evaluate(dataForEvaluation evaluation.DataForEvaluation) (evaluation.EvaluationResultData, error)
+	SendLocalEvaluationResult(localEvaluationRequestData evaluation.LocalEvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error)
 }
 
 type Messager interface {
@@ -145,6 +145,8 @@ func SetSilentMode(cmd *cobra.Command) {
 	cmd.SilenceErrors = true
 }
 
+const notFoundStatusCode = 404
+
 func New(ctx *TestCommandContext) *cobra.Command {
 	testCommandFlags := NewTestCommandFlags()
 	testCommand := &cobra.Command{
@@ -191,10 +193,10 @@ func New(ctx *TestCommandContext) *cobra.Command {
 
 			prerunDataForEvaluation, statusCode, err := ctx.CliClient.RequestPrerunDataForEvaluation(localConfigContent.CliId)
 
-			if err != nil {
-				if statusCode != 404 {
-					return err
-				}
+			// getting prerun data can return 404 if user has a valid token but he didn't sign up yet - suppose to be ok
+			// getting prerun data can return 400 if user has invalid token - we suppose to return an error
+			if err != nil && statusCode != notFoundStatusCode {
+				return err
 			}
 
 			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations, OnlyK8sFiles: onlyK8sFiles}
@@ -397,7 +399,14 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommand
 
 	validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan)
 
-	results, rulesData, filesData, rawResults, rulesCount, err := ctx.Evaluator.Evaluate(validationManager.ValidK8sFilesConfigurations(), isInteractiveMode, options.PolicyName, policy)
+	dataForEvaluation := evaluation.DataForEvaluation{
+		FilesConfigurations: validationManager.ValidK8sFilesConfigurations(),
+		IsInteractiveMode:   isInteractiveMode,
+		PolicyName:          options.PolicyName,
+		Policy:              policy,
+	}
+
+	evaluationResultData, err := ctx.Evaluator.Evaluate(dataForEvaluation)
 
 	var failedYamlFiles []string
 	if validationManager.InvalidYamlFilesCount() > 0 {
@@ -414,8 +423,22 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommand
 	}
 
 	ciContext := ciContext.Extract()
-	sendEvaluationResultsResponse, err := ctx.Evaluator.SendLocalEvaluationResult(options.Token, ctx.CliVersion, options.K8sVersion, options.PolicyName, ciContext, rulesData, filesData, failedYamlFiles, failedK8sFiles, rawResults)
-	return validationManager, rulesCount, results, sendEvaluationResultsResponse.PromptMessage, err
+
+	localEvaluationRequestData := evaluation.LocalEvaluationRequestData{
+		CliId:              options.Token,
+		CliVersion:         ctx.CliVersion,
+		K8sVersion:         options.K8sVersion,
+		PolicyName:         options.PolicyName,
+		CiContext:          ciContext,
+		RulesData:          evaluationResultData.RulesData,
+		FilesData:          evaluationResultData.FilesData,
+		FailedYamlFiles:    failedYamlFiles,
+		FailedK8sFiles:     failedK8sFiles,
+		PolicyCheckResults: evaluationResultData.RawResults,
+	}
+
+	sendEvaluationResultsResponse, err := ctx.Evaluator.SendLocalEvaluationResult(localEvaluationRequestData)
+	return validationManager, evaluationResultData.RulesCount, evaluationResultData.FormattedResults, sendEvaluationResultsResponse.PromptMessage, err
 }
 
 func wereViolationsFound(validationManager *ValidationManager, results *evaluation.FormattedResults) bool {

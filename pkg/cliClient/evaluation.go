@@ -118,13 +118,15 @@ type CustomRule struct {
 	Schema                  map[string]interface{} `json:"schema"`
 }
 
+type Rule struct {
+	Identifier       string `json:"identifier"`
+	MessageOnFailure string `json:"messageOnFailure"`
+}
+
 type Policy struct {
 	Name      string `json:"name"`
 	IsDefault bool   `json:"isDefault,omitempty"`
-	Rules     []struct {
-		Identifier       string `json:"identifier"`
-		MessageOnFailure string `json:"messageOnFailure"`
-	} `json:"rules"`
+	Rules     []Rule `json:"rules"`
 }
 
 type PrerunPoliciesForEvaluation struct {
