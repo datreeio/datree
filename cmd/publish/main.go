@@ -24,7 +24,7 @@ type LocalConfig interface {
 }
 
 type CliClient interface {
-	PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) (*cliClient.PublishFailedResponse, error)
+	PublishPolicies(policiesConfiguration files.UnknownStruct, token string) (*cliClient.PublishFailedResponse, error)
 }
 
 type PublishCommandContext struct {

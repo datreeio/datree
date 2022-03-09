@@ -103,7 +103,7 @@ type PublishPoliciesTestCase struct {
 	name string
 	args struct {
 		policiesConfiguration files.UnknownStruct
-		cliId                 string
+		token                 string
 	}
 	mockResponse struct {
 		status int
@@ -219,7 +219,7 @@ func TestPublishPolicies(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			publishFailedResponse, err := client.PublishPolicies(tt.args.policiesConfiguration, tt.args.cliId)
+			publishFailedResponse, err := client.PublishPolicies(tt.args.policiesConfiguration, tt.args.token)
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.publishFailedResponse, publishFailedResponse)
 			assert.Equal(t, tt.expected.responseErr, err)
@@ -439,17 +439,17 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 }
 
 func test_publishPolicies_success() *PublishPoliciesTestCase {
-	expectedPublishHeaders := map[string]string{"x-cli-id": "cli_id"}
+	expectedPublishHeaders := map[string]string{"x-datree-token": "token"}
 
 	requestPoliciesConfigurationArg := files.UnknownStruct{}
 	return &PublishPoliciesTestCase{
 		name: "success - publish policies",
 		args: struct {
 			policiesConfiguration files.UnknownStruct
-			cliId                 string
+			token                 string
 		}{
 			policiesConfiguration: requestPoliciesConfigurationArg,
-			cliId:                 "cli_id",
+			token:                 "token",
 		},
 		mockResponse: struct {
 			status int
@@ -492,17 +492,17 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 }
 
 func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
-	expectedPublishHeaders := map[string]string{"x-cli-id": "cli_id"}
+	expectedPublishHeaders := map[string]string{"x-datree-token": "token"}
 
 	requestPoliciesConfigurationArg := files.UnknownStruct{}
 	return &PublishPoliciesTestCase{
 		name: "schema error - publish policies",
 		args: struct {
 			policiesConfiguration files.UnknownStruct
-			cliId                 string
+			token                 string
 		}{
 			policiesConfiguration: requestPoliciesConfigurationArg,
-			cliId:                 "cli_id",
+			token:                 "token",
 		},
 		mockResponse: struct {
 			status int
