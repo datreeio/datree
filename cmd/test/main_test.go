@@ -1,11 +1,9 @@
 package test
 
 import (
+	"fmt"
 	"testing"
 
-	policy_factory "github.com/datreeio/datree/bl/policy"
-
-	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/printer"
@@ -21,18 +19,13 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(filesConfigurations []*extractor.FileConfigurations, isInteractiveMode bool, policyName string, policy policy_factory.Policy) (evaluation.FormattedResults, []cliClient.RuleData, []cliClient.FileData, map[string]map[string]cliClient.FailedRule, int, error) {
-	args := m.Called(filesConfigurations, isInteractiveMode, policyName, policy)
-	return args.Get(0).(evaluation.FormattedResults), args.Get(1).([]cliClient.RuleData), args.Get(2).([]cliClient.FileData), args.Get(3).(map[string]map[string]cliClient.FailedRule), args.Get(4).(int), args.Error(1)
+func (m *mockEvaluator) Evaluate(dataForEvaluation evaluation.DataForPolicyCheck) (evaluation.PolicyCheckResultData, error) {
+	args := m.Called(dataForEvaluation)
+	return args.Get(0).(evaluation.PolicyCheckResultData), args.Error(1)
 }
 
-func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext) (*cliClient.CreateEvaluationResponse, error) {
-	args := m.Called(cliId, cliVersion, k8sVersion, policyName)
-	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
-}
-
-func (m *mockEvaluator) SendLocalEvaluationResult(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext, rulesData []cliClient.RuleData, filesData []cliClient.FileData, failedYamlFiles []string, failedK8sFiles []string, policyCheckResult map[string]map[string]cliClient.FailedRule) (*cliClient.SendEvaluationResultsResponse, error) {
-	args := m.Called(cliId, cliVersion, k8sVersion, policyName, ciContext, rulesData, filesData, failedYamlFiles, failedK8sFiles, policyCheckResult)
+func (m *mockEvaluator) SendLocalEvaluationResult(localEvaluationRequestData evaluation.LocalEvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
+	args := m.Called(localEvaluationRequestData)
 	return args.Get(0).(*cliClient.SendEvaluationResultsResponse), args.Error(1)
 }
 
@@ -129,6 +122,7 @@ func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.ConfigContent, 
 func TestTestCommand(t *testing.T) {
 	evaluationId := 444
 	prerunDataForEvaluationResponse := cliClient.PrerunDataForEvaluationResponse{}
+	fmt.Println(prerunDataForEvaluationResponse)
 	resultType := evaluation.FormattedResults{}
 
 	resultType.EvaluationResults = &evaluation.EvaluationResults{
@@ -142,7 +136,7 @@ func TestTestCommand(t *testing.T) {
 	mockedEvaluator := &mockEvaluator{}
 	mockedEvaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(resultType, nil)
 	mockedEvaluator.On("SendLocalEvaluationResult", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(resultType, nil)
-	mockedEvaluator.On("RequestPrerunDataForEvaluation", mock.Anything).Return(&cliClient.PrerunDataForEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0", RulesCount: 21}, nil)
+	//mockedEvaluator.On("RequestPrerunDataForEvaluation", mock.Anything).Return(&cliClient.PrerunDataForEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0", RulesCount: 21}, nil)
 
 	messager := &mockMessager{}
 	messager.On("LoadVersionMessages", mock.Anything)
