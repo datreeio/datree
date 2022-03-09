@@ -7,10 +7,10 @@ import (
 	"regexp"
 	"strings"
 
-	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
+	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/pkg/errors"
@@ -191,17 +191,16 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
+			localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
+			if err != nil {
+				return err
+			}
+
 			prerunDataForEvaluation, statusCode, err := ctx.CliClient.RequestPrerunDataForEvaluation(localConfigContent.CliId)
 
 			// getting prerun data can return 404 if user has a valid token but he didn't sign up yet - suppose to be ok
 			// getting prerun data can return 400 if user has invalid token - we suppose to return an error
 			if err != nil && statusCode != notFoundStatusCode {
-				return err
-			}
-
-			testCommandFlags := TestCommandFlags{Output: outputFlag, K8sVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas, PolicyName: policy, SchemaLocations: schemaLocations, OnlyK8sFiles: onlyK8sFiles}
-			err = testCommandFlags.Validate()
-			if err != nil {
 				return err
 			}
 
@@ -407,6 +406,9 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommand
 	}
 
 	evaluationResultData, err := ctx.Evaluator.Evaluate(dataForEvaluation)
+	if err != nil {
+		return nil, 0, evaluation.FormattedResults{}, "", err
+	}
 
 	var failedYamlFiles []string
 	if validationManager.InvalidYamlFilesCount() > 0 {
@@ -438,6 +440,10 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommand
 	}
 
 	sendEvaluationResultsResponse, err := ctx.Evaluator.SendLocalEvaluationResult(localEvaluationRequestData)
+	if err != nil {
+		return nil, 0, evaluation.FormattedResults{}, "", err
+	}
+
 	return validationManager, evaluationResultData.RulesCount, evaluationResultData.FormattedResults, sendEvaluationResultsResponse.PromptMessage, err
 }
 

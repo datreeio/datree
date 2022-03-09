@@ -125,10 +125,17 @@ func (e *Evaluator) Evaluate(dataForEvaluation DataForEvaluation) (EvaluationRes
 				metadata := configuration["metadata"]
 				name := metadata.(map[string]interface{})["name"].(string)
 
-				configurationJson, _ := json.Marshal(configuration)
+				configurationJson, err := json.Marshal(configuration)
+				if err != nil {
+					return EvaluationResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}, err
+				}
+
 				yamlSchemaValidatorInst := yamlSchemaValidator.New()
 
-				ruleSchemaJson, _ := json.Marshal(rulesSchema.Schema)
+				ruleSchemaJson, err := json.Marshal(rulesSchema.Schema)
+				if err != nil {
+					return EvaluationResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}, err
+				}
 
 				result, err := yamlSchemaValidatorInst.Validate(string(ruleSchemaJson), string(configurationJson))
 

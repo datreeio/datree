@@ -59,7 +59,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				return err
 			}
 
-			testCommandOptions := test.GenerateTestCommandOptions(testCommandFlags, localConfigContent)
+			testCommandOptions := test.GenerateTestCommandOptions(testCommandFlags, localConfigContent, "1.18.0")
 
 			out, err := kustomizeCtx.CommandRunner.ExecuteKustomizeBin(args)
 			if err != nil {
@@ -72,7 +72,8 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			}
 			defer os.Remove(tempFilename)
 
-			err = test.Test(testCtx, []string{tempFilename}, testCommandOptions)
+			// todo fix test
+			err = test.Test(testCtx, []string{tempFilename}, testCommandOptions, nil)
 			if err != nil {
 				return err
 			}
