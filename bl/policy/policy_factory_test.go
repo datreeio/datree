@@ -18,23 +18,9 @@ import (
 const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
 
 func TestCreatePolicy(t *testing.T) {
-	err := os.Chdir("../../")
+	os.Chdir("../../")
 
-	fileReader := fileReader.CreateFileReader(nil)
-	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
-
-	if err != nil {
-		fmt.Errorf("can't read policies json")
-	}
-
-	policiesJsonRawData := []byte(policiesJsonStr)
-
-	var policiesJson cliClient.PrerunDataForEvaluationResponse
-	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
-
-	if err != nil {
-		fmt.Errorf("can't marshel policies json")
-	}
+	policiesJson := mockGetPreRunData()
 
 	t.Run("Test Create Policy With Default Policy", func(t *testing.T) {
 		policy, err := CreatePolicy(policiesJson.PoliciesJson, "")
@@ -83,4 +69,23 @@ func TestCreatePolicy(t *testing.T) {
 
 		assert.Equal(t, expectedPolicy, policy)
 	})
+}
+
+func mockGetPreRunData() *cliClient.PrerunDataForEvaluationResponse {
+	fileReader := fileReader.CreateFileReader(nil)
+	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
+
+	if err != nil {
+		fmt.Errorf("can't read policies json")
+	}
+
+	policiesJsonRawData := []byte(policiesJsonStr)
+
+	var policiesJson *cliClient.PrerunDataForEvaluationResponse
+	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
+
+	if err != nil {
+		fmt.Errorf("can't marshel policies json")
+	}
+	return policiesJson
 }

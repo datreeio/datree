@@ -1,7 +1,6 @@
 package evaluation
 
 import (
-	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -16,14 +15,14 @@ type mockCliClient struct {
 	mock.Mock
 }
 
-func (m *mockCliClient) CreateEvaluation(createEvaluationRequest *cliClient.CreateEvaluationRequest) (*cliClient.CreateEvaluationResponse, error) {
-	args := m.Called(createEvaluationRequest)
-	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
+func (m *mockCliClient) RequestPrerunDataForEvaluation(token string) (*cliClient.PrerunDataForEvaluationResponse, error) {
+	args := m.Called(token)
+	return args.Get(0).(*cliClient.PrerunDataForEvaluationResponse), args.Error(1)
 }
 
-func (m *mockCliClient) RequestEvaluation(evaluationRequest *cliClient.EvaluationRequest) (*cliClient.EvaluationResponse, error) {
-	args := m.Called(evaluationRequest)
-	return args.Get(0).(*cliClient.EvaluationResponse), args.Error(1)
+func (m *mockCliClient) SendLocalEvaluationResult(localEvaluationResultRequest *cliClient.LocalEvaluationResultRequest) (*cliClient.SendEvaluationResultsResponse, error) {
+	args := m.Called(localEvaluationResultRequest)
+	return args.Get(0).(*cliClient.SendEvaluationResultsResponse), args.Error(1)
 }
 
 func (m *mockCliClient) SendFailedYamlValidation(request *cliClient.UpdateEvaluationValidationRequest) error {
@@ -64,8 +63,8 @@ type evaluatorMock struct {
 }
 
 // TODO: add actual tests
-func TestCreateEvaluation(t *testing.T) {
-	t.Run("CreateEvaluation should succedd", func(t *testing.T) {
+func TestSendLocalEvaluationResult(t *testing.T) {
+	t.Run("SendLocalEvaluationResult should succeed", func(t *testing.T) {
 		mockedCliClient := &mockCliClient{}
 		evaluator := &Evaluator{
 			cliClient: mockedCliClient,
@@ -79,6 +78,7 @@ func TestCreateEvaluation(t *testing.T) {
 		cliId := "test_token"
 		cliVersion := "0.0.7"
 		k8sVersion := "1.18.1"
+		promptMessage := ""
 		policyName := "Default"
 		ciContext := &ciContext.CIContext{
 			IsCI: true,
@@ -88,23 +88,45 @@ func TestCreateEvaluation(t *testing.T) {
 			},
 		}
 
-		mockedCliClient.On("CreateEvaluation", mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: 1, K8sVersion: k8sVersion}, nil)
+		mockedCliClient.On("SendLocalEvaluationResult", mock.Anything).Return(&cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}, nil)
 
-		expectedCreateEvaluationResponse := &cliClient.CreateEvaluationResponse{EvaluationId: 1, K8sVersion: k8sVersion}
-		createEvaluationResponse, _ := evaluator.CreateEvaluation(cliId, cliVersion, k8sVersion, policyName, ciContext)
-		mockedCliClient.AssertCalled(t, "CreateEvaluation", &cliClient.CreateEvaluationRequest{
-			K8sVersion: &k8sVersion,
-			CliId:      cliId,
-			PolicyName: policyName,
+		expectedSendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}
+
+		localEvaluationRequestData := LocalEvaluationRequestData{
+			CliId:              cliId,
+			CliVersion:         cliVersion,
+			K8sVersion:         k8sVersion,
+			PolicyName:         policyName,
+			CiContext:          ciContext,
+			RulesData:          []cliClient.RuleData{},
+			FilesData:          []cliClient.FileData{},
+			FailedYamlFiles:    []string{},
+			FailedK8sFiles:     []string{},
+			PolicyCheckResults: nil,
+		}
+
+		sendEvaluationResultsResponse, _ := evaluator.SendLocalEvaluationResult(localEvaluationRequestData)
+
+		sendLocalEvaluationResultRequestData := &cliClient.LocalEvaluationResultRequest{
+			K8sVersion: localEvaluationRequestData.K8sVersion,
+			ClientId:   localEvaluationRequestData.CliId,
+			Token:      localEvaluationRequestData.CliId,
+			PolicyName: localEvaluationRequestData.PolicyName,
 			Metadata: &cliClient.Metadata{
-				CliVersion:      cliVersion,
+				CliVersion:      localEvaluationRequestData.CliVersion,
 				Os:              evaluator.osInfo.OS,
 				PlatformVersion: evaluator.osInfo.PlatformVersion,
 				KernelVersion:   evaluator.osInfo.KernelVersion,
-				CIContext:       ciContext,
+				CIContext:       localEvaluationRequestData.CiContext,
 			},
-		})
-		assert.Equal(t, expectedCreateEvaluationResponse, createEvaluationResponse)
+			FailedYamlFiles:    localEvaluationRequestData.FailedYamlFiles,
+			FailedK8sFiles:     localEvaluationRequestData.FailedK8sFiles,
+			AllExecutedRules:   localEvaluationRequestData.RulesData,
+			AllEvaluatedFiles:  localEvaluationRequestData.FilesData,
+			PolicyCheckResults: localEvaluationRequestData.PolicyCheckResults,
+		}
+		mockedCliClient.AssertCalled(t, "SendLocalEvaluationResult", sendLocalEvaluationResultRequestData)
+		assert.Equal(t, expectedSendEvaluationResultsResponse, sendEvaluationResultsResponse)
 
 	})
 }
@@ -120,21 +142,20 @@ func TestEvaluate(t *testing.T) {
 
 			mockedCliClient.On("RequestEvaluation", mock.Anything).Return(tt.mock.cliClient.requestEvaluation.response, tt.mock.cliClient.requestEvaluation.err)
 
-			evaluator := &Evaluator{
-				cliClient: mockedCliClient,
-				osInfo:    tt.args.osInfo,
-			}
+			//evaluator := &Evaluator{
+			//	cliClient: mockedCliClient,
+			//	osInfo:    tt.args.osInfo,
+			//}
 
 			// TODO: define and check the rest of the values
-			results, rulesCount, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.response, tt.args.isInteractiveMode)
-			fmt.Println(rulesCount)
-			if tt.expected.isRequestEvaluationCalled {
-				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
-				assert.Equal(t, tt.expected.response.EvaluationResults.Summary, results.EvaluationResults.Summary)
-				assert.Equal(t, tt.expected.response.EvaluationResults.FileNameRuleMapper, results.EvaluationResults.FileNameRuleMapper)
-			} else {
-				mockedCliClient.AssertNotCalled(t, "RequestEvaluation")
-			}
+			//results, rulesCount, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.response, tt.args.isInteractiveMode)
+			//if tt.expected.isRequestEvaluationCalled {
+			//	mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
+			//	assert.Equal(t, tt.expected.response.EvaluationResults.Summary, results.EvaluationResults.Summary)
+			//	assert.Equal(t, tt.expected.response.EvaluationResults.FileNameRuleMapper, results.EvaluationResults.FileNameRuleMapper)
+			//} else {
+			//	mockedCliClient.AssertNotCalled(t, "RequestEvaluation")
+			//}
 		})
 	}
 }
