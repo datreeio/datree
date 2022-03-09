@@ -178,7 +178,7 @@ type FailedRule struct {
 }
 
 type LocalEvaluationResultRequest struct {
-	ClientId           string                           `json:"cliId"`
+	ClientId           string                           `json:"clientId"`
 	Token              string                           `json:"token"`
 	Metadata           *Metadata                        `json:"metadata"`
 	K8sVersion         string                           `json:"k8sVersion"`

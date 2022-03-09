@@ -10,6 +10,7 @@ import (
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
+	"github.com/datreeio/datree/bl/policy"
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -107,12 +108,12 @@ type CliClient interface {
 	RequestPrerunDataForEvaluation(token string) (*cliClient.PrerunDataForEvaluationResponse, int, error)
 }
 
-type TestCommandOptions struct {
+type TestCommandData struct {
 	Output               string
 	K8sVersion           string
 	IgnoreMissingSchemas bool
 	OnlyK8sFiles         bool
-	PolicyName           string
+	Policy               policy.Policy
 	SchemaLocations      []string
 	Token                string
 }
@@ -204,9 +205,12 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			testCommandOptions := GenerateTestCommandOptions(testCommandFlags, localConfigContent, prerunDataForEvaluation.DefaultK8sVersion)
+			testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, prerunDataForEvaluation)
+			if err != nil {
+				return err
+			}
 
-			err = Test(ctx, args, testCommandOptions, prerunDataForEvaluation.PoliciesJson)
+			err = Test(ctx, args, testCommandOptions)
 			if err != nil {
 				return err
 			}
@@ -233,26 +237,31 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 }
 
-func GenerateTestCommandOptions(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.ConfigContent, prerunK8sVersion string) *TestCommandOptions {
+func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.ConfigContent, prerunDataForEvaluation *cliClient.PrerunDataForEvaluationResponse) (*TestCommandData, error) {
 	k8sVersion := testCommandFlags.K8sVersion
 	if k8sVersion == "" {
 		k8sVersion = localConfigContent.SchemaVersion
 	}
 
-	if (k8sVersion == "") && (prerunK8sVersion != "") {
-		k8sVersion = prerunK8sVersion
+	if (k8sVersion == "") && (prerunDataForEvaluation.DefaultK8sVersion != "") {
+		k8sVersion = prerunDataForEvaluation.DefaultK8sVersion
 	}
 
-	testCommandOptions := &TestCommandOptions{Output: testCommandFlags.Output,
+	policy, err := policy_factory.CreatePolicy(prerunDataForEvaluation.PoliciesJson, testCommandFlags.PolicyName)
+	if err != nil {
+		return nil, err
+	}
+
+	testCommandOptions := &TestCommandData{Output: testCommandFlags.Output,
 		K8sVersion:           k8sVersion,
 		IgnoreMissingSchemas: testCommandFlags.IgnoreMissingSchemas,
 		OnlyK8sFiles:         testCommandFlags.OnlyK8sFiles,
-		PolicyName:           testCommandFlags.PolicyName,
+		Policy:               policy,
 		SchemaLocations:      testCommandFlags.SchemaLocations,
 		Token:                localConfigContent.CliId,
 	}
 
-	return testCommandOptions
+	return testCommandOptions, nil
 }
 
 func validateK8sVersionFormatIfProvided(k8sVersion string) error {
@@ -270,7 +279,7 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 	}
 }
 
-func Test(ctx *TestCommandContext, paths []string, options *TestCommandOptions, policies *cliClient.PrerunPoliciesForEvaluation) error {
+func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) error {
 
 	if paths[0] == "-" {
 		if len(paths) > 1 {
@@ -298,18 +307,11 @@ func Test(ctx *TestCommandContext, paths []string, options *TestCommandOptions, 
 		return noFilesErr
 	}
 
-	if options.Output == "simple" {
+	if prerunData.Output == "simple" {
 		ctx.Printer.SetTheme(printer.CreateSimpleTheme())
 	}
 
-	policy, err := policy_factory.CreatePolicy(policies, options.PolicyName)
-	if err != nil {
-		return err
-	}
-
-	options.PolicyName = policy.Name
-
-	validationManager, rulesCount, results, promptMessage, err := evaluate(ctx, filesPaths, options, policy)
+	validationManager, rulesCount, results, promptMessage, err := evaluate(ctx, filesPaths, prerunData)
 	if err != nil {
 		return err
 	}
@@ -330,7 +332,7 @@ func Test(ctx *TestCommandContext, paths []string, options *TestCommandOptions, 
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", options.Token), options.Output, ctx.Printer, options.K8sVersion, options.PolicyName)
+	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", prerunData.Token), prerunData.Output, ctx.Printer, prerunData.K8sVersion, prerunData.Policy.Name)
 
 	if len(promptMessage) > 0 {
 		ctx.Printer.PrintPromptMessage(promptMessage)
@@ -342,7 +344,7 @@ func Test(ctx *TestCommandContext, paths []string, options *TestCommandOptions, 
 		}
 
 		if strings.ToLower(string(answer)) != "n" {
-			promptLoginUrl := fmt.Sprintf("https://app.datree.io/promptLogin?cliId=%s", options.Token)
+			promptLoginUrl := fmt.Sprintf("https://app.datree.io/promptLogin?cliId=%s", prerunData.Token)
 			openBrowser(promptLoginUrl)
 		}
 	}
@@ -358,11 +360,11 @@ func Test(ctx *TestCommandContext, paths []string, options *TestCommandOptions, 
 	return nil
 }
 
-func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommandOptions, policy policy_factory.Policy) (*ValidationManager, int, evaluation.FormattedResults, string, error) {
-	isInteractiveMode := (options.Output != "json") && (options.Output != "yaml") && (options.Output != "xml")
+func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (*ValidationManager, int, evaluation.FormattedResults, string, error) {
+	isInteractiveMode := (prerunData.Output != "json") && (prerunData.Output != "yaml") && (prerunData.Output != "xml")
 
 	var _spinner *spinner.Spinner
-	if isInteractiveMode && options.Output != "simple" {
+	if isInteractiveMode && prerunData.Output != "simple" {
 		_spinner = createSpinner(" Loading...", "cyan")
 		_spinner.Start()
 	}
@@ -376,7 +378,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommand
 	validationManager := &ValidationManager{}
 	filesPathsLen := len(filesPaths)
 
-	ctx.K8sValidator.InitClient(options.K8sVersion, options.IgnoreMissingSchemas, options.SchemaLocations)
+	ctx.K8sValidator.InitClient(prerunData.K8sVersion, prerunData.IgnoreMissingSchemas, prerunData.SchemaLocations)
 
 	concurrency := 100
 
@@ -384,7 +386,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommand
 
 	validationManager.AggregateInvalidYamlFiles(invalidYamlFilesChan)
 
-	if options.OnlyK8sFiles {
+	if prerunData.OnlyK8sFiles {
 		var ignoredYamlFilesChan chan *extractor.FileConfigurations
 		validYamlConfigurationsChan, ignoredYamlFilesChan = ctx.K8sValidator.GetK8sFiles(validYamlConfigurationsChan, concurrency)
 		validationManager.AggregateIgnoredYamlFiles(ignoredYamlFilesChan)
@@ -398,11 +400,13 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommand
 
 	validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan)
 
+	policyName := prerunData.Policy.Name
+
 	dataForEvaluation := evaluation.DataForEvaluation{
 		FilesConfigurations: validationManager.ValidK8sFilesConfigurations(),
 		IsInteractiveMode:   isInteractiveMode,
-		PolicyName:          options.PolicyName,
-		Policy:              policy,
+		PolicyName:          policyName,
+		Policy:              prerunData.Policy,
 	}
 
 	evaluationResultData, err := ctx.Evaluator.Evaluate(dataForEvaluation)
@@ -427,10 +431,10 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, options *TestCommand
 	ciContext := ciContext.Extract()
 
 	localEvaluationRequestData := evaluation.LocalEvaluationRequestData{
-		CliId:              options.Token,
+		CliId:              prerunData.Token,
 		CliVersion:         ctx.CliVersion,
-		K8sVersion:         options.K8sVersion,
-		PolicyName:         options.PolicyName,
+		K8sVersion:         prerunData.K8sVersion,
+		PolicyName:         policyName,
 		CiContext:          ciContext,
 		RulesData:          evaluationResultData.RulesData,
 		FilesData:          evaluationResultData.FilesData,

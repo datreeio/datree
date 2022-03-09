@@ -245,35 +245,35 @@ func test_testCommand_version_flags_validation(t *testing.T, ctx *TestCommandCon
 }
 
 func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, ctx *TestCommandContext) {
-	_ = Test(ctx, []string{"8/*"}, &TestCommandOptions{K8sVersion: "1.18.0", Output: "", PolicyName: "Default", Token: "134kh"}, cliClient.PrerunPoliciesForEvaluation{})
+	_ = Test(ctx, []string{"8/*"}, &TestCommandData{K8sVersion: "1.18.0", Output: "", PolicyName: "Default", Token: "134kh"}, cliClient.PrerunPoliciesForEvaluation{})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, mock.Anything, mock.Anything)
 }
 
 func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, ctx *TestCommandContext) {
-	_ = Test(ctx, []string{"8/*"}, &TestCommandOptions{Output: "json"})
+	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "json"})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, mock.Anything, mock.Anything)
 }
 
 func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, ctx *TestCommandContext) {
-	_ = Test(ctx, []string{"8/*"}, &TestCommandOptions{Output: "yaml"})
+	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "yaml"})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, mock.Anything, mock.Anything)
 }
 
 func test_testCommand_xml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, ctx *TestCommandContext) {
-	_ = Test(ctx, []string{"8/*"}, &TestCommandOptions{Output: "xml"})
+	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "xml"})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, mock.Anything, mock.Anything)
 }
 
 func test_testCommand_only_k8s_files(t *testing.T, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
-	_ = Test(ctx, []string{"8/*"}, &TestCommandOptions{OnlyK8sFiles: true})
+	_ = Test(ctx, []string{"8/*"}, &TestCommandData{OnlyK8sFiles: true})
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	k8sValidator.AssertCalled(t, "GetK8sFiles", mock.Anything, 100)
