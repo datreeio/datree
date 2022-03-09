@@ -420,6 +420,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}
 
 	emptyEvaluationResultData := EvaluationResultData{nil, 0, evaluation.FormattedResults{}, ""}
+
 	policyCheckResultData, err := ctx.Evaluator.Evaluate(dataForEvaluation)
 	if err != nil {
 		return emptyEvaluationResultData, err

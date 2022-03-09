@@ -1,8 +1,13 @@
 package test
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
+
+	policy_factory "github.com/datreeio/datree/bl/policy"
+	"github.com/datreeio/datree/pkg/fileReader"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -121,11 +126,20 @@ func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.ConfigContent, 
 
 func TestTestCommand(t *testing.T) {
 	evaluationId := 444
-	prerunDataForEvaluationResponse := cliClient.PrerunDataForEvaluationResponse{}
-	fmt.Println(prerunDataForEvaluationResponse)
-	resultType := evaluation.FormattedResults{}
 
-	resultType.EvaluationResults = &evaluation.EvaluationResults{
+	prerunData := mockGetPreRunData()
+
+	formattedResults := evaluation.FormattedResults{}
+
+	policyCheckResultData := evaluation.PolicyCheckResultData{
+		FormattedResults: formattedResults,
+		RulesData:        []cliClient.RuleData{},
+		FilesData:        []cliClient.FileData{},
+		RawResults:       nil,
+		RulesCount:       0,
+	}
+
+	formattedResults.EvaluationResults = &evaluation.EvaluationResults{
 		FileNameRuleMapper: map[string]map[string]*evaluation.Rule{}, Summary: struct {
 			TotalFailedRules int
 			FilesCount       int
@@ -133,10 +147,15 @@ func TestTestCommand(t *testing.T) {
 		}{TotalFailedRules: 0, FilesCount: 0, TotalPassedCount: 1},
 	}
 
+	sendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{
+		EvaluationId:  1,
+		PromptMessage: "",
+	}
+
 	mockedEvaluator := &mockEvaluator{}
-	mockedEvaluator.On("Evaluate", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(resultType, nil)
-	mockedEvaluator.On("SendLocalEvaluationResult", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(resultType, nil)
-	//mockedEvaluator.On("RequestPrerunDataForEvaluation", mock.Anything).Return(&cliClient.PrerunDataForEvaluationResponse{EvaluationId: evaluationId, K8sVersion: "1.18.0", RulesCount: 21}, nil)
+	mockedEvaluator.On("Evaluate", mock.Anything).Return(policyCheckResultData, nil)
+	mockedEvaluator.On("SendLocalEvaluationResult", mock.Anything).Return(sendEvaluationResultsResponse, nil)
+	mockedEvaluator.On("RequestPrerunDataForEvaluation", mock.Anything).Return(prerunData, nil)
 
 	messager := &mockMessager{}
 	messager.On("LoadVersionMessages", mock.Anything)
@@ -177,11 +196,13 @@ func TestTestCommand(t *testing.T) {
 		Reader:       readerMock,
 	}
 
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
+
 	test_testCommand_flags_validation(t, ctx)
-	test_testCommand_no_flags(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, &evaluationResponse, ctx)
-	test_testCommand_json_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, &evaluationResponse, ctx)
-	test_testCommand_yaml_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, &evaluationResponse, ctx)
-	test_testCommand_xml_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, &evaluationResponse, ctx)
+	test_testCommand_no_flags(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, ctx, policy)
+	test_testCommand_json_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, ctx, policy)
+	test_testCommand_yaml_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, ctx, policy)
+	test_testCommand_xml_output(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, ctx, policy)
 
 	test_testCommand_only_k8s_files(t, k8sValidatorMock, filesConfigurations, evaluationId, ctx)
 }
@@ -238,32 +259,60 @@ func test_testCommand_version_flags_validation(t *testing.T, ctx *TestCommandCon
 	assert.NoError(t, err)
 }
 
-func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, ctx *TestCommandContext) {
-	_ = Test(ctx, []string{"8/*"}, &TestCommandData{K8sVersion: "1.18.0", Output: "", PolicyName: "Default", Token: "134kh"}, cliClient.PrerunPoliciesForEvaluation{})
+func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
+	_ = Test(ctx, []string{"8/*"}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: policy, Token: "134kh"})
+
+	dataForEvaluation := evaluation.DataForPolicyCheck{
+		FilesConfigurations: filesConfigurations,
+		IsInteractiveMode:   true,
+		PolicyName:          policy.Name,
+		Policy:              policy,
+	}
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, mock.Anything, mock.Anything)
+	evaluator.AssertCalled(t, "Evaluate", dataForEvaluation)
 }
 
-func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, ctx *TestCommandContext) {
+func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "json"})
 
+	dataForEvaluation := evaluation.DataForPolicyCheck{
+		FilesConfigurations: filesConfigurations,
+		IsInteractiveMode:   true,
+		PolicyName:          policy.Name,
+		Policy:              policy,
+	}
+
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, mock.Anything, mock.Anything)
+	evaluator.AssertCalled(t, "Evaluate", dataForEvaluation)
 }
 
-func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, ctx *TestCommandContext) {
+func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "yaml"})
 
+	dataForEvaluation := evaluation.DataForPolicyCheck{
+		FilesConfigurations: filesConfigurations,
+		IsInteractiveMode:   true,
+		PolicyName:          policy.Name,
+		Policy:              policy,
+	}
+
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, mock.Anything, mock.Anything)
+	evaluator.AssertCalled(t, "Evaluate", dataForEvaluation)
 }
 
-func test_testCommand_xml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, ctx *TestCommandContext) {
+func test_testCommand_xml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "xml"})
 
+	dataForEvaluation := evaluation.DataForPolicyCheck{
+		FilesConfigurations: filesConfigurations,
+		IsInteractiveMode:   true,
+		PolicyName:          policy.Name,
+		Policy:              policy,
+	}
+
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", filesConfigurations, mock.Anything, mock.Anything)
+	evaluator.AssertCalled(t, "Evaluate", dataForEvaluation)
 }
 
 func test_testCommand_only_k8s_files(t *testing.T, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {
@@ -329,4 +378,26 @@ func newErrorsChan() chan error {
 
 	close(invalidFilesChan)
 	return invalidFilesChan
+}
+
+func mockGetPreRunData() *cliClient.PrerunDataForEvaluationResponse {
+	os.Chdir("../../")
+	const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
+
+	fileReader := fileReader.CreateFileReader(nil)
+	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
+
+	if err != nil {
+		fmt.Errorf("can't read policies json")
+	}
+
+	policiesJsonRawData := []byte(policiesJsonStr)
+
+	var policiesJson *cliClient.PrerunDataForEvaluationResponse
+	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
+
+	if err != nil {
+		fmt.Errorf("can't marshel policies json")
+	}
+	return policiesJson
 }
