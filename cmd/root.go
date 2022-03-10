@@ -12,6 +12,7 @@ import (
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/executor"
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/localConfig"
@@ -50,6 +51,7 @@ func init() {
 		Printer:      app.context.Printer,
 		Reader:       app.context.Reader,
 		K8sValidator: app.context.K8sValidator,
+		CliClient:    app.context.CliClient,
 	}, &kustomize.KustomizeContext{CommandRunner: app.context.CommandRunner}))
 
 	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
@@ -103,7 +105,7 @@ type app struct {
 
 func startup() *app {
 	localConfig := localConfig.NewLocalConfig()
-	cliClient := cliClient.NewCliClient("http://localhost:8000")
+	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
 	printer := printer.CreateNewPrinter()
 
 	return &app{

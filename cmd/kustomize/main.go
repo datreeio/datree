@@ -4,11 +4,17 @@ import (
 	"os"
 	"strings"
 
+	"github.com/datreeio/datree/pkg/cliClient"
+
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/pkg/executor"
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/spf13/cobra"
 )
+
+type CliClient interface {
+	RequestPrerunDataForEvaluation(token string) (*cliClient.PrerunDataForEvaluationResponse, int, error)
+}
 
 type KustomizeCommandRunner interface {
 	BuildCommandDescription(dir string, name string, args []string) string
@@ -20,6 +26,8 @@ type KustomizeCommandRunner interface {
 type KustomizeContext struct {
 	CommandRunner KustomizeCommandRunner
 }
+
+const notFoundStatusCode = 404
 
 func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobra.Command {
 	testCommandFlags := test.NewTestCommandFlags()
@@ -59,8 +67,15 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				return err
 			}
 
-			// todo fix test
-			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, nil)
+			prerunDataForEvaluation, statusCode, err := testCtx.CliClient.RequestPrerunDataForEvaluation(localConfigContent.CliId)
+
+			// getting prerun data can return 404 if user has a valid token but he didn't sign up yet - suppose to be ok
+			// getting prerun data can return 400 if user has invalid token - we suppose to return an error
+			if err != nil && statusCode != notFoundStatusCode {
+				return err
+			}
+
+			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, prerunDataForEvaluation)
 
 			out, err := kustomizeCtx.CommandRunner.ExecuteKustomizeBin(args)
 			if err != nil {
