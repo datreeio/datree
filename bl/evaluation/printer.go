@@ -167,7 +167,6 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 			for rulesUniqueName := range rules {
 				rulesUniqueNames = append(rulesUniqueNames, rulesUniqueName)
 			}
-			//sort.Ints(rulesIds)
 
 			for _, ruleUniqueName := range rulesUniqueNames {
 				rule := rules[ruleUniqueName]
