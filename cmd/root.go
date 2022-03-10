@@ -88,7 +88,7 @@ func Execute() error {
 }
 
 type context struct {
-	LocalConfig         *localConfig.LocalConfig
+	LocalConfig         *localConfig.LocalConfigClient
 	Evaluator           *evaluation.Evaluator
 	CliClient           *cliClient.CliClient
 	Messager            *messager.Messager
@@ -104,8 +104,8 @@ type app struct {
 }
 
 func startup() *app {
-	localConfig := localConfig.NewLocalConfig()
 	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
+	localConfig := localConfig.NewLocalConfigClient(cliClient)
 	printer := printer.CreateNewPrinter()
 
 	return &app{

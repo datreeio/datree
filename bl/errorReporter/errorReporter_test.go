@@ -27,10 +27,10 @@ type mockConfig struct {
 	mock.Mock
 }
 
-func (lc *mockConfig) GetLocalConfiguration() (*localConfig.ConfigContent, error) {
+func (lc *mockConfig) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
 	lc.Called()
-	return &localConfig.ConfigContent{
-		CliId:         "2qRg9jzJGcA73ftqEcXuBp",
+	return &localConfig.LocalConfig{
+		Token:         "2qRg9jzJGcA73ftqEcXuBp",
 		SchemaVersion: "111",
 	}, nil
 }

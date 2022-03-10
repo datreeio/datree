@@ -171,7 +171,7 @@ type LocalConfigMock struct {
 	mock.Mock
 }
 
-func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.ConfigContent, error) {
+func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
 	lc.Called()
-	return &localConfig.ConfigContent{CliId: "134kh"}, nil
+	return &localConfig.LocalConfig{Token: "134kh"}, nil
 }

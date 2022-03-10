@@ -17,9 +17,9 @@ type LocalConfigMock struct {
 	mock.Mock
 }
 
-func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.ConfigContent, error) {
+func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
 	lc.Called()
-	return &localConfig.ConfigContent{CliId: "cli_id"}, nil
+	return &localConfig.LocalConfig{Token: "token"}, nil
 }
 
 type MessagerMock struct {
@@ -57,6 +57,15 @@ func (p *PublishClientMock) PublishPolicies(policiesConfiguration files.UnknownS
 	return args.Get(0).(*cliClient.PublishFailedResponse), args.Error(1)
 }
 
+type TokenClientMock struct {
+	mock.Mock
+}
+
+func (t *TokenClientMock) CreateToken() (*cliClient.CreateTokenResponse, error) {
+	args := t.Called()
+	return args.Get(0).(*cliClient.CreateTokenResponse), args.Error(1)
+}
+
 func TestPublishCommand(t *testing.T) {
 	localConfigMock := &LocalConfigMock{}
 	localConfigMock.On("GetLocalConfiguration")
@@ -84,19 +93,19 @@ func TestPublishCommand(t *testing.T) {
 	testPublishCommandFailedSchema(t, ctx, publishClientMock, localConfigContent)
 }
 
-func testPublishCommandSuccess(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.ConfigContent) {
+func testPublishCommandSuccess(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.LocalConfig) {
 	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(&cliClient.PublishFailedResponse{}, nil).Once()
 	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/valid-schema.yaml", localConfigContent)
 	assert.Equal(t, nil, err)
 }
 
-func testPublishCommandFailedYaml(t *testing.T, ctx *PublishCommandContext, localConfigContent *localConfig.ConfigContent) {
+func testPublishCommandFailedYaml(t *testing.T, ctx *PublishCommandContext, localConfigContent *localConfig.LocalConfig) {
 	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-yaml.yaml", localConfigContent)
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, "yaml: line 2: did not find expected key", err.Error())
 }
 
-func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.ConfigContent) {
+func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.LocalConfig) {
 	publishFailedPayloadMock := []string{"first error", "second error"}
 	errMessage := strings.Join(publishFailedPayloadMock, ",")
 	publishFailedResponseMock := &cliClient.PublishFailedResponse{
