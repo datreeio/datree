@@ -16,21 +16,6 @@ type Metadata struct {
 	CIContext       *ciContext.CIContext `json:"ciContext"`
 }
 
-type CreateEvaluationRequest struct {
-	CliId      string    `json:"cliId"`
-	Metadata   *Metadata `json:"metadata"`
-	K8sVersion *string   `json:"k8sVersion"`
-	PolicyName string    `json:"policyName"`
-}
-
-type CreateEvaluationResponse struct {
-	EvaluationId  int    `json:"evaluationId"`
-	K8sVersion    string `json:"k8sVersion"`
-	RulesCount    int    `json:"rulesCount"`
-	PolicyName    string `json:"policyName"`
-	PromptMessage string `json:"promptMessage"`
-}
-
 type SendEvaluationResultsResponse struct {
 	EvaluationId  int    `json:"evaluationId"`
 	PromptMessage string `json:"promptMessage,omitempty"`
