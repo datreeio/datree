@@ -46,7 +46,7 @@ func TestCreatePolicy(t *testing.T) {
 		customRuleSchemaStr := "{\"properties\":{\"metadata\":{\"properties\":{\"labels\":{\"additionalProperties\":false,\"patternProperties\":{\"^.*$\":{\"format\":\"hostname\"}}}}}}}"
 		err = json.Unmarshal([]byte(customRuleSchemaStr), &customRuleJsonMap)
 		if err != nil {
-			fmt.Errorf("can't Unmarshal customRuleSchemaStr to customRuleJsonMap")
+			fmt.Println("can't Unmarshal customRuleSchemaStr to customRuleJsonMap")
 		}
 
 		expectedRules = append(expectedRules, RuleSchema{RuleIdentifier: "CUSTOM_WORKLOAD_INVALID_LABELS_VALUE", RuleName: "Ensure workload has valid label values [CUSTOM RULE]", Schema: customRuleJsonMap, MessageOnFailure: "All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)"})
@@ -61,14 +61,14 @@ func TestCreatePolicy(t *testing.T) {
 		var expectedRules []RuleSchema
 
 		if err != nil {
-			fmt.Errorf("can't read default rules")
+			fmt.Println("can't read default rules")
 		}
 
 		customRuleJsonMap := make(map[string]interface{})
 		customRuleSchemaStr := "{\"properties\":{\"metadata\":{\"properties\":{\"labels\":{\"additionalProperties\":false,\"patternProperties\":{\"^.*$\":{\"format\":\"hostname\"}}}}}}}"
 		err = json.Unmarshal([]byte(customRuleSchemaStr), &customRuleJsonMap)
 		if err != nil {
-			fmt.Errorf("can't Unmarshal customRuleSchemaStr to customRuleJsonMap")
+			fmt.Println("can't Unmarshal customRuleSchemaStr to customRuleJsonMap")
 		}
 
 		expectedRules = append(expectedRules, RuleSchema{RuleIdentifier: "CUSTOM_WORKLOAD_INVALID_LABELS_VALUE", RuleName: "Ensure workload has valid label values [CUSTOM RULE]", Schema: customRuleJsonMap, MessageOnFailure: "All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)"})
@@ -84,7 +84,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
 
 	if err != nil {
-		fmt.Errorf("can't read policies json")
+		fmt.Println("can't read policies json")
 	}
 
 	policiesJsonRawData := []byte(policiesJsonStr)
@@ -93,7 +93,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
 
 	if err != nil {
-		fmt.Errorf("can't marshel policies json")
+		fmt.Println("can't marshel policies json")
 	}
 	return policiesJson
 }

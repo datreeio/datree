@@ -392,7 +392,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
 
 	if err != nil {
-		fmt.Errorf("can't read policies json")
+		fmt.Println("can't read policies json")
 	}
 
 	policiesJsonRawData := []byte(policiesJsonStr)
@@ -401,7 +401,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
 
 	if err != nil {
-		fmt.Errorf("can't marshel policies json")
+		fmt.Println("can't marshel policies json")
 	}
 	return policiesJson
 }
