@@ -18,31 +18,36 @@ import (
 const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
 
 func TestCreatePolicy(t *testing.T) {
-	os.Chdir("../../")
+	err := os.Chdir("../../")
+	if err != nil {
+		fmt.Println("can't change dir")
+	}
 
 	policiesJson := mockGetPreRunData()
 
 	t.Run("Test Create Policy With Default Policy", func(t *testing.T) {
-		policy, err := CreatePolicy(policiesJson.PoliciesJson, "")
+		policy, _ := CreatePolicy(policiesJson.PoliciesJson, "")
 		var expectedRules []RuleSchema
 
 		defaultRules, err := internal_policy.GetDefaultRules()
 
 		if err != nil {
-			fmt.Errorf("can't read default rules")
+			fmt.Println("can't read default rules")
 		}
 
 		for _, defaultRule := range defaultRules.Rules {
 			switch defaultRule.UniqueName {
 			case "WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT", "CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE":
 				expectedRules = append(expectedRules, RuleSchema{RuleIdentifier: defaultRule.UniqueName, RuleName: defaultRule.Name, Schema: defaultRule.Schema, MessageOnFailure: defaultRule.MessageOnFailure})
-				break
 			}
 		}
 
 		customRuleJsonMap := make(map[string]interface{})
 		customRuleSchemaStr := "{\"properties\":{\"metadata\":{\"properties\":{\"labels\":{\"additionalProperties\":false,\"patternProperties\":{\"^.*$\":{\"format\":\"hostname\"}}}}}}}"
-		json.Unmarshal([]byte(customRuleSchemaStr), &customRuleJsonMap)
+		err = json.Unmarshal([]byte(customRuleSchemaStr), &customRuleJsonMap)
+		if err != nil {
+			fmt.Errorf("can't Unmarshal customRuleSchemaStr to customRuleJsonMap")
+		}
 
 		expectedRules = append(expectedRules, RuleSchema{RuleIdentifier: "CUSTOM_WORKLOAD_INVALID_LABELS_VALUE", RuleName: "Ensure workload has valid label values [CUSTOM RULE]", Schema: customRuleJsonMap, MessageOnFailure: "All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)"})
 
@@ -61,7 +66,10 @@ func TestCreatePolicy(t *testing.T) {
 
 		customRuleJsonMap := make(map[string]interface{})
 		customRuleSchemaStr := "{\"properties\":{\"metadata\":{\"properties\":{\"labels\":{\"additionalProperties\":false,\"patternProperties\":{\"^.*$\":{\"format\":\"hostname\"}}}}}}}"
-		json.Unmarshal([]byte(customRuleSchemaStr), &customRuleJsonMap)
+		err = json.Unmarshal([]byte(customRuleSchemaStr), &customRuleJsonMap)
+		if err != nil {
+			fmt.Errorf("can't Unmarshal customRuleSchemaStr to customRuleJsonMap")
+		}
 
 		expectedRules = append(expectedRules, RuleSchema{RuleIdentifier: "CUSTOM_WORKLOAD_INVALID_LABELS_VALUE", RuleName: "Ensure workload has valid label values [CUSTOM RULE]", Schema: customRuleJsonMap, MessageOnFailure: "All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)"})
 

@@ -344,6 +344,9 @@ func test_getVersionMessage_success() *GetVersionMessageTestCase {
 
 func mockGetPreRunData() *EvaluationPrerunDataResponse {
 	err := os.Chdir("../../")
+	if err != nil {
+		fmt.Println("can't change dir")
+	}
 
 	const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
 

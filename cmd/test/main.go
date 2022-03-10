@@ -382,7 +382,6 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}()
 
 	validationManager := &ValidationManager{}
-	filesPathsLen := len(filesPaths)
 
 	ctx.K8sValidator.InitClient(prerunData.K8sVersion, prerunData.IgnoreMissingSchemas, prerunData.SchemaLocations)
 
@@ -396,8 +395,6 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		var ignoredYamlFilesChan chan *extractor.FileConfigurations
 		validYamlConfigurationsChan, ignoredYamlFilesChan = ctx.K8sValidator.GetK8sFiles(validYamlConfigurationsChan, concurrency)
 		validationManager.AggregateIgnoredYamlFiles(ignoredYamlFilesChan)
-
-		filesPathsLen = filesPathsLen - validationManager.InvalidYamlFilesCount() - validationManager.IgnoredFilesCount()
 	}
 
 	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)

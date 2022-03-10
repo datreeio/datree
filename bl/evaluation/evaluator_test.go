@@ -47,18 +47,6 @@ func (m *mockCliClient) GetVersionMessage(cliVersion string, timeout int) (*cliC
 }
 
 type cliClientMockTestCase struct {
-	createEvaluation struct {
-		evaluationId int
-		k8sVersion   string
-		err          error
-	}
-	requestEvaluation struct {
-		response *cliClient.EvaluationResponse
-		err      error
-	}
-	updateEvaluationValidation struct {
-		err error
-	}
 	getVersionMessage struct {
 		response *cliClient.VersionMessage
 		err      error
@@ -138,10 +126,13 @@ func TestSendEvaluationResult(t *testing.T) {
 }
 
 func TestEvaluate(t *testing.T) {
-	os.Chdir("../../")
+	err := os.Chdir("../../")
+	if err != nil {
+		fmt.Println("can't change dir")
+	}
 
 	tests := []*evaluateTestCase{
-		//request_evaluation_all_valid(),
+		request_evaluation_all_valid(),
 		request_evaluation_all_invalid(),
 	}
 
@@ -315,7 +306,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
 
 	if err != nil {
-		fmt.Errorf("can't marshel policies json")
+		fmt.Printf("can't marshel policies json")
 	}
 
 	return policiesJson

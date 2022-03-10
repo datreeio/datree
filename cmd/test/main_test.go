@@ -381,8 +381,12 @@ func newErrorsChan() chan error {
 }
 
 func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
-	os.Chdir("../../")
 	const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
+
+	err := os.Chdir("../../")
+	if err != nil {
+		fmt.Println("can't change dir")
+	}
 
 	fileReader := fileReader.CreateFileReader(nil)
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
