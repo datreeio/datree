@@ -273,7 +273,7 @@ func calculateFailedRulesByFiles(validationResult *Result, fileName string, rule
 				failedRulesByFiles[fileName][ruleSchema.RuleIdentifier] = cliClient.FailedRule{Name: ruleSchema.RuleName, MessageOnFailure: ruleSchema.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}
 			}
 		} else {
-			failedRulesByFiles[fileName] = map[string]cliClient.FailedRule{ruleSchema.RuleIdentifier: cliClient.FailedRule{Name: ruleSchema.RuleName, MessageOnFailure: ruleSchema.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
+			failedRulesByFiles[fileName] = map[string]cliClient.FailedRule{ruleSchema.RuleIdentifier: {Name: ruleSchema.RuleName, MessageOnFailure: ruleSchema.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
 		}
 	}
 

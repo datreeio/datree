@@ -157,7 +157,7 @@ func TestEvaluate(t *testing.T) {
 
 			policyCheckResultData, err := evaluator.Evaluate(policyCheckData)
 			if err != nil {
-				fmt.Errorf(err.Error())
+				fmt.Println(err.Error())
 			}
 
 			if len(policyCheckData.FilesConfigurations) > 0 {
@@ -297,7 +297,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
 
 	if err != nil {
-		fmt.Errorf("can't read policies json")
+		fmt.Println("can't read policies json")
 	}
 
 	policiesJsonRawData := []byte(policiesJsonStr)
