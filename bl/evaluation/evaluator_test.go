@@ -29,16 +29,6 @@ func (m *mockCliClient) SendEvaluationResult(evaluationResultRequest *cliClient.
 	return args.Get(0).(*cliClient.SendEvaluationResultsResponse), args.Error(1)
 }
 
-func (m *mockCliClient) SendFailedYamlValidation(request *cliClient.UpdateEvaluationValidationRequest) error {
-	args := m.Called(request)
-	return args.Error(0)
-}
-
-func (m *mockCliClient) SendFailedK8sValidation(request *cliClient.UpdateEvaluationValidationRequest) error {
-	args := m.Called(request)
-	return args.Error(0)
-}
-
 func (m *mockCliClient) GetVersionMessage(cliVersion string, timeout int) (*cliClient.VersionMessage, error) {
 	args := m.Called(cliVersion, timeout)
 	return args.Get(0).(*cliClient.VersionMessage), args.Error(1)
@@ -142,8 +132,8 @@ func TestEvaluate(t *testing.T) {
 			}
 
 			policyCheckData := PolicyCheckData{
-				FilesConfigurations: tt.args.dataForEvaluation.FilesConfigurations,
-				IsInteractiveMode:   tt.args.dataForEvaluation.IsInteractiveMode,
+				FilesConfigurations: tt.args.policyCheckData.FilesConfigurations,
+				IsInteractiveMode:   tt.args.policyCheckData.IsInteractiveMode,
 				PolicyName:          policy.Name,
 				Policy:              policy,
 			}
@@ -164,8 +154,8 @@ func TestEvaluate(t *testing.T) {
 }
 
 type evaluateArgs struct {
-	dataForEvaluation PolicyCheckData
-	osInfo            *OSInfo
+	policyCheckData PolicyCheckData
+	osInfo          *OSInfo
 }
 
 type evaluateExpected struct {
@@ -189,7 +179,7 @@ func request_evaluation_all_valid() *evaluateTestCase {
 	return &evaluateTestCase{
 		name: "should request validation without invalid files",
 		args: &evaluateArgs{
-			dataForEvaluation: PolicyCheckData{
+			policyCheckData: PolicyCheckData{
 				FilesConfigurations: newFilesConfigurations(validFilePath),
 				IsInteractiveMode:   true,
 				PolicyName:          "Default",
@@ -242,7 +232,7 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 	return &evaluateTestCase{
 		name: "should not request validation if there are no valid files",
 		args: &evaluateArgs{
-			dataForEvaluation: PolicyCheckData{
+			policyCheckData: PolicyCheckData{
 				FilesConfigurations: []*extractor.FileConfigurations{},
 				IsInteractiveMode:   true,
 				PolicyName:          "Default",

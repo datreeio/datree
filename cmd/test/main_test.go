@@ -22,8 +22,8 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(dataForEvaluation evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error) {
-	args := m.Called(dataForEvaluation)
+func (m *mockEvaluator) Evaluate(evaluationData evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error) {
+	args := m.Called(evaluationData)
 	return args.Get(0).(evaluation.PolicyCheckResultData), args.Error(1)
 }
 
@@ -260,7 +260,7 @@ func test_testCommand_version_flags_validation(t *testing.T, ctx *TestCommandCon
 func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: policy, Token: "134kh"})
 
-	dataForEvaluation := evaluation.PolicyCheckData{
+	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   true,
 		PolicyName:          policy.Name,
@@ -268,13 +268,13 @@ func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValida
 	}
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", dataForEvaluation)
+	evaluator.AssertCalled(t, "Evaluate", policyCheckData)
 }
 
 func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "json"})
 
-	dataForEvaluation := evaluation.PolicyCheckData{
+	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   true,
 		PolicyName:          policy.Name,
@@ -282,13 +282,13 @@ func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, k8sVal
 	}
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", dataForEvaluation)
+	evaluator.AssertCalled(t, "Evaluate", policyCheckData)
 }
 
 func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "yaml"})
 
-	dataForEvaluation := evaluation.PolicyCheckData{
+	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   true,
 		PolicyName:          policy.Name,
@@ -296,13 +296,13 @@ func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, k8sVal
 	}
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", dataForEvaluation)
+	evaluator.AssertCalled(t, "Evaluate", policyCheckData)
 }
 
 func test_testCommand_xml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "xml"})
 
-	dataForEvaluation := evaluation.PolicyCheckData{
+	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   true,
 		PolicyName:          policy.Name,
@@ -310,7 +310,7 @@ func test_testCommand_xml_output(t *testing.T, evaluator *mockEvaluator, k8sVali
 	}
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", dataForEvaluation)
+	evaluator.AssertCalled(t, "Evaluate", policyCheckData)
 }
 
 func test_testCommand_only_k8s_files(t *testing.T, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, evaluationId int, ctx *TestCommandContext) {

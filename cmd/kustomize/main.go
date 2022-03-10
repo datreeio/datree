@@ -65,13 +65,13 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				return err
 			}
 
-			prerunDataForEvaluation, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.CliId)
+			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.CliId)
 
 			if err != nil {
 				return err
 			}
 
-			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, prerunDataForEvaluation)
+			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
 
 			out, err := kustomizeCtx.CommandRunner.ExecuteKustomizeBin(args)
 			if err != nil {

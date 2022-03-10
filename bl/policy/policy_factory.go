@@ -9,10 +9,10 @@ import (
 
 type Policy struct {
 	Name  string
-	Rules []RuleSchema
+	Rules []RuleWithSchema
 }
 
-type RuleSchema struct {
+type RuleWithSchema struct {
 	RuleIdentifier   string
 	RuleName         string
 	Schema           map[string]interface{}
@@ -26,7 +26,7 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 		return Policy{}, err
 	}
 
-	var rules []RuleSchema
+	var rules []RuleWithSchema
 
 	if policies != nil {
 		var chosenPolicy *cliClient.Policy
@@ -54,7 +54,7 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 		policyName = chosenPolicy.Name
 
 		if chosenPolicy.Rules == nil {
-			return Policy{policyName, []RuleSchema{}}, nil
+			return Policy{policyName, []RuleWithSchema{}}, nil
 		}
 
 		rules, err = populateRules(chosenPolicy.Rules, policies.CustomRules, defaultRules.Rules)
@@ -64,7 +64,7 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 		}
 	} else {
 		for _, defaultRule := range defaultRules.Rules {
-			rules = append(rules, RuleSchema{defaultRule.UniqueName, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
+			rules = append(rules, RuleWithSchema{defaultRule.UniqueName, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
 		}
 		policyName = "Default"
 	}
@@ -72,8 +72,8 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 	return Policy{policyName, rules}, nil
 }
 
-func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.CustomRule, defaultRules []internal_policy.DefaultRuleDefinition) ([]RuleSchema, error) {
-	var rules []RuleSchema
+func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.CustomRule, defaultRules []internal_policy.DefaultRuleDefinition) ([]RuleWithSchema, error) {
+	var rules []RuleWithSchema
 
 	for _, rule := range policyRules {
 		var isCustomRule bool
@@ -81,8 +81,8 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 
 		for _, customRule := range customRules {
 			if rule.Identifier == customRule.Identifier {
-				rules = append(rules, RuleSchema{rule.Identifier, customRule.Name, customRule.Schema, customRule.DefaultMessageOnFailure})
 				isCustomRule = true
+				rules = append(rules, RuleWithSchema{rule.Identifier, customRule.Name, customRule.Schema, rule.MessageOnFailure})
 				break
 			}
 		}
@@ -91,13 +91,13 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 			for _, defaultRule := range defaultRules {
 				if rule.Identifier == defaultRule.UniqueName {
 					isDefaultRule = true
-					rules = append(rules, RuleSchema{rule.Identifier, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
+					rules = append(rules, RuleWithSchema{rule.Identifier, defaultRule.Name, defaultRule.Schema, rule.MessageOnFailure})
 					break
 				}
 			}
 			if !isDefaultRule {
-				rulesIsNotCustomNotDefaultErr := fmt.Errorf("rule %s is not custom nor default", rule.Identifier)
-				return nil, rulesIsNotCustomNotDefaultErr
+				rulesIsNotCustomNorDefaultErr := fmt.Errorf("rule %s is not custom nor default", rule.Identifier)
+				return nil, rulesIsNotCustomNorDefaultErr
 			}
 		}
 	}

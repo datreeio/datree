@@ -125,13 +125,13 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrer
 		}
 	}
 
-	var prerunDataForEvaluationResponse = &EvaluationPrerunDataResponse{}
-	err = json.Unmarshal(res.Body, &prerunDataForEvaluationResponse)
+	var evaluationPrerunDataResponse = &EvaluationPrerunDataResponse{}
+	err = json.Unmarshal(res.Body, &evaluationPrerunDataResponse)
 	if err != nil {
 		return &EvaluationPrerunDataResponse{}, err
 	}
 
-	return prerunDataForEvaluationResponse, nil
+	return evaluationPrerunDataResponse, nil
 }
 
 type RuleData struct {
@@ -182,10 +182,4 @@ func (c *CliClient) SendEvaluationResult(request *EvaluationResultRequest) (*Sen
 	}
 
 	return res, nil
-}
-
-type UpdateEvaluationValidationRequest struct {
-	EvaluationId   int       `json:"evaluationId"`
-	InvalidFiles   []*string `json:"failedFiles"`
-	StopEvaluation bool      `json:"stopEvaluation"`
 }

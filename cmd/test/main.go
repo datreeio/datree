@@ -27,7 +27,7 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(dataForEvaluation evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error)
+	Evaluate(policyCheckData evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error)
 	SendEvaluationResult(evaluationRequestData evaluation.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error)
 }
 
@@ -195,13 +195,13 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			prerunDataForEvaluation, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.CliId)
+			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.CliId)
 
 			if err != nil {
 				return err
 			}
 
-			testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, prerunDataForEvaluation)
+			testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
 			if err != nil {
 				return err
 			}
@@ -233,17 +233,16 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 }
 
-func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.ConfigContent, prerunDataForEvaluation *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
+func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.ConfigContent, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
 	k8sVersion := testCommandFlags.K8sVersion
 	if k8sVersion == "" {
 		k8sVersion = localConfigContent.SchemaVersion
 	}
-
-	if (k8sVersion == "") && (prerunDataForEvaluation.DefaultK8sVersion != "") {
-		k8sVersion = prerunDataForEvaluation.DefaultK8sVersion
+	if k8sVersion == "" {
+		k8sVersion = evaluationPrerunDataResp.DefaultK8sVersion
 	}
 
-	policy, err := policy_factory.CreatePolicy(prerunDataForEvaluation.PoliciesJson, testCommandFlags.PolicyName)
+	policy, err := policy_factory.CreatePolicy(evaluationPrerunDataResp.PoliciesJson, testCommandFlags.PolicyName)
 	if err != nil {
 		return nil, err
 	}
@@ -315,7 +314,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 	results := evaluationResultData.FormattedResults
 	passedPolicyCheckCount := 0
 	if results.EvaluationResults != nil {
-		passedPolicyCheckCount = evaluationResultData.FormattedResults.EvaluationResults.Summary.TotalPassedCount
+		passedPolicyCheckCount = results.EvaluationResults.Summary.TotalPassedCount
 	}
 
 	validationManager := evaluationResultData.ValidationManager
@@ -333,7 +332,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 
 	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", prerunData.Token), prerunData.Output, ctx.Printer, prerunData.K8sVersion, prerunData.Policy.Name)
 
-	if len(evaluationResultData.PromptMessage) > 0 {
+	if evaluationResultData.PromptMessage != "" {
 		ctx.Printer.PrintPromptMessage(evaluationResultData.PromptMessage)
 		answer, _, err := keyboard.GetSingleKey()
 
@@ -405,7 +404,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	policyName := prerunData.Policy.Name
 
-	dataForEvaluation := evaluation.PolicyCheckData{
+	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: validationManager.ValidK8sFilesConfigurations(),
 		IsInteractiveMode:   isInteractiveMode,
 		PolicyName:          policyName,
@@ -414,7 +413,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	emptyEvaluationResultData := EvaluationResultData{nil, 0, evaluation.FormattedResults{}, ""}
 
-	policyCheckResultData, err := ctx.Evaluator.Evaluate(dataForEvaluation)
+	policyCheckResultData, err := ctx.Evaluator.Evaluate(policyCheckData)
 	if err != nil {
 		return emptyEvaluationResultData, err
 	}

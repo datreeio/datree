@@ -147,10 +147,10 @@ func TestRequestEvaluationPrerunDataSuccess(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			prerunDataForEvaluation, _ := client.RequestEvaluationPrerunData(tt.args.token)
+			policyCheckData, _ := client.RequestEvaluationPrerunData(tt.args.token)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
-			assert.Equal(t, tt.expected.response, prerunDataForEvaluation)
+			assert.Equal(t, tt.expected.response, policyCheckData)
 		})
 	}
 }

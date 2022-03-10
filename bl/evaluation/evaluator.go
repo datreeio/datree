@@ -30,11 +30,6 @@ func New(c CLIClient) *Evaluator {
 	}
 }
 
-type RuleSchema struct {
-	RuleName string
-	Schema   map[string]interface{}
-}
-
 type FileNameRuleMapper map[string]map[string]*Rule
 
 type EvaluationResults struct {
@@ -108,7 +103,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, map[string]map[string]cliClient.FailedRule{}, 0}, nil
 	}
 
-	yamlSchemaValidatorInst := yamlSchemaValidator.New()
+	yamlSchemaValidator := yamlSchemaValidator.New()
 	rulesCount := len(policyCheckData.Policy.Rules)
 
 	// map of files paths to map of rules to failed rule data
@@ -123,8 +118,8 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 		filesData = append(filesData, cliClient.FileData{FilePath: filesConfiguration.FileName, ConfigurationsCount: len(filesConfiguration.Configurations)})
 
 		for _, configuration := range filesConfiguration.Configurations {
-			for _, ruleSchema := range policyCheckData.Policy.Rules {
-				rulesData = append(rulesData, cliClient.RuleData{Identifier: ruleSchema.RuleIdentifier, Name: ruleSchema.RuleName})
+			for _, ruleWithSchema := range policyCheckData.Policy.Rules {
+				rulesData = append(rulesData, cliClient.RuleData{Identifier: ruleWithSchema.RuleIdentifier, Name: ruleWithSchema.RuleName})
 
 				configurationKind, configurationName := extractConfigurationInfo(configuration)
 
@@ -133,18 +128,18 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 					return emptyPolicyCheckResult, err
 				}
 
-				ruleSchemaJson, err := json.Marshal(ruleSchema.Schema)
+				ruleSchemaJson, err := json.Marshal(ruleWithSchema.Schema)
 				if err != nil {
 					return emptyPolicyCheckResult, err
 				}
 
-				validationResult, err := yamlSchemaValidatorInst.Validate(string(ruleSchemaJson), string(configurationJson))
+				validationResult, err := yamlSchemaValidator.Validate(string(ruleSchemaJson), string(configurationJson))
 
 				if err != nil {
 					return emptyPolicyCheckResult, err
 				}
 
-				failedRulesByFiles = calculateFailedRulesByFiles(validationResult, filesConfiguration.FileName, ruleSchema, configurationName, configurationKind)
+				failedRulesByFiles = calculateFailedRulesByFiles(failedRulesByFiles, validationResult, filesConfiguration.FileName, ruleWithSchema, configurationName, configurationKind)
 			}
 		}
 
@@ -259,23 +254,22 @@ func extractConfigurationInfo(configuration extractor.Configuration) (string, st
 
 type Result = gojsonschema.Result
 
-func calculateFailedRulesByFiles(validationResult *Result, fileName string, ruleSchema policy_factory.RuleSchema, configurationName string, configurationKind string) map[string]map[string]cliClient.FailedRule {
-	failedRulesByFiles := make(map[string]map[string]cliClient.FailedRule)
+func calculateFailedRulesByFiles(currentFailedRulesByFiles map[string]map[string]cliClient.FailedRule, validationResult *Result, fileName string, rule policy_factory.RuleWithSchema, configurationName string, configurationKind string) map[string]map[string]cliClient.FailedRule {
 
 	if len(validationResult.Errors()) > 0 {
 		configurationData := cliClient.Configuration{Name: configurationName, Kind: configurationKind, Occurrences: len(validationResult.Errors())}
 
-		if fileData, ok := failedRulesByFiles[fileName]; ok {
-			if ruleData, ok := fileData[ruleSchema.RuleIdentifier]; ok {
+		if fileData, ok := currentFailedRulesByFiles[fileName]; ok {
+			if ruleData, ok := fileData[rule.RuleIdentifier]; ok {
 				ruleData.Configurations = append(ruleData.Configurations, configurationData)
-				failedRulesByFiles[fileName][ruleSchema.RuleIdentifier] = ruleData
+				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = ruleData
 			} else {
-				failedRulesByFiles[fileName][ruleSchema.RuleIdentifier] = cliClient.FailedRule{Name: ruleSchema.RuleName, MessageOnFailure: ruleSchema.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}
+				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = cliClient.FailedRule{Name: rule.RuleName, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}
 			}
 		} else {
-			failedRulesByFiles[fileName] = map[string]cliClient.FailedRule{ruleSchema.RuleIdentifier: {Name: ruleSchema.RuleName, MessageOnFailure: ruleSchema.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
+			currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{rule.RuleIdentifier: {Name: rule.RuleName, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
 		}
 	}
 
-	return failedRulesByFiles
+	return currentFailedRulesByFiles
 }
