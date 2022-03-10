@@ -14,15 +14,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
+const policiesJsonPath = "../../internal/fixtures/policyAsCode/policies.json"
 
 func TestCreatePolicy(t *testing.T) {
+	policiesJson := mockGetPreRunData()
+
 	err := os.Chdir("../../")
 	if err != nil {
 		panic(err)
 	}
-
-	policiesJson := mockGetPreRunData()
 
 	t.Run("Test Create Policy With Default Policy", func(t *testing.T) {
 		policy, _ := CreatePolicy(policiesJson.PoliciesJson, "")

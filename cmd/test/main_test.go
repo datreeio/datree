@@ -2,7 +2,6 @@ package test
 
 import (
 	"encoding/json"
-	"os"
 	"testing"
 
 	policy_factory "github.com/datreeio/datree/bl/policy"
@@ -380,12 +379,7 @@ func newErrorsChan() chan error {
 }
 
 func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
-	const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
-
-	err := os.Chdir("../../")
-	if err != nil {
-		panic(err)
-	}
+	const policiesJsonPath = "../../internal/fixtures/policyAsCode/policies.json"
 
 	fileReader := fileReader.CreateFileReader(nil)
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)

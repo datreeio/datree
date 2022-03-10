@@ -342,12 +342,7 @@ func test_getVersionMessage_success() *GetVersionMessageTestCase {
 }
 
 func mockGetPreRunData() *EvaluationPrerunDataResponse {
-	err := os.Chdir("../../")
-	if err != nil {
-		panic(err)
-	}
-
-	const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
+	const policiesJsonPath = "../../internal/fixtures/policyAsCode/policies.json"
 
 	fileReader := fileReader.CreateFileReader(nil)
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
