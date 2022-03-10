@@ -103,7 +103,7 @@ type PolicyCheckResultData struct {
 func (e *Evaluator) Evaluate(dataForEvaluation DataForPolicyCheck) (PolicyCheckResultData, error) {
 
 	if len(dataForEvaluation.FilesConfigurations) == 0 {
-		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}, nil
+		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, map[string]map[string]cliClient.FailedRule{}, 0}, nil
 	}
 
 	rulesCount := len(dataForEvaluation.Policy.Rules)

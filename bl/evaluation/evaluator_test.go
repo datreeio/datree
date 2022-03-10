@@ -1,8 +1,14 @@
 package evaluation
 
 import (
+	"encoding/json"
+	"fmt"
+	"os"
 	"path/filepath"
 	"testing"
+
+	policy_factory "github.com/datreeio/datree/bl/policy"
+	"github.com/datreeio/datree/pkg/fileReader"
 
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -132,48 +138,55 @@ func TestSendLocalEvaluationResult(t *testing.T) {
 }
 
 func TestEvaluate(t *testing.T) {
+	os.Chdir("../../")
+
 	tests := []*evaluateTestCase{
-		request_evaluation_all_valid(),
+		//request_evaluation_all_valid(),
 		request_evaluation_all_invalid(),
 	}
+
+	prerunData := mockGetPreRunData()
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockedCliClient := &mockCliClient{}
 
-			mockedCliClient.On("RequestEvaluation", mock.Anything).Return(tt.mock.cliClient.requestEvaluation.response, tt.mock.cliClient.requestEvaluation.err)
+			evaluator := &Evaluator{
+				cliClient: mockedCliClient,
+				osInfo:    tt.args.osInfo,
+			}
 
-			//evaluator := &Evaluator{
-			//	cliClient: mockedCliClient,
-			//	osInfo:    tt.args.osInfo,
-			//}
+			dataForEvaluation := DataForPolicyCheck{
+				FilesConfigurations: tt.args.dataForEvaluation.FilesConfigurations,
+				IsInteractiveMode:   tt.args.dataForEvaluation.IsInteractiveMode,
+				PolicyName:          policy.Name,
+				Policy:              policy,
+			}
 
-			// TODO: define and check the rest of the values
-			//results, rulesCount, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.response, tt.args.isInteractiveMode)
-			//if tt.expected.isRequestEvaluationCalled {
-			//	mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
-			//	assert.Equal(t, tt.expected.response.EvaluationResults.Summary, results.EvaluationResults.Summary)
-			//	assert.Equal(t, tt.expected.response.EvaluationResults.FileNameRuleMapper, results.EvaluationResults.FileNameRuleMapper)
-			//} else {
-			//	mockedCliClient.AssertNotCalled(t, "RequestEvaluation")
-			//}
+			policyCheckResultData, err := evaluator.Evaluate(dataForEvaluation)
+			if err != nil {
+				fmt.Errorf(err.Error())
+			}
+
+			if len(dataForEvaluation.FilesConfigurations) > 0 {
+				assert.Equal(t, tt.expected.policyCheckResultData.FormattedResults.EvaluationResults.Summary, policyCheckResultData.FormattedResults.EvaluationResults.Summary)
+				assert.Equal(t, tt.expected.policyCheckResultData.FormattedResults.EvaluationResults.FileNameRuleMapper, policyCheckResultData.FormattedResults.EvaluationResults.FileNameRuleMapper)
+			} else {
+				assert.Equal(t, tt.expected.policyCheckResultData.FormattedResults, policyCheckResultData.FormattedResults)
+			}
 		})
 	}
 }
 
 type evaluateArgs struct {
-	validFilesConfigurations []*extractor.FileConfigurations
-	osInfo                   *OSInfo
-	isInteractiveMode        bool
-	rulesCount               int
-	response                 *cliClient.CreateEvaluationResponse
+	dataForEvaluation DataForPolicyCheck
+	osInfo            *OSInfo
 }
 
 type evaluateExpected struct {
-	response                  FormattedResults
-	err                       error
-	isRequestEvaluationCalled bool
-	isCreateEvaluationCalled  bool
-	isGetVersionMessageCalled bool
+	policyCheckResultData PolicyCheckResultData
+	err                   error
 }
 
 type evaluateTestCase struct {
@@ -184,46 +197,28 @@ type evaluateTestCase struct {
 }
 
 func request_evaluation_all_valid() *evaluateTestCase {
-	validFilePath := "../../internal/fixtures/kube/pass-all.yaml"
+	validFilePath := "internal/fixtures/kube/pass-all.yaml"
+
+	prerunData := mockGetPreRunData()
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
 
 	return &evaluateTestCase{
 		name: "should request validation without invalid files",
 		args: &evaluateArgs{
-			validFilesConfigurations: newFilesConfigurations(validFilePath),
-			response: &cliClient.CreateEvaluationResponse{
-				EvaluationId: 1,
-				PolicyName:   "Default",
-				RulesCount:   21,
+			dataForEvaluation: DataForPolicyCheck{
+				FilesConfigurations: newFilesConfigurations(validFilePath),
+				IsInteractiveMode:   true,
+				PolicyName:          "Default",
+				Policy:              policy,
 			},
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
 				KernelVersion:   "4.5.6",
 			},
-			isInteractiveMode: true,
 		},
 		mock: &evaluatorMock{
 			cliClient: &cliClientMockTestCase{
-				createEvaluation: struct {
-					evaluationId int
-					k8sVersion   string
-					err          error
-				}{
-					evaluationId: 1,
-					err:          nil,
-				},
-				requestEvaluation: struct {
-					response *cliClient.EvaluationResponse
-					err      error
-				}{
-					response: &cliClient.EvaluationResponse{
-						Results: []*cliClient.EvaluationResult{},
-					},
-					err: nil,
-				},
-				updateEvaluationValidation: struct{ err error }{
-					err: nil,
-				},
 				getVersionMessage: struct {
 					response *cliClient.VersionMessage
 					err      error
@@ -234,65 +229,49 @@ func request_evaluation_all_valid() *evaluateTestCase {
 			},
 		},
 		expected: &evaluateExpected{
-			response: FormattedResults{
-				EvaluationResults: &EvaluationResults{
-					FileNameRuleMapper: make(map[string]map[string]*Rule),
-					Summary: struct {
-						TotalFailedRules int
-						FilesCount       int
-						TotalPassedCount int
-					}{
-						TotalFailedRules: 0,
-						FilesCount:       1,
-						TotalPassedCount: 1,
+			policyCheckResultData: PolicyCheckResultData{
+				FormattedResults: FormattedResults{
+					EvaluationResults: &EvaluationResults{
+						FileNameRuleMapper: make(map[string]map[string]*Rule),
+						Summary: struct {
+							TotalFailedRules int
+							FilesCount       int
+							TotalPassedCount int
+						}{
+							TotalFailedRules: 0,
+							FilesCount:       1,
+							TotalPassedCount: 1,
+						},
 					},
+					NonInteractiveEvaluationResults: nil,
 				},
 			},
-			err:                       nil,
-			isRequestEvaluationCalled: true,
+			err: nil,
 		},
 	}
 }
 
 func request_evaluation_all_invalid() *evaluateTestCase {
+	prerunData := mockGetPreRunData()
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
+
 	return &evaluateTestCase{
 		name: "should not request validation if there are no valid files",
 		args: &evaluateArgs{
-			validFilesConfigurations: []*extractor.FileConfigurations{},
-			response: &cliClient.CreateEvaluationResponse{
-				EvaluationId: 1,
-				PolicyName:   "Default",
-				RulesCount:   21,
+			dataForEvaluation: DataForPolicyCheck{
+				FilesConfigurations: []*extractor.FileConfigurations{},
+				IsInteractiveMode:   true,
+				PolicyName:          "Default",
+				Policy:              policy,
 			},
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
 				KernelVersion:   "4.5.6",
 			},
-			isInteractiveMode: true,
 		},
 		mock: &evaluatorMock{
 			cliClient: &cliClientMockTestCase{
-				createEvaluation: struct {
-					evaluationId int
-					k8sVersion   string
-					err          error
-				}{
-					evaluationId: 1,
-					err:          nil,
-				},
-				requestEvaluation: struct {
-					response *cliClient.EvaluationResponse
-					err      error
-				}{
-					response: &cliClient.EvaluationResponse{
-						Results: []*cliClient.EvaluationResult{},
-					},
-					err: nil,
-				},
-				updateEvaluationValidation: struct{ err error }{
-					err: nil,
-				},
 				getVersionMessage: struct {
 					response *cliClient.VersionMessage
 					err      error
@@ -303,22 +282,10 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 			},
 		},
 		expected: &evaluateExpected{
-			response: FormattedResults{
-				EvaluationResults: &EvaluationResults{
-					FileNameRuleMapper: make(map[string]map[string]*Rule),
-					Summary: struct {
-						TotalFailedRules int
-						FilesCount       int
-						TotalPassedCount int
-					}{
-						TotalFailedRules: 0,
-						FilesCount:       1,
-						TotalPassedCount: 0,
-					},
-				},
+			policyCheckResultData: PolicyCheckResultData{
+				FormattedResults: FormattedResults{},
 			},
-			err:                       nil,
-			isRequestEvaluationCalled: false,
+			err: nil,
 		},
 	}
 }
@@ -330,4 +297,26 @@ func newFilesConfigurations(path string) []*extractor.FileConfigurations {
 		FileName: absolutePath,
 	})
 	return filesConfigurations
+}
+
+func mockGetPreRunData() *cliClient.PrerunDataForEvaluationResponse {
+	const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
+
+	fileReader := fileReader.CreateFileReader(nil)
+	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
+
+	if err != nil {
+		fmt.Errorf("can't read policies json")
+	}
+
+	policiesJsonRawData := []byte(policiesJsonStr)
+
+	var policiesJson *cliClient.PrerunDataForEvaluationResponse
+	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
+
+	if err != nil {
+		fmt.Errorf("can't marshel policies json")
+	}
+
+	return policiesJson
 }
