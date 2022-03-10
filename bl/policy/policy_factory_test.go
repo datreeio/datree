@@ -38,10 +38,8 @@ func TestCreatePolicy(t *testing.T) {
 			switch defaultRule.UniqueName {
 			case "WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT":
 				expectedRules = append(expectedRules, RuleWithSchema{RuleIdentifier: defaultRule.UniqueName, RuleName: defaultRule.Name, Schema: defaultRule.Schema, MessageOnFailure: "Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)"})
-				break
 			case "CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE":
 				expectedRules = append(expectedRules, RuleWithSchema{RuleIdentifier: defaultRule.UniqueName, RuleName: defaultRule.Name, Schema: defaultRule.Schema, MessageOnFailure: "Incorrect value for key `privileged` - this mode will allow the container thenhjgjgj same access as processes running on the host"})
-				break
 			}
 		}
 
