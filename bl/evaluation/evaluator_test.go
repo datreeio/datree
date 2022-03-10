@@ -2,7 +2,6 @@ package evaluation
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -128,7 +127,7 @@ func TestSendEvaluationResult(t *testing.T) {
 func TestEvaluate(t *testing.T) {
 	err := os.Chdir("../../")
 	if err != nil {
-		fmt.Println("can't change dir")
+		panic(err)
 	}
 
 	tests := []*evaluateTestCase{
@@ -157,7 +156,7 @@ func TestEvaluate(t *testing.T) {
 
 			policyCheckResultData, err := evaluator.Evaluate(policyCheckData)
 			if err != nil {
-				fmt.Println(err.Error())
+				panic(err)
 			}
 
 			if len(policyCheckData.FilesConfigurations) > 0 {
@@ -297,7 +296,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
 
 	if err != nil {
-		fmt.Println("can't read policies json")
+		panic(err)
 	}
 
 	policiesJsonRawData := []byte(policiesJsonStr)
@@ -306,7 +305,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
 
 	if err != nil {
-		fmt.Printf("can't marshel policies json")
+		panic(err)
 	}
 
 	return policiesJson

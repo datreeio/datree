@@ -2,7 +2,6 @@ package policy
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"testing"
 
@@ -20,7 +19,7 @@ const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
 func TestCreatePolicy(t *testing.T) {
 	err := os.Chdir("../../")
 	if err != nil {
-		fmt.Println("can't change dir")
+		panic(err)
 	}
 
 	policiesJson := mockGetPreRunData()
@@ -32,7 +31,7 @@ func TestCreatePolicy(t *testing.T) {
 		defaultRules, err := internal_policy.GetDefaultRules()
 
 		if err != nil {
-			fmt.Println("can't read default rules")
+			panic(err)
 		}
 
 		for _, defaultRule := range defaultRules.Rules {
@@ -46,7 +45,7 @@ func TestCreatePolicy(t *testing.T) {
 		customRuleSchemaStr := "{\"properties\":{\"metadata\":{\"properties\":{\"labels\":{\"additionalProperties\":false,\"patternProperties\":{\"^.*$\":{\"format\":\"hostname\"}}}}}}}"
 		err = json.Unmarshal([]byte(customRuleSchemaStr), &customRuleJsonMap)
 		if err != nil {
-			fmt.Println("can't Unmarshal customRuleSchemaStr to customRuleJsonMap")
+			panic(err)
 		}
 
 		expectedRules = append(expectedRules, RuleSchema{RuleIdentifier: "CUSTOM_WORKLOAD_INVALID_LABELS_VALUE", RuleName: "Ensure workload has valid label values [CUSTOM RULE]", Schema: customRuleJsonMap, MessageOnFailure: "All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)"})
@@ -61,14 +60,14 @@ func TestCreatePolicy(t *testing.T) {
 		var expectedRules []RuleSchema
 
 		if err != nil {
-			fmt.Println("can't read default rules")
+			panic(err)
 		}
 
 		customRuleJsonMap := make(map[string]interface{})
 		customRuleSchemaStr := "{\"properties\":{\"metadata\":{\"properties\":{\"labels\":{\"additionalProperties\":false,\"patternProperties\":{\"^.*$\":{\"format\":\"hostname\"}}}}}}}"
 		err = json.Unmarshal([]byte(customRuleSchemaStr), &customRuleJsonMap)
 		if err != nil {
-			fmt.Println("can't Unmarshal customRuleSchemaStr to customRuleJsonMap")
+			panic(err)
 		}
 
 		expectedRules = append(expectedRules, RuleSchema{RuleIdentifier: "CUSTOM_WORKLOAD_INVALID_LABELS_VALUE", RuleName: "Ensure workload has valid label values [CUSTOM RULE]", Schema: customRuleJsonMap, MessageOnFailure: "All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)"})
@@ -84,7 +83,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
 
 	if err != nil {
-		fmt.Println("can't read policies json")
+		panic(err)
 	}
 
 	policiesJsonRawData := []byte(policiesJsonStr)
@@ -93,7 +92,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
 
 	if err != nil {
-		fmt.Println("can't marshel policies json")
+		panic(err)
 	}
 	return policiesJson
 }

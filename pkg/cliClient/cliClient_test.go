@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -345,7 +344,7 @@ func test_getVersionMessage_success() *GetVersionMessageTestCase {
 func mockGetPreRunData() *EvaluationPrerunDataResponse {
 	err := os.Chdir("../../")
 	if err != nil {
-		fmt.Println("can't change dir")
+		panic(err)
 	}
 
 	const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
@@ -354,7 +353,7 @@ func mockGetPreRunData() *EvaluationPrerunDataResponse {
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
 
 	if err != nil {
-		fmt.Println("can't read policies json")
+		panic(err)
 	}
 
 	policiesJsonRawData := []byte(policiesJsonStr)
@@ -363,7 +362,7 @@ func mockGetPreRunData() *EvaluationPrerunDataResponse {
 	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
 
 	if err != nil {
-		fmt.Println("can't marshel policies json")
+		panic(err)
 	}
 	return policiesJson
 }

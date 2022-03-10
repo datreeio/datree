@@ -2,7 +2,6 @@ package test
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"testing"
 
@@ -385,14 +384,14 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 
 	err := os.Chdir("../../")
 	if err != nil {
-		fmt.Println("can't change dir")
+		panic(err)
 	}
 
 	fileReader := fileReader.CreateFileReader(nil)
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
 
 	if err != nil {
-		fmt.Println("can't read policies json")
+		panic(err)
 	}
 
 	policiesJsonRawData := []byte(policiesJsonStr)
@@ -401,7 +400,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
 
 	if err != nil {
-		fmt.Println("can't marshel policies json")
+		panic(err)
 	}
 	return policiesJson
 }
