@@ -1,6 +1,9 @@
 package config
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/utils"
@@ -46,4 +49,14 @@ func New(ctx *ConfigCommandContext) *cobra.Command {
 	configCommand.AddCommand(NewGetCommand(ctx))
 
 	return configCommand
+}
+
+func validateKey(key string) error {
+	validKeys := make(map[string]bool)
+	validKeys["token"] = true
+
+	if val, ok := validKeys[key]; !ok || !val {
+		return fmt.Errorf("key must be one of: %s", reflect.ValueOf(validKeys).MapKeys())
+	}
+	return nil
 }
