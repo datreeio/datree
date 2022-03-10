@@ -21,13 +21,13 @@ type mockCliClient struct {
 	mock.Mock
 }
 
-func (m *mockCliClient) RequestPrerunDataForEvaluation(token string) (*cliClient.PrerunDataForEvaluationResponse, error) {
+func (m *mockCliClient) RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error) {
 	args := m.Called(token)
-	return args.Get(0).(*cliClient.PrerunDataForEvaluationResponse), args.Error(1)
+	return args.Get(0).(*cliClient.EvaluationPrerunDataResponse), args.Error(1)
 }
 
-func (m *mockCliClient) SendLocalEvaluationResult(localEvaluationResultRequest *cliClient.LocalEvaluationResultRequest) (*cliClient.SendEvaluationResultsResponse, error) {
-	args := m.Called(localEvaluationResultRequest)
+func (m *mockCliClient) SendEvaluationResult(evaluationResultRequest *cliClient.EvaluationResultRequest) (*cliClient.SendEvaluationResultsResponse, error) {
+	args := m.Called(evaluationResultRequest)
 	return args.Get(0).(*cliClient.SendEvaluationResultsResponse), args.Error(1)
 }
 
@@ -69,8 +69,8 @@ type evaluatorMock struct {
 }
 
 // TODO: add actual tests
-func TestSendLocalEvaluationResult(t *testing.T) {
-	t.Run("SendLocalEvaluationResult should succeed", func(t *testing.T) {
+func TestSendEvaluationResult(t *testing.T) {
+	t.Run("SendEvaluationResult should succeed", func(t *testing.T) {
 		mockedCliClient := &mockCliClient{}
 		evaluator := &Evaluator{
 			cliClient: mockedCliClient,
@@ -94,11 +94,11 @@ func TestSendLocalEvaluationResult(t *testing.T) {
 			},
 		}
 
-		mockedCliClient.On("SendLocalEvaluationResult", mock.Anything).Return(&cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}, nil)
+		mockedCliClient.On("SendEvaluationResult", mock.Anything).Return(&cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}, nil)
 
 		expectedSendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}
 
-		localEvaluationRequestData := LocalEvaluationRequestData{
+		evaluationRequestData := EvaluationRequestData{
 			CliId:              cliId,
 			CliVersion:         cliVersion,
 			K8sVersion:         k8sVersion,
@@ -111,27 +111,27 @@ func TestSendLocalEvaluationResult(t *testing.T) {
 			PolicyCheckResults: nil,
 		}
 
-		sendEvaluationResultsResponse, _ := evaluator.SendLocalEvaluationResult(localEvaluationRequestData)
+		sendEvaluationResultsResponse, _ := evaluator.SendEvaluationResult(evaluationRequestData)
 
-		sendLocalEvaluationResultRequestData := &cliClient.LocalEvaluationResultRequest{
-			K8sVersion: localEvaluationRequestData.K8sVersion,
-			ClientId:   localEvaluationRequestData.CliId,
-			Token:      localEvaluationRequestData.CliId,
-			PolicyName: localEvaluationRequestData.PolicyName,
+		sendEvaluationResultRequestData := &cliClient.EvaluationResultRequest{
+			K8sVersion: evaluationRequestData.K8sVersion,
+			ClientId:   evaluationRequestData.CliId,
+			Token:      evaluationRequestData.CliId,
+			PolicyName: evaluationRequestData.PolicyName,
 			Metadata: &cliClient.Metadata{
-				CliVersion:      localEvaluationRequestData.CliVersion,
+				CliVersion:      evaluationRequestData.CliVersion,
 				Os:              evaluator.osInfo.OS,
 				PlatformVersion: evaluator.osInfo.PlatformVersion,
 				KernelVersion:   evaluator.osInfo.KernelVersion,
-				CIContext:       localEvaluationRequestData.CiContext,
+				CIContext:       evaluationRequestData.CiContext,
 			},
-			FailedYamlFiles:    localEvaluationRequestData.FailedYamlFiles,
-			FailedK8sFiles:     localEvaluationRequestData.FailedK8sFiles,
-			AllExecutedRules:   localEvaluationRequestData.RulesData,
-			AllEvaluatedFiles:  localEvaluationRequestData.FilesData,
-			PolicyCheckResults: localEvaluationRequestData.PolicyCheckResults,
+			FailedYamlFiles:    evaluationRequestData.FailedYamlFiles,
+			FailedK8sFiles:     evaluationRequestData.FailedK8sFiles,
+			AllExecutedRules:   evaluationRequestData.RulesData,
+			AllEvaluatedFiles:  evaluationRequestData.FilesData,
+			PolicyCheckResults: evaluationRequestData.PolicyCheckResults,
 		}
-		mockedCliClient.AssertCalled(t, "SendLocalEvaluationResult", sendLocalEvaluationResultRequestData)
+		mockedCliClient.AssertCalled(t, "SendEvaluationResult", sendEvaluationResultRequestData)
 		assert.Equal(t, expectedSendEvaluationResultsResponse, sendEvaluationResultsResponse)
 
 	})
@@ -157,19 +157,19 @@ func TestEvaluate(t *testing.T) {
 				osInfo:    tt.args.osInfo,
 			}
 
-			dataForEvaluation := DataForPolicyCheck{
+			policyCheckData := PolicyCheckData{
 				FilesConfigurations: tt.args.dataForEvaluation.FilesConfigurations,
 				IsInteractiveMode:   tt.args.dataForEvaluation.IsInteractiveMode,
 				PolicyName:          policy.Name,
 				Policy:              policy,
 			}
 
-			policyCheckResultData, err := evaluator.Evaluate(dataForEvaluation)
+			policyCheckResultData, err := evaluator.Evaluate(policyCheckData)
 			if err != nil {
 				fmt.Errorf(err.Error())
 			}
 
-			if len(dataForEvaluation.FilesConfigurations) > 0 {
+			if len(policyCheckData.FilesConfigurations) > 0 {
 				assert.Equal(t, tt.expected.policyCheckResultData.FormattedResults.EvaluationResults.Summary, policyCheckResultData.FormattedResults.EvaluationResults.Summary)
 				assert.Equal(t, tt.expected.policyCheckResultData.FormattedResults.EvaluationResults.FileNameRuleMapper, policyCheckResultData.FormattedResults.EvaluationResults.FileNameRuleMapper)
 			} else {
@@ -180,7 +180,7 @@ func TestEvaluate(t *testing.T) {
 }
 
 type evaluateArgs struct {
-	dataForEvaluation DataForPolicyCheck
+	dataForEvaluation PolicyCheckData
 	osInfo            *OSInfo
 }
 
@@ -205,7 +205,7 @@ func request_evaluation_all_valid() *evaluateTestCase {
 	return &evaluateTestCase{
 		name: "should request validation without invalid files",
 		args: &evaluateArgs{
-			dataForEvaluation: DataForPolicyCheck{
+			dataForEvaluation: PolicyCheckData{
 				FilesConfigurations: newFilesConfigurations(validFilePath),
 				IsInteractiveMode:   true,
 				PolicyName:          "Default",
@@ -258,7 +258,7 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 	return &evaluateTestCase{
 		name: "should not request validation if there are no valid files",
 		args: &evaluateArgs{
-			dataForEvaluation: DataForPolicyCheck{
+			dataForEvaluation: PolicyCheckData{
 				FilesConfigurations: []*extractor.FileConfigurations{},
 				IsInteractiveMode:   true,
 				PolicyName:          "Default",
@@ -299,7 +299,7 @@ func newFilesConfigurations(path string) []*extractor.FileConfigurations {
 	return filesConfigurations
 }
 
-func mockGetPreRunData() *cliClient.PrerunDataForEvaluationResponse {
+func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
 
 	fileReader := fileReader.CreateFileReader(nil)
@@ -311,7 +311,7 @@ func mockGetPreRunData() *cliClient.PrerunDataForEvaluationResponse {
 
 	policiesJsonRawData := []byte(policiesJsonStr)
 
-	var policiesJson *cliClient.PrerunDataForEvaluationResponse
+	var policiesJson *cliClient.EvaluationPrerunDataResponse
 	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
 
 	if err != nil {

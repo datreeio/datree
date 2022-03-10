@@ -13,7 +13,7 @@ import (
 )
 
 type CliClient interface {
-	RequestPrerunDataForEvaluation(token string) (*cliClient.PrerunDataForEvaluationResponse, int, error)
+	RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error)
 }
 
 type KustomizeCommandRunner interface {
@@ -26,8 +26,6 @@ type KustomizeCommandRunner interface {
 type KustomizeContext struct {
 	CommandRunner KustomizeCommandRunner
 }
-
-const notFoundStatusCode = 404
 
 func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobra.Command {
 	testCommandFlags := test.NewTestCommandFlags()
@@ -67,11 +65,9 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				return err
 			}
 
-			prerunDataForEvaluation, statusCode, err := testCtx.CliClient.RequestPrerunDataForEvaluation(localConfigContent.CliId)
+			prerunDataForEvaluation, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.CliId)
 
-			// getting prerun data can return 404 if user has a valid token but he didn't sign up yet - suppose to be ok
-			// getting prerun data can return 400 if user has invalid token - we suppose to return an error
-			if err != nil && statusCode != notFoundStatusCode {
+			if err != nil {
 				return err
 			}
 

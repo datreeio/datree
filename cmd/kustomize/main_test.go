@@ -60,19 +60,19 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(dataForEvaluation evaluation.DataForPolicyCheck) (evaluation.PolicyCheckResultData, error) {
+func (m *mockEvaluator) Evaluate(dataForEvaluation evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error) {
 	args := m.Called(dataForEvaluation)
 	return args.Get(0).(evaluation.PolicyCheckResultData), args.Error(1)
 }
 
-func (m *mockEvaluator) SendLocalEvaluationResult(localEvaluationRequestData evaluation.LocalEvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
-	args := m.Called(localEvaluationRequestData)
+func (m *mockEvaluator) SendEvaluationResult(evaluationRequestData evaluation.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
+	args := m.Called(evaluationRequestData)
 	return args.Get(0).(*cliClient.SendEvaluationResultsResponse), args.Error(1)
 }
 
-func (m *mockEvaluator) RequestPrerunDataForEvaluation(token string) (*cliClient.PrerunDataForEvaluationResponse, int, error) {
+func (m *mockEvaluator) RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, int, error) {
 	args := m.Called(token)
-	return args.Get(0).(*cliClient.PrerunDataForEvaluationResponse), args.Get(1).(int), args.Error(2)
+	return args.Get(0).(*cliClient.EvaluationPrerunDataResponse), args.Get(1).(int), args.Error(2)
 }
 
 type mockMessager struct {

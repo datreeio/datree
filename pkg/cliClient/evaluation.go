@@ -99,30 +99,39 @@ type Policy struct {
 	Rules     []Rule `json:"rules"`
 }
 
-type PrerunPoliciesForEvaluation struct {
+type EvaluationPrerunPolicies struct {
 	ApiVersion  string        `json:"apiVersion"`
 	CustomRules []*CustomRule `json:"customRules"`
 	Policies    []*Policy     `json:"policies"`
 }
 
-type PrerunDataForEvaluationResponse struct {
-	PoliciesJson      *PrerunPoliciesForEvaluation `json:"policiesJson"`
-	DefaultK8sVersion string                       `json:"defaultK8sVersion"`
+type EvaluationPrerunDataResponse struct {
+	PoliciesJson      *EvaluationPrerunPolicies `json:"policiesJson"`
+	DefaultK8sVersion string                    `json:"defaultK8sVersion"`
 }
 
-func (c *CliClient) RequestPrerunDataForEvaluation(tokenId string) (*PrerunDataForEvaluationResponse, int, error) {
+const notFoundStatusCode = 404
+
+func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
 	if err != nil {
-		return &PrerunDataForEvaluationResponse{}, res.StatusCode, err
+
+		// getting prerun data can return 404 if user has a valid token but he didn't sign up yet - suppose to be ok
+		// getting prerun data can return 400 if user has invalid token - we suppose to return an error
+		if err != nil && res.StatusCode != notFoundStatusCode {
+			return &EvaluationPrerunDataResponse{}, err
+		} else {
+			return &EvaluationPrerunDataResponse{}, nil
+		}
 	}
 
-	var prerunDataForEvaluationResponse = &PrerunDataForEvaluationResponse{}
+	var prerunDataForEvaluationResponse = &EvaluationPrerunDataResponse{}
 	err = json.Unmarshal(res.Body, &prerunDataForEvaluationResponse)
 	if err != nil {
-		return &PrerunDataForEvaluationResponse{}, res.StatusCode, err
+		return &EvaluationPrerunDataResponse{}, err
 	}
 
-	return prerunDataForEvaluationResponse, res.StatusCode, nil
+	return prerunDataForEvaluationResponse, nil
 }
 
 type RuleData struct {
@@ -147,7 +156,7 @@ type FailedRule struct {
 	Configurations   []Configuration `json:"configurations"`
 }
 
-type LocalEvaluationResultRequest struct {
+type EvaluationResultRequest struct {
 	ClientId           string                           `json:"clientId"`
 	Token              string                           `json:"token"`
 	Metadata           *Metadata                        `json:"metadata"`
@@ -160,7 +169,7 @@ type LocalEvaluationResultRequest struct {
 	PolicyCheckResults map[string]map[string]FailedRule `json:"policyCheckResults"`
 }
 
-func (c *CliClient) SendLocalEvaluationResult(request *LocalEvaluationResultRequest) (*SendEvaluationResultsResponse, error) {
+func (c *CliClient) SendEvaluationResult(request *EvaluationResultRequest) (*SendEvaluationResultsResponse, error) {
 	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/result", request, nil)
 	if err != nil {
 		return nil, err

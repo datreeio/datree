@@ -169,8 +169,8 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 			}
 			//sort.Ints(rulesIds)
 
-			for _, rulesUniqueName := range rulesUniqueNames {
-				rule := rules[rulesUniqueName]
+			for _, ruleUniqueName := range rulesUniqueNames {
+				rule := rules[ruleUniqueName]
 				failedRule := printer.FailedRule{
 					Name:               rule.Name,
 					Occurrences:        rule.GetCount(),

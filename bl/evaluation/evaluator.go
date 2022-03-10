@@ -3,6 +3,8 @@ package evaluation
 import (
 	"encoding/json"
 
+	"github.com/xeipuuv/gojsonschema"
+
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -11,7 +13,7 @@ import (
 )
 
 type CLIClient interface {
-	SendLocalEvaluationResult(request *cliClient.LocalEvaluationResultRequest) (*cliClient.SendEvaluationResultsResponse, error)
+	SendEvaluationResult(request *cliClient.EvaluationResultRequest) (*cliClient.SendEvaluationResultsResponse, error)
 }
 
 type Evaluator struct {
@@ -49,7 +51,7 @@ type FormattedResults struct {
 	NonInteractiveEvaluationResults *NonInteractiveEvaluationResults
 }
 
-type LocalEvaluationRequestData struct {
+type EvaluationRequestData struct {
 	CliId              string
 	CliVersion         string
 	K8sVersion         string
@@ -62,30 +64,30 @@ type LocalEvaluationRequestData struct {
 	PolicyCheckResults map[string]map[string]cliClient.FailedRule
 }
 
-func (e *Evaluator) SendLocalEvaluationResult(localEvaluationRequestData LocalEvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
-	sendLocalEvaluationResultsResponse, err := e.cliClient.SendLocalEvaluationResult(&cliClient.LocalEvaluationResultRequest{
-		K8sVersion: localEvaluationRequestData.K8sVersion,
-		ClientId:   localEvaluationRequestData.CliId,
-		Token:      localEvaluationRequestData.CliId,
-		PolicyName: localEvaluationRequestData.PolicyName,
+func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
+	sendEvaluationResultsResponse, err := e.cliClient.SendEvaluationResult(&cliClient.EvaluationResultRequest{
+		K8sVersion: evaluationRequestData.K8sVersion,
+		ClientId:   evaluationRequestData.CliId,
+		Token:      evaluationRequestData.CliId,
+		PolicyName: evaluationRequestData.PolicyName,
 		Metadata: &cliClient.Metadata{
-			CliVersion:      localEvaluationRequestData.CliVersion,
+			CliVersion:      evaluationRequestData.CliVersion,
 			Os:              e.osInfo.OS,
 			PlatformVersion: e.osInfo.PlatformVersion,
 			KernelVersion:   e.osInfo.KernelVersion,
-			CIContext:       localEvaluationRequestData.CiContext,
+			CIContext:       evaluationRequestData.CiContext,
 		},
-		FailedYamlFiles:    localEvaluationRequestData.FailedYamlFiles,
-		FailedK8sFiles:     localEvaluationRequestData.FailedK8sFiles,
-		AllExecutedRules:   localEvaluationRequestData.RulesData,
-		AllEvaluatedFiles:  localEvaluationRequestData.FilesData,
-		PolicyCheckResults: localEvaluationRequestData.PolicyCheckResults,
+		FailedYamlFiles:    evaluationRequestData.FailedYamlFiles,
+		FailedK8sFiles:     evaluationRequestData.FailedK8sFiles,
+		AllExecutedRules:   evaluationRequestData.RulesData,
+		AllEvaluatedFiles:  evaluationRequestData.FilesData,
+		PolicyCheckResults: evaluationRequestData.PolicyCheckResults,
 	})
 
-	return sendLocalEvaluationResultsResponse, err
+	return sendEvaluationResultsResponse, err
 }
 
-type DataForPolicyCheck struct {
+type PolicyCheckData struct {
 	FilesConfigurations []*extractor.FileConfigurations
 	IsInteractiveMode   bool
 	PolicyName          string
@@ -100,77 +102,62 @@ type PolicyCheckResultData struct {
 	RulesCount       int
 }
 
-func (e *Evaluator) Evaluate(dataForEvaluation DataForPolicyCheck) (PolicyCheckResultData, error) {
+func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResultData, error) {
 
-	if len(dataForEvaluation.FilesConfigurations) == 0 {
+	if len(policyCheckData.FilesConfigurations) == 0 {
 		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, map[string]map[string]cliClient.FailedRule{}, 0}, nil
 	}
 
-	rulesCount := len(dataForEvaluation.Policy.Rules)
+	yamlSchemaValidatorInst := yamlSchemaValidator.New()
+	rulesCount := len(policyCheckData.Policy.Rules)
 
 	// map of files paths to map of rules to failed rule data
-	failedDict := make(map[string]map[string]cliClient.FailedRule)
+	failedRulesByFiles := make(map[string]map[string]cliClient.FailedRule)
+
 	rulesData := []cliClient.RuleData{}
 	var filesData []cliClient.FileData
 
 	emptyPolicyCheckResult := PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}
 
-	for _, filesConfiguration := range dataForEvaluation.FilesConfigurations {
+	for _, filesConfiguration := range policyCheckData.FilesConfigurations {
 		filesData = append(filesData, cliClient.FileData{FilePath: filesConfiguration.FileName, ConfigurationsCount: len(filesConfiguration.Configurations)})
 
 		for _, configuration := range filesConfiguration.Configurations {
-			for _, rulesSchema := range dataForEvaluation.Policy.Rules {
-				rulesData = append(rulesData, cliClient.RuleData{Identifier: rulesSchema.RuleIdentifier, Name: rulesSchema.RuleName})
+			for _, ruleSchema := range policyCheckData.Policy.Rules {
+				rulesData = append(rulesData, cliClient.RuleData{Identifier: ruleSchema.RuleIdentifier, Name: ruleSchema.RuleName})
 
-				kind := configuration["kind"].(string)
-				metadata := configuration["metadata"]
-				name := metadata.(map[string]interface{})["name"].(string)
+				configurationKind, configurationName := extractConfigurationInfo(configuration)
 
 				configurationJson, err := json.Marshal(configuration)
 				if err != nil {
 					return emptyPolicyCheckResult, err
 				}
 
-				yamlSchemaValidatorInst := yamlSchemaValidator.New()
-
-				ruleSchemaJson, err := json.Marshal(rulesSchema.Schema)
+				ruleSchemaJson, err := json.Marshal(ruleSchema.Schema)
 				if err != nil {
 					return emptyPolicyCheckResult, err
 				}
 
-				result, err := yamlSchemaValidatorInst.Validate(string(ruleSchemaJson), string(configurationJson))
+				validationResult, err := yamlSchemaValidatorInst.Validate(string(ruleSchemaJson), string(configurationJson))
 
 				if err != nil {
 					return emptyPolicyCheckResult, err
 				}
 
-				if len(result.Errors()) > 0 {
-					configurationData := cliClient.Configuration{Name: name, Kind: kind, Occurrences: len(result.Errors())}
-
-					if fileData, ok := failedDict[filesConfiguration.FileName]; ok {
-						if ruleData, ok := fileData[rulesSchema.RuleIdentifier]; ok {
-							ruleData.Configurations = append(ruleData.Configurations, configurationData)
-							failedDict[filesConfiguration.FileName][rulesSchema.RuleIdentifier] = ruleData
-						} else {
-							failedDict[filesConfiguration.FileName][rulesSchema.RuleIdentifier] = cliClient.FailedRule{Name: rulesSchema.RuleName, MessageOnFailure: rulesSchema.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}
-						}
-					} else {
-						failedDict[filesConfiguration.FileName] = map[string]cliClient.FailedRule{rulesSchema.RuleIdentifier: cliClient.FailedRule{Name: rulesSchema.RuleName, MessageOnFailure: rulesSchema.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
-					}
-				}
+				failedRulesByFiles = calculateFailedRulesByFiles(validationResult, filesConfiguration.FileName, ruleSchema, configurationName, configurationKind)
 			}
 		}
 
 	}
 
 	formattedResults := FormattedResults{}
-	formattedResults.EvaluationResults = e.formatEvaluationResults(failedDict, len(dataForEvaluation.FilesConfigurations))
+	formattedResults.EvaluationResults = e.formatEvaluationResults(failedRulesByFiles, len(policyCheckData.FilesConfigurations))
 
-	if !dataForEvaluation.IsInteractiveMode {
-		formattedResults.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(formattedResults.EvaluationResults, failedDict, dataForEvaluation.PolicyName, rulesCount)
+	if !policyCheckData.IsInteractiveMode {
+		formattedResults.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(formattedResults.EvaluationResults, failedRulesByFiles, policyCheckData.PolicyName, rulesCount)
 	}
 
-	return PolicyCheckResultData{formattedResults, rulesData, filesData, failedDict, rulesCount}, nil
+	return PolicyCheckResultData{formattedResults, rulesData, filesData, failedRulesByFiles, rulesCount}, nil
 }
 
 // This method creates a NonInteractiveEvaluationResults structure
@@ -260,4 +247,35 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults map[string]map[str
 	}
 
 	return results
+}
+
+func extractConfigurationInfo(configuration extractor.Configuration) (string, string) {
+	kind := configuration["kind"].(string)
+	metadata := configuration["metadata"]
+	name := metadata.(map[string]interface{})["name"].(string)
+
+	return name, kind
+}
+
+type Result = gojsonschema.Result
+
+func calculateFailedRulesByFiles(validationResult *Result, fileName string, ruleSchema policy_factory.RuleSchema, configurationName string, configurationKind string) map[string]map[string]cliClient.FailedRule {
+	failedRulesByFiles := make(map[string]map[string]cliClient.FailedRule)
+
+	if len(validationResult.Errors()) > 0 {
+		configurationData := cliClient.Configuration{Name: configurationName, Kind: configurationKind, Occurrences: len(validationResult.Errors())}
+
+		if fileData, ok := failedRulesByFiles[fileName]; ok {
+			if ruleData, ok := fileData[ruleSchema.RuleIdentifier]; ok {
+				ruleData.Configurations = append(ruleData.Configurations, configurationData)
+				failedRulesByFiles[fileName][ruleSchema.RuleIdentifier] = ruleData
+			} else {
+				failedRulesByFiles[fileName][ruleSchema.RuleIdentifier] = cliClient.FailedRule{Name: ruleSchema.RuleName, MessageOnFailure: ruleSchema.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}
+			}
+		} else {
+			failedRulesByFiles[fileName] = map[string]cliClient.FailedRule{ruleSchema.RuleIdentifier: cliClient.FailedRule{Name: ruleSchema.RuleName, MessageOnFailure: ruleSchema.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
+		}
+	}
+
+	return failedRulesByFiles
 }

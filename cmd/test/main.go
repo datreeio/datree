@@ -27,8 +27,8 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(dataForEvaluation evaluation.DataForPolicyCheck) (evaluation.PolicyCheckResultData, error)
-	SendLocalEvaluationResult(localEvaluationRequestData evaluation.LocalEvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error)
+	Evaluate(dataForEvaluation evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error)
+	SendEvaluationResult(evaluationRequestData evaluation.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error)
 }
 
 type Messager interface {
@@ -105,7 +105,7 @@ type LocalConfig interface {
 var ViolationsFoundError = errors.New("")
 
 type CliClient interface {
-	RequestPrerunDataForEvaluation(token string) (*cliClient.PrerunDataForEvaluationResponse, int, error)
+	RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error)
 }
 
 type TestCommandData struct {
@@ -145,8 +145,6 @@ func SetSilentMode(cmd *cobra.Command) {
 	cmd.SilenceUsage = true
 	cmd.SilenceErrors = true
 }
-
-const notFoundStatusCode = 404
 
 func New(ctx *TestCommandContext) *cobra.Command {
 	testCommandFlags := NewTestCommandFlags()
@@ -197,11 +195,9 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			prerunDataForEvaluation, statusCode, err := ctx.CliClient.RequestPrerunDataForEvaluation(localConfigContent.CliId)
+			prerunDataForEvaluation, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.CliId)
 
-			// getting prerun data can return 404 if user has a valid token but he didn't sign up yet - suppose to be ok
-			// getting prerun data can return 400 if user has invalid token - we suppose to return an error
-			if err != nil && statusCode != notFoundStatusCode {
+			if err != nil {
 				return err
 			}
 
@@ -237,7 +233,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 }
 
-func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.ConfigContent, prerunDataForEvaluation *cliClient.PrerunDataForEvaluationResponse) (*TestCommandData, error) {
+func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.ConfigContent, prerunDataForEvaluation *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
 	k8sVersion := testCommandFlags.K8sVersion
 	if k8sVersion == "" {
 		k8sVersion = localConfigContent.SchemaVersion
@@ -412,7 +408,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	policyName := prerunData.Policy.Name
 
-	dataForEvaluation := evaluation.DataForPolicyCheck{
+	dataForEvaluation := evaluation.PolicyCheckData{
 		FilesConfigurations: validationManager.ValidK8sFilesConfigurations(),
 		IsInteractiveMode:   isInteractiveMode,
 		PolicyName:          policyName,
@@ -442,7 +438,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	ciContext := ciContext.Extract()
 
-	localEvaluationRequestData := evaluation.LocalEvaluationRequestData{
+	evaluationRequestData := evaluation.EvaluationRequestData{
 		CliId:              prerunData.Token,
 		CliVersion:         ctx.CliVersion,
 		K8sVersion:         prerunData.K8sVersion,
@@ -455,7 +451,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		PolicyCheckResults: policyCheckResultData.RawResults,
 	}
 
-	sendEvaluationResultsResponse, err := ctx.Evaluator.SendLocalEvaluationResult(localEvaluationRequestData)
+	sendEvaluationResultsResponse, err := ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
 	if err != nil {
 		return emptyEvaluationResultData, err
 	}

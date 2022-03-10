@@ -24,19 +24,19 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(dataForEvaluation evaluation.DataForPolicyCheck) (evaluation.PolicyCheckResultData, error) {
+func (m *mockEvaluator) Evaluate(dataForEvaluation evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error) {
 	args := m.Called(dataForEvaluation)
 	return args.Get(0).(evaluation.PolicyCheckResultData), args.Error(1)
 }
 
-func (m *mockEvaluator) SendLocalEvaluationResult(localEvaluationRequestData evaluation.LocalEvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
-	args := m.Called(localEvaluationRequestData)
+func (m *mockEvaluator) SendEvaluationResult(evaluationRequestData evaluation.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
+	args := m.Called(evaluationRequestData)
 	return args.Get(0).(*cliClient.SendEvaluationResultsResponse), args.Error(1)
 }
 
-func (m *mockEvaluator) RequestPrerunDataForEvaluation(token string) (*cliClient.PrerunDataForEvaluationResponse, int, error) {
+func (m *mockEvaluator) RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, int, error) {
 	args := m.Called(token)
-	return args.Get(0).(*cliClient.PrerunDataForEvaluationResponse), args.Get(1).(int), args.Error(2)
+	return args.Get(0).(*cliClient.EvaluationPrerunDataResponse), args.Get(1).(int), args.Error(2)
 }
 
 type mockMessager struct {
@@ -154,8 +154,8 @@ func TestTestCommand(t *testing.T) {
 
 	mockedEvaluator := &mockEvaluator{}
 	mockedEvaluator.On("Evaluate", mock.Anything).Return(policyCheckResultData, nil)
-	mockedEvaluator.On("SendLocalEvaluationResult", mock.Anything).Return(sendEvaluationResultsResponse, nil)
-	mockedEvaluator.On("RequestPrerunDataForEvaluation", mock.Anything).Return(prerunData, nil)
+	mockedEvaluator.On("SendEvaluationResult", mock.Anything).Return(sendEvaluationResultsResponse, nil)
+	mockedEvaluator.On("RequestEvaluationPrerunData", mock.Anything).Return(prerunData, nil)
 
 	messager := &mockMessager{}
 	messager.On("LoadVersionMessages", mock.Anything)
@@ -262,7 +262,7 @@ func test_testCommand_version_flags_validation(t *testing.T, ctx *TestCommandCon
 func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: policy, Token: "134kh"})
 
-	dataForEvaluation := evaluation.DataForPolicyCheck{
+	dataForEvaluation := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   true,
 		PolicyName:          policy.Name,
@@ -276,7 +276,7 @@ func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValida
 func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "json"})
 
-	dataForEvaluation := evaluation.DataForPolicyCheck{
+	dataForEvaluation := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   true,
 		PolicyName:          policy.Name,
@@ -290,7 +290,7 @@ func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, k8sVal
 func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "yaml"})
 
-	dataForEvaluation := evaluation.DataForPolicyCheck{
+	dataForEvaluation := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   true,
 		PolicyName:          policy.Name,
@@ -304,7 +304,7 @@ func test_testCommand_yaml_output(t *testing.T, evaluator *mockEvaluator, k8sVal
 func test_testCommand_xml_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "xml"})
 
-	dataForEvaluation := evaluation.DataForPolicyCheck{
+	dataForEvaluation := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   true,
 		PolicyName:          policy.Name,
@@ -380,7 +380,7 @@ func newErrorsChan() chan error {
 	return invalidFilesChan
 }
 
-func mockGetPreRunData() *cliClient.PrerunDataForEvaluationResponse {
+func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	os.Chdir("../../")
 	const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
 
@@ -393,7 +393,7 @@ func mockGetPreRunData() *cliClient.PrerunDataForEvaluationResponse {
 
 	policiesJsonRawData := []byte(policiesJsonStr)
 
-	var policiesJson *cliClient.PrerunDataForEvaluationResponse
+	var policiesJson *cliClient.EvaluationPrerunDataResponse
 	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
 
 	if err != nil {

@@ -19,7 +19,7 @@ type RuleSchema struct {
 	MessageOnFailure string
 }
 
-func CreatePolicy(policies *cliClient.PrerunPoliciesForEvaluation, policyName string) (Policy, error) {
+func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName string) (Policy, error) {
 	defaultRules, err := internal_policy.GetDefaultRules()
 
 	if err != nil {

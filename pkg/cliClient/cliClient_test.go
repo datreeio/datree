@@ -38,7 +38,7 @@ func (c *mockHTTPClient) name() {
 
 }
 
-type RequestPrerunDataForEvaluationTestCase struct {
+type RequestEvaluationPrerunDataTestCase struct {
 	name string
 	args struct {
 		token string
@@ -46,7 +46,7 @@ type RequestPrerunDataForEvaluationTestCase struct {
 	mock struct {
 		response struct {
 			status int
-			body   *PrerunDataForEvaluationResponse
+			body   *EvaluationPrerunDataResponse
 			error  error
 		}
 	}
@@ -58,14 +58,14 @@ type RequestPrerunDataForEvaluationTestCase struct {
 			headers map[string]string
 		}
 		responseErr error
-		response    *PrerunDataForEvaluationResponse
+		response    *EvaluationPrerunDataResponse
 	}
 }
 
-type SendLocalEvaluationResultTestCase struct {
+type SendEvaluationResultTestCase struct {
 	name string
 	args struct {
-		localEvaluationRequestData *LocalEvaluationResultRequest
+		evaluationRequestData *EvaluationResultRequest
 	}
 	mock struct {
 		response struct {
@@ -130,9 +130,9 @@ type PublishPoliciesTestCase struct {
 	}
 }
 
-func TestRequestPrerunDataForEvaluationSuccess(t *testing.T) {
-	tests := []*RequestPrerunDataForEvaluationTestCase{
-		test_requestPrerunDataForEvaluation_success(),
+func TestRequestEvaluationPrerunDataSuccess(t *testing.T) {
+	tests := []*RequestEvaluationPrerunDataTestCase{
+		test_requestEvaluationPrerunData_success(),
 	}
 
 	httpClientMock := mockHTTPClient{}
@@ -148,7 +148,7 @@ func TestRequestPrerunDataForEvaluationSuccess(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			prerunDataForEvaluation, _, _ := client.RequestPrerunDataForEvaluation(tt.args.token)
+			prerunDataForEvaluation, _ := client.RequestEvaluationPrerunData(tt.args.token)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.response, prerunDataForEvaluation)
@@ -156,9 +156,9 @@ func TestRequestPrerunDataForEvaluationSuccess(t *testing.T) {
 	}
 }
 
-func TestRequestPrerunDataForEvaluationFail(t *testing.T) {
-	tests := []*RequestPrerunDataForEvaluationTestCase{
-		test_requestPrerunDataForEvaluation_error(),
+func TestRequestEvaluationPrerunDataFail(t *testing.T) {
+	tests := []*RequestEvaluationPrerunDataTestCase{
+		test_requestEvaluationPrerunData_error(),
 	}
 
 	httpClientMock := mockHTTPClient{}
@@ -174,7 +174,7 @@ func TestRequestPrerunDataForEvaluationFail(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			_, _, err := client.RequestPrerunDataForEvaluation(tt.args.token)
+			_, err := client.RequestEvaluationPrerunData(tt.args.token)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.responseErr, err)
@@ -182,9 +182,9 @@ func TestRequestPrerunDataForEvaluationFail(t *testing.T) {
 	}
 }
 
-func TestSendLocalEvaluationResult(t *testing.T) {
-	tests := []*SendLocalEvaluationResultTestCase{
-		test_sendLocalEvaluationResult_success(),
+func TestSendEvaluationResult(t *testing.T) {
+	tests := []*SendEvaluationResultTestCase{
+		test_sendEvaluationResult_success(),
 	}
 
 	httpClientMock := mockHTTPClient{}
@@ -200,7 +200,7 @@ func TestSendLocalEvaluationResult(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			sendEvaluationResultsResponse, _ := client.SendLocalEvaluationResult(tt.args.localEvaluationRequestData)
+			sendEvaluationResultsResponse, _ := client.SendEvaluationResult(tt.args.evaluationRequestData)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.response, sendEvaluationResultsResponse)
@@ -342,7 +342,7 @@ func test_getVersionMessage_success() *GetVersionMessageTestCase {
 	}
 }
 
-func mockGetPreRunData() *PrerunDataForEvaluationResponse {
+func mockGetPreRunData() *EvaluationPrerunDataResponse {
 	err := os.Chdir("../../")
 
 	const policiesJsonPath = "internal/fixtures/policyAsCode/policies.json"
@@ -356,7 +356,7 @@ func mockGetPreRunData() *PrerunDataForEvaluationResponse {
 
 	policiesJsonRawData := []byte(policiesJsonStr)
 
-	var policiesJson *PrerunDataForEvaluationResponse
+	var policiesJson *EvaluationPrerunDataResponse
 	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
 
 	if err != nil {
@@ -365,10 +365,10 @@ func mockGetPreRunData() *PrerunDataForEvaluationResponse {
 	return policiesJson
 }
 
-func test_requestPrerunDataForEvaluation_success() *RequestPrerunDataForEvaluationTestCase {
+func test_requestEvaluationPrerunData_success() *RequestEvaluationPrerunDataTestCase {
 	preRunData := mockGetPreRunData()
 
-	return &RequestPrerunDataForEvaluationTestCase{
+	return &RequestEvaluationPrerunDataTestCase{
 		name: "success - get prerun data for evaluation",
 		args: struct {
 			token string
@@ -378,13 +378,13 @@ func test_requestPrerunDataForEvaluation_success() *RequestPrerunDataForEvaluati
 		mock: struct {
 			response struct {
 				status int
-				body   *PrerunDataForEvaluationResponse
+				body   *EvaluationPrerunDataResponse
 				error  error
 			}
 		}{
 			response: struct {
 				status int
-				body   *PrerunDataForEvaluationResponse
+				body   *EvaluationPrerunDataResponse
 				error  error
 			}{
 				status: http.StatusOK,
@@ -399,7 +399,7 @@ func test_requestPrerunDataForEvaluation_success() *RequestPrerunDataForEvaluati
 				headers map[string]string
 			}
 			responseErr error
-			response    *PrerunDataForEvaluationResponse
+			response    *EvaluationPrerunDataResponse
 		}{
 			request: struct {
 				method  string
@@ -417,10 +417,10 @@ func test_requestPrerunDataForEvaluation_success() *RequestPrerunDataForEvaluati
 	}
 }
 
-func test_requestPrerunDataForEvaluation_error() *RequestPrerunDataForEvaluationTestCase {
+func test_requestEvaluationPrerunData_error() *RequestEvaluationPrerunDataTestCase {
 	preRunData := mockGetPreRunData()
 
-	return &RequestPrerunDataForEvaluationTestCase{
+	return &RequestEvaluationPrerunDataTestCase{
 		name: "success - get prerun data for evaluation",
 		args: struct {
 			token string
@@ -430,13 +430,13 @@ func test_requestPrerunDataForEvaluation_error() *RequestPrerunDataForEvaluation
 		mock: struct {
 			response struct {
 				status int
-				body   *PrerunDataForEvaluationResponse
+				body   *EvaluationPrerunDataResponse
 				error  error
 			}
 		}{
 			response: struct {
 				status int
-				body   *PrerunDataForEvaluationResponse
+				body   *EvaluationPrerunDataResponse
 				error  error
 			}{
 				status: http.StatusOK,
@@ -452,7 +452,7 @@ func test_requestPrerunDataForEvaluation_error() *RequestPrerunDataForEvaluation
 				headers map[string]string
 			}
 			responseErr error
-			response    *PrerunDataForEvaluationResponse
+			response    *EvaluationPrerunDataResponse
 		}{
 			request: struct {
 				method  string
@@ -471,8 +471,8 @@ func test_requestPrerunDataForEvaluation_error() *RequestPrerunDataForEvaluation
 	}
 }
 
-func test_sendLocalEvaluationResult_success() *SendLocalEvaluationResultTestCase {
-	body := &LocalEvaluationResultRequest{
+func test_sendEvaluationResult_success() *SendEvaluationResultTestCase {
+	body := &EvaluationResultRequest{
 		ClientId: "internal_cliId_test",
 		Token:    "internal_cliId_test",
 		Metadata: &Metadata{
@@ -496,12 +496,12 @@ func test_sendLocalEvaluationResult_success() *SendLocalEvaluationResultTestCase
 		AllEvaluatedFiles:  []FileData{},
 		PolicyCheckResults: nil,
 	}
-	return &SendLocalEvaluationResultTestCase{
+	return &SendEvaluationResultTestCase{
 		name: "success - send local evaluation result to server",
 		args: struct {
-			localEvaluationRequestData *LocalEvaluationResultRequest
+			evaluationRequestData *EvaluationResultRequest
 		}{
-			localEvaluationRequestData: body,
+			evaluationRequestData: body,
 		},
 		mock: struct {
 			response struct {

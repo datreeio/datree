@@ -71,7 +71,7 @@ func TestCreatePolicy(t *testing.T) {
 	})
 }
 
-func mockGetPreRunData() *cliClient.PrerunDataForEvaluationResponse {
+func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 	fileReader := fileReader.CreateFileReader(nil)
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
 
@@ -81,7 +81,7 @@ func mockGetPreRunData() *cliClient.PrerunDataForEvaluationResponse {
 
 	policiesJsonRawData := []byte(policiesJsonStr)
 
-	var policiesJson *cliClient.PrerunDataForEvaluationResponse
+	var policiesJson *cliClient.EvaluationPrerunDataResponse
 	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
 
 	if err != nil {
