@@ -436,7 +436,7 @@ func test_requestEvaluationPrerunData_error() *RequestEvaluationPrerunDataTestCa
 				body   *EvaluationPrerunDataResponse
 				error  error
 			}{
-				status: http.StatusOK,
+				status: http.StatusBadRequest,
 				body:   preRunData,
 				error:  errors.New("error from cli-service"),
 			},

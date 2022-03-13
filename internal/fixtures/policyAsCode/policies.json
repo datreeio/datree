@@ -54,5 +54,6 @@
         ]
       }
     ]
-  }
+  },
+  "accountExists": true
 }
