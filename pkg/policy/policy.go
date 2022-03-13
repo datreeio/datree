@@ -1,11 +1,13 @@
 package policy
 
 import (
-	"github.com/datreeio/datree/pkg/fileReader"
+	"embed"
+
 	"gopkg.in/yaml.v3"
 )
 
-const defaultRulesYamlPath = "./pkg/policy/defaultRules.yaml"
+//go:embed defaultRules.yaml
+var f embed.FS
 
 type DefaultRulesDefinitions struct {
 	ApiVersion string                   `yaml:"apiVersion"`
@@ -24,13 +26,13 @@ type DefaultRuleDefinition struct {
 }
 
 func GetDefaultRules() (*DefaultRulesDefinitions, error) {
-	fileReader := fileReader.CreateFileReader(nil)
-	defaultRulesYaml, err := fileReader.ReadFileContent(defaultRulesYamlPath)
+	defaultRulesYaml, err := f.ReadFile("defaultRules.yaml")
+
 	if err != nil {
 		return nil, err
 	}
 
-	defaultRulesDefinitions, err := yamlToStruct(defaultRulesYaml)
+	defaultRulesDefinitions, err := yamlToStruct(string(defaultRulesYaml))
 	return defaultRulesDefinitions, err
 }
 
