@@ -63,10 +63,8 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 			return Policy{}, err
 		}
 	} else {
-		for _, defaultRule := range defaultRules.Rules {
-			rules = append(rules, RuleWithSchema{defaultRule.UniqueName, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
-		}
-		policyName = "Default"
+		policy := createDefaultPolicy(defaultRules)
+		return policy, nil
 	}
 
 	return Policy{policyName, rules}, nil
@@ -103,4 +101,15 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 	}
 
 	return rules, nil
+}
+
+func createDefaultPolicy(defaultRules *internal_policy.DefaultRulesDefinitions) Policy {
+	var rules []RuleWithSchema
+
+	for _, defaultRule := range defaultRules.Rules {
+		rules = append(rules, RuleWithSchema{defaultRule.UniqueName, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
+	}
+
+	return Policy{"Default", rules}
+
 }

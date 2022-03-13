@@ -101,8 +101,6 @@ const badRequestStatusCode = 400
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
 
-	// getting prerun data can return 400 if user has invalid token - we suppose to return an error
-	// if any other error occurred - return error
 	if err != nil && res.StatusCode >= badRequestStatusCode {
 		return &EvaluationPrerunDataResponse{}, err
 	}
