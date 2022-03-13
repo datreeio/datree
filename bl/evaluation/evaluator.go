@@ -31,6 +31,7 @@ func New(c CLIClient) *Evaluator {
 }
 
 type FileNameRuleMapper map[string]map[string]*Rule
+type FailedRulesByFiles map[string]map[string]cliClient.FailedRule
 
 type EvaluationResults struct {
 	FileNameRuleMapper FileNameRuleMapper
@@ -56,7 +57,7 @@ type EvaluationRequestData struct {
 	FilesData          []cliClient.FileData
 	FailedYamlFiles    []string
 	FailedK8sFiles     []string
-	PolicyCheckResults map[string]map[string]cliClient.FailedRule
+	PolicyCheckResults FailedRulesByFiles
 }
 
 func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
@@ -93,21 +94,21 @@ type PolicyCheckResultData struct {
 	FormattedResults FormattedResults
 	RulesData        []cliClient.RuleData
 	FilesData        []cliClient.FileData
-	RawResults       map[string]map[string]cliClient.FailedRule
+	RawResults       FailedRulesByFiles
 	RulesCount       int
 }
 
 func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResultData, error) {
 
 	if len(policyCheckData.FilesConfigurations) == 0 {
-		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, map[string]map[string]cliClient.FailedRule{}, 0}, nil
+		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, FailedRulesByFiles{}, 0}, nil
 	}
 
 	yamlSchemaValidator := yamlSchemaValidator.New()
 	rulesCount := len(policyCheckData.Policy.Rules)
 
 	// map of files paths to map of rules to failed rule data
-	failedRulesByFiles := make(map[string]map[string]cliClient.FailedRule)
+	failedRulesByFiles := make(FailedRulesByFiles)
 
 	rulesData := []cliClient.RuleData{}
 	var filesData []cliClient.FileData
@@ -157,7 +158,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 
 // This method creates a NonInteractiveEvaluationResults structure
 // from EvaluationResults.
-func (e *Evaluator) formatNonInteractiveEvaluationResults(formattedEvaluationResults *EvaluationResults, evaluationResults map[string]map[string]cliClient.FailedRule, policyName string, totalRulesInPolicy int) *NonInteractiveEvaluationResults {
+func (e *Evaluator) formatNonInteractiveEvaluationResults(formattedEvaluationResults *EvaluationResults, evaluationResults FailedRulesByFiles, policyName string, totalRulesInPolicy int) *NonInteractiveEvaluationResults {
 	fileNameRuleMapper := formattedEvaluationResults.FileNameRuleMapper
 	ruleMapper := make(map[string]string)
 
@@ -195,7 +196,7 @@ func (e *Evaluator) formatNonInteractiveEvaluationResults(formattedEvaluationRes
 	return &nonInteractiveEvaluationResults
 }
 
-func (e *Evaluator) formatEvaluationResults(evaluationResults map[string]map[string]cliClient.FailedRule, filesCount int) *EvaluationResults {
+func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles, filesCount int) *EvaluationResults {
 	mapper := make(map[string]map[string]*Rule)
 
 	totalFailedCount := 0
@@ -254,7 +255,7 @@ func extractConfigurationInfo(configuration extractor.Configuration) (string, st
 
 type Result = gojsonschema.Result
 
-func calculateFailedRulesByFiles(currentFailedRulesByFiles map[string]map[string]cliClient.FailedRule, validationResult *Result, fileName string, rule policy_factory.RuleWithSchema, configurationName string, configurationKind string) map[string]map[string]cliClient.FailedRule {
+func calculateFailedRulesByFiles(currentFailedRulesByFiles FailedRulesByFiles, validationResult *Result, fileName string, rule policy_factory.RuleWithSchema, configurationName string, configurationKind string) map[string]map[string]cliClient.FailedRule {
 
 	if len(validationResult.Errors()) > 0 {
 		configurationData := cliClient.Configuration{Name: configurationName, Kind: configurationKind, Occurrences: len(validationResult.Errors())}
