@@ -210,7 +210,7 @@ func GetWarningExtraMessages(invalidFile *extractor.InvalidFile) []printer.Extra
 		})
 	} else if IsKustomizationFile(invalidFile.Path) {
 		extraMessages = append(extraMessages, printer.ExtraMessage{
-			Text:  "It seems you're trying to test a Kustomize file, Please try using `datree kustomize test`",
+			Text:  "It seems you're trying to test a Kustomize file, Please try using `datree kustomize test` instead. For more information, check out the docs:\nhttps://hub.datree.io/kustomize-support",
 			Color: "cyan",
 		})
 	}
