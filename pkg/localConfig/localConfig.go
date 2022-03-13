@@ -83,9 +83,9 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 }
 
 func (lc *LocalConfigClient) Set(key string, value string) error {
-	_, _, _, err := setViperConfig()
-	if err != nil {
-		return err
+	initConfigFileErr := InitLocalConfigFile()
+	if initConfigFileErr != nil {
+		return initConfigFileErr
 	}
 
 	viper.Set(key, value)
