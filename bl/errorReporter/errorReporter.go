@@ -4,23 +4,11 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	"github.com/datreeio/datree/pkg/printer"
-
 	"github.com/datreeio/datree/cmd"
 	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/localConfig"
 )
 
-func ReportCliPanicError(panicErr interface{}) {
-	reporter := NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfigClient(&cliClient.CliClient{}), printer.CreateNewPrinter())
-	reporter.ReportCliError(panicErr, "/report-cli-panic-error")
-}
-
-func ReportCliUnexpectedError(unexpectedError error) {
-	reporter := NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfigClient(&cliClient.CliClient{}), printer.CreateNewPrinter())
-	reporter.ReportCliError(unexpectedError, "/report-cli-unexpected-error")
-}
 
 type LocalConfig interface {
 	GetLocalConfiguration() (*localConfig.LocalConfig, error)
@@ -46,6 +34,14 @@ func NewErrorReporter(client CliClient, localConfig LocalConfig, printer Printer
 		config:  localConfig,
 		printer: printer,
 	}
+}
+
+func (reporter *ErrorReporter) ReportCliPanicError(panicErr interface{}) {
+	reporter.ReportCliError(panicErr, "/report-cli-panic-error")
+}
+
+func (reporter *ErrorReporter) ReportCliUnexpectedError(unexpectedError error) {
+	reporter.ReportCliError(unexpectedError, "/report-cli-unexpected-error")
 }
 
 func (reporter *ErrorReporter) ReportCliError(panicErr interface{}, uri string) {
