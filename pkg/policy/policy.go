@@ -8,8 +8,8 @@ import (
 const defaultRulesYamlPath = "./pkg/policy/defaultRules.yaml"
 
 type DefaultRulesDefinitions struct {
-	ApiVersion string                  `yaml:"apiVersion"`
-	Rules      []DefaultRuleDefinition `yaml:"rules"`
+	ApiVersion string                   `yaml:"apiVersion"`
+	Rules      []*DefaultRuleDefinition `yaml:"rules"`
 }
 
 type DefaultRuleDefinition struct {

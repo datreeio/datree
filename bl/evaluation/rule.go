@@ -1,9 +1,9 @@
 package evaluation
 
 type Rule struct {
-	ID                 int
+	Identifier         string
 	Name               string
-	FailSuggestion     string
+	MessageOnFailure   string
 	OccurrencesDetails []OccurrenceDetails
 }
 

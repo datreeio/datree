@@ -6,7 +6,6 @@ import (
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/cmd/test"
-	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/executor"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -61,24 +60,19 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(filesConfigurationsChan []*extractor.FileConfigurations, evaluationResponse *cliClient.CreateEvaluationResponse, isInteractiveMode bool) (evaluation.ResultType, error) {
-	args := m.Called(filesConfigurationsChan, evaluationResponse, isInteractiveMode)
-	return args.Get(0).(evaluation.ResultType), args.Error(1)
+func (m *mockEvaluator) Evaluate(policyCheckData evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error) {
+	args := m.Called(policyCheckData)
+	return args.Get(0).(evaluation.PolicyCheckResultData), args.Error(1)
 }
 
-func (m *mockEvaluator) CreateEvaluation(cliId string, cliVersion string, k8sVersion string, policyName string, ciContext *ciContext.CIContext) (*cliClient.CreateEvaluationResponse, error) {
-	args := m.Called(cliId, cliVersion, k8sVersion, policyName)
-	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
+func (m *mockEvaluator) SendEvaluationResult(evaluationRequestData evaluation.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
+	args := m.Called(evaluationRequestData)
+	return args.Get(0).(*cliClient.SendEvaluationResultsResponse), args.Error(1)
 }
 
-func (m *mockEvaluator) UpdateFailedYamlValidation(invalidYamlFiles []*extractor.InvalidFile, evaluationId int, stopEvaluation bool) error {
-	args := m.Called(invalidYamlFiles, evaluationId, stopEvaluation)
-	return args.Error(0)
-}
-
-func (m *mockEvaluator) UpdateFailedK8sValidation(invalidK8sFiles []*extractor.InvalidFile, evaluationId int, stopEvaluation bool) error {
-	args := m.Called(invalidK8sFiles, evaluationId, stopEvaluation)
-	return args.Error(0)
+func (m *mockEvaluator) RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, int, error) {
+	args := m.Called(token)
+	return args.Get(0).(*cliClient.EvaluationPrerunDataResponse), args.Get(1).(int), args.Error(2)
 }
 
 type mockMessager struct {

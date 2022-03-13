@@ -1,8 +1,12 @@
 package evaluation
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"testing"
+
+	policy_factory "github.com/datreeio/datree/bl/policy"
+	"github.com/datreeio/datree/pkg/fileReader"
 
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -15,24 +19,14 @@ type mockCliClient struct {
 	mock.Mock
 }
 
-func (m *mockCliClient) CreateEvaluation(createEvaluationRequest *cliClient.CreateEvaluationRequest) (*cliClient.CreateEvaluationResponse, error) {
-	args := m.Called(createEvaluationRequest)
-	return args.Get(0).(*cliClient.CreateEvaluationResponse), args.Error(1)
+func (m *mockCliClient) RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error) {
+	args := m.Called(token)
+	return args.Get(0).(*cliClient.EvaluationPrerunDataResponse), args.Error(1)
 }
 
-func (m *mockCliClient) RequestEvaluation(evaluationRequest *cliClient.EvaluationRequest) (*cliClient.EvaluationResponse, error) {
-	args := m.Called(evaluationRequest)
-	return args.Get(0).(*cliClient.EvaluationResponse), args.Error(1)
-}
-
-func (m *mockCliClient) SendFailedYamlValidation(request *cliClient.UpdateEvaluationValidationRequest) error {
-	args := m.Called(request)
-	return args.Error(0)
-}
-
-func (m *mockCliClient) SendFailedK8sValidation(request *cliClient.UpdateEvaluationValidationRequest) error {
-	args := m.Called(request)
-	return args.Error(0)
+func (m *mockCliClient) SendEvaluationResult(evaluationResultRequest *cliClient.EvaluationResultRequest) (*cliClient.SendEvaluationResultsResponse, error) {
+	args := m.Called(evaluationResultRequest)
+	return args.Get(0).(*cliClient.SendEvaluationResultsResponse), args.Error(1)
 }
 
 func (m *mockCliClient) GetVersionMessage(cliVersion string, timeout int) (*cliClient.VersionMessage, error) {
@@ -41,18 +35,6 @@ func (m *mockCliClient) GetVersionMessage(cliVersion string, timeout int) (*cliC
 }
 
 type cliClientMockTestCase struct {
-	createEvaluation struct {
-		evaluationId int
-		k8sVersion   string
-		err          error
-	}
-	requestEvaluation struct {
-		response *cliClient.EvaluationResponse
-		err      error
-	}
-	updateEvaluationValidation struct {
-		err error
-	}
 	getVersionMessage struct {
 		response *cliClient.VersionMessage
 		err      error
@@ -63,8 +45,8 @@ type evaluatorMock struct {
 }
 
 // TODO: add actual tests
-func TestCreateEvaluation(t *testing.T) {
-	t.Run("CreateEvaluation should succedd", func(t *testing.T) {
+func TestSendEvaluationResult(t *testing.T) {
+	t.Run("SendEvaluationResult should succeed", func(t *testing.T) {
 		mockedCliClient := &mockCliClient{}
 		evaluator := &Evaluator{
 			cliClient: mockedCliClient,
@@ -78,6 +60,7 @@ func TestCreateEvaluation(t *testing.T) {
 		cliId := "test_token"
 		cliVersion := "0.0.7"
 		k8sVersion := "1.18.1"
+		promptMessage := ""
 		policyName := "Default"
 		ciContext := &ciContext.CIContext{
 			IsCI: true,
@@ -87,23 +70,45 @@ func TestCreateEvaluation(t *testing.T) {
 			},
 		}
 
-		mockedCliClient.On("CreateEvaluation", mock.Anything).Return(&cliClient.CreateEvaluationResponse{EvaluationId: 1, K8sVersion: k8sVersion}, nil)
+		mockedCliClient.On("SendEvaluationResult", mock.Anything).Return(&cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}, nil)
 
-		expectedCreateEvaluationResponse := &cliClient.CreateEvaluationResponse{EvaluationId: 1, K8sVersion: k8sVersion}
-		createEvaluationResponse, _ := evaluator.CreateEvaluation(cliId, cliVersion, k8sVersion, policyName, ciContext)
-		mockedCliClient.AssertCalled(t, "CreateEvaluation", &cliClient.CreateEvaluationRequest{
-			K8sVersion: &k8sVersion,
-			CliId:      cliId,
-			PolicyName: policyName,
+		expectedSendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}
+
+		evaluationRequestData := EvaluationRequestData{
+			CliId:              cliId,
+			CliVersion:         cliVersion,
+			K8sVersion:         k8sVersion,
+			PolicyName:         policyName,
+			CiContext:          ciContext,
+			RulesData:          []cliClient.RuleData{},
+			FilesData:          []cliClient.FileData{},
+			FailedYamlFiles:    []string{},
+			FailedK8sFiles:     []string{},
+			PolicyCheckResults: nil,
+		}
+
+		sendEvaluationResultsResponse, _ := evaluator.SendEvaluationResult(evaluationRequestData)
+
+		sendEvaluationResultRequestData := &cliClient.EvaluationResultRequest{
+			K8sVersion: evaluationRequestData.K8sVersion,
+			ClientId:   evaluationRequestData.CliId,
+			Token:      evaluationRequestData.CliId,
+			PolicyName: evaluationRequestData.PolicyName,
 			Metadata: &cliClient.Metadata{
-				CliVersion:      cliVersion,
+				CliVersion:      evaluationRequestData.CliVersion,
 				Os:              evaluator.osInfo.OS,
 				PlatformVersion: evaluator.osInfo.PlatformVersion,
 				KernelVersion:   evaluator.osInfo.KernelVersion,
-				CIContext:       ciContext,
+				CIContext:       evaluationRequestData.CiContext,
 			},
-		})
-		assert.Equal(t, expectedCreateEvaluationResponse, createEvaluationResponse)
+			FailedYamlFiles:    evaluationRequestData.FailedYamlFiles,
+			FailedK8sFiles:     evaluationRequestData.FailedK8sFiles,
+			AllExecutedRules:   evaluationRequestData.RulesData,
+			AllEvaluatedFiles:  evaluationRequestData.FilesData,
+			PolicyCheckResults: evaluationRequestData.PolicyCheckResults,
+		}
+		mockedCliClient.AssertCalled(t, "SendEvaluationResult", sendEvaluationResultRequestData)
+		assert.Equal(t, expectedSendEvaluationResultsResponse, sendEvaluationResultsResponse)
 
 	})
 }
@@ -113,45 +118,49 @@ func TestEvaluate(t *testing.T) {
 		request_evaluation_all_valid(),
 		request_evaluation_all_invalid(),
 	}
+
+	prerunData := mockGetPreRunData()
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockedCliClient := &mockCliClient{}
-
-			mockedCliClient.On("RequestEvaluation", mock.Anything).Return(tt.mock.cliClient.requestEvaluation.response, tt.mock.cliClient.requestEvaluation.err)
 
 			evaluator := &Evaluator{
 				cliClient: mockedCliClient,
 				osInfo:    tt.args.osInfo,
 			}
 
-			// TODO: define and check the rest of the values
-			results, _ := evaluator.Evaluate(tt.args.validFilesConfigurations, tt.args.response, tt.args.isInteractiveMode)
+			policyCheckData := PolicyCheckData{
+				FilesConfigurations: tt.args.policyCheckData.FilesConfigurations,
+				IsInteractiveMode:   tt.args.policyCheckData.IsInteractiveMode,
+				PolicyName:          policy.Name,
+				Policy:              policy,
+			}
 
-			if tt.expected.isRequestEvaluationCalled {
-				mockedCliClient.AssertCalled(t, "RequestEvaluation", mock.Anything)
-				assert.Equal(t, tt.expected.response.EvaluationResults.Summary, results.EvaluationResults.Summary)
-				assert.Equal(t, tt.expected.response.EvaluationResults.FileNameRuleMapper, results.EvaluationResults.FileNameRuleMapper)
+			policyCheckResultData, err := evaluator.Evaluate(policyCheckData)
+			if err != nil {
+				panic(err)
+			}
+
+			if len(policyCheckData.FilesConfigurations) > 0 {
+				assert.Equal(t, tt.expected.policyCheckResultData.FormattedResults.EvaluationResults.Summary, policyCheckResultData.FormattedResults.EvaluationResults.Summary)
+				assert.Equal(t, tt.expected.policyCheckResultData.FormattedResults.EvaluationResults.FileNameRuleMapper, policyCheckResultData.FormattedResults.EvaluationResults.FileNameRuleMapper)
 			} else {
-				mockedCliClient.AssertNotCalled(t, "RequestEvaluation")
+				assert.Equal(t, tt.expected.policyCheckResultData.FormattedResults, policyCheckResultData.FormattedResults)
 			}
 		})
 	}
 }
 
 type evaluateArgs struct {
-	validFilesConfigurations []*extractor.FileConfigurations
-	osInfo                   *OSInfo
-	isInteractiveMode        bool
-	rulesCount               int
-	response                 *cliClient.CreateEvaluationResponse
+	policyCheckData PolicyCheckData
+	osInfo          *OSInfo
 }
 
 type evaluateExpected struct {
-	response                  ResultType
-	err                       error
-	isRequestEvaluationCalled bool
-	isCreateEvaluationCalled  bool
-	isGetVersionMessageCalled bool
+	policyCheckResultData PolicyCheckResultData
+	err                   error
 }
 
 type evaluateTestCase struct {
@@ -162,46 +171,28 @@ type evaluateTestCase struct {
 }
 
 func request_evaluation_all_valid() *evaluateTestCase {
-	validFilePath := "../../internal/fixtures/kube/pass-all.yaml"
+	validFilePath := "internal/fixtures/kube/pass-all.yaml"
+
+	prerunData := mockGetPreRunData()
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
 
 	return &evaluateTestCase{
 		name: "should request validation without invalid files",
 		args: &evaluateArgs{
-			validFilesConfigurations: newFilesConfigurations(validFilePath),
-			response: &cliClient.CreateEvaluationResponse{
-				EvaluationId: 1,
-				PolicyName:   "Default",
-				RulesCount:   21,
+			policyCheckData: PolicyCheckData{
+				FilesConfigurations: newFilesConfigurations(validFilePath),
+				IsInteractiveMode:   true,
+				PolicyName:          "Default",
+				Policy:              policy,
 			},
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
 				KernelVersion:   "4.5.6",
 			},
-			isInteractiveMode: true,
 		},
 		mock: &evaluatorMock{
 			cliClient: &cliClientMockTestCase{
-				createEvaluation: struct {
-					evaluationId int
-					k8sVersion   string
-					err          error
-				}{
-					evaluationId: 1,
-					err:          nil,
-				},
-				requestEvaluation: struct {
-					response *cliClient.EvaluationResponse
-					err      error
-				}{
-					response: &cliClient.EvaluationResponse{
-						Results: []*cliClient.EvaluationResult{},
-					},
-					err: nil,
-				},
-				updateEvaluationValidation: struct{ err error }{
-					err: nil,
-				},
 				getVersionMessage: struct {
 					response *cliClient.VersionMessage
 					err      error
@@ -212,65 +203,49 @@ func request_evaluation_all_valid() *evaluateTestCase {
 			},
 		},
 		expected: &evaluateExpected{
-			response: ResultType{
-				EvaluationResults: &EvaluationResults{
-					FileNameRuleMapper: make(map[string]map[int]*Rule),
-					Summary: struct {
-						TotalFailedRules int
-						FilesCount       int
-						TotalPassedCount int
-					}{
-						TotalFailedRules: 0,
-						FilesCount:       1,
-						TotalPassedCount: 1,
+			policyCheckResultData: PolicyCheckResultData{
+				FormattedResults: FormattedResults{
+					EvaluationResults: &EvaluationResults{
+						FileNameRuleMapper: make(map[string]map[string]*Rule),
+						Summary: struct {
+							TotalFailedRules int
+							FilesCount       int
+							TotalPassedCount int
+						}{
+							TotalFailedRules: 0,
+							FilesCount:       1,
+							TotalPassedCount: 1,
+						},
 					},
+					NonInteractiveEvaluationResults: nil,
 				},
 			},
-			err:                       nil,
-			isRequestEvaluationCalled: true,
+			err: nil,
 		},
 	}
 }
 
 func request_evaluation_all_invalid() *evaluateTestCase {
+	prerunData := mockGetPreRunData()
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
+
 	return &evaluateTestCase{
 		name: "should not request validation if there are no valid files",
 		args: &evaluateArgs{
-			validFilesConfigurations: []*extractor.FileConfigurations{},
-			response: &cliClient.CreateEvaluationResponse{
-				EvaluationId: 1,
-				PolicyName:   "Default",
-				RulesCount:   21,
+			policyCheckData: PolicyCheckData{
+				FilesConfigurations: []*extractor.FileConfigurations{},
+				IsInteractiveMode:   true,
+				PolicyName:          "Default",
+				Policy:              policy,
 			},
 			osInfo: &OSInfo{
 				OS:              "darwin",
 				PlatformVersion: "1.2.3",
 				KernelVersion:   "4.5.6",
 			},
-			isInteractiveMode: true,
 		},
 		mock: &evaluatorMock{
 			cliClient: &cliClientMockTestCase{
-				createEvaluation: struct {
-					evaluationId int
-					k8sVersion   string
-					err          error
-				}{
-					evaluationId: 1,
-					err:          nil,
-				},
-				requestEvaluation: struct {
-					response *cliClient.EvaluationResponse
-					err      error
-				}{
-					response: &cliClient.EvaluationResponse{
-						Results: []*cliClient.EvaluationResult{},
-					},
-					err: nil,
-				},
-				updateEvaluationValidation: struct{ err error }{
-					err: nil,
-				},
 				getVersionMessage: struct {
 					response *cliClient.VersionMessage
 					err      error
@@ -281,22 +256,10 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 			},
 		},
 		expected: &evaluateExpected{
-			response: ResultType{
-				EvaluationResults: &EvaluationResults{
-					FileNameRuleMapper: make(map[string]map[int]*Rule),
-					Summary: struct {
-						TotalFailedRules int
-						FilesCount       int
-						TotalPassedCount int
-					}{
-						TotalFailedRules: 0,
-						FilesCount:       1,
-						TotalPassedCount: 0,
-					},
-				},
+			policyCheckResultData: PolicyCheckResultData{
+				FormattedResults: FormattedResults{},
 			},
-			err:                       nil,
-			isRequestEvaluationCalled: false,
+			err: nil,
 		},
 	}
 }
@@ -308,4 +271,26 @@ func newFilesConfigurations(path string) []*extractor.FileConfigurations {
 		FileName: absolutePath,
 	})
 	return filesConfigurations
+}
+
+func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
+	const policiesJsonPath = "../../internal/fixtures/policyAsCode/policies.json"
+
+	fileReader := fileReader.CreateFileReader(nil)
+	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
+
+	if err != nil {
+		panic(err)
+	}
+
+	policiesJsonRawData := []byte(policiesJsonStr)
+
+	var policiesJson *cliClient.EvaluationPrerunDataResponse
+	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return policiesJson
 }

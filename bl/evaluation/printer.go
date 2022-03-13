@@ -21,7 +21,7 @@ type Printer interface {
 	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 }
 
-func PrintResults(results ResultType, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string, policyName string) error {
+func PrintResults(results FormattedResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string, policyName string) error {
 	if outputFormat == "json" || outputFormat == "yaml" || outputFormat == "xml" {
 		nonInteractiveEvaluationResults := results.NonInteractiveEvaluationResults
 		if nonInteractiveEvaluationResults == nil {
@@ -163,18 +163,17 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 			rules := results.FileNameRuleMapper[filename]
 			var failedRules = []printer.FailedRule{}
 
-			rulesIds := []int{}
-			for ruleId := range rules {
-				rulesIds = append(rulesIds, ruleId)
+			rulesUniqueNames := []string{}
+			for rulesUniqueName := range rules {
+				rulesUniqueNames = append(rulesUniqueNames, rulesUniqueName)
 			}
-			sort.Ints(rulesIds)
 
-			for _, ruleId := range rulesIds {
-				rule := rules[ruleId]
+			for _, ruleUniqueName := range rulesUniqueNames {
+				rule := rules[ruleUniqueName]
 				failedRule := printer.FailedRule{
 					Name:               rule.Name,
 					Occurrences:        rule.GetCount(),
-					Suggestion:         rule.FailSuggestion,
+					Suggestion:         rule.MessageOnFailure,
 					OccurrencesDetails: []printer.OccurrenceDetails{},
 				}
 				for _, occurrenceDetails := range rule.OccurrencesDetails {
@@ -304,47 +303,4 @@ func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSumma
 		PlainRows:  plainRows,
 	}
 	return *summary
-}
-
-func (mapper FileNameRuleMapper) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	if len(mapper) == 0 {
-		return nil
-	}
-
-	tokens := []xml.Token{start}
-	fileXMLName := xml.Name{Space: "", Local: "File"}
-	filenameXMLName := xml.Name{Space: "", Local: "filename"}
-
-	// Iterate over mapper and create XML tokens for all entries
-	for filePath, encapsulatedRule := range mapper {
-		keys := make([]int, 0)
-		for i := range encapsulatedRule {
-			keys = append(keys, i)
-		}
-		sort.Ints(keys)
-
-		for _, key := range keys { // Since rule is encapsulated by its id (int), we don't add is a tag
-			rule := encapsulatedRule[key]
-			startToken := xml.StartElement{Name: fileXMLName, Attr: []xml.Attr{{Name: filenameXMLName, Value: filePath}}}
-			endToken := xml.EndElement{Name: fileXMLName}
-			tokens = append(tokens, startToken, rule, endToken)
-		}
-	}
-
-	tokens = append(tokens, xml.EndElement{Name: start.Name})
-
-	for _, t := range tokens {
-		var err error
-		switch t.(type) {
-		default:
-			err = e.EncodeToken(t)
-		case *Rule:
-			err = e.EncodeElement(t, xml.StartElement{Name: xml.Name{Space: "", Local: "Rule"}})
-		}
-		if err != nil {
-			return err
-		}
-	}
-
-	return e.Flush()
 }

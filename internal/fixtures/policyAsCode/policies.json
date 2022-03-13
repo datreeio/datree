@@ -1,0 +1,59 @@
+{
+  "defaultK8sVersion": "1.18.0",
+  "policiesJson": {
+    "apiVersion": "v1",
+    "customRules": [
+      {
+        "identifier": "CUSTOM_WORKLOAD_INVALID_LABELS_VALUE",
+        "name": "Ensure workload has valid label values [CUSTOM RULE]",
+        "defaultMessageOnFailure": "All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)",
+        "schema": {
+          "properties": {
+            "metadata": {
+              "properties": {
+                "labels": {
+                  "additionalProperties": false,
+                  "patternProperties": {
+                    "^.*$": {
+                      "format": "hostname"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ],
+    "policies": [
+      {
+        "name": "labels_best_practices",
+        "isDefault": true,
+        "rules": [
+          {
+            "identifier": "WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT",
+            "messageOnFailure": "Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)"
+          },
+          {
+            "identifier": "CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE",
+            "messageOnFailure": "Incorrect value for key `privileged` - this mode will allow the container thenhjgjgj same access as processes running on the host"
+          },
+          {
+            "identifier": "CUSTOM_WORKLOAD_INVALID_LABELS_VALUE",
+            "messageOnFailure": "All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)"
+          }
+        ]
+      },
+      {
+        "name": "labels_best_practices2",
+        "rules": [
+          {
+            "identifier": "CUSTOM_WORKLOAD_INVALID_LABELS_VALUE",
+            "messageOnFailure": "All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)"
+          }
+        ]
+      }
+    ]
+  },
+  "accountExists": true
+}
