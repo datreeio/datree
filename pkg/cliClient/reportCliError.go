@@ -12,11 +12,11 @@ type ReportCliErrorRequest struct {
 	StackTrace   string `json:"stackTrace"`
 }
 
-func (c *CliClient) ReportCliError(reportCliErrorRequest ReportCliErrorRequest) (StatusCode int, Error error) {
+func (c *CliClient) ReportCliError(reportCliErrorRequest ReportCliErrorRequest, uri string) (StatusCode int, Error error) {
 	headers := map[string]string{}
 	res, err := c.httpClient.Request(
 		http.MethodPost,
-		"/cli/public/report-cli-error",
+		"/cli/public/"+uri,
 		reportCliErrorRequest,
 		headers,
 	)

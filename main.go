@@ -16,7 +16,7 @@ func main() {
 	// global error handling
 	defer func() {
 		if panicErr := recover(); panicErr != nil {
-			errorReporter.ReportCliError(panicErr)
+			errorReporter.ReportCliPanicError(panicErr)
 			os.Exit(DEFAULT_ERR_EXIT_CODE)
 		}
 	}()
@@ -25,6 +25,7 @@ func main() {
 		if errors.Is(err, test.ViolationsFoundError) {
 			os.Exit(VIOLATIONS_FOUND_EXIT_CODE)
 		}
+		errorReporter.ReportCliUnexpectedError(err)
 		os.Exit(DEFAULT_ERR_EXIT_CODE)
 	}
 }
