@@ -1,0 +1,359 @@
+- id: 35
+    name: Ensure containers have a read-only root filesystem
+    uniqueName: NSA_INCORRECT_READONLYROOTFILESYSTEM_VALUE
+    enabledByDefault: true
+    documentationUrl: 'https://hub.datree.io/'
+    messageOnFailure: Incorrect value for key `readOnlyRootFilesystem` - set to 'true' 
+    category: NSA-Hardening
+    schema:
+      definitions:
+        containerSecurityPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      securityContext:
+                        properties:
+                          readOnlyRootFilesystem:
+                            enum:
+                              - true
+                              - "true"
+                        required:
+                        - readOnlyRootFilesystem
+                    required:
+                    - securityContext
+        podSecurityContextPattern:
+          if:
+            properties:
+              kind:
+                enum:
+                  - Pod
+          then:
+            properties:
+              spec:
+                properties:
+                  securityContext:
+                    properties:
+                      readOnlyRootFilesystem:
+                        enum:
+                          - true
+                          - "true"
+                    required:
+                        - readOnlyRootFilesystem
+                required:
+                - securityContext
+      anyOf:
+        - $ref: "#/definitions/containerSecurityPattern"
+        - $ref: "#/definitions/podSecurityContextPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+- id: 36
+    name: Prevent containers from accessing underlying host
+    uniqueName: NSA_INCORRECT_KEY_HOSTPATH
+    enabledByDefault: true
+    documentationUrl: 'https://hub.datree.io/'
+    messageOnFailure: Invalid key `hostPath` - refrain from using this mount to prevent an attack on the underlying host  
+    category: NSA-Hardening
+    schema:
+        definitions:
+            specVolumePattern:
+                properties:
+                spec:
+                    properties:
+                    volumes:
+                        type: array
+                        items:
+                        not:
+                            required:
+                            - hostPath
+
+        allOf:
+        - $ref: "#/definitions/specVolumePattern"
+        additionalProperties:
+        $ref: "#"
+        items:
+        $ref: "#"
+- id: 37
+    name: Prevent containers from escalating privileges
+    uniqueName: NSA_MISSING_KEY_ALLOWPRIVILEGEESCALATION
+    enabledByDefault: true
+    documentationUrl: 'https://hub.datree.io/'
+    messageOnFailure: Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges  
+    category: NSA-Hardening
+    schema:
+        definitions:
+          specContainerPattern:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        securityContext:
+                          properties:
+                            allowPrivilegeEscalation:
+                              enum:
+                                - false
+                                - "false"
+                          required:
+                            - allowPrivilegeEscalation
+                      required:
+                        - securityContext
+        allOf:
+          - $ref: "#/definitions/specContainerPattern"
+        additionalProperties:
+          $ref: "#"
+        items:
+          $ref: "#"
+- id: 38
+  name: Prevent containers from allowing the exec command
+  uniqueName: NSA_INCORRECT_RESOURCES_VERBS_VALUE
+  enabledByDefault: true
+  documentationUrl: 'https://hub.datree.io/'
+  messageOnFailure: 'Incorrect value for key `resources` and/or key `verbs` - refrain from allowing containers to run the exec command'
+  category: NSA-Hardening
+  schema:
+    if:
+      properties:
+        kind:
+          enum:
+            - Role
+            - ClusterRole
+    then:
+      properties:
+        rules:
+          type: array
+          items:
+            properties:
+              resources:
+                type: array
+                not:
+                  items:
+                    enum:
+                      - "*"
+                      - "pods/exec"
+              verbs:
+                type: array
+                not:
+                  items:
+                    enum:
+                      - "create"
+                      - "*"
+- id: 39
+  name: Prevent containers from having insecure capabilities
+  uniqueName: NSA_INVALID_CAPABILITIES_VALUE
+  enabledByDefault: true
+  documentationUrl: 'https://hub.datree.io/'
+  messageOnFailure: 'Incorrect value for key `add` - refrain from using insecure capabilities'
+  category: NSA-Hardening
+  schema:
+    definitions:
+      specContainerPattern:
+        properties:
+          spec:
+            properties:
+              containers:
+                type: array
+                items:
+                  properties:
+                    securityContext:
+                      properties:
+                        capabilities:
+                          properties:
+                            add:
+                              type: array
+                              items:
+                                not:
+                                  enum:
+                                    - "SETPCAP"
+                                    - "NET_ADMIN"
+                                    - "NET_RAW"
+                                    - "SYS_MODULE"
+                                    - "SYS_RAWIO"
+                                    - "SYS_PTRACE"
+                                    - "SYS_ADMIN"
+                                    - "SYS_BOOT"
+                                    - "MAC_OVERRIDE"
+                                    - "MAC_ADMIN"
+                                    - "PERFMON"
+                                    - "ALL"
+                                    - "BPF"
+    allOf:
+      - $ref: "#/definitions/specContainerPattern"
+    additionalProperties:
+      $ref: "#"
+    items:
+      $ref: "#"
+- id: 40
+  name: Prevent containers from using hostPort
+  uniqueName: NSA_INCORRECT_KEY_HOSTPORT
+  enabledByDefault: true
+  documentationUrl: 'https://hub.datree.io/'
+  messageOnFailure: 'Incorrect key `hostPort` - use NodePort or ClusterIP instead'
+  category: NSA-Hardening
+  schema:
+    definitions:
+      specContainerPattern:
+        properties:
+          spec:
+            properties:
+              containers:
+                type: array
+                items:
+                  properties:
+                    ports:
+                      type: array
+                      items:
+                        not:
+                          required:
+                            - hostPort
+
+    allOf:
+      - $ref: "#/definitions/specContainerPattern"
+    additionalProperties:
+      $ref: "#"
+    items:
+      $ref: "#"
+- id: 41
+  name: Prevent containers from accessing host files by using high GIDs
+  uniqueName: NSA_INCORRECT_RUNASGROUP_VALUE_LOWGID
+  enabledByDefault: true
+  documentationUrl: 'https://hub.datree.io/'
+  messageOnFailure: 'Invalid value for key `runAsGroup` - must be greater than 999'
+  category: NSA-Hardening
+  schema:
+    definitions:
+      specContainerPattern:
+        properties:
+          spec:
+            properties:
+              containers:
+                type: array
+                items:
+                  properties:
+                    securityContext:
+                      properties:
+                        runAsGroup:
+                          minimum: 1000
+      podSecurityContextPattern:
+        if:
+          properties:
+            kind:
+              enum:
+                - Pod
+        then:
+          properties:
+            spec:
+              properties:
+                securityContext:
+                  properties:
+                    runAsGroup:
+                      minimum: 1000
+
+    allOf:
+      - $ref: "#/definitions/specContainerPattern"
+      - $ref: "#/definitions/podSecurityContextPattern"
+    additionalProperties:
+      $ref: "#"
+    items:
+      $ref: "#"
+- id: 42
+  name: Ensure container is running without root privileges 
+  uniqueName: NSA_INCORRECT_RUNASNONROOT_VALUE
+  enabledByDefault: true
+  documentationUrl: 'https://hub.datree.io/'
+  messageOnFailure: 'Invalid value for key `runAsNonRoot` - must be set to `true`'
+  category: NSA-Hardening
+  schema:
+    definitions:
+      containerSecurityPattern:
+        properties:
+          spec:
+            properties:
+              containers:
+                type: array
+                items:
+                  properties:
+                    securityContext:
+                      properties:
+                        runAsNonRoot:
+                          enum:
+                            - true
+                            - "true"
+                      required:
+                      - runAsNonRoot
+                  required:
+                  - securityContext
+      podSecurityContextPattern:
+        if:
+          properties:
+            kind:
+              enum:
+                - Pod
+        then:
+          properties:
+            spec:
+              properties:
+                securityContext:
+                  properties:
+                    runAsNonRoot:
+                      enum:
+                        - true
+                        - "true"
+                  required:
+                    - runAsNonRoot
+    anyOf:
+      - $ref: "#/definitions/containerSecurityPattern"
+      - $ref: "#/definitions/podSecurityContextPattern"
+    additionalProperties:
+      $ref: "#"
+    items:
+      $ref: "#"
+- id: 43
+  name: Prevent service account token auto-mounting on pods 
+  uniqueName: NSA_INCORRECT_AUTOMOUNTSERVICEACCOUNTTOKEN_VALUE
+  enabledByDefault: true
+  documentationUrl: 'https://hub.datree.io/'
+  messageOnFailure: 'Invalid value for key `automountServiceAccountToken` - must be set to `false`'
+  category: NSA-Hardening
+  schema:
+    definitions:
+      podPattern:
+        if:
+          properties:
+            kind:
+              enum:
+                - Pod
+        then:
+          properties:
+            spec:
+              properties:
+                automountServiceAccountToken:
+                  enum:
+                    - false
+                    - "false"
+              required:
+                - automountServiceAccountToken
+      serviceAccountPattern:
+        if:
+          properties:
+            kind:
+              enum:
+                - ServiceAccount
+        then:
+          properties:
+            automountServiceAccountToken:
+              enum:
+                - false
+                - "false"
+          required:
+            - automountServiceAccountToken
+    allOf:
+      - $ref: "#/definitions/podPattern"
+      - $ref: "#/definitions/serviceAccountPattern"
