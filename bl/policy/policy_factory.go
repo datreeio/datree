@@ -30,15 +30,11 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 
 	if policies != nil {
 		var chosenPolicy *cliClient.Policy
-		getDefaultPolicy := false
-
-		if policyName == "" {
-			getDefaultPolicy = true
-		}
 
 		for _, policy := range policies.Policies {
-			if getDefaultPolicy && policy.IsDefault {
+			if policyName == "" && policy.IsDefault {
 				chosenPolicy = policy
+				policyName = chosenPolicy.Name
 				break
 			} else if policy.Name == policyName {
 				chosenPolicy = policy
@@ -50,8 +46,6 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 			err := fmt.Errorf("policy %s doesn't exist", policyName)
 			return Policy{}, err
 		}
-
-		policyName = chosenPolicy.Name
 
 		if chosenPolicy.Rules == nil {
 			return Policy{policyName, []RuleWithSchema{}}, nil
