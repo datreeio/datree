@@ -50,11 +50,11 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 	schemaVersion := viper.GetString(schemaVersionKey)
 
 	if token == "" {
-		newToken, err := lc.tokenClient.CreateToken()
+		createTokenResponse, err := lc.tokenClient.CreateToken()
 		if err != nil {
 			return nil, err
 		}
-		token = newToken.Token
+		token = createTokenResponse.Token
 		viper.SetDefault(tokenKey, token)
 		writeTokenErr := viper.WriteConfig()
 		if writeTokenErr != nil {
