@@ -1,13 +1,13 @@
 package policy
 
 import (
-	"embed"
+	_ "embed"
 
 	"gopkg.in/yaml.v3"
 )
 
 //go:embed defaultRules.yaml
-var f embed.FS
+var defaultRulesYamlContent string
 
 type DefaultRulesDefinitions struct {
 	ApiVersion string                   `yaml:"apiVersion"`
@@ -26,13 +26,13 @@ type DefaultRuleDefinition struct {
 }
 
 func GetDefaultRules() (*DefaultRulesDefinitions, error) {
-	defaultRulesYaml, err := f.ReadFile("defaultRules.yaml")
+	//defaultRulesYaml, err := f.ReadFile("defaultRules.yaml")
+	//
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	if err != nil {
-		return nil, err
-	}
-
-	defaultRulesDefinitions, err := yamlToStruct(string(defaultRulesYaml))
+	defaultRulesDefinitions, err := yamlToStruct(defaultRulesYamlContent)
 	return defaultRulesDefinitions, err
 }
 
