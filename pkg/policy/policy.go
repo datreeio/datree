@@ -26,12 +26,6 @@ type DefaultRuleDefinition struct {
 }
 
 func GetDefaultRules() (*DefaultRulesDefinitions, error) {
-	//defaultRulesYaml, err := f.ReadFile("defaultRules.yaml")
-	//
-	//if err != nil {
-	//	return nil, err
-	//}
-
 	defaultRulesDefinitions, err := yamlToStruct(defaultRulesYamlContent)
 	return defaultRulesDefinitions, err
 }
