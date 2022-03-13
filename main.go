@@ -22,7 +22,7 @@ func main() {
 
 	defer func() {
 		if panicErr := recover(); panicErr != nil {
-			reporter.ReportCliPanicError(panicErr)
+			reporter.ReportPanicError(panicErr)
 			os.Exit(DEFAULT_ERR_EXIT_CODE)
 		}
 	}()
@@ -31,7 +31,7 @@ func main() {
 		if errors.Is(err, test.ViolationsFoundError) {
 			os.Exit(VIOLATIONS_FOUND_EXIT_CODE)
 		}
-		reporter.ReportCliUnexpectedError(err)
+		reporter.ReportUnexpectedError(err)
 		os.Exit(DEFAULT_ERR_EXIT_CODE)
 	}
 }

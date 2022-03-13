@@ -9,7 +9,6 @@ import (
 	"github.com/datreeio/datree/pkg/localConfig"
 )
 
-
 type LocalConfig interface {
 	GetLocalConfiguration() (*localConfig.LocalConfig, error)
 }
@@ -36,15 +35,15 @@ func NewErrorReporter(client CliClient, localConfig LocalConfig, printer Printer
 	}
 }
 
-func (reporter *ErrorReporter) ReportCliPanicError(panicErr interface{}) {
-	reporter.ReportCliError(panicErr, "/report-cli-panic-error")
+func (reporter *ErrorReporter) ReportPanicError(panicErr interface{}) {
+	reporter.ReportError(panicErr, "/report-cli-panic-error")
 }
 
-func (reporter *ErrorReporter) ReportCliUnexpectedError(unexpectedError error) {
-	reporter.ReportCliError(unexpectedError, "/report-cli-unexpected-error")
+func (reporter *ErrorReporter) ReportUnexpectedError(unexpectedError error) {
+	reporter.ReportError(unexpectedError, "/report-cli-unexpected-error")
 }
 
-func (reporter *ErrorReporter) ReportCliError(panicErr interface{}, uri string) {
+func (reporter *ErrorReporter) ReportError(panicErr interface{}, uri string) {
 	errorMessage := parsePanicError(panicErr)
 	cliId := reporter.getCliId()
 	_, err := reporter.client.ReportCliError(cliClient.ReportCliErrorRequest{

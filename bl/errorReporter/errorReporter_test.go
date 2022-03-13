@@ -73,7 +73,7 @@ func TestErrorReporter(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			errorReporter.ReportCliError(tt.args.panicErr, "/report-cli-panic-error")
+			errorReporter.ReportError(tt.args.panicErr, "/report-cli-panic-error")
 			reportCliErrorCalledArgs := (mockedCliClient.Calls[0].Arguments.Get(0)).(cliClient.ReportCliErrorRequest)
 			assert.Equal(t, tt.expected.ErrorMessage, reportCliErrorCalledArgs.ErrorMessage)
 			assert.Equal(t, tt.expected.ClientId, reportCliErrorCalledArgs.ClientId)
