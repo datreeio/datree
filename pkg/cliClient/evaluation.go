@@ -91,9 +91,11 @@ type EvaluationPrerunPolicies struct {
 }
 
 type EvaluationPrerunDataResponse struct {
-	PoliciesJson      *EvaluationPrerunPolicies `json:"policiesJson"`
-	DefaultK8sVersion string                    `json:"defaultK8sVersion"`
-	AccountExists     bool                      `json:"accountExists"`
+	PoliciesJson          *EvaluationPrerunPolicies `json:"policiesJson"`
+	DefaultK8sVersion     string                    `json:"defaultK8sVersion"`
+	AccountExists         bool                      `json:"accountExists"`
+	RegistrationURL       string                    `json:"registrationURL"`
+	PromptRegistrationURL string                    `json:"promptRegistrationURL"`
 }
 
 const badRequestStatusCode = 400
