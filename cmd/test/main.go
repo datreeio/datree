@@ -244,6 +244,10 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		k8sVersion = evaluationPrerunDataResp.DefaultK8sVersion
 	}
 
+	if k8sVersion == "" {
+		k8sVersion = "1.18.0"
+	}
+
 	policy, err := policy_factory.CreatePolicy(evaluationPrerunDataResp.PoliciesJson, testCommandFlags.PolicyName)
 	if err != nil {
 		return nil, err
