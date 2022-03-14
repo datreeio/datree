@@ -99,13 +99,13 @@ type PolicyCheckResultData struct {
 }
 
 func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResultData, error) {
+	rulesCount := len(policyCheckData.Policy.Rules)
 
 	if len(policyCheckData.FilesConfigurations) == 0 {
-		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, FailedRulesByFiles{}, 0}, nil
+		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, FailedRulesByFiles{}, rulesCount}, nil
 	}
 
 	yamlSchemaValidator := yamlSchemaValidator.New()
-	rulesCount := len(policyCheckData.Policy.Rules)
 
 	// map of files paths to map of rules to failed rule data
 	failedRulesByFiles := make(FailedRulesByFiles)
