@@ -62,7 +62,7 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 ## 🗂 Kustomize support
 Datree comes with out-of-the-box [support for Kustomize](https://hub.datree.io/kustomize-support/#utm_source=github&utm_medium=organic_oss):
 
-`datree kustomize test [kustomization.yaml/dir/path/]`
+`datree kustomize test [kustomization.yaml dir path/]`
 
 ## 🤖 Built-in schema validation & policy check
 Every policy check will (also) validate your [Kubernetes schema](https://hub.datree.io/schema-validation/#utm_source=github&utm_medium=organic_oss). In addition, there are 30 battle-tested rules for you to select to create your policy.
