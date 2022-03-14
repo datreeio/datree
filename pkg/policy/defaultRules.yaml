@@ -10,19 +10,31 @@ rules:
     schema:
       definitions:
         imageValuePattern:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      image:
-                        # catch all strings with image tag version
-                        pattern: "\\@sha.*|:(\\w|\\.|\\-)+$"
-                        not:
-                          # ignore `latest` as image tag version
-                          pattern: ".*:(latest|LATEST)$"
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        image:
+                          # catch all strings with image tag version
+                          pattern: "\\@sha.*|:(\\w|\\.|\\-)+$"
+                          not:
+                            # ignore `latest` as image tag version
+                            pattern: ".*:(latest|LATEST)$"
       allOf:
         - $ref: "#/definitions/imageValuePattern"
       additionalProperties:
@@ -39,18 +51,34 @@ rules:
     schema:
       definitions:
         memoryRequestPattern:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      resources:
-                        properties:
-                          requests:
-                            required:
-                              - memory
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        resources:
+                          properties:
+                            requests:
+                              required:
+                                - memory
+                          required:
+                            - requests
+                      required:
+                        - resources
       allOf:
         - $ref: "#/definitions/memoryRequestPattern"
       additionalProperties:
@@ -67,22 +95,34 @@ rules:
     schema:
       definitions:
         cpuRequestPattern:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      resources:
-                        properties:
-                          requests:
-                            required:
-                              - cpu
-                        required:
-                          - requests
-                    required:
-                      - resources
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        resources:
+                          properties:
+                            requests:
+                              required:
+                                - cpu
+                          required:
+                            - requests
+                      required:
+                        - resources
       allOf:
         - $ref: "#/definitions/cpuRequestPattern"
       additionalProperties:
@@ -99,22 +139,34 @@ rules:
     schema:
       definitions:
         memoryLimitPattern:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      resources:
-                        properties:
-                          limits:
-                            required:
-                              - memory
-                        required:
-                          - limits
-                    required:
-                      - resources
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        resources:
+                          properties:
+                            limits:
+                              required:
+                                - memory
+                          required:
+                            - limits
+                      required:
+                        - resources
       allOf:
         - $ref: "#/definitions/memoryLimitPattern"
       additionalProperties:
@@ -131,22 +183,34 @@ rules:
     schema:
       definitions:
         cpuLimitPattern:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      resources:
-                        properties:
-                          limits:
-                            required:
-                              - cpu
-                        required:
-                          - limits
-                    required:
-                      - resources
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        resources:
+                          properties:
+                            limits:
+                              required:
+                                - cpu
+                          required:
+                            - limits
+                      required:
+                        - resources
       allOf:
         - $ref: "#/definitions/cpuLimitPattern"
       additionalProperties:
@@ -228,14 +292,26 @@ rules:
     messageOnFailure: 'Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it'
     category: Workload
     schema:
-      properties:
-        metadata:
-          properties:
-            labels:
-              patternProperties:
-                ^.*$:
-                  format: hostname
-              additionalProperties: false
+      if:
+        properties:
+          kind:
+            enum:
+              - Deployment
+              - Pod
+              - DaemonSet
+              - StatefulSet
+              - ReplicaSet
+              - CronJob
+              - Job
+      then:
+        properties:
+          metadata:
+            properties:
+              labels:
+                patternProperties:
+                  ^.*$:
+                    format: hostname
+                additionalProperties: false
   - id: 10
     name: 'Ensure deployment-like resource is using a valid restart policy'
     uniqueName: 'WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS'
@@ -244,16 +320,25 @@ rules:
     messageOnFailure: 'Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource'
     category: Workload
     schema:
-      properties:
-        spec:
-          properties:
-            template:
-              properties:
-                spec:
-                  properties:
-                    restartPolicy:
-                      enum:
-                        - 'Always'
+      if:
+        properties:
+          kind:
+            enum:
+              - Deployment
+              - ReplicaSet
+              - DaemonSet
+              - ReplicationController
+      then:
+        properties:
+          spec:
+            properties:
+              template:
+                properties:
+                  spec:
+                    properties:
+                      restartPolicy:
+                        enum:
+                          - 'Always'
   - id: 11
     name: Ensure each container has a configured liveness probe
     uniqueName: CONTAINERS_MISSING_LIVENESSPROBE_KEY
@@ -264,13 +349,25 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                containers:
-                  items:
-                    required:
-                      - livenessProbe
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      required:
+                        - livenessProbe
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -287,13 +384,25 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                containers:
-                  items:
-                    required:
-                      - readinessProbe
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      required:
+                        - readinessProbe
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -344,13 +453,25 @@ rules:
     messageOnFailure: Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)
     category: Workload
     schema:
-      properties:
-        metadata:
-          properties:
-            namespace:
-              not:
-                enum:
-                  - 'default'
+      if:
+        properties:
+          kind:
+            enum:
+              - Deployment
+              - Pod
+              - DaemonSet
+              - StatefulSet
+              - ReplicaSet
+              - CronJob
+              - Job
+      then:
+        properties:
+          metadata:
+            properties:
+              namespace:
+                not:
+                  enum:
+                    - 'default'
   - id: 16
     name: 'Ensure Deployment has more than one replica configured'
     uniqueName: 'DEPLOYMENT_INCORRECT_REPLICAS_VALUE'
@@ -433,20 +554,32 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      securityContext:
-                        properties:
-                          privileged:
-                            not:
-                              enum:
-                                - true
-                                - 'true'
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        securityContext:
+                          properties:
+                            privileged:
+                              not:
+                                enum:
+                                  - true
+                                  - 'true'
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -461,12 +594,24 @@ rules:
     messageOnFailure: 'Missing label object `owner` - add a proper owner label to know which person/team to ping when needed'
     category: Workload
     schema:
-      properties:
-        metadata:
-          properties:
-            labels:
-              required:
-                - owner
+      if:
+        properties:
+          kind:
+            enum:
+              - Deployment
+              - Pod
+              - DaemonSet
+              - StatefulSet
+              - ReplicaSet
+              - CronJob
+              - Job
+      then:
+        properties:
+          metadata:
+            properties:
+              labels:
+                required:
+                  - owner
   - id: 22
     name: Ensure Deployment has a configured `env` label
     uniqueName: DEPLOYMENT_MISSING_LABEL_ENV_VALUE
@@ -500,7 +645,19 @@ rules:
     category: Containers
     schema:
       definitions:
-          imageValuePattern:
+        imageValuePattern:
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
             properties:
               spec:
                 properties:
@@ -563,14 +720,26 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                hostPID:
-                  not:
-                    enum:
-                      - true
-                      - 'true'
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  hostPID:
+                    not:
+                      enum:
+                        - true
+                        - 'true'
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -587,14 +756,26 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                hostIPC:
-                  not:
-                    enum:
-                      - true
-                      - 'true'
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  hostIPC:
+                    not:
+                      enum:
+                        - true
+                        - 'true'
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -611,14 +792,26 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                hostNetwork:
-                  not:
-                    enum:
-                      - true
-                      - 'true'
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  hostNetwork:
+                    not:
+                      enum:
+                        - true
+                        - 'true'
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -635,17 +828,29 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      securityContext:
-                        properties:
-                          runAsUser:
-                            minimum: 10000
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        securityContext:
+                          properties:
+                            runAsUser:
+                              minimum: 10000
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -662,35 +867,59 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      volumeMounts:
-                        type: array
-                        items:
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        volumeMounts:
+                          type: array
+                          items:
+                            properties:
+                              mountPath:
+                                not:
+                                  enum:
+                                    - "/var/run/docker.sock"
+        specVolumes:
+          if:
+            properties:
+              kind:
+                enum:
+                  - Deployment
+                  - Pod
+                  - DaemonSet
+                  - StatefulSet
+                  - ReplicaSet
+                  - CronJob
+                  - Job
+          then:
+            properties:
+              spec:
+                properties:
+                  volumes:
+                    type: array
+                    items:
+                      properties:
+                        hostPath:
                           properties:
-                            mountPath:
+                            path:
                               not:
                                 enum:
                                   - "/var/run/docker.sock"
-        specVolumes:
-          properties:
-            spec:
-              properties:
-                volumes:
-                  type: array
-                  items:
-                    properties:
-                      hostPath:
-                        properties:
-                          path:
-                            not:
-                              enum:
-                                - "/var/run/docker.sock"
       allOf:
         - $ref: "#/definitions/specContainers"
         - $ref: "#/definitions/specVolumes"
@@ -717,7 +946,7 @@ rules:
             properties:
               allow-snippet-annotations:
                 enum:
-                    - 'false'
+                  - 'false'
             required:
               - allow-snippet-annotations
   - id: 32
