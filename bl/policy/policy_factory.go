@@ -111,7 +111,9 @@ func createDefaultPolicy(defaultRules *internal_policy.DefaultRulesDefinitions) 
 	var rules []RuleWithSchema
 
 	for _, defaultRule := range defaultRules.Rules {
-		rules = append(rules, RuleWithSchema{defaultRule.UniqueName, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
+		if defaultRule.EnabledByDefault {
+			rules = append(rules, RuleWithSchema{defaultRule.UniqueName, defaultRule.Name, defaultRule.Schema, defaultRule.MessageOnFailure})
+		}
 	}
 
 	return Policy{"Default", rules}
