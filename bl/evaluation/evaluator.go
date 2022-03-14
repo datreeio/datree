@@ -122,7 +122,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 			for _, ruleWithSchema := range policyCheckData.Policy.Rules {
 				rulesData = append(rulesData, cliClient.RuleData{Identifier: ruleWithSchema.RuleIdentifier, Name: ruleWithSchema.RuleName})
 
-				configurationKind, configurationName := extractConfigurationInfo(configuration)
+				configurationName, configurationKind := extractConfigurationInfo(configuration)
 
 				configurationJson, err := json.Marshal(configuration)
 				if err != nil {
