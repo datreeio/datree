@@ -463,12 +463,22 @@ rules:
     messageOnFailure: 'Missing label object `env` - add a proper environment description (e.g. "prod", "testing", etc.) to the Deployment config'
     category: Workload
     schema:
-      properties:
-        metadata:
-          properties:
-            labels:
-              required:
-                - env
+      if:
+        properties:
+          kind:
+            enum:
+              - Deployment
+      then:
+        properties:
+          metadata:
+            properties:
+              labels:
+                required:
+                  - env
+            required:
+              - labels
+        required:
+          - metadata
   - id: 23
     name: Ensure each container image has a digest tag
     uniqueName: CONTAINERS_MISSING_IMAGE_VALUE_DIGEST
