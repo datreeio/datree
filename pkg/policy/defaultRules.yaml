@@ -51,6 +51,10 @@ rules:
                           requests:
                             required:
                               - memory
+                        required:
+                          - requests
+                    required:
+                      - resources
       allOf:
         - $ref: "#/definitions/memoryRequestPattern"
       additionalProperties:
@@ -500,16 +504,16 @@ rules:
     category: Containers
     schema:
       definitions:
-          imageValuePattern:
-            properties:
-              spec:
-                properties:
-                  containers:
-                    type: array
-                    items:
-                      properties:
-                        image:
-                          pattern: .*\@sha256\:\S{64}$
+        imageValuePattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      image:
+                        pattern: .*\@sha256\:\S{64}$
       allOf:
         - $ref: "#/definitions/imageValuePattern"
       additionalProperties:
@@ -717,7 +721,7 @@ rules:
             properties:
               allow-snippet-annotations:
                 enum:
-                    - 'false'
+                  - 'false'
             required:
               - allow-snippet-annotations
   - id: 32
