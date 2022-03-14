@@ -1,8 +1,9 @@
 package errorReporter
 
 import (
-	"github.com/datreeio/datree/pkg/utils"
 	"runtime/debug"
+
+	"github.com/datreeio/datree/pkg/utils"
 
 	"github.com/datreeio/datree/cmd"
 	"github.com/datreeio/datree/pkg/cliClient"
