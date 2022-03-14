@@ -61,19 +61,16 @@ func TestErrorReporter(t *testing.T) {
 	}
 	mockedCliClient := &mockCliClient{}
 	mockedConfig := &mockConfig{}
-	mockedPrinter := &mockPrinter{}
 	mockedCliClient.On("ReportCliError", mock.Anything).Return(nil)
 	mockedConfig.On("GetLocalConfiguration").Return(nil)
-	mockedPrinter.On("PrintMessage", mock.Anything, mock.Anything).Return()
 	errorReporter := &ErrorReporter{
-		client:  mockedCliClient,
-		config:  mockedConfig,
-		printer: mockedPrinter,
+		client: mockedCliClient,
+		config: mockedConfig,
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			errorReporter.ReportCliError(tt.args.panicErr, "/report-cli-panic-error")
+			errorReporter.ReportError(tt.args.panicErr, "/report-cli-panic-error")
 			reportCliErrorCalledArgs := (mockedCliClient.Calls[0].Arguments.Get(0)).(cliClient.ReportCliErrorRequest)
 			assert.Equal(t, tt.expected.ErrorMessage, reportCliErrorCalledArgs.ErrorMessage)
 			assert.Equal(t, tt.expected.ClientId, reportCliErrorCalledArgs.ClientId)
