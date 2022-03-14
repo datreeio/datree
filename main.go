@@ -3,12 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
+
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/datreeio/datree/pkg/utils"
-	"os"
 
 	"github.com/datreeio/datree/bl/errorReporter"
 	"github.com/datreeio/datree/cmd"
