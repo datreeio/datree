@@ -61,14 +61,11 @@ func TestErrorReporter(t *testing.T) {
 	}
 	mockedCliClient := &mockCliClient{}
 	mockedConfig := &mockConfig{}
-	mockedPrinter := &mockPrinter{}
 	mockedCliClient.On("ReportCliError", mock.Anything).Return(nil)
 	mockedConfig.On("GetLocalConfiguration").Return(nil)
-	mockedPrinter.On("PrintMessage", mock.Anything, mock.Anything).Return()
 	errorReporter := &ErrorReporter{
 		client:  mockedCliClient,
 		config:  mockedConfig,
-		printer: mockedPrinter,
 	}
 
 	for _, tt := range tests {

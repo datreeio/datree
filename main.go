@@ -2,10 +2,12 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
+	"github.com/datreeio/datree/pkg/utils"
 	"os"
 
 	"github.com/datreeio/datree/bl/errorReporter"
@@ -18,11 +20,14 @@ const VIOLATIONS_FOUND_EXIT_CODE = 2
 
 func main() {
 
-	reporter := errorReporter.NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfig(), printer.CreateNewPrinter())
+	reporter := errorReporter.NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfig())
+	globalPrinter := printer.CreateNewPrinter()
 
 	defer func() {
 		if panicErr := recover(); panicErr != nil {
 			reporter.ReportPanicError(panicErr)
+
+			globalPrinter.PrintMessage(fmt.Sprintf("Unexpected error: %s\n", utils.ParseErrorToString(panicErr)), "error")
 			os.Exit(DEFAULT_ERR_EXIT_CODE)
 		}
 	}()
