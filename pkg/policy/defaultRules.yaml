@@ -9,20 +9,20 @@ rules:
     category: Containers
     schema:
       definitions:
-          imageValuePattern:
-            properties:
-              spec:
-                properties:
-                  containers:
-                    type: array
-                    items:
-                      properties:
-                        image:
-                          # catch all strings with image tag version
-                          pattern: "\\@sha.*|:(\\w|\\.|\\-)+$"
-                          not:
-                            # ignore `latest` as image tag version
-                            pattern: ".*:(latest|LATEST)$"
+        imageValuePattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      image:
+                        # catch all strings with image tag version
+                        pattern: "\\@sha.*|:(\\w|\\.|\\-)+$"
+                        not:
+                          # ignore `latest` as image tag version
+                          pattern: ".*:(latest|LATEST)$"
       allOf:
         - $ref: "#/definitions/imageValuePattern"
       additionalProperties:
@@ -79,6 +79,10 @@ rules:
                           requests:
                             required:
                               - cpu
+                        required:
+                          - requests
+                    required:
+                      - resources
       allOf:
         - $ref: "#/definitions/cpuRequestPattern"
       additionalProperties:
@@ -107,6 +111,10 @@ rules:
                           limits:
                             required:
                               - memory
+                        required:
+                          - limits
+                    required:
+                      - resources
       allOf:
         - $ref: "#/definitions/memoryLimitPattern"
       additionalProperties:
@@ -114,7 +122,7 @@ rules:
       items:
         $ref: "#"
   - id: 5
-    name: Ensure each container has a configured memory limit
+    name: Ensure each container has a configured CPU limit
     uniqueName: CONTAINERS_MISSING_CPU_LIMIT_KEY
     enabledByDefault: true
     documentationUrl: 'https://hub.datree.io/ensure-cpu-limit'
@@ -135,6 +143,10 @@ rules:
                           limits:
                             required:
                               - cpu
+                        required:
+                          - limits
+                    required:
+                      - resources
       allOf:
         - $ref: "#/definitions/cpuLimitPattern"
       additionalProperties:
