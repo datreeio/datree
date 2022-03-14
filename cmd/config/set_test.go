@@ -55,9 +55,9 @@ type LocalConfigMock struct {
 	mock.Mock
 }
 
-func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.ConfigContent, error) {
+func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
 	lc.Called()
-	return &localConfig.ConfigContent{CliId: "previousToken"}, nil
+	return &localConfig.LocalConfig{Token: "previousToken"}, nil
 }
 
 func (lc *LocalConfigMock) Set(key string, value string) error {
@@ -76,7 +76,7 @@ func TestSetCommand(t *testing.T) {
 	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 
 	localConfigMock := &LocalConfigMock{}
-	localConfigMock.On("GetLocalConfiguration").Return(&localConfig.ConfigContent{CliId: "previousToken"}, nil)
+	localConfigMock.On("GetLocalConfiguration").Return(&localConfig.LocalConfig{Token: "previousToken"}, nil)
 	localConfigMock.On("Set", mock.Anything, mock.Anything)
 
 	ctx := &ConfigCommandContext{

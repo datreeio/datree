@@ -117,9 +117,9 @@ type LocalConfigMock struct {
 	mock.Mock
 }
 
-func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.ConfigContent, error) {
+func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
 	lc.Called()
-	return &localConfig.ConfigContent{CliId: "134kh"}, nil
+	return &localConfig.LocalConfig{Token: "134kh"}, nil
 }
 
 func TestTestCommand(t *testing.T) {
@@ -183,7 +183,7 @@ func TestTestCommand(t *testing.T) {
 	readerMock.On("FilterFiles", mock.Anything).Return([]string{"file/path"}, nil)
 
 	localConfigMock := &LocalConfigMock{}
-	localConfigMock.On("GetLocalConfiguration").Return(&localConfig.ConfigContent{CliId: "134kh"}, nil)
+	localConfigMock.On("GetLocalConfiguration").Return(&localConfig.LocalConfig{Token: "134kh"}, nil)
 
 	ctx := &TestCommandContext{
 		K8sValidator: k8sValidatorMock,

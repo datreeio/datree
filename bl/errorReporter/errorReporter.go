@@ -13,17 +13,17 @@ import (
 )
 
 func ReportCliPanicError(panicErr interface{}) {
-	reporter := NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfig(), printer.CreateNewPrinter())
+	reporter := NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfigClient(&cliClient.CliClient{}), printer.CreateNewPrinter())
 	reporter.ReportCliError(panicErr, "/report-cli-panic-error")
 }
 
 func ReportCliUnexpectedError(unexpectedError error) {
-	reporter := NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfig(), printer.CreateNewPrinter())
+	reporter := NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfigClient(&cliClient.CliClient{}), printer.CreateNewPrinter())
 	reporter.ReportCliError(unexpectedError, "/report-cli-unexpected-error")
 }
 
 type LocalConfig interface {
-	GetLocalConfiguration() (*localConfig.ConfigContent, error)
+	GetLocalConfiguration() (*localConfig.LocalConfig, error)
 }
 
 type CliClient interface {
@@ -75,7 +75,7 @@ func (reporter *ErrorReporter) getCliId() (cliId string) {
 	if err != nil {
 		return "unknown"
 	} else {
-		return config.CliId
+		return config.Token
 	}
 }
 

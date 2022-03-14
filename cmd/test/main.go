@@ -99,7 +99,7 @@ type Reader interface {
 }
 
 type LocalConfig interface {
-	GetLocalConfiguration() (*localConfig.ConfigContent, error)
+	GetLocalConfiguration() (*localConfig.LocalConfig, error)
 }
 
 var ViolationsFoundError = errors.New("")
@@ -195,7 +195,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.CliId)
+			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
 
 			if err != nil {
 				return err
@@ -233,7 +233,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 }
 
-func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.ConfigContent, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
+func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
 	k8sVersion := testCommandFlags.K8sVersion
 	if k8sVersion == "" {
 		k8sVersion = localConfigContent.SchemaVersion
@@ -253,7 +253,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		OnlyK8sFiles:         testCommandFlags.OnlyK8sFiles,
 		Policy:               policy,
 		SchemaLocations:      testCommandFlags.SchemaLocations,
-		Token:                localConfigContent.CliId,
+		Token:                localConfigContent.Token,
 	}
 
 	return testCommandOptions, nil

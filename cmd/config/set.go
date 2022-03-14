@@ -46,11 +46,6 @@ func NewSetCommand(ctx *ConfigCommandContext) *cobra.Command {
 }
 
 func set(ctx *ConfigCommandContext, key string, value string) error {
-	_, err := ctx.LocalConfig.GetLocalConfiguration()
-	if err != nil {
-		return err
-	}
-
-	err = ctx.LocalConfig.Set(key, value)
+	err := ctx.LocalConfig.Set(key, value)
 	return err
 }

@@ -65,7 +65,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				return err
 			}
 
-			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.CliId)
+			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
 
 			if err != nil {
 				return err
