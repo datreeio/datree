@@ -19,8 +19,10 @@ const DEFAULT_ERR_EXIT_CODE = 1
 const VIOLATIONS_FOUND_EXIT_CODE = 2
 
 func main() {
+	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
+	localConfig := localConfig.NewLocalConfigClient(cliClient)
 
-	reporter := errorReporter.NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfig())
+	reporter := errorReporter.NewErrorReporter(cliClient, localConfig)
 	globalPrinter := printer.CreateNewPrinter()
 
 	defer func() {
