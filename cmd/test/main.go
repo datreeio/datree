@@ -109,13 +109,15 @@ type CliClient interface {
 }
 
 type TestCommandData struct {
-	Output               string
-	K8sVersion           string
-	IgnoreMissingSchemas bool
-	OnlyK8sFiles         bool
-	Policy               policy.Policy
-	SchemaLocations      []string
-	Token                string
+	Output                string
+	K8sVersion            string
+	IgnoreMissingSchemas  bool
+	OnlyK8sFiles          bool
+	Policy                policy.Policy
+	SchemaLocations       []string
+	Token                 string
+	RegistrationURL       string
+	PromptRegistrationURL string
 }
 
 type TestCommandContext struct {
@@ -248,12 +250,14 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 	}
 
 	testCommandOptions := &TestCommandData{Output: testCommandFlags.Output,
-		K8sVersion:           k8sVersion,
-		IgnoreMissingSchemas: testCommandFlags.IgnoreMissingSchemas,
-		OnlyK8sFiles:         testCommandFlags.OnlyK8sFiles,
-		Policy:               policy,
-		SchemaLocations:      testCommandFlags.SchemaLocations,
-		Token:                localConfigContent.Token,
+		K8sVersion:            k8sVersion,
+		IgnoreMissingSchemas:  testCommandFlags.IgnoreMissingSchemas,
+		OnlyK8sFiles:          testCommandFlags.OnlyK8sFiles,
+		Policy:                policy,
+		SchemaLocations:       testCommandFlags.SchemaLocations,
+		Token:                 localConfigContent.Token,
+		RegistrationURL:       evaluationPrerunDataResp.RegistrationURL,
+		PromptRegistrationURL: evaluationPrerunDataResp.PromptRegistrationURL,
 	}
 
 	return testCommandOptions, nil
@@ -330,7 +334,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, fmt.Sprintf("https://app.datree.io/login?cliId=%s", prerunData.Token), prerunData.Output, ctx.Printer, prerunData.K8sVersion, prerunData.Policy.Name)
+	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, prerunData.RegistrationURL, prerunData.Output, ctx.Printer, prerunData.K8sVersion, prerunData.Policy.Name)
 
 	if evaluationResultData.PromptMessage != "" {
 		ctx.Printer.PrintPromptMessage(evaluationResultData.PromptMessage)
@@ -342,8 +346,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 		}
 
 		if strings.ToLower(string(answer)) != "n" {
-			promptLoginUrl := fmt.Sprintf("https://app.datree.io/promptLogin?cliId=%s", prerunData.Token)
-			openBrowser(promptLoginUrl)
+			openBrowser(prerunData.PromptRegistrationURL)
 		}
 	}
 
