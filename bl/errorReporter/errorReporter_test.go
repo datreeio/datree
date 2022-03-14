@@ -64,8 +64,8 @@ func TestErrorReporter(t *testing.T) {
 	mockedCliClient.On("ReportCliError", mock.Anything).Return(nil)
 	mockedConfig.On("GetLocalConfiguration").Return(nil)
 	errorReporter := &ErrorReporter{
-		client:  mockedCliClient,
-		config:  mockedConfig,
+		client: mockedCliClient,
+		config: mockedConfig,
 	}
 
 	for _, tt := range tests {
