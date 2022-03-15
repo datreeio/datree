@@ -256,9 +256,9 @@ func extractConfigurationInfo(configuration extractor.Configuration) (string, st
 type Result = gojsonschema.Result
 
 func calculateFailedRulesByFiles(currentFailedRulesByFiles FailedRulesByFiles, validationResult *Result, fileName string, rule policy_factory.RuleWithSchema, configurationName string, configurationKind string) map[string]map[string]cliClient.FailedRule {
-
-	if len(validationResult.Errors()) > 0 {
-		configurationData := cliClient.Configuration{Name: configurationName, Kind: configurationKind, Occurrences: len(validationResult.Errors())}
+	occurrences := countOccurrences(validationResult)
+	if occurrences > 0 {
+		configurationData := cliClient.Configuration{Name: configurationName, Kind: configurationKind, Occurrences: occurrences}
 
 		if fileData, ok := currentFailedRulesByFiles[fileName]; ok {
 			if ruleData, ok := fileData[rule.RuleIdentifier]; ok {
@@ -273,4 +273,14 @@ func calculateFailedRulesByFiles(currentFailedRulesByFiles FailedRulesByFiles, v
 	}
 
 	return currentFailedRulesByFiles
+}
+
+func countOccurrences(validationResult *Result) int {
+	count := 0
+	for _, err := range validationResult.Errors() {
+		if err.Type() != "condition_then" && err.Type() != "number_all_of" {
+			count = count + 1
+		}
+	}
+	return count
 }
