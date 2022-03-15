@@ -74,10 +74,11 @@ rules:
                           properties:
                             requests:
                               type: object
-                              memory:
-                                type:
-                                  - string
-                                  - number
+                              properties:
+                                memory:
+                                  type:
+                                    - string
+                                    - number
                               required:
                                 - memory
                           required:
@@ -123,10 +124,11 @@ rules:
                           properties:
                             requests:
                               type: object
-                              cpu:
-                                type:
-                                  - string
-                                  - number
+                              properties:
+                                cpu:
+                                  type:
+                                    - string
+                                    - number
                               required:
                                 - cpu
                           required:
@@ -172,10 +174,11 @@ rules:
                           properties:
                             limits:
                               type: object
-                              memory:
-                                type:
-                                  - string
-                                  - number
+                              properties:
+                                memory:
+                                  type:
+                                    - string
+                                    - number
                               required:
                                 - memory
                           required:
@@ -221,10 +224,11 @@ rules:
                           properties:
                             limits:
                               type: object
-                              cpu:
-                                type:
-                                  - string
-                                  - number
+                              properties:
+                                cpu:
+                                  type:
+                                    - string
+                                    - number
                               required:
                                 - cpu
                           required:
