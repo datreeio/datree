@@ -73,6 +73,11 @@ rules:
                         resources:
                           properties:
                             requests:
+                              type: object
+                              memory:
+                                type:
+                                  - string
+                                  - number
                               required:
                                 - memory
                           required:
@@ -117,6 +122,11 @@ rules:
                         resources:
                           properties:
                             requests:
+                              type: object
+                              cpu:
+                                type:
+                                  - string
+                                  - number
                               required:
                                 - cpu
                           required:
@@ -161,6 +171,11 @@ rules:
                         resources:
                           properties:
                             limits:
+                              type: object
+                              memory:
+                                type:
+                                  - string
+                                  - number
                               required:
                                 - memory
                           required:
@@ -205,6 +220,11 @@ rules:
                         resources:
                           properties:
                             limits:
+                              type: object
+                              cpu:
+                                type:
+                                  - string
+                                  - number
                               required:
                                 - cpu
                           required:
