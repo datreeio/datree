@@ -1,0 +1,80 @@
+{
+  "type": "object",
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "enum": [
+        "v1"
+      ]
+    },
+    "policies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^([A-Za-z0-9])+(_?[A-Za-z0-9])*$"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "rules": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "properties": {
+                "identifier": {
+                  "uniqueItems": true,
+                  "type": "string",
+                  "pattern": "^([A-Za-z0-9])+(_?[A-Za-z0-9])*$"
+                },
+                "messageOnFailure": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "identifier",
+                "messageOnFailure"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "customRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "identifier": {
+          "type": "string"
+        },
+        "pattern": "^([A-Za-z0-9])+(_?[A-Za-z0-9])*$",
+        "defaultMessageOnFailure": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "jsonSchema": {
+          "type": "string"
+        },
+        "schema": {
+          "type": "object"
+        },
+        "required": [
+          "identifier"
+        ]
+      }
+    }
+  },
+  "required": [
+    "apiVersion",
+    "policies"
+  ]
+}
