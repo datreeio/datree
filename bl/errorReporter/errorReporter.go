@@ -41,22 +41,21 @@ func (reporter *ErrorReporter) ReportUnexpectedError(unexpectedError error) {
 func (reporter *ErrorReporter) ReportError(error interface{}, uri string) {
 	errorMessage := utils.ParseErrorToString(error)
 	localConfig := reporter.getLocalConfig()
-	_, err := reporter.client.ReportCliError(cliClient.ReportCliErrorRequest{
+	_, _ = reporter.client.ReportCliError(cliClient.ReportCliErrorRequest{
 		ClientId:     localConfig.ClientId,
 		Token:        localConfig.Token,
 		CliVersion:   cmd.CliVersion,
 		ErrorMessage: errorMessage,
 		StackTrace:   string(debug.Stack()),
 	}, uri)
-	if err != nil {
-		// do nothing
-	}
+
 }
 
 func (reporter *ErrorReporter) getLocalConfig() (unknownLocalConfig *localConfig.LocalConfig) {
 	unknownLocalConfig = &localConfig.LocalConfig{ClientId: "unknown", Token: "unknown"}
 	defer func() {
-		recover()
+		_ = recover()
+
 	}()
 
 	config, err := reporter.config.GetLocalConfiguration()
