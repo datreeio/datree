@@ -223,7 +223,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 			for _, configuration := range failedRuleData.Configurations {
 				mapper[filePath][ruleIdentifier].OccurrencesDetails = append(
 					mapper[filePath][ruleIdentifier].OccurrencesDetails,
-					OccurrenceDetails{MetadataName: configuration.Name, Kind: configuration.Kind},
+					OccurrenceDetails{MetadataName: configuration.Name, Kind: configuration.Kind, Occurrences: configuration.Occurrences},
 				)
 			}
 		}
