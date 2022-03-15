@@ -106,16 +106,16 @@ func InitLocalConfigFile() error {
 	// should be fixed in pr https://github.com/spf13/viper/pull/936
 	configPath := filepath.Join(configHome, configName+"."+configType)
 
-	_, err = os.Stat(configHome)
-	if err != nil {
+	isDirExists, _ := exists(configHome)
+	if !isDirExists {
 		osMkdirErr := os.Mkdir(configHome, os.ModePerm)
 		if osMkdirErr != nil {
 			return osMkdirErr
 		}
 	}
 
-	_, err = os.Stat(configPath)
-	if err != nil {
+	isConfigExists, _ := exists(configPath)
+	if !isConfigExists {
 		_, osCreateErr := os.Create(configPath)
 		if osCreateErr != nil {
 			return osCreateErr
@@ -127,6 +127,17 @@ func InitLocalConfigFile() error {
 		return readLocalFileErr
 	}
 	return nil
+}
+
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }
 
 func getConfigHome() (string, error) {
