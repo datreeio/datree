@@ -74,7 +74,7 @@ rules:
                           properties:
                             requests:
                               type: object
-                              cpu:
+                              memory:
                                 type:
                                   - string
                                   - number
@@ -221,7 +221,7 @@ rules:
                           properties:
                             limits:
                               type: object
-                              memory:
+                              cpu:
                                 type:
                                   - string
                                   - number
