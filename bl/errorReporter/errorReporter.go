@@ -40,10 +40,10 @@ func (reporter *ErrorReporter) ReportUnexpectedError(unexpectedError error) {
 
 func (reporter *ErrorReporter) ReportError(error interface{}, uri string) {
 	errorMessage := utils.ParseErrorToString(error)
-	cliId := reporter.getCliId()
+	localConfig := reporter.getLocalConfig()
 	_, err := reporter.client.ReportCliError(cliClient.ReportCliErrorRequest{
-		ClientId:     cliId,
-		Token:        cliId,
+		ClientId:     localConfig.ClientId,
+		Token:        localConfig.Token,
 		CliVersion:   cmd.CliVersion,
 		ErrorMessage: errorMessage,
 		StackTrace:   string(debug.Stack()),
@@ -53,17 +53,17 @@ func (reporter *ErrorReporter) ReportError(error interface{}, uri string) {
 	}
 }
 
-func (reporter *ErrorReporter) getCliId() (cliId string) {
+func (reporter *ErrorReporter) getLocalConfig() (unknownLocalConfig *localConfig.LocalConfig) {
+	unknownLocalConfig = &localConfig.LocalConfig{ClientId: "unknown", Token: "unknown"}
 	defer func() {
-		if panicErr := recover(); panicErr != nil {
-			cliId = "unknown"
-		}
+		recover()
 	}()
 
 	config, err := reporter.config.GetLocalConfiguration()
 	if err != nil {
-		return "unknown"
+		return unknownLocalConfig
 	} else {
-		return config.Token
+		return config
 	}
+
 }

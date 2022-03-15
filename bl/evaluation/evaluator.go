@@ -48,7 +48,8 @@ type FormattedResults struct {
 }
 
 type EvaluationRequestData struct {
-	CliId              string
+	Token              string
+	ClientId           string
 	CliVersion         string
 	K8sVersion         string
 	PolicyName         string
@@ -63,8 +64,8 @@ type EvaluationRequestData struct {
 func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
 	sendEvaluationResultsResponse, err := e.cliClient.SendEvaluationResult(&cliClient.EvaluationResultRequest{
 		K8sVersion: evaluationRequestData.K8sVersion,
-		ClientId:   evaluationRequestData.CliId,
-		Token:      evaluationRequestData.CliId,
+		ClientId:   evaluationRequestData.ClientId,
+		Token:      evaluationRequestData.Token,
 		PolicyName: evaluationRequestData.PolicyName,
 		Metadata: &cliClient.Metadata{
 			CliVersion:      evaluationRequestData.CliVersion,

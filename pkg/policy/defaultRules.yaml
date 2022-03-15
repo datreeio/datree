@@ -73,6 +73,12 @@ rules:
                         resources:
                           properties:
                             requests:
+                              type: object
+                              properties:
+                                memory:
+                                  type:
+                                    - string
+                                    - number
                               required:
                                 - memory
                           required:
@@ -117,6 +123,12 @@ rules:
                         resources:
                           properties:
                             requests:
+                              type: object
+                              properties:
+                                cpu:
+                                  type:
+                                    - string
+                                    - number
                               required:
                                 - cpu
                           required:
@@ -161,6 +173,12 @@ rules:
                         resources:
                           properties:
                             limits:
+                              type: object
+                              properties:
+                                memory:
+                                  type:
+                                    - string
+                                    - number
                               required:
                                 - memory
                           required:
@@ -205,6 +223,12 @@ rules:
                         resources:
                           properties:
                             limits:
+                              type: object
+                              properties:
+                                cpu:
+                                  type:
+                                    - string
+                                    - number
                               required:
                                 - cpu
                           required:
