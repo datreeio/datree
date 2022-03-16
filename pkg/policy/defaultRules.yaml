@@ -1,4 +1,16 @@
 apiVersion: v1
+aliases:
+  - &standardKinds
+    properties:
+      kind:
+        enum:
+          - Deployment
+          - Pod
+          - DaemonSet
+          - StatefulSet
+          - ReplicaSet
+          - CronJob
+          - Job
 rules:
   - id: 1
     name: Ensure each container image has a pinned (tag) version
@@ -10,17 +22,7 @@ rules:
     schema:
       definitions:
         imageValuePattern:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -51,17 +53,7 @@ rules:
     schema:
       definitions:
         memoryRequestPattern:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -101,17 +93,7 @@ rules:
     schema:
       definitions:
         cpuRequestPattern:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -151,17 +133,7 @@ rules:
     schema:
       definitions:
         memoryLimitPattern:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -201,17 +173,7 @@ rules:
     schema:
       definitions:
         cpuLimitPattern:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -316,17 +278,7 @@ rules:
     messageOnFailure: 'Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it'
     category: Workload
     schema:
-      if:
-        properties:
-          kind:
-            enum:
-              - Deployment
-              - Pod
-              - DaemonSet
-              - StatefulSet
-              - ReplicaSet
-              - CronJob
-              - Job
+      if: *standardKinds
       then:
         properties:
           metadata:
@@ -373,17 +325,7 @@ rules:
     schema:
       definitions:
         specContainers:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -408,17 +350,7 @@ rules:
     schema:
       definitions:
         specContainers:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -477,17 +409,7 @@ rules:
     messageOnFailure: Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)
     category: Workload
     schema:
-      if:
-        properties:
-          kind:
-            enum:
-              - Deployment
-              - Pod
-              - DaemonSet
-              - StatefulSet
-              - ReplicaSet
-              - CronJob
-              - Job
+      if: *standardKinds
       then:
         properties:
           metadata:
@@ -578,17 +500,7 @@ rules:
     schema:
       definitions:
         specContainers:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -618,17 +530,7 @@ rules:
     messageOnFailure: 'Missing label object `owner` - add a proper owner label to know which person/team to ping when needed'
     category: Workload
     schema:
-      if:
-        properties:
-          kind:
-            enum:
-              - Deployment
-              - Pod
-              - DaemonSet
-              - StatefulSet
-              - ReplicaSet
-              - CronJob
-              - Job
+      if: *standardKinds
       then:
         properties:
           metadata:
@@ -670,17 +572,7 @@ rules:
     schema:
       definitions:
         imageValuePattern:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -744,17 +636,7 @@ rules:
     schema:
       definitions:
         specContainers:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -780,17 +662,7 @@ rules:
     schema:
       definitions:
         specContainers:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -816,17 +688,7 @@ rules:
     schema:
       definitions:
         specContainers:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -852,17 +714,7 @@ rules:
     schema:
       definitions:
         specContainers:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -891,17 +743,7 @@ rules:
     schema:
       definitions:
         specContainers:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
@@ -919,17 +761,7 @@ rules:
                                   enum:
                                     - "/var/run/docker.sock"
         specVolumes:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Deployment
-                  - Pod
-                  - DaemonSet
-                  - StatefulSet
-                  - ReplicaSet
-                  - CronJob
-                  - Job
+          if: *standardKinds
           then:
             properties:
               spec:
