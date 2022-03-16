@@ -16,7 +16,7 @@ func (c *CliClient) ReportCliError(reportCliErrorRequest ReportCliErrorRequest, 
 	headers := map[string]string{}
 	res, err := c.httpClient.Request(
 		http.MethodPost,
-		"/cli/public/"+uri,
+		"/cli/public"+uri,
 		reportCliErrorRequest,
 		headers,
 	)
