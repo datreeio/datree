@@ -878,6 +878,6 @@ rules:
                   type: array
                   items:
                     not:
-                      oneOf:
+                      anyOf:
                         - pattern: ^(169\.254\.)
                         - pattern: ^(127\.)
