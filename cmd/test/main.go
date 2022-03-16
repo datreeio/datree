@@ -2,7 +2,9 @@ package test
 
 import (
 	"fmt"
+	"github.com/xeipuuv/gojsonschema"
 	"io"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -291,7 +293,24 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 
 func policyConfig(filesPaths []string) {
 	for _, filePath := range filesPaths {
-			fmt.Printf("FIND ME!!! %q.\n", filePath)
+		policyFile, err := extractor.ReadFileContent(filePath)
+		if err != nil {
+			log.Fatalf("Failed to read file %s: %s", filePath, err)
+		}
+
+		schemaFile, err := extractor.ReadFileContent("pkg/policy/policiesSchema.json")
+		if err != nil {
+			log.Fatalf("Failed to read file %s: %s", filePath, err)
+		}
+
+		schemaLoader := gojsonschema.NewStringLoader(schemaFile)
+		policySchemaLoader := gojsonschema.NewStringLoader(policyFile)
+
+		res, err := gojsonschema.Validate(schemaLoader, policySchemaLoader)
+		fmt.Println(res)
+
+		fmt.Printf("schemma: %q.\n", policyFile)
+
 	}
 	fmt.Println("Policy config:")
 }
@@ -482,8 +501,6 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		FormattedResults:  policyCheckResultData.FormattedResults,
 		PromptMessage:     sendEvaluationResultsResponse.PromptMessage,
 	}
-
-	policyConfig(prerunData.policyConfig)
 
 	return evaluationResultData, err
 }
