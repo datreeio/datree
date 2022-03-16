@@ -57,8 +57,9 @@ func TestSendEvaluationResult(t *testing.T) {
 			},
 		}
 
-		cliId := "test_token"
+		token := "test_token"
 		cliVersion := "0.0.7"
+		clientId := "client_id"
 		k8sVersion := "1.18.1"
 		promptMessage := ""
 		policyName := "Default"
@@ -75,7 +76,8 @@ func TestSendEvaluationResult(t *testing.T) {
 		expectedSendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}
 
 		evaluationRequestData := EvaluationRequestData{
-			CliId:              cliId,
+			Token:              token,
+			ClientId:           clientId,
 			CliVersion:         cliVersion,
 			K8sVersion:         k8sVersion,
 			PolicyName:         policyName,
@@ -91,8 +93,8 @@ func TestSendEvaluationResult(t *testing.T) {
 
 		sendEvaluationResultRequestData := &cliClient.EvaluationResultRequest{
 			K8sVersion: evaluationRequestData.K8sVersion,
-			ClientId:   evaluationRequestData.CliId,
-			Token:      evaluationRequestData.CliId,
+			ClientId:   evaluationRequestData.ClientId,
+			Token:      evaluationRequestData.Token,
 			PolicyName: evaluationRequestData.PolicyName,
 			Metadata: &cliClient.Metadata{
 				CliVersion:      evaluationRequestData.CliVersion,
