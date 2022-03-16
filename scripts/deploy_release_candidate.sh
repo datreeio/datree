@@ -1,8 +1,8 @@
 #!/bin/bash
 set -ex
 
-MAJOR_VERSION=0
-MINOR_VERSION=16
+MAJOR_VERSION=1
+MINOR_VERSION=0
 
 latestRcTag=$(git tag --sort=-version:refname | grep "^${MAJOR_VERSION}.${MINOR_VERSION}.\d\+\-rc" | head -n 1 | grep --only-matching "^${MAJOR_VERSION}.${MINOR_VERSION}.\d\+" || true)
 
