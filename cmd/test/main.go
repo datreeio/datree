@@ -48,6 +48,7 @@ type TestCommandFlags struct {
 	OnlyK8sFiles         bool
 	PolicyName           string
 	SchemaLocations      []string
+	PoliciesConfig       []string
 }
 
 // TestCommandFlags constructor
@@ -59,6 +60,7 @@ func NewTestCommandFlags() *TestCommandFlags {
 		OnlyK8sFiles:         false,
 		PolicyName:           "",
 		SchemaLocations:      make([]string, 0),
+		PoliciesConfig:       make([]string, 0),
 	}
 }
 
@@ -119,6 +121,7 @@ type TestCommandData struct {
 	RegistrationURL       string
 	PromptRegistrationURL string
 	ClientId              string
+	policyConfig          []string
 }
 
 type TestCommandContext struct {
@@ -234,6 +237,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	// kubeconform flag
 	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
+	cmd.Flags().StringArrayVarP(&flags.PoliciesConfig, "policy-config", "c", []string{}, "Override policies config search path (can be specified multiple times)")
 }
 
 func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
@@ -264,6 +268,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		ClientId:              localConfigContent.ClientId,
 		RegistrationURL:       evaluationPrerunDataResp.RegistrationURL,
 		PromptRegistrationURL: evaluationPrerunDataResp.PromptRegistrationURL,
+		policyConfig:          testCommandFlags.PoliciesConfig,
 	}
 
 	return testCommandOptions, nil
@@ -282,6 +287,13 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 			"Make sure you are following the semantic versioning format <MAJOR>.<MINOR>.<PATCH>\n"+
 			"Read more about kubernetes versioning: https://kubernetes.io/releases/version-skew-policy/#supported-versions", k8sVersion)
 	}
+}
+
+func policyConfig(filesPaths []string) {
+	for _, filePath := range filesPaths {
+			fmt.Printf("FIND ME!!! %q.\n", filePath)
+	}
+	fmt.Println("Policy config:")
 }
 
 func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) error {
@@ -391,6 +403,8 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	validationManager := &ValidationManager{}
 
+	//FIND ME
+	policyConfig(prerunData.policyConfig)
 	ctx.K8sValidator.InitClient(prerunData.K8sVersion, prerunData.IgnoreMissingSchemas, prerunData.SchemaLocations)
 
 	concurrency := 100
@@ -468,6 +482,8 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		FormattedResults:  policyCheckResultData.FormattedResults,
 		PromptMessage:     sendEvaluationResultsResponse.PromptMessage,
 	}
+
+	policyConfig(prerunData.policyConfig)
 
 	return evaluationResultData, err
 }
