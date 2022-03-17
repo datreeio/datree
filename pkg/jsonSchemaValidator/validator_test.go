@@ -1,4 +1,4 @@
-package yamlSchemaValidator
+package jsonSchemaValidator
 
 import (
 	"os"
@@ -43,14 +43,14 @@ func TestValidate(t *testing.T) {
 	}
 }
 
-func validatePassing(t *testing.T, validator *YamlSchemaValidator, schemaContent map[string]interface{}, ruleId int, files []*FileWithName, expectPass bool) {
+func validatePassing(t *testing.T, validator *JSONSchemaValidator, schemaContent map[string]interface{}, ruleId int, files []*FileWithName, expectPass bool) {
 	for _, file := range files {
 		schemaBytes, err := yaml.Marshal(schemaContent)
 		if err != nil {
 			panic(err)
 		}
 
-		res, err := validator.Validate(string(schemaBytes), file.content)
+		res, err := validator.ValidateYamlSchema(string(schemaBytes), file.content)
 		if err != nil {
 			panic(err)
 		}

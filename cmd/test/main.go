@@ -48,6 +48,7 @@ type TestCommandFlags struct {
 	OnlyK8sFiles         bool
 	PolicyName           string
 	SchemaLocations      []string
+	PolicyConfig         string
 }
 
 // TestCommandFlags constructor
@@ -229,7 +230,9 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	}
 	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.19.0")
 	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
-	cmd.Flags().BoolVarP(&flags.OnlyK8sFiles, "only-k8s-files", "", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
+
+	cmd.Flags().StringVar(&flags.PolicyConfig, "policy-config", "", "Policy name to run against")
+	cmd.Flags().BoolVar(&flags.OnlyK8sFiles, "only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
 
 	// kubeconform flag
 	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
@@ -249,7 +252,19 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		k8sVersion = "1.19.0"
 	}
 
-	policy, err := policy_factory.CreatePolicy(evaluationPrerunDataResp.PoliciesJson, testCommandFlags.PolicyName)
+	var policies *cliClient.EvaluationPrerunPolicies
+	var err error
+
+	if testCommandFlags.PolicyConfig != "" {
+		policies, err = policy_factory.GetPoliciesFileFromPath(testCommandFlags.PolicyConfig)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		policies = evaluationPrerunDataResp.PoliciesJson
+	}
+
+	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName)
 	if err != nil {
 		return nil, err
 	}
@@ -285,7 +300,6 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 }
 
 func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) error {
-
 	if paths[0] == "-" {
 		if len(paths) > 1 {
 			return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(paths[1:], ",")))
