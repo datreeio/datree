@@ -95,7 +95,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 
 	kustomizeCommand := &cobra.Command{
 		Use:   "kustomize",
-		Short: "Render files defined in a kustomization.yaml file and run a policy check against them",
+		Short: "Render configs defined in a kustomization.yaml file and run a policy check against them",
 	}
 
 	kustomizeCommand.AddCommand(kustomizeTestCommand)
