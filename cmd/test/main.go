@@ -473,5 +473,13 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 }
 
 func wereViolationsFound(validationManager *ValidationManager, results *evaluation.FormattedResults) bool {
-	return (validationManager.InvalidYamlFilesCount() > 0 || validationManager.InvalidK8sFilesCount() > 0 || results.EvaluationResults.Summary.TotalFailedRules > 0)
+	if validationManager.InvalidYamlFilesCount() > 0 {
+		return true
+	} else if validationManager.InvalidK8sFilesCount() > 0 {
+		return true
+	} else if results.EvaluationResults != nil && results.EvaluationResults.Summary.TotalFailedRules > 0 {
+		return true
+	} else {
+		return false
+	}
 }
