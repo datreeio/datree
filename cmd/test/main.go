@@ -119,6 +119,7 @@ type TestCommandData struct {
 	RegistrationURL       string
 	PromptRegistrationURL string
 	ClientId              string
+	Offline               string
 }
 
 type TestCommandContext struct {
@@ -264,6 +265,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		ClientId:              localConfigContent.ClientId,
 		RegistrationURL:       evaluationPrerunDataResp.RegistrationURL,
 		PromptRegistrationURL: evaluationPrerunDataResp.PromptRegistrationURL,
+		Offline:               localConfigContent.Offline,
 	}
 
 	return testCommandOptions, nil
