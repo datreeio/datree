@@ -94,7 +94,8 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 	testCommandFlags.AddFlags(kustomizeTestCommand)
 
 	kustomizeCommand := &cobra.Command{
-		Use: "kustomize",
+		Use:   "kustomize",
+		Short: "Render kustomize configs and run a policy check against them",
 	}
 
 	kustomizeCommand.AddCommand(kustomizeTestCommand)
