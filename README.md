@@ -94,10 +94,3 @@ You can also checkout our [interactive demo scenario](https://www.katacoda.com/d
 [![Contributors](https://contrib.rocks/image?repo=datreeio/datree)](https://github.com/datreeio/datree/graphs/contributors)
 
 Thank you to all the people who already contributed to Datree ❤️
-
-## Disclaimer
-
-We do our best to maintain backward compatibility, but there may be breaking changes in
-the future to the command usage, flags, and configuration file formats. The CLI will output a warning message when a new version with breaking changes is detected.
-We encourage you to use Datree to test your Kubernetes manifests files and Helm charts, see what
-breaks, and [contribute](./CONTRIBUTING.md).

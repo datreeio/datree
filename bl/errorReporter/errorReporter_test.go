@@ -30,7 +30,8 @@ type mockConfig struct {
 func (lc *mockConfig) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
 	lc.Called()
 	return &localConfig.LocalConfig{
-		Token:         "2qRg9jzJGcA73ftqEcXuBp",
+		ClientId:      "2qRg9jzJGcA73ftqEcXuBp",
+		Token:         "ddfdea33-7a96-48ef-9155-d1ddc2078ff3",
 		SchemaVersion: "111",
 	}, nil
 }
@@ -88,7 +89,7 @@ func reportErrorWithError() *ErrorReporterTestCase {
 		},
 		expected: cliClient.ReportCliErrorRequest{
 			ClientId:     "2qRg9jzJGcA73ftqEcXuBp",
-			Token:        "2qRg9jzJGcA73ftqEcXuBp",
+			Token:        "ddfdea33-7a96-48ef-9155-d1ddc2078ff3",
 			CliVersion:   cmd.CliVersion,
 			ErrorMessage: "this is the error message",
 			StackTrace:   mock.Anything,
@@ -104,7 +105,7 @@ func reportErrorWithStringError() *ErrorReporterTestCase {
 		},
 		expected: cliClient.ReportCliErrorRequest{
 			ClientId:     "2qRg9jzJGcA73ftqEcXuBp",
-			Token:        "2qRg9jzJGcA73ftqEcXuBp",
+			Token:        "ddfdea33-7a96-48ef-9155-d1ddc2078ff3",
 			CliVersion:   cmd.CliVersion,
 			ErrorMessage: "this is the error message",
 			StackTrace:   mock.Anything,

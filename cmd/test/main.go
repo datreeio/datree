@@ -118,6 +118,7 @@ type TestCommandData struct {
 	Token                 string
 	RegistrationURL       string
 	PromptRegistrationURL string
+	ClientId              string
 }
 
 type TestCommandContext struct {
@@ -260,6 +261,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		Policy:                policy,
 		SchemaLocations:       testCommandFlags.SchemaLocations,
 		Token:                 localConfigContent.Token,
+		ClientId:              localConfigContent.ClientId,
 		RegistrationURL:       evaluationPrerunDataResp.RegistrationURL,
 		PromptRegistrationURL: evaluationPrerunDataResp.PromptRegistrationURL,
 	}
@@ -442,7 +444,8 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	ciContext := ciContext.Extract()
 
 	evaluationRequestData := evaluation.EvaluationRequestData{
-		CliId:              prerunData.Token,
+		Token:              prerunData.Token,
+		ClientId:           prerunData.ClientId,
 		CliVersion:         ctx.CliVersion,
 		K8sVersion:         prerunData.K8sVersion,
 		PolicyName:         policyName,
