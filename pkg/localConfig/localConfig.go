@@ -14,6 +14,7 @@ type LocalConfig struct {
 	Token         string
 	ClientId      string
 	SchemaVersion string
+	Offline       string
 }
 
 type TokenClient interface {
@@ -34,6 +35,7 @@ const (
 	clientIdKey      = "client_id"
 	tokenKey         = "token"
 	schemaVersionKey = "schema_version"
+	offlineKey       = "offline"
 )
 
 func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
@@ -48,6 +50,7 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 	token := viper.GetString(tokenKey)
 	clientId := viper.GetString(clientIdKey)
 	schemaVersion := viper.GetString(schemaVersionKey)
+	offline := viper.GetString(offlineKey)
 
 	if token == "" {
 		createTokenResponse, err := lc.tokenClient.CreateToken()
@@ -79,6 +82,15 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 		}
 		clientId = viper.GetString(clientIdKey)
 	}
+
+	if offline == "" {
+		viper.SetDefault(offlineKey, "fail")
+		writeOfflineErr := viper.WriteConfig()
+		if writeOfflineErr != nil {
+			return nil, writeOfflineErr
+		}
+	}
+
 	return &LocalConfig{Token: token, ClientId: clientId, SchemaVersion: schemaVersion}, nil
 }
 
