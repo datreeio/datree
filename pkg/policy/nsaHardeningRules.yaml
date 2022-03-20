@@ -3,7 +3,7 @@
   uniqueName: CONTAINERS_INCORRECT_READONLYROOTFILESYSTEM_VALUE
   enabledByDefault: true
   documentationUrl: 'https://hub.datree.io/'
-  messageOnFailure: Incorrect value for key `readOnlyRootFilesystem` - set to 'true' 
+  messageOnFailure: Incorrect value for key `readOnlyRootFilesystem` - set to 'true' to protect filesystem from potential attacks 
   category: Containers
   schema:
     definitions:
@@ -110,7 +110,7 @@
   uniqueName: CONTAINERS_INCORRECT_RESOURCES_VERBS_VALUE
   enabledByDefault: true
   documentationUrl: 'https://hub.datree.io/'
-  messageOnFailure: 'Incorrect value for key `resources` and/or key `verbs` - refrain from allowing containers to run the exec command'
+  messageOnFailure: 'Incorrect value for key `resources` and/or `verbs` - allowing containers to run the exec command can be exploited by attackers'
   category: Containers
   schema:
     if:
@@ -144,7 +144,7 @@
   uniqueName: CONTAINERS_INVALID_CAPABILITIES_VALUE
   enabledByDefault: true
   documentationUrl: 'https://hub.datree.io/'
-  messageOnFailure: 'Incorrect value for key `add` - refrain from using insecure capabilities'
+  messageOnFailure: 'Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components'
   category: Containers
   schema:
     definitions:
@@ -189,7 +189,7 @@
   uniqueName: CONTAINERS_INCORRECT_KEY_HOSTPORT
   enabledByDefault: true
   documentationUrl: 'https://hub.datree.io/'
-  messageOnFailure: 'Incorrect key `hostPort` - use NodePort or ClusterIP instead'
+  messageOnFailure: 'Incorrect key `hostPort` - refrain from using this key to prevent insecurely exposing your workload'
   category: Containers
   schema:
     definitions:
@@ -219,7 +219,7 @@
   uniqueName: CONTAINERS_INCORRECT_RUNASGROUP_VALUE_LOWGID
   enabledByDefault: true
   documentationUrl: 'https://hub.datree.io/'
-  messageOnFailure: 'Invalid value for key `runAsGroup` - must be greater than 999'
+  messageOnFailure: 'Invalid value for key `runAsGroup` - must be greater than 999 to ensure container is running with non-root group membership'
   category: Containers
   schema:
     definitions:
@@ -262,7 +262,7 @@
   uniqueName: CONTAINERS_INCORRECT_RUNASNONROOT_VALUE
   enabledByDefault: true
   documentationUrl: 'https://hub.datree.io/'
-  messageOnFailure: 'Invalid value for key `runAsNonRoot` - must be set to `true`'
+  messageOnFailure: 'Invalid value for key `runAsNonRoot` - must be set to `true` to prevent unnecessary privileges'
   category: Containers
   schema:
     definitions:
@@ -310,7 +310,7 @@
   uniqueName: SRVACC_INCORRECT_AUTOMOUNTSERVICEACCOUNTTOKEN_VALUE
   enabledByDefault: true
   documentationUrl: 'https://hub.datree.io/'
-  messageOnFailure: 'Invalid value for key `automountServiceAccountToken` - must be set to `false`'
+  messageOnFailure: 'Invalid value for key `automountServiceAccountToken` - must be set to `false` to prevent granting unnecessary access to the service account'
   category: Other
   schema:
     definitions:
