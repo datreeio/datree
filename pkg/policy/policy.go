@@ -1,15 +1,24 @@
 package policy
 
 import (
+	_ "embed"
+	"fmt"
+
+	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/fileReader"
-	"gopkg.in/yaml.v3"
+	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
+	"github.com/ghodss/yaml"
 )
 
-const defaultRulesYamlPath = "./pkg/policy/defaultRules.yaml"
+//go:embed defaultRules.yaml
+var defaultRulesYamlContent string
+
+//go:embed policiesSchema.json
+var policiesSchemaContent string
 
 type DefaultRulesDefinitions struct {
-	ApiVersion string                  `yaml:"apiVersion"`
-	Rules      []DefaultRuleDefinition `yaml:"rules"`
+	ApiVersion string                   `yaml:"apiVersion"`
+	Rules      []*DefaultRuleDefinition `yaml:"rules"`
 }
 
 type DefaultRuleDefinition struct {
@@ -24,14 +33,55 @@ type DefaultRuleDefinition struct {
 }
 
 func GetDefaultRules() (*DefaultRulesDefinitions, error) {
+	defaultRulesDefinitions, err := yamlToStruct(defaultRulesYamlContent)
+	return defaultRulesDefinitions, err
+}
+
+func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, error) {
 	fileReader := fileReader.CreateFileReader(nil)
-	defaultRulesYaml, err := fileReader.ReadFileContent(defaultRulesYamlPath)
+	policiesStr, err := fileReader.ReadFileContent(path)
 	if err != nil {
 		return nil, err
 	}
 
-	defaultRulesDefinitions, err := yamlToStruct(defaultRulesYaml)
-	return defaultRulesDefinitions, err
+	err = validatePoliciesYaml(policiesStr, path)
+	if err != nil {
+		return nil, err
+	}
+
+	var policies *cliClient.EvaluationPrerunPolicies
+	policiesBytes, err := yaml.YAMLToJSON([]byte(policiesStr))
+	if err != nil {
+		return nil, err
+	}
+
+	err = yaml.Unmarshal(policiesBytes, &policies)
+	if err != nil {
+		return nil, err
+	}
+
+	return policies, nil
+}
+
+func validatePoliciesYaml(content string, policyYamlPath string) error {
+	jsonSchemaValidator := jsonSchemaValidator.New()
+	result, err := jsonSchemaValidator.Validate(policiesSchemaContent, content)
+
+	if err != nil {
+		return err
+	}
+
+	if !result.Valid() {
+		validationErrors := fmt.Errorf("Found errors in policies file %s:\n", policyYamlPath)
+
+		for _, validationError := range result.Errors() {
+			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError)
+		}
+
+		return validationErrors
+	}
+
+	return nil
 }
 
 func yamlToStruct(content string) (*DefaultRulesDefinitions, error) {

@@ -55,7 +55,7 @@ type Warning struct {
 	InvalidK8sInfo  InvalidK8sInfo
 	ExtraMessages   []ExtraMessage
 }
-type YamlSchemaValidatorResults = gojsonschema.Result
+type JSONSchemaValidatorResults = gojsonschema.Result
 
 func (p *Printer) SetTheme(theme *Theme) {
 	p.Theme = theme
@@ -95,7 +95,7 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 	fmt.Fprintln(out)
 }
 
-func (p *Printer) PrintYamlSchemaResults(result *YamlSchemaValidatorResults, error error) {
+func (p *Printer) PrintYamlSchemaResults(result *JSONSchemaValidatorResults, error error) {
 	if result == nil {
 		p.printInColor("INVALID FILE PATH\n", p.Theme.Colors.RedBold)
 		return

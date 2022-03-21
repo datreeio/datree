@@ -1,14 +1,17 @@
-package yamlSchemaValidator
+package policy
 
 import (
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/fileReader"
-	"github.com/datreeio/datree/pkg/policy"
-	"gopkg.in/yaml.v2"
+	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
+	"github.com/ghodss/yaml"
+	"github.com/stretchr/testify/assert"
 )
 
 type TestFilesByRuleId = map[int]*FailAndPassTests
@@ -23,19 +26,30 @@ type FileWithName struct {
 	content string
 }
 
-func TestValidate(t *testing.T) {
+func TestGetPoliciesFileFromPath(t *testing.T) {
+	policiesYamlPath := "../../internal/fixtures/policyAsCode/policies.yaml"
+	policies, err := GetPoliciesFileFromPath(policiesYamlPath)
+	if err != nil {
+		panic(err)
+	}
+
+	expectedPoliciesJson := expectedPoliciesContent(t, policiesYamlPath)
+	assert.True(t, reflect.DeepEqual(policies, expectedPoliciesJson))
+}
+
+func TestDefaultRulesValidation(t *testing.T) {
 	err := os.Chdir("../../")
 	if err != nil {
 		panic(err)
 	}
 
-	defaultRules, err := policy.GetDefaultRules()
+	defaultRules, err := GetDefaultRules()
 	if err != nil {
 		panic(err)
 	}
 
 	testFilesByRuleId := getTestFilesByRuleId(t)
-	validator := New()
+	validator := jsonSchemaValidator.New()
 
 	for _, rule := range defaultRules.Rules {
 		validatePassing(t, validator, rule.Schema, rule.ID, testFilesByRuleId[rule.ID].passes, true)
@@ -43,14 +57,14 @@ func TestValidate(t *testing.T) {
 	}
 }
 
-func validatePassing(t *testing.T, validator *YamlSchemaValidator, schemaContent map[string]interface{}, ruleId int, files []*FileWithName, expectPass bool) {
+func validatePassing(t *testing.T, validator *jsonSchemaValidator.JSONSchemaValidator, schemaContent map[string]interface{}, ruleId int, files []*FileWithName, expectPass bool) {
 	for _, file := range files {
 		schemaBytes, err := yaml.Marshal(schemaContent)
 		if err != nil {
 			panic(err)
 		}
 
-		res, err := validator.Validate(string(schemaBytes), file.content)
+		res, err := validator.ValidateYamlSchema(string(schemaBytes), file.content)
 		if err != nil {
 			panic(err)
 		}
@@ -109,4 +123,18 @@ func getFileData(filename string) (int, bool) {
 
 	isPass := strings.Contains(parts[1], "pass")
 	return id, isPass
+}
+
+func expectedPoliciesContent(t *testing.T, path string) *cliClient.EvaluationPrerunPolicies {
+	fileReader := fileReader.CreateFileReader(nil)
+	policiesStr, _ := fileReader.ReadFileContent(path)
+
+	var policiesJson *cliClient.EvaluationPrerunPolicies
+	policiesBytes, _ := yaml.YAMLToJSON([]byte(policiesStr))
+
+	err := yaml.Unmarshal(policiesBytes, &policiesJson)
+	if err != nil {
+		panic(err)
+	}
+	return policiesJson
 }

@@ -13,8 +13,8 @@ type PublishFailedResponse struct {
 	Payload []string `json:"payload"`
 }
 
-func (c *CliClient) PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) (*PublishFailedResponse, error) {
-	headers := map[string]string{"x-cli-id": cliId}
+func (c *CliClient) PublishPolicies(policiesConfiguration files.UnknownStruct, token string) (*PublishFailedResponse, error) {
+	headers := map[string]string{"x-datree-token": token}
 	res, publishErr := c.httpClient.Request(http.MethodPut, "/cli/policy/publish", policiesConfiguration, headers)
 	if publishErr != nil {
 		if res.StatusCode != 0 {

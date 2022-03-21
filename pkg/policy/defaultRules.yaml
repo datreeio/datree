@@ -1,4 +1,16 @@
 apiVersion: v1
+aliases:
+  - &standardKinds
+    properties:
+      kind:
+        enum:
+          - Deployment
+          - Pod
+          - DaemonSet
+          - StatefulSet
+          - ReplicaSet
+          - CronJob
+          - Job
 rules:
   - id: 1
     name: Ensure each container image has a pinned (tag) version
@@ -9,7 +21,9 @@ rules:
     category: Containers
     schema:
       definitions:
-          imageValuePattern:
+        imageValuePattern:
+          if: *standardKinds
+          then:
             properties:
               spec:
                 properties:
@@ -39,18 +53,30 @@ rules:
     schema:
       definitions:
         memoryRequestPattern:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      resources:
-                        properties:
-                          requests:
-                            required:
-                              - memory
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        resources:
+                          properties:
+                            requests:
+                              type: object
+                              properties:
+                                memory:
+                                  type:
+                                    - string
+                                    - number
+                              required:
+                                - memory
+                          required:
+                            - requests
+                      required:
+                        - resources
       allOf:
         - $ref: "#/definitions/memoryRequestPattern"
       additionalProperties:
@@ -67,18 +93,30 @@ rules:
     schema:
       definitions:
         cpuRequestPattern:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      resources:
-                        properties:
-                          requests:
-                            required:
-                              - cpu
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        resources:
+                          properties:
+                            requests:
+                              type: object
+                              properties:
+                                cpu:
+                                  type:
+                                    - string
+                                    - number
+                              required:
+                                - cpu
+                          required:
+                            - requests
+                      required:
+                        - resources
       allOf:
         - $ref: "#/definitions/cpuRequestPattern"
       additionalProperties:
@@ -95,18 +133,30 @@ rules:
     schema:
       definitions:
         memoryLimitPattern:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      resources:
-                        properties:
-                          limits:
-                            required:
-                              - memory
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        resources:
+                          properties:
+                            limits:
+                              type: object
+                              properties:
+                                memory:
+                                  type:
+                                    - string
+                                    - number
+                              required:
+                                - memory
+                          required:
+                            - limits
+                      required:
+                        - resources
       allOf:
         - $ref: "#/definitions/memoryLimitPattern"
       additionalProperties:
@@ -114,7 +164,7 @@ rules:
       items:
         $ref: "#"
   - id: 5
-    name: Ensure each container has a configured memory limit
+    name: Ensure each container has a configured CPU limit
     uniqueName: CONTAINERS_MISSING_CPU_LIMIT_KEY
     enabledByDefault: true
     documentationUrl: 'https://hub.datree.io/ensure-cpu-limit'
@@ -123,18 +173,30 @@ rules:
     schema:
       definitions:
         cpuLimitPattern:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      resources:
-                        properties:
-                          limits:
-                            required:
-                              - cpu
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        resources:
+                          properties:
+                            limits:
+                              type: object
+                              properties:
+                                cpu:
+                                  type:
+                                    - string
+                                    - number
+                              required:
+                                - cpu
+                          required:
+                            - limits
+                      required:
+                        - resources
       allOf:
         - $ref: "#/definitions/cpuLimitPattern"
       additionalProperties:
@@ -216,14 +278,16 @@ rules:
     messageOnFailure: 'Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it'
     category: Workload
     schema:
-      properties:
-        metadata:
-          properties:
-            labels:
-              patternProperties:
-                ^.*$:
-                  format: hostname
-              additionalProperties: false
+      if: *standardKinds
+      then:
+        properties:
+          metadata:
+            properties:
+              labels:
+                patternProperties:
+                  ^.*$:
+                    format: hostname
+                additionalProperties: false
   - id: 10
     name: 'Ensure deployment-like resource is using a valid restart policy'
     uniqueName: 'WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS'
@@ -232,16 +296,25 @@ rules:
     messageOnFailure: 'Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource'
     category: Workload
     schema:
-      properties:
-        spec:
-          properties:
-            template:
-              properties:
-                spec:
-                  properties:
-                    restartPolicy:
-                      enum:
-                        - 'Always'
+      if:
+        properties:
+          kind:
+            enum:
+              - Deployment
+              - ReplicaSet
+              - DaemonSet
+              - ReplicationController
+      then:
+        properties:
+          spec:
+            properties:
+              template:
+                properties:
+                  spec:
+                    properties:
+                      restartPolicy:
+                        enum:
+                          - 'Always'
   - id: 11
     name: Ensure each container has a configured liveness probe
     uniqueName: CONTAINERS_MISSING_LIVENESSPROBE_KEY
@@ -252,13 +325,15 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                containers:
-                  items:
-                    required:
-                      - livenessProbe
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      required:
+                        - livenessProbe
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -275,13 +350,15 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                containers:
-                  items:
-                    required:
-                      - readinessProbe
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      required:
+                        - readinessProbe
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -332,13 +409,15 @@ rules:
     messageOnFailure: Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)
     category: Workload
     schema:
-      properties:
-        metadata:
-          properties:
-            namespace:
-              not:
-                enum:
-                  - 'default'
+      if: *standardKinds
+      then:
+        properties:
+          metadata:
+            properties:
+              namespace:
+                not:
+                  enum:
+                    - 'default'
   - id: 16
     name: 'Ensure Deployment has more than one replica configured'
     uniqueName: 'DEPLOYMENT_INCORRECT_REPLICAS_VALUE'
@@ -421,20 +500,22 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      securityContext:
-                        properties:
-                          privileged:
-                            not:
-                              enum:
-                                - true
-                                - 'true'
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        securityContext:
+                          properties:
+                            privileged:
+                              not:
+                                enum:
+                                  - true
+                                  - 'true'
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -449,12 +530,14 @@ rules:
     messageOnFailure: 'Missing label object `owner` - add a proper owner label to know which person/team to ping when needed'
     category: Workload
     schema:
-      properties:
-        metadata:
-          properties:
-            labels:
-              required:
-                - owner
+      if: *standardKinds
+      then:
+        properties:
+          metadata:
+            properties:
+              labels:
+                required:
+                  - owner
   - id: 22
     name: Ensure Deployment has a configured `env` label
     uniqueName: DEPLOYMENT_MISSING_LABEL_ENV_VALUE
@@ -463,12 +546,22 @@ rules:
     messageOnFailure: 'Missing label object `env` - add a proper environment description (e.g. "prod", "testing", etc.) to the Deployment config'
     category: Workload
     schema:
-      properties:
-        metadata:
-          properties:
-            labels:
-              required:
-                - env
+      if:
+        properties:
+          kind:
+            enum:
+              - Deployment
+      then:
+        properties:
+          metadata:
+            properties:
+              labels:
+                required:
+                  - env
+            required:
+              - labels
+        required:
+          - metadata
   - id: 23
     name: Ensure each container image has a digest tag
     uniqueName: CONTAINERS_MISSING_IMAGE_VALUE_DIGEST
@@ -478,7 +571,9 @@ rules:
     category: Containers
     schema:
       definitions:
-          imageValuePattern:
+        imageValuePattern:
+          if: *standardKinds
+          then:
             properties:
               spec:
                 properties:
@@ -541,14 +636,16 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                hostPID:
-                  not:
-                    enum:
-                      - true
-                      - 'true'
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  hostPID:
+                    not:
+                      enum:
+                        - true
+                        - 'true'
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -565,14 +662,16 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                hostIPC:
-                  not:
-                    enum:
-                      - true
-                      - 'true'
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  hostIPC:
+                    not:
+                      enum:
+                        - true
+                        - 'true'
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -589,14 +688,16 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                hostNetwork:
-                  not:
-                    enum:
-                      - true
-                      - 'true'
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  hostNetwork:
+                    not:
+                      enum:
+                        - true
+                        - 'true'
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -613,17 +714,19 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      securityContext:
-                        properties:
-                          runAsUser:
-                            minimum: 10000
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        securityContext:
+                          properties:
+                            runAsUser:
+                              minimum: 10000
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
@@ -640,35 +743,39 @@ rules:
     schema:
       definitions:
         specContainers:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      volumeMounts:
-                        type: array
-                        items:
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      properties:
+                        volumeMounts:
+                          type: array
+                          items:
+                            properties:
+                              mountPath:
+                                not:
+                                  enum:
+                                    - "/var/run/docker.sock"
+        specVolumes:
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  volumes:
+                    type: array
+                    items:
+                      properties:
+                        hostPath:
                           properties:
-                            mountPath:
+                            path:
                               not:
                                 enum:
                                   - "/var/run/docker.sock"
-        specVolumes:
-          properties:
-            spec:
-              properties:
-                volumes:
-                  type: array
-                  items:
-                    properties:
-                      hostPath:
-                        properties:
-                          path:
-                            not:
-                              enum:
-                                - "/var/run/docker.sock"
       allOf:
         - $ref: "#/definitions/specContainers"
         - $ref: "#/definitions/specVolumes"
@@ -695,7 +802,7 @@ rules:
             properties:
               allow-snippet-annotations:
                 enum:
-                    - 'false'
+                  - 'false'
             required:
               - allow-snippet-annotations
   - id: 32
@@ -771,6 +878,6 @@ rules:
                   type: array
                   items:
                     not:
-                      oneOf:
+                      anyOf:
                         - pattern: ^(169\.254\.)
                         - pattern: ^(127\.)

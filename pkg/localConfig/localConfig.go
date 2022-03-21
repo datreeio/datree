@@ -5,70 +5,139 @@ import (
 	"os/user"
 	"path/filepath"
 
+	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/lithammer/shortuuid"
 	"github.com/spf13/viper"
 )
 
-type ConfigContent struct {
-	CliId         string
+type LocalConfig struct {
+	Token         string
+	ClientId      string
 	SchemaVersion string
 }
 
-type LocalConfig struct {
+type TokenClient interface {
+	CreateToken() (*cliClient.CreateTokenResponse, error)
 }
 
-func NewLocalConfig() *LocalConfig {
-	return &LocalConfig{}
+type LocalConfigClient struct {
+	tokenClient TokenClient
 }
 
-func (lc *LocalConfig) GetLocalConfiguration() (*ConfigContent, error) {
+func NewLocalConfigClient(t TokenClient) *LocalConfigClient {
+	return &LocalConfigClient{
+		tokenClient: t,
+	}
+}
+
+const (
+	clientIdKey      = "client_id"
+	tokenKey         = "token"
+	schemaVersionKey = "schema_version"
+)
+
+func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 	viper.SetEnvPrefix("datree")
 	viper.AutomaticEnv()
-	token := viper.GetString("token")
-	schemaVersion := viper.GetString("schema_version")
+
+	initConfigFileErr := InitLocalConfigFile()
+	if initConfigFileErr != nil {
+		return nil, initConfigFileErr
+	}
+
+	token := viper.GetString(tokenKey)
+	clientId := viper.GetString(clientIdKey)
+	schemaVersion := viper.GetString(schemaVersionKey)
 
 	if token == "" {
-		configHome, configName, configType, err := setViperConfig()
+		createTokenResponse, err := lc.tokenClient.CreateToken()
 		if err != nil {
 			return nil, err
 		}
-
-		// workaround for creating config file when not exist
-		// open issue in viper: https://github.com/spf13/viper/issues/430
-		// should be fixed in pr https://github.com/spf13/viper/pull/936
-		configPath := filepath.Join(configHome, configName+"."+configType)
-		_, err = os.Stat(configPath)
-
-		if err != nil {
-			os.Mkdir(configHome, os.ModePerm)
-			os.Create(configPath)
-			viper.SetDefault("token", shortuuid.New())
-			viper.WriteConfig()
+		token = createTokenResponse.Token
+		viper.SetDefault(tokenKey, token)
+		writeTokenErr := viper.WriteConfig()
+		if writeTokenErr != nil {
+			return nil, writeTokenErr
 		}
-
-		viper.ReadInConfig()
-		token = viper.GetString("token")
-
-		if token == "" {
-			viper.SetDefault("token", shortuuid.New())
-			viper.WriteConfig()
-			viper.ReadInConfig()
-			token = viper.GetString("token")
+		readTokenErr := viper.ReadInConfig()
+		if readTokenErr != nil {
+			return nil, readTokenErr
 		}
+		token = viper.GetString(tokenKey)
 	}
 
-	return &ConfigContent{CliId: token, SchemaVersion: schemaVersion}, nil
+	if clientId == "" {
+		viper.SetDefault(clientIdKey, shortuuid.New())
+		writeClientIdErr := viper.WriteConfig()
+		if writeClientIdErr != nil {
+			return nil, writeClientIdErr
+		}
+		readClientIdErr := viper.ReadInConfig()
+		if readClientIdErr != nil {
+			return nil, readClientIdErr
+		}
+		clientId = viper.GetString(clientIdKey)
+	}
+	return &LocalConfig{Token: token, ClientId: clientId, SchemaVersion: schemaVersion}, nil
 }
 
-func (lc *LocalConfig) Set(key string, value string) error {
-	_, _, _, err := setViperConfig()
-	if err != nil {
-		return err
+func (lc *LocalConfigClient) Set(key string, value string) error {
+	initConfigFileErr := InitLocalConfigFile()
+	if initConfigFileErr != nil {
+		return initConfigFileErr
 	}
 
 	viper.Set(key, value)
-	viper.WriteConfig()
+	writeClientIdErr := viper.WriteConfig()
+	if writeClientIdErr != nil {
+		return writeClientIdErr
+	}
 	return nil
+}
+
+func InitLocalConfigFile() error {
+	configHome, configName, configType, err := setViperConfig()
+	if err != nil {
+		return err
+	}
+	// workaround for creating config file when not exist
+	// open issue in viper: https://github.com/spf13/viper/issues/430
+	// should be fixed in pr https://github.com/spf13/viper/pull/936
+	configPath := filepath.Join(configHome, configName+"."+configType)
+
+	isDirExists, _ := exists(configHome)
+	if !isDirExists {
+		osMkdirErr := os.Mkdir(configHome, os.ModePerm)
+		if osMkdirErr != nil {
+			return osMkdirErr
+		}
+	}
+
+	isConfigExists, _ := exists(configPath)
+	if !isConfigExists {
+		_, osCreateErr := os.Create(configPath)
+		if osCreateErr != nil {
+			return osCreateErr
+		}
+	}
+
+	readLocalFileErr := viper.ReadInConfig()
+	if readLocalFileErr != nil {
+		return readLocalFileErr
+	}
+	return nil
+}
+
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }
 
 func getConfigHome() (string, error) {

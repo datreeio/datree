@@ -4,11 +4,17 @@ import (
 	"os"
 	"strings"
 
+	"github.com/datreeio/datree/pkg/cliClient"
+
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/pkg/executor"
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/spf13/cobra"
 )
+
+type CliClient interface {
+	RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error)
+}
 
 type KustomizeCommandRunner interface {
 	BuildCommandDescription(dir string, name string, args []string) string
@@ -59,7 +65,13 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				return err
 			}
 
-			testCommandOptions := test.GenerateTestCommandOptions(testCommandFlags, localConfigContent)
+			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+
+			if err != nil {
+				return err
+			}
+
+			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
 
 			out, err := kustomizeCtx.CommandRunner.ExecuteKustomizeBin(args)
 			if err != nil {
@@ -82,7 +94,8 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 	testCommandFlags.AddFlags(kustomizeTestCommand)
 
 	kustomizeCommand := &cobra.Command{
-		Use: "kustomize",
+		Use:   "kustomize",
+		Short: "Render resources defined in a kustomization.yaml file and run a policy check against them",
 	}
 
 	kustomizeCommand.AddCommand(kustomizeTestCommand)

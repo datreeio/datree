@@ -9,6 +9,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/ciContext"
+
+	"github.com/datreeio/datree/pkg/fileReader"
+
 	"github.com/datreeio/datree/bl/files"
 
 	"gopkg.in/yaml.v3"
@@ -33,47 +37,49 @@ func (c *mockHTTPClient) name() {
 
 }
 
-type RequestEvaluationTestCase struct {
+type RequestEvaluationPrerunDataTestCase struct {
 	name string
 	args struct {
-		evaluationRequest *EvaluationRequest
+		token string
 	}
 	mock struct {
 		response struct {
 			status int
-			body   *EvaluationResponse
+			body   *EvaluationPrerunDataResponse
+			error  error
 		}
 	}
 	expected struct {
 		request struct {
 			method  string
 			uri     string
-			body    *EvaluationRequest
+			body    interface{}
 			headers map[string]string
 		}
-		response *EvaluationResponse
+		responseErr error
+		response    *EvaluationPrerunDataResponse
 	}
 }
 
-type CreateEvaluationTestCase struct {
+type SendEvaluationResultTestCase struct {
 	name string
 	args struct {
-		createEvaluationRequest *CreateEvaluationRequest
+		evaluationRequestData *EvaluationResultRequest
 	}
 	mock struct {
 		response struct {
 			status int
-			body   *CreateEvaluationResponse
+			body   *SendEvaluationResultsResponse
 		}
 	}
 	expected struct {
 		request struct {
 			method  string
 			uri     string
-			body    *CreateEvaluationRequest
+			body    interface{}
 			headers map[string]string
 		}
-		response *CreateEvaluationResponse
+		response *SendEvaluationResultsResponse
 	}
 }
 
@@ -103,7 +109,7 @@ type PublishPoliciesTestCase struct {
 	name string
 	args struct {
 		policiesConfiguration files.UnknownStruct
-		cliId                 string
+		token                 string
 	}
 	mockResponse struct {
 		status int
@@ -123,9 +129,9 @@ type PublishPoliciesTestCase struct {
 	}
 }
 
-func TestRequestEvaluation(t *testing.T) {
-	tests := []*RequestEvaluationTestCase{
-		test_requestEvaluation_success(),
+func TestRequestEvaluationPrerunDataSuccess(t *testing.T) {
+	tests := []*RequestEvaluationPrerunDataTestCase{
+		test_requestEvaluationPrerunData_success(),
 	}
 
 	httpClientMock := mockHTTPClient{}
@@ -134,25 +140,24 @@ func TestRequestEvaluation(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.mock.response.body)
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
-			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
+			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, tt.mock.response.error).Once()
 
 			client := &CliClient{
 				baseUrl:    "http://cli-service.test.io",
 				httpClient: &httpClientMock,
 			}
 
-			res, _ := client.RequestEvaluation(tt.args.evaluationRequest)
+			policyCheckData, _ := client.RequestEvaluationPrerunData(tt.args.token)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
-			assert.Equal(t, tt.expected.response, res)
-
+			assert.Equal(t, tt.expected.response, policyCheckData)
 		})
 	}
 }
 
-func TestCreateRequestEvaluation(t *testing.T) {
-	tests := []*CreateEvaluationTestCase{
-		test_createEvaluation_success(),
+func TestRequestEvaluationPrerunDataFail(t *testing.T) {
+	tests := []*RequestEvaluationPrerunDataTestCase{
+		test_requestEvaluationPrerunData_error(),
 	}
 
 	httpClientMock := mockHTTPClient{}
@@ -161,17 +166,43 @@ func TestCreateRequestEvaluation(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.mock.response.body)
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
-			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil)
+			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, tt.mock.response.error).Once()
 
 			client := &CliClient{
 				baseUrl:    "http://cli-service.test.io",
 				httpClient: &httpClientMock,
 			}
 
-			res, _ := client.CreateEvaluation(tt.args.createEvaluationRequest)
+			_, err := client.RequestEvaluationPrerunData(tt.args.token)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
-			assert.Equal(t, tt.expected.response, res)
+			assert.Equal(t, tt.expected.responseErr, err)
+		})
+	}
+}
+
+func TestSendEvaluationResult(t *testing.T) {
+	tests := []*SendEvaluationResultTestCase{
+		test_sendEvaluationResult_success(),
+	}
+
+	httpClientMock := mockHTTPClient{}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, _ := json.Marshal(tt.mock.response.body)
+			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
+			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil).Once()
+
+			client := &CliClient{
+				baseUrl:    "http://cli-service.test.io",
+				httpClient: &httpClientMock,
+			}
+
+			sendEvaluationResultsResponse, _ := client.SendEvaluationResult(tt.args.evaluationRequestData)
+
+			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
+			assert.Equal(t, tt.expected.response, sendEvaluationResultsResponse)
 		})
 	}
 }
@@ -219,7 +250,7 @@ func TestPublishPolicies(t *testing.T) {
 				httpClient: &httpClientMock,
 			}
 
-			publishFailedResponse, err := client.PublishPolicies(tt.args.policiesConfiguration, tt.args.cliId)
+			publishFailedResponse, err := client.PublishPolicies(tt.args.policiesConfiguration, tt.args.token)
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.publishFailedResponse, publishFailedResponse)
 			assert.Equal(t, tt.expected.responseErr, err)
@@ -310,93 +341,179 @@ func test_getVersionMessage_success() *GetVersionMessageTestCase {
 	}
 }
 
-func test_requestEvaluation_success() *RequestEvaluationTestCase {
-	return &RequestEvaluationTestCase{
-		name: "success - request evaluation",
+func mockGetPreRunData() *EvaluationPrerunDataResponse {
+	const policiesJsonPath = "../../internal/fixtures/policyAsCode/prerun.json"
+
+	fileReader := fileReader.CreateFileReader(nil)
+	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
+
+	if err != nil {
+		panic(err)
+	}
+
+	policiesJsonRawData := []byte(policiesJsonStr)
+
+	var policiesJson *EvaluationPrerunDataResponse
+	err = json.Unmarshal(policiesJsonRawData, &policiesJson)
+
+	if err != nil {
+		panic(err)
+	}
+	return policiesJson
+}
+
+func test_requestEvaluationPrerunData_success() *RequestEvaluationPrerunDataTestCase {
+	preRunData := mockGetPreRunData()
+
+	return &RequestEvaluationPrerunDataTestCase{
+		name: "success - get prerun data for evaluation",
 		args: struct {
-			evaluationRequest *EvaluationRequest
+			token string
 		}{
-			evaluationRequest: &EvaluationRequest{
-				EvaluationId: 321,
-				Files:        castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
-			},
+			token: "internal_test_token",
 		},
 		mock: struct {
 			response struct {
 				status int
-				body   *EvaluationResponse
+				body   *EvaluationPrerunDataResponse
+				error  error
 			}
 		}{
 			response: struct {
 				status int
-				body   *EvaluationResponse
+				body   *EvaluationPrerunDataResponse
+				error  error
 			}{
 				status: http.StatusOK,
-				body:   &EvaluationResponse{},
+				body:   preRunData,
 			},
 		},
 		expected: struct {
 			request struct {
 				method  string
 				uri     string
-				body    *EvaluationRequest
+				body    interface{}
 				headers map[string]string
 			}
-			response *EvaluationResponse
+			responseErr error
+			response    *EvaluationPrerunDataResponse
 		}{
 			request: struct {
 				method  string
 				uri     string
-				body    *EvaluationRequest
+				body    interface{}
 				headers map[string]string
 			}{
-				method: http.MethodPost,
-				uri:    "/cli/evaluate",
-				body: &EvaluationRequest{
-					EvaluationId: 321,
-					Files:        castPropertiesMock("service_mock", "mocks/service_mock.yaml"),
-				},
+				method:  http.MethodGet,
+				uri:     "/cli/evaluation/tokens/internal_test_token/prerun",
+				body:    nil,
 				headers: nil,
 			},
-			response: &EvaluationResponse{},
+			response: preRunData,
 		},
 	}
 }
 
-func test_createEvaluation_success() *CreateEvaluationTestCase {
-	k8sVersion := "1.18.0"
+func test_requestEvaluationPrerunData_error() *RequestEvaluationPrerunDataTestCase {
+	preRunData := mockGetPreRunData()
 
-	return &CreateEvaluationTestCase{
-		name: "success - create evaluation",
+	return &RequestEvaluationPrerunDataTestCase{
+		name: "success - get prerun data for evaluation",
 		args: struct {
-			createEvaluationRequest *CreateEvaluationRequest
+			token string
 		}{
-			createEvaluationRequest: &CreateEvaluationRequest{
-				K8sVersion: &k8sVersion,
-				CliId:      "cli_id",
-				PolicyName: "Default",
-				Metadata: &Metadata{
-					CliVersion:      "0.0.1",
-					Os:              "darwin",
-					PlatformVersion: "1.2.3",
-					KernelVersion:   "4.5.6",
-				},
-			},
+			token: "internal_test_token",
 		},
 		mock: struct {
 			response struct {
 				status int
-				body   *CreateEvaluationResponse
+				body   *EvaluationPrerunDataResponse
+				error  error
 			}
 		}{
 			response: struct {
 				status int
-				body   *CreateEvaluationResponse
+				body   *EvaluationPrerunDataResponse
+				error  error
+			}{
+				status: http.StatusBadRequest,
+				body:   preRunData,
+				error:  errors.New("error from cli-service"),
+			},
+		},
+		expected: struct {
+			request struct {
+				method  string
+				uri     string
+				body    interface{}
+				headers map[string]string
+			}
+			responseErr error
+			response    *EvaluationPrerunDataResponse
+		}{
+			request: struct {
+				method  string
+				uri     string
+				body    interface{}
+				headers map[string]string
+			}{
+				method:  http.MethodGet,
+				uri:     "/cli/evaluation/tokens/internal_test_token/prerun",
+				body:    nil,
+				headers: nil,
+			},
+			responseErr: errors.New("error from cli-service"),
+			response:    preRunData,
+		},
+	}
+}
+
+func test_sendEvaluationResult_success() *SendEvaluationResultTestCase {
+	body := &EvaluationResultRequest{
+		ClientId: "internal_cliId_test",
+		Token:    "internal_cliId_test",
+		Metadata: &Metadata{
+			CliVersion:      "0.0.01",
+			Os:              "darwin",
+			PlatformVersion: "1.2.3",
+			KernelVersion:   "4.5.6",
+			CIContext: &ciContext.CIContext{
+				IsCI: true,
+				CIMetadata: &ciContext.CIMetadata{
+					CIEnvValue:       "travis",
+					ShouldHideEmojis: false,
+				},
+			},
+		},
+		K8sVersion:         "1.18.0",
+		PolicyName:         "Default",
+		FailedYamlFiles:    []string{},
+		FailedK8sFiles:     []string{},
+		AllExecutedRules:   []RuleData{},
+		AllEvaluatedFiles:  []FileData{},
+		PolicyCheckResults: nil,
+	}
+	return &SendEvaluationResultTestCase{
+		name: "success - send local evaluation result to server",
+		args: struct {
+			evaluationRequestData *EvaluationResultRequest
+		}{
+			evaluationRequestData: body,
+		},
+		mock: struct {
+			response struct {
+				status int
+				body   *SendEvaluationResultsResponse
+			}
+		}{
+			response: struct {
+				status int
+				body   *SendEvaluationResultsResponse
 			}{
 				status: http.StatusOK,
-				body: &CreateEvaluationResponse{
-					EvaluationId: 123,
-					K8sVersion:   k8sVersion,
+				body: &SendEvaluationResultsResponse{
+					EvaluationId:  1234,
+					PromptMessage: "",
 				},
 			},
 		},
@@ -404,52 +521,42 @@ func test_createEvaluation_success() *CreateEvaluationTestCase {
 			request struct {
 				method  string
 				uri     string
-				body    *CreateEvaluationRequest
+				body    interface{}
 				headers map[string]string
 			}
-			response *CreateEvaluationResponse
+			response *SendEvaluationResultsResponse
 		}{
 			request: struct {
 				method  string
 				uri     string
-				body    *CreateEvaluationRequest
+				body    interface{}
 				headers map[string]string
 			}{
-				method: http.MethodPost,
-				uri:    "/cli/evaluation/create",
-				body: &CreateEvaluationRequest{
-					K8sVersion: &k8sVersion,
-					CliId:      "cli_id",
-					PolicyName: "Default",
-					Metadata: &Metadata{
-						CliVersion:      "0.0.1",
-						Os:              "darwin",
-						PlatformVersion: "1.2.3",
-						KernelVersion:   "4.5.6",
-					},
-				},
+				method:  http.MethodPost,
+				uri:     "/cli/evaluation/result",
+				body:    body,
 				headers: nil,
 			},
-			response: &CreateEvaluationResponse{
-				EvaluationId: 123,
-				K8sVersion:   k8sVersion,
+			response: &SendEvaluationResultsResponse{
+				EvaluationId:  1234,
+				PromptMessage: "",
 			},
 		},
 	}
 }
 
 func test_publishPolicies_success() *PublishPoliciesTestCase {
-	expectedPublishHeaders := map[string]string{"x-cli-id": "cli_id"}
+	expectedPublishHeaders := map[string]string{"x-datree-token": "token"}
 
 	requestPoliciesConfigurationArg := files.UnknownStruct{}
 	return &PublishPoliciesTestCase{
 		name: "success - publish policies",
 		args: struct {
 			policiesConfiguration files.UnknownStruct
-			cliId                 string
+			token                 string
 		}{
 			policiesConfiguration: requestPoliciesConfigurationArg,
-			cliId:                 "cli_id",
+			token:                 "token",
 		},
 		mockResponse: struct {
 			status int
@@ -492,17 +599,17 @@ func test_publishPolicies_success() *PublishPoliciesTestCase {
 }
 
 func test_publishPolicies_schemaError() *PublishPoliciesTestCase {
-	expectedPublishHeaders := map[string]string{"x-cli-id": "cli_id"}
+	expectedPublishHeaders := map[string]string{"x-datree-token": "token"}
 
 	requestPoliciesConfigurationArg := files.UnknownStruct{}
 	return &PublishPoliciesTestCase{
 		name: "schema error - publish policies",
 		args: struct {
 			policiesConfiguration files.UnknownStruct
-			cliId                 string
+			token                 string
 		}{
 			policiesConfiguration: requestPoliciesConfigurationArg,
-			cliId:                 "cli_id",
+			token:                 "token",
 		},
 		mockResponse: struct {
 			status int

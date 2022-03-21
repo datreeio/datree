@@ -20,11 +20,11 @@ type Printer interface {
 }
 
 type LocalConfig interface {
-	GetLocalConfiguration() (*localConfig.ConfigContent, error)
+	GetLocalConfiguration() (*localConfig.LocalConfig, error)
 }
 
 type CliClient interface {
-	PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) (*cliClient.PublishFailedResponse, error)
+	PublishPolicies(policiesConfiguration files.UnknownStruct, token string) (*cliClient.PublishFailedResponse, error)
 }
 
 type PublishCommandContext struct {
@@ -36,7 +36,7 @@ type PublishCommandContext struct {
 }
 
 func New(ctx *PublishCommandContext) *cobra.Command {
-	var localConfigContent *localConfig.ConfigContent
+	var localConfigContent *localConfig.LocalConfig
 
 	publishCommand := &cobra.Command{
 		Use:   "publish <fileName>",
@@ -102,11 +102,11 @@ type MessagesContext struct {
 	CliClient   *cliClient.CliClient
 }
 
-func publish(ctx *PublishCommandContext, path string, localConfigContent *localConfig.ConfigContent) (*cliClient.PublishFailedResponse, error) {
+func publish(ctx *PublishCommandContext, path string, localConfigContent *localConfig.LocalConfig) (*cliClient.PublishFailedResponse, error) {
 	policiesConfiguration, err := files.ExtractYamlFileToUnknownStruct(path)
 	if err != nil {
 		return nil, err
 	}
 
-	return ctx.PublishCliClient.PublishPolicies(policiesConfiguration, localConfigContent.CliId)
+	return ctx.PublishCliClient.PublishPolicies(policiesConfiguration, localConfigContent.Token)
 }

@@ -16,34 +16,9 @@ type Metadata struct {
 	CIContext       *ciContext.CIContext `json:"ciContext"`
 }
 
-type CreateEvaluationRequest struct {
-	CliId      string    `json:"cliId"`
-	Metadata   *Metadata `json:"metadata"`
-	K8sVersion *string   `json:"k8sVersion"`
-	PolicyName string    `json:"policyName"`
-}
-
-type CreateEvaluationResponse struct {
+type SendEvaluationResultsResponse struct {
 	EvaluationId  int    `json:"evaluationId"`
-	K8sVersion    string `json:"k8sVersion"`
-	RulesCount    int    `json:"rulesCount"`
-	PolicyName    string `json:"policyName"`
-	PromptMessage string `json:"promptMessage"`
-}
-
-func (c *CliClient) CreateEvaluation(request *CreateEvaluationRequest) (*CreateEvaluationResponse, error) {
-	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/create", request, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var res = &CreateEvaluationResponse{}
-	err = json.Unmarshal(httpRes.Body, &res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+	PromptMessage string `json:"promptMessage,omitempty"`
 }
 
 type Match struct {
@@ -91,41 +66,102 @@ type EvaluationRequest struct {
 	Files        []*extractor.FileConfigurations `json:"files"`
 }
 
-func (c *CliClient) RequestEvaluation(request *EvaluationRequest) (*EvaluationResponse, error) {
-	res, err := c.httpClient.Request(http.MethodPost, "/cli/evaluate", request, nil)
-	if err != nil {
-		return &EvaluationResponse{}, err
-	}
-
-	var evaluationResponse = &EvaluationResponse{}
-	err = json.Unmarshal(res.Body, &evaluationResponse)
-	if err != nil {
-		return &EvaluationResponse{}, err
-	}
-
-	return evaluationResponse, nil
+type CustomRule struct {
+	Identifier              string                 `json:"identifier"`
+	Name                    string                 `json:"name"`
+	DefaultMessageOnFailure string                 `json:"defaultMessageOnFailure"`
+	Schema                  map[string]interface{} `json:"schema"`
 }
 
-type UpdateEvaluationValidationRequest struct {
-	EvaluationId   int       `json:"evaluationId"`
-	InvalidFiles   []*string `json:"failedFiles"`
-	StopEvaluation bool      `json:"stopEvaluation"`
+type Rule struct {
+	Identifier       string `json:"identifier"`
+	MessageOnFailure string `json:"messageOnFailure"`
 }
 
-func (c *CliClient) SendFailedYamlValidation(request *UpdateEvaluationValidationRequest) error {
-	_, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/validation/yaml", request, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
+type Policy struct {
+	Name      string `json:"name"`
+	IsDefault bool   `json:"isDefault,omitempty"`
+	Rules     []Rule `json:"rules"`
 }
 
-func (c *CliClient) SendFailedK8sValidation(request *UpdateEvaluationValidationRequest) error {
-	_, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/validation/k8s", request, nil)
-	if err != nil {
-		return err
+type EvaluationPrerunPolicies struct {
+	ApiVersion  string        `json:"apiVersion"`
+	CustomRules []*CustomRule `json:"customRules"`
+	Policies    []*Policy     `json:"policies"`
+}
+
+type EvaluationPrerunDataResponse struct {
+	PoliciesJson          *EvaluationPrerunPolicies `json:"policiesJson"`
+	DefaultK8sVersion     string                    `json:"defaultK8sVersion"`
+	AccountExists         bool                      `json:"accountExists"`
+	RegistrationURL       string                    `json:"registrationURL"`
+	PromptRegistrationURL string                    `json:"promptRegistrationURL"`
+}
+
+const badRequestStatusCode = 400
+
+func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
+	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
+
+	if err != nil && res.StatusCode >= badRequestStatusCode {
+		return &EvaluationPrerunDataResponse{}, err
 	}
 
-	return nil
+	var evaluationPrerunDataResponse = &EvaluationPrerunDataResponse{}
+	err = json.Unmarshal(res.Body, &evaluationPrerunDataResponse)
+	if err != nil {
+		return &EvaluationPrerunDataResponse{}, err
+	}
+
+	return evaluationPrerunDataResponse, nil
+}
+
+type RuleData struct {
+	Identifier string `json:"ruleIdentifier"`
+	Name       string `json:"ruleName"`
+}
+
+type FileData struct {
+	FilePath            string `json:"filepath"`
+	ConfigurationsCount int    `json:"configurationsCount"`
+}
+
+type Configuration struct {
+	Name        string `json:"metadataName"`
+	Kind        string `json:"kind"`
+	Occurrences int    `json:"occurrences"`
+}
+
+type FailedRule struct {
+	Name             string          `json:"ruleName"`
+	MessageOnFailure string          `json:"messageOnFailure"`
+	Configurations   []Configuration `json:"configurations"`
+}
+
+type EvaluationResultRequest struct {
+	ClientId           string                           `json:"clientId"`
+	Token              string                           `json:"token"`
+	Metadata           *Metadata                        `json:"metadata"`
+	K8sVersion         string                           `json:"k8sVersion"`
+	PolicyName         string                           `json:"policyName"`
+	FailedYamlFiles    []string                         `json:"failedYamlFiles"`
+	FailedK8sFiles     []string                         `json:"failedK8sFiles"`
+	AllExecutedRules   []RuleData                       `json:"allExecutedRules"`
+	AllEvaluatedFiles  []FileData                       `json:"allEvaluatedFiles"`
+	PolicyCheckResults map[string]map[string]FailedRule `json:"policyCheckResults"`
+}
+
+func (c *CliClient) SendEvaluationResult(request *EvaluationResultRequest) (*SendEvaluationResultsResponse, error) {
+	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/result", request, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var res = &SendEvaluationResultsResponse{}
+	err = json.Unmarshal(httpRes.Body, &res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

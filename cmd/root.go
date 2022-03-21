@@ -15,9 +15,9 @@ import (
 	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/executor"
 	"github.com/datreeio/datree/pkg/fileReader"
+	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
-	"github.com/datreeio/datree/pkg/yamlSchemaValidator"
 	"github.com/spf13/cobra"
 )
 
@@ -40,6 +40,7 @@ func init() {
 		Printer:      app.context.Printer,
 		Reader:       app.context.Reader,
 		K8sValidator: app.context.K8sValidator,
+		CliClient:    app.context.CliClient,
 	}))
 
 	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
@@ -50,6 +51,7 @@ func init() {
 		Printer:      app.context.Printer,
 		Reader:       app.context.Reader,
 		K8sValidator: app.context.K8sValidator,
+		CliClient:    app.context.CliClient,
 	}, &kustomize.KustomizeContext{CommandRunner: app.context.CommandRunner}))
 
 	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
@@ -75,8 +77,8 @@ func init() {
 
 	rootCmd.AddCommand(completion.New())
 
-	rootCmd.AddCommand(schema_validator.New(&schema_validator.YamlSchemaValidatorCommandContext{
-		YamlSchemaValidator: app.context.YamlSchemaValidator,
+	rootCmd.AddCommand(schema_validator.New(&schema_validator.JSONSchemaValidatorCommandContext{
+		JSONSchemaValidator: app.context.JSONSchemaValidator,
 		Printer:             app.context.Printer,
 	}))
 }
@@ -86,14 +88,14 @@ func Execute() error {
 }
 
 type context struct {
-	LocalConfig         *localConfig.LocalConfig
+	LocalConfig         *localConfig.LocalConfigClient
 	Evaluator           *evaluation.Evaluator
 	CliClient           *cliClient.CliClient
 	Messager            *messager.Messager
 	Printer             *printer.Printer
 	Reader              *fileReader.FileReader
 	K8sValidator        *validation.K8sValidator
-	YamlSchemaValidator *yamlSchemaValidator.YamlSchemaValidator
+	JSONSchemaValidator *jsonSchemaValidator.JSONSchemaValidator
 	CommandRunner       *executor.CommandRunner
 }
 
@@ -102,8 +104,8 @@ type app struct {
 }
 
 func startup() *app {
-	localConfig := localConfig.NewLocalConfig()
 	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
+	localConfig := localConfig.NewLocalConfigClient(cliClient)
 	printer := printer.CreateNewPrinter()
 
 	return &app{
@@ -115,7 +117,7 @@ func startup() *app {
 			Printer:             printer,
 			Reader:              fileReader.CreateFileReader(nil),
 			K8sValidator:        validation.New(),
-			YamlSchemaValidator: yamlSchemaValidator.New(),
+			JSONSchemaValidator: jsonSchemaValidator.New(),
 			CommandRunner:       executor.CreateNewCommandRunner(),
 		},
 	}
