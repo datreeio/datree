@@ -1,7 +1,6 @@
 package kustomize
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -45,11 +44,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 		datree kustomize test https://github.com/kubernetes-sigs/kustomize.git/examples/helloWorld?ref=v1.0.6
 		`),
 		Args: func(cmd *cobra.Command, args []string) error {
-			if args[0] == "-" {
-				if len(args) > 1 {
-					return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(args[1:], ",")))
-				}
-			}
+			utils.ValidateStdinPathArgument(args)
 			return nil
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {

@@ -170,11 +170,8 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			if len(args) < 1 {
 				errMessage := "Requires at least 1 arg\n"
 				return fmt.Errorf(errMessage)
-			} else if args[0] == "-" {
-				if len(args) > 1 {
-					return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(args[1:], ",")))
-				}
 			}
+			utils.ValidateStdinPathArgument(args)
 			return testCommandFlags.Validate()
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
