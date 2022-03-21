@@ -1054,7 +1054,7 @@ rules:
                       type: object
                       minProperties: 1
   - id: 41
-    name: 'Ensure Rollouts revisionHistoryLimit is not set to 0'
+    name: 'Ensure Rollout revisionHistoryLimit is not set to 0'
     uniqueName: 'ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0'
     enabledByDefault: false
     documentationUrl: TODO
@@ -1075,7 +1075,7 @@ rules:
             required:
               - revisionHistoryLimit
   - id: 42
-    name: 'Ensure Bluegreen Rollouts scaleDownDelaySeconds is at least 30 seconds'
+    name: 'Ensure blueGreen Rollout scaleDownDelaySeconds is at least 30 seconds'
     uniqueName: 'ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30'
     enabledByDefault: false
     documentationUrl: TODO
