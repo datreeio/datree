@@ -46,6 +46,7 @@ type TestCommandFlags struct {
 	K8sVersion           string
 	IgnoreMissingSchemas bool
 	OnlyK8sFiles         bool
+	Verbose              bool
 	PolicyName           string
 	SchemaLocations      []string
 	PolicyConfig         string
@@ -58,6 +59,7 @@ func NewTestCommandFlags() *TestCommandFlags {
 		K8sVersion:           "",
 		IgnoreMissingSchemas: false,
 		OnlyK8sFiles:         false,
+		Verbose:              false,
 		PolicyName:           "",
 		SchemaLocations:      make([]string, 0),
 	}
@@ -114,6 +116,7 @@ type TestCommandData struct {
 	K8sVersion            string
 	IgnoreMissingSchemas  bool
 	OnlyK8sFiles          bool
+	Verbose               bool
 	Policy                policy_factory.Policy
 	SchemaLocations       []string
 	Token                 string
@@ -228,7 +231,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 
 	cmd.Flags().StringVar(&flags.PolicyConfig, "policy-config", "", "Policy name to run against")
 	cmd.Flags().BoolVar(&flags.OnlyK8sFiles, "only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
-
+	cmd.Flags().BoolVar(&flags.Verbose, "verbose", false, "enables or disables 'How to Fix' link")
 	// kubeconform flag
 	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
@@ -268,6 +271,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		K8sVersion:            k8sVersion,
 		IgnoreMissingSchemas:  testCommandFlags.IgnoreMissingSchemas,
 		OnlyK8sFiles:          testCommandFlags.OnlyK8sFiles,
+		Verbose:               testCommandFlags.Verbose,
 		Policy:                policy,
 		SchemaLocations:       testCommandFlags.SchemaLocations,
 		Token:                 localConfigContent.Token,
@@ -346,7 +350,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, prerunData.RegistrationURL, prerunData.Output, ctx.Printer, prerunData.K8sVersion, prerunData.Policy.Name)
+	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, prerunData.RegistrationURL, prerunData.Output, ctx.Printer, prerunData.K8sVersion, prerunData.Policy.Name, prerunData.Verbose)
 
 	if evaluationResultData.PromptMessage != "" {
 		ctx.Printer.PrintPromptMessage(evaluationResultData.PromptMessage)

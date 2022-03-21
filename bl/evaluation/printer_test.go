@@ -66,7 +66,7 @@ func TestPrintResults(t *testing.T) {
 		mockedPrinter.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_ = PrintResults(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0", "Default")
+			_ = PrintResults(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0", "Default", false)
 
 			if tt.args.outputFormat == "json" {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
@@ -76,7 +76,7 @@ func TestPrintResults(t *testing.T) {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
 			} else {
 				pwd, _ := os.Getwd()
-				warnings, _ := parseToPrinterWarnings(tt.args.results.EvaluationResults, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0")
+				warnings, _ := parseToPrinterWarnings(tt.args.results.EvaluationResults, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0", false)
 				mockedPrinter.AssertCalled(t, "PrintWarnings", warnings)
 			}
 		})

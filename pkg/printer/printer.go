@@ -27,6 +27,7 @@ type FailedRule struct {
 	Name               string
 	Occurrences        int
 	Suggestion         string
+	HowToFix           string
 	OccurrencesDetails []OccurrenceDetails
 }
 
@@ -147,6 +148,12 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 				ruleName := p.Theme.Colors.RedBold.Sprint(failedRule.Name)
 
 				fmt.Fprintf(out, "%v %v %v\n", p.Theme.Emoji.Error, ruleName, occurrences)
+
+				if failedRule.HowToFix != "" {
+					howToFix := p.Theme.Colors.Yellow.Sprint(failedRule.HowToFix)
+					fmt.Fprintf(out, "    How to fix: %v\n", howToFix)
+				}
+
 				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
 					fmt.Fprintf(out, "    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
 				}
