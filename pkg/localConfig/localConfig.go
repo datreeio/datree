@@ -55,17 +55,17 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 	if token == "" {
 		createTokenResponse, err := lc.tokenClient.CreateToken()
 		if err != nil {
-			return nil, err
+			return &LocalConfig{}, err
 		}
 		token = createTokenResponse.Token
 		viper.SetDefault(tokenKey, token)
 		writeTokenErr := viper.WriteConfig()
 		if writeTokenErr != nil {
-			return nil, writeTokenErr
+			return &LocalConfig{}, writeTokenErr
 		}
 		readTokenErr := viper.ReadInConfig()
 		if readTokenErr != nil {
-			return nil, readTokenErr
+			return &LocalConfig{}, readTokenErr
 		}
 		token = viper.GetString(tokenKey)
 	}
@@ -74,11 +74,11 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 		viper.SetDefault(clientIdKey, shortuuid.New())
 		writeClientIdErr := viper.WriteConfig()
 		if writeClientIdErr != nil {
-			return nil, writeClientIdErr
+			return &LocalConfig{}, writeClientIdErr
 		}
 		readClientIdErr := viper.ReadInConfig()
 		if readClientIdErr != nil {
-			return nil, readClientIdErr
+			return &LocalConfig{}, readClientIdErr
 		}
 		clientId = viper.GetString(clientIdKey)
 	}
@@ -87,11 +87,11 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 		viper.SetDefault(offlineKey, "fail")
 		writeOfflineErr := viper.WriteConfig()
 		if writeOfflineErr != nil {
-			return nil, writeOfflineErr
+			return &LocalConfig{}, writeOfflineErr
 		}
 	}
 
-	return &LocalConfig{Token: token, ClientId: clientId, SchemaVersion: schemaVersion}, nil
+	return &LocalConfig{Token: token, ClientId: clientId, SchemaVersion: schemaVersion, Offline: offline}, nil
 }
 
 func (lc *LocalConfigClient) Set(key string, value string) error {

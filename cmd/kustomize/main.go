@@ -14,6 +14,7 @@ import (
 
 type CliClient interface {
 	RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error)
+	IsConnectionRefused() bool
 }
 
 type KustomizeCommandRunner interface {
@@ -61,17 +62,27 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			}
 
 			localConfigContent, err := testCtx.LocalConfig.GetLocalConfiguration()
-			if err != nil {
+			isConnectionRefused := testCtx.CliClient.IsConnectionRefused()
+
+			if err != nil && isConnectionRefused == false {
 				return err
 			}
 
-			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+			evaluationPrerunData := &cliClient.EvaluationPrerunDataResponse{}
 
+			if localConfigContent.Token != "" {
+				evaluationPrerunData, err = testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+				isConnectionRefused = testCtx.CliClient.IsConnectionRefused()
+
+				if err != nil && isConnectionRefused == false {
+					return err
+				}
+			}
+
+			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData, isConnectionRefused)
 			if err != nil {
 				return err
 			}
-
-			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
 
 			out, err := kustomizeCtx.CommandRunner.ExecuteKustomizeBin(args)
 			if err != nil {

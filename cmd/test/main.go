@@ -107,6 +107,7 @@ var ViolationsFoundError = errors.New("")
 
 type CliClient interface {
 	RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error)
+	IsConnectionRefused() bool
 }
 
 type TestCommandData struct {
@@ -196,17 +197,24 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			}
 
 			localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
-			if err != nil {
+			isConnectionRefused := ctx.CliClient.IsConnectionRefused()
+
+			if err != nil && isConnectionRefused == false {
 				return err
 			}
 
-			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+			evaluationPrerunData := &cliClient.EvaluationPrerunDataResponse{}
 
-			if err != nil {
-				return err
+			if localConfigContent.Token != "" {
+				evaluationPrerunData, err = ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+				isConnectionRefused = ctx.CliClient.IsConnectionRefused()
+
+				if err != nil && isConnectionRefused == false {
+					return err
+				}
 			}
 
-			testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
+			testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData, isConnectionRefused)
 			if err != nil {
 				return err
 			}
@@ -240,7 +248,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 }
 
-func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
+func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse, isConnectionRefused bool) (*TestCommandData, error) {
 	k8sVersion := testCommandFlags.K8sVersion
 	if k8sVersion == "" {
 		k8sVersion = localConfigContent.SchemaVersion
@@ -262,7 +270,11 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 			return nil, err
 		}
 	} else {
-		policies = evaluationPrerunDataResp.PoliciesJson
+		if isConnectionRefused && localConfigContent.Offline == "fail" {
+			return nil, errors.New("connection refused and offline mode is on fail")
+		} else {
+			policies = evaluationPrerunDataResp.PoliciesJson
+		}
 	}
 
 	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName)
@@ -457,25 +469,28 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		}
 	}
 
-	ciContext := ciContext.Extract()
+	sendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{}
+	if ctx.CliClient.IsConnectionRefused() == false {
+		ciContext := ciContext.Extract()
 
-	evaluationRequestData := evaluation.EvaluationRequestData{
-		Token:              prerunData.Token,
-		ClientId:           prerunData.ClientId,
-		CliVersion:         ctx.CliVersion,
-		K8sVersion:         prerunData.K8sVersion,
-		PolicyName:         policyName,
-		CiContext:          ciContext,
-		RulesData:          policyCheckResultData.RulesData,
-		FilesData:          policyCheckResultData.FilesData,
-		FailedYamlFiles:    failedYamlFiles,
-		FailedK8sFiles:     failedK8sFiles,
-		PolicyCheckResults: policyCheckResultData.RawResults,
-	}
+		evaluationRequestData := evaluation.EvaluationRequestData{
+			Token:              prerunData.Token,
+			ClientId:           prerunData.ClientId,
+			CliVersion:         ctx.CliVersion,
+			K8sVersion:         prerunData.K8sVersion,
+			PolicyName:         policyName,
+			CiContext:          ciContext,
+			RulesData:          policyCheckResultData.RulesData,
+			FilesData:          policyCheckResultData.FilesData,
+			FailedYamlFiles:    failedYamlFiles,
+			FailedK8sFiles:     failedK8sFiles,
+			PolicyCheckResults: policyCheckResultData.RawResults,
+		}
 
-	sendEvaluationResultsResponse, err := ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
-	if err != nil {
-		return emptyEvaluationResultData, err
+		sendEvaluationResultsResponse, err = ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
+		if err != nil {
+			return emptyEvaluationResultData, err
+		}
 	}
 
 	evaluationResultData := EvaluationResultData{

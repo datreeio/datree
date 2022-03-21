@@ -12,6 +12,7 @@ import (
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/executor"
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
@@ -103,7 +104,7 @@ type app struct {
 }
 
 func startup() *app {
-	cliClient := cliClient.NewCliClient("http://localhost:8000")
+	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
 	localConfig := localConfig.NewLocalConfigClient(cliClient)
 	printer := printer.CreateNewPrinter()
 
