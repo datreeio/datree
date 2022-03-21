@@ -171,7 +171,10 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				errMessage := "Requires at least 1 arg\n"
 				return fmt.Errorf(errMessage)
 			}
-			utils.ValidateStdinPathArgument(args)
+			err := utils.ValidateStdinPathArgument(args)
+			if err != nil {
+				return err
+			}
 			return testCommandFlags.Validate()
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
