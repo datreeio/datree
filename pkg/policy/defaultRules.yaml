@@ -1102,7 +1102,7 @@ rules:
                     required:
                       - scaleDownDelaySeconds
   - id: 43
-    name: 'Ensure Rollout with Progress DeadlineSeconds set have progressDeadlineAbort set to true'
+    name: 'Ensure Rollout with progressDeadlineSeconds set have progressDeadlineAbort set to true'
     uniqueName: 'ARGO_ROLLOUT_INCORRECT_PROGRESS_DEADLINE_ABORT_VALUE_FALSE'
     enabledByDefault: false
     documentationUrl: TODO
