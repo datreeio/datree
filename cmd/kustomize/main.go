@@ -1,6 +1,7 @@
 package kustomize
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -43,6 +44,14 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 		# Test the kustomize build from github
 		datree kustomize test https://github.com/kubernetes-sigs/kustomize.git/examples/helloWorld?ref=v1.0.6
 		`),
+		Args: func(cmd *cobra.Command, args []string) error {
+			if args[0] == "-" {
+				if len(args) > 1 {
+					return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(args[1:], ",")))
+				}
+			}
+			return nil
+		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return test.LoadVersionMessages(testCtx, args, cmd)
 		},
