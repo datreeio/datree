@@ -881,32 +881,6 @@ rules:
                       anyOf:
                         - pattern: ^(169\.254\.)
                         - pattern: ^(127\.)
-  - id: 34
-    name: 'Prevent EndpointSlice security vulnerability (CVE-2021-25737)'
-    uniqueName: 'ENDPOINTSLICE_CVE2021_25373_INCORRECT_ADDRESSES_VALUE'
-    enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/-prevent-endpointslice-validation-from-enabling-host-network-hijack-cve-2021-25737'
-    messageOnFailure: Incorrect value for key `addresses` - IP address is within vulnerable ranges (127.0.0.0/8 and 169.254.0.0/16)
-    category: Security
-    schema:
-      if:
-        properties:
-          kind:
-            enum:
-              - EndpointSlice
-      then:
-        properties:
-          endpoints:
-            type: array
-            items:
-              properties:
-                addresses:
-                  type: array
-                  items:
-                    not:
-                      anyOf:
-                        - pattern: ^(169\.254\.)
-                        - pattern: ^(127\.)
   - id: 35
     name: 'Ensure DAG fail-fast on node failure'
     uniqueName: 'ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE'
