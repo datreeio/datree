@@ -10,10 +10,10 @@ import (
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
-	"github.com/datreeio/datree/bl/policy"
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/policy"
 	"github.com/pkg/errors"
 
 	"github.com/datreeio/datree/pkg/extractor"
@@ -114,7 +114,7 @@ type TestCommandData struct {
 	K8sVersion            string
 	IgnoreMissingSchemas  bool
 	OnlyK8sFiles          bool
-	Policy                policy.Policy
+	Policy                policy_factory.Policy
 	SchemaLocations       []string
 	Token                 string
 	RegistrationURL       string
@@ -256,7 +256,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 	var err error
 
 	if testCommandFlags.PolicyConfig != "" {
-		policies, err = policy_factory.GetPoliciesFileFromPath(testCommandFlags.PolicyConfig)
+		policies, err = policy.GetPoliciesFileFromPath(testCommandFlags.PolicyConfig)
 		if err != nil {
 			return nil, err
 		}

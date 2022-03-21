@@ -3,11 +3,9 @@ package policy
 import (
 	"encoding/json"
 	"os"
-	"reflect"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/fileReader"
-	"github.com/ghodss/yaml"
 
 	internal_policy "github.com/datreeio/datree/pkg/policy"
 
@@ -80,31 +78,6 @@ func TestCreatePolicy(t *testing.T) {
 
 		assert.Equal(t, expectedPolicy, policy)
 	})
-}
-
-func TestGetPoliciesFileFromPath(t *testing.T) {
-	policiesYamlPath := "./internal/fixtures/policyAsCode/policies.yaml"
-	policies, err := GetPoliciesFileFromPath(policiesYamlPath)
-	if err != nil {
-		panic(err)
-	}
-
-	expectedPoliciesJson := expectedPoliciesContent(t, policiesYamlPath)
-	assert.True(t, reflect.DeepEqual(policies, expectedPoliciesJson))
-}
-
-func expectedPoliciesContent(t *testing.T, path string) *cliClient.EvaluationPrerunPolicies {
-	fileReader := fileReader.CreateFileReader(nil)
-	policiesStr, _ := fileReader.ReadFileContent(path)
-
-	var policiesJson *cliClient.EvaluationPrerunPolicies
-	policiesBytes, _ := yaml.YAMLToJSON([]byte(policiesStr))
-
-	err := yaml.Unmarshal(policiesBytes, &policiesJson)
-	if err != nil {
-		panic(err)
-	}
-	return policiesJson
 }
 
 func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
