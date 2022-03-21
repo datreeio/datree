@@ -64,7 +64,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			localConfigContent, err := testCtx.LocalConfig.GetLocalConfiguration()
 			isConnectionRefused := testCtx.CliClient.IsConnectionRefused()
 
-			if err != nil && isConnectionRefused == false {
+			if err != nil && !isConnectionRefused {
 				return err
 			}
 
@@ -74,7 +74,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				evaluationPrerunData, err = testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
 				isConnectionRefused = testCtx.CliClient.IsConnectionRefused()
 
-				if err != nil && isConnectionRefused == false {
+				if err != nil && !isConnectionRefused {
 					return err
 				}
 			}

@@ -199,7 +199,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
 			isConnectionRefused := ctx.CliClient.IsConnectionRefused()
 
-			if err != nil && isConnectionRefused == false {
+			if err != nil && !isConnectionRefused {
 				return err
 			}
 
@@ -209,7 +209,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				evaluationPrerunData, err = ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
 				isConnectionRefused = ctx.CliClient.IsConnectionRefused()
 
-				if err != nil && isConnectionRefused == false {
+				if err != nil && !isConnectionRefused {
 					return err
 				}
 			}
@@ -470,7 +470,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}
 
 	sendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{}
-	if ctx.CliClient.IsConnectionRefused() == false {
+	if !ctx.CliClient.IsConnectionRefused() {
 		ciContext := ciContext.Extract()
 
 		evaluationRequestData := evaluation.EvaluationRequestData{
