@@ -881,3 +881,314 @@ rules:
                       anyOf:
                         - pattern: ^(169\.254\.)
                         - pattern: ^(127\.)
+  - id: 34
+    name: 'Prevent EndpointSlice security vulnerability (CVE-2021-25737)'
+    uniqueName: 'ENDPOINTSLICE_CVE2021_25373_INCORRECT_ADDRESSES_VALUE'
+    enabledByDefault: false
+    documentationUrl: 'https://hub.datree.io/-prevent-endpointslice-validation-from-enabling-host-network-hijack-cve-2021-25737'
+    messageOnFailure: Incorrect value for key `addresses` - IP address is within vulnerable ranges (127.0.0.0/8 and 169.254.0.0/16)
+    category: Security
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - EndpointSlice
+      then:
+        properties:
+          endpoints:
+            type: array
+            items:
+              properties:
+                addresses:
+                  type: array
+                  items:
+                    not:
+                      anyOf:
+                        - pattern: ^(169\.254\.)
+                        - pattern: ^(127\.)
+  - id: 35
+    name: 'Ensure DAG fail-fast on node failure'
+    uniqueName: 'ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE'
+    enabledByDefault: true
+    documentationUrl: # TODO
+    messageOnFailure: Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches
+    category: Argo
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+             - Workflow
+          spec:
+            properties:
+              templates:
+                type: array
+                items:
+                  properties:
+                    dag:
+                      properties:
+                        failFast:
+                          required:
+                            - failFast
+      then:
+        properties:
+          spec:
+            properties:
+              templates:
+                type: array
+                items:
+                  properties:
+                    dag:
+                      properties:
+                        failFast:
+                          const: true
+  - id: 36
+    name: 'Ensure Workflow pods do not use the default service account'
+    uniqueName: 'ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT'
+    enabledByDefault: true
+    documentationUrl: # TODO
+    messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
+    category: Argo
+    schema:
+      if:
+          properties:
+          kind:
+            enum:
+              - WorkflowTemplate
+              - Workflow
+      then:
+        properties:
+          spec:
+            properties:
+              serviceAccountName:
+                type: string
+                not:
+                  const: default
+            required:
+              - serviceAccountName
+  - id: 37
+    name: 'Ensure ConfigMap is usable by ArgoCD'
+    uniqueName: 'ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD'
+    enabledByDefault: true
+    documentationUrl: # TODO
+    messageOnFailure: Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won't recognize this resource
+    category: Argo
+    schema:
+      if: 
+        properties:
+          kind:
+            enum:
+              - ConfigMap
+          metadata:
+            properties:
+              name:
+                enum:
+                  - argocd-tls-certs-cm
+                  - argocd-rbac-cm
+                  - argocd-ssh-known-hosts-cm
+                  - argocd-cmd-params-cm
+                  - argo-cm
+      then:
+        properties:
+          metadata:
+            properties:
+              labels:
+                properties:
+                  app.kubernetes.io/part-of:
+                    type: string
+                    const: argocd
+                required:
+                  - app.kubernetes.io/part-of
+  - id: 38
+    name: 'Ensure ConfigMap is usable by ArgoCD'
+    uniqueName: 'ARGO_ROLLOUT_MISSING_PAUSE_DURATION'
+    enabledByDefault: true
+    documentationUrl: # TODO
+    messageOnFailure: Missing the key `duration` - prevent the rollout from waiting indefinitely for the pause condition
+    category: Argo
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - Rollout
+      then:
+        properties:
+          spec:
+            properties:
+              strategy:
+                properties:
+                  canary:
+                    type: object
+                    properties:
+                      steps:
+                        type: array
+                        items:
+                          properties:
+                            pause:
+                              type: object
+                              properties:
+                                duration:
+                                  type: string
+                              required:
+                                - duration
+  - id: 39
+    name: 'Ensure Application and AppProject namespaces are valid'
+    uniqueName: 'ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE'
+    enabledByDefault: true
+    documentationUrl: # TODO
+    messageOnFailure: Incorrect value for property `namespace` - Application and AppProject have to be installed on the argocd namespace
+    category: Argo
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - Application
+              - AppProject
+      then:
+        properties:
+          metadata:
+            properties:
+              namespace: 
+                type: string
+                const: argocd
+            required:
+              - namespace
+  - id: 40
+    name: 'Ensure Application and AppProject namespaces are valid'
+    uniqueName: 'ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY'
+    enabledByDefault: true
+    documentationUrl: # TODO
+    messageOnFailure: Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues
+    category: Argo
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - Workflow
+      then:
+        properties:
+          spec:
+            properties:
+              templates:
+                items:
+                  properties:
+                    retryStrategy:
+                      type: object
+                      minProperties: 1
+  - id: 41
+    name: 'Ensure Rollouts revisionHistoryLimit is not set to 0'
+    uniqueName: 'ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0'
+    enabledByDefault: true
+    documentationUrl: # TODO
+    messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
+    category: Argo
+    schema:
+      if: 
+        properties:
+          kind:
+            enum:
+              - Rollout
+      then:
+        properties:
+          spec:
+            properties:
+              revisionHistoryLimit:
+                minimum: 1
+            required:
+              - revisionHistoryLimit
+  - id: 42
+    name: 'Ensure Bluegreen Rollouts scaleDownDelaySeconds is at least 30 seconds'
+    uniqueName: 'ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30'
+    enabledByDefault: true
+    documentationUrl: # TODO
+    messageOnFailure: Incorrect value for key `scalDownDelaySeconds` - value should be at least 30 to prevent packets from being sent to a node that killed the pod
+    category: Argo
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - Rollout
+      then:
+        properties:
+          spec:
+            properties:
+              strategy:
+                properties:
+                  blueGreen:
+                    type: object
+                    properties:
+                      scaleDownDelaySeconds:
+                        type: integer
+                        minimum: 30
+                    required:
+                      - scaleDownDelaySeconds
+  - id: 43
+    name: 'Ensure Rollouts with Progress DeadlineSeconds set have progressDeadlineAbort set to true'
+    uniqueName: 'ARGO_ROLLOUT_INCORRECT_PROGRESS_DEADLINE_ABORT_VALUE_FALSE'
+    enabledByDefault: true
+    documentationUrl: # TODO
+    messageOnFailure: Incorrect value for key `progressDeadlineAbort` - value should be `true` to prevent the rollout pod from retrying indefinitely
+    category: Argo
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - Rollout
+          spec:
+            properties:
+              allOf:
+                properties:
+                  progressDeadlineSeconds:
+                    type: integer
+                  progressDeadlineAbort:
+                    type: boolean
+      then:
+        properties:
+          spec:
+            properties:
+              progressDeadlineAbort:
+                const: true
+  - id: 44
+    name: 'Ensure a Workflow retryPolicy is set on both Error and TransientError'
+    uniqueName: 'ARGO_WORKFLOW_ENSURE_RETRY_ON_BOTH_ERROR_AND_TRANSIENT_ERROR'
+    enabledByDefault: true
+    documentationUrl: # TODO
+    messageOnFailure: Inccorect value for key `retryPolicy` - the expression should include retry on steps that failed either on transient or Argo controller errors
+    category: Argo
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - Workflow
+          spec:
+            properties:
+              templates:
+                items:
+                  properties:
+                    retryStrategy:
+                      properties:
+                        retryPolicy:
+                          const: Always
+                      required:
+                        - retryPolicy
+      then:
+          properties:
+            spec:
+              properties:
+                templates:
+                  items:
+                    properties:
+                      retryStrategy:
+                        type: object
+                        properties:
+                          expression:
+                            const: lastRetry.status == "Error" or (lastRetry.status == "Failed" and asInt(lastRetry.exitCode) not in [0])
+                          retryPolicy:
+                            pattern: .*
