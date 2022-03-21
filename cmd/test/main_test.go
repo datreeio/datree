@@ -130,7 +130,7 @@ func (m *mockCliClient) AddHttpError(errStr string) {
 	m.Called(errStr)
 }
 
-func (m *mockCliClient) IsConnectionRefused() bool {
+func (m *mockCliClient) IsBackendAvailable() bool {
 	args := m.Called()
 	return args.Get(0).(bool)
 }
@@ -174,7 +174,7 @@ func TestTestCommand(t *testing.T) {
 	mockedEvaluator.On("RequestEvaluationPrerunData", mock.Anything).Return(prerunData, nil)
 
 	mockedCliClient := &mockCliClient{}
-	mockedCliClient.On("IsConnectionRefused", mock.Anything).Return(false, nil)
+	mockedCliClient.On("IsBackendAvailable", mock.Anything).Return(true, nil)
 
 	messager := &mockMessager{}
 	messager.On("LoadVersionMessages", mock.Anything)
