@@ -1133,7 +1133,7 @@ rules:
     uniqueName: 'ARGO_WORKFLOW_ENSURE_RETRY_ON_BOTH_ERROR_AND_TRANSIENT_ERROR'
     enabledByDefault: false
     documentationUrl: TODO
-    messageOnFailure: Inccorect value for key `retryPolicy` - the expression should include retry on steps that failed either on transient or Argo controller errors
+    messageOnFailure: Incorrect value for key `retryPolicy` - the expression should include retry on steps that failed either on transient or Argo controller errors
     category: Argo
     schema:
       if:
