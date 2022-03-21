@@ -1032,7 +1032,7 @@ rules:
               - namespace
   - id: 40
     name: 'Ensure Application and AppProject namespaces are valid'
-    uniqueName: 'ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY'
+    uniqueName: 'ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE'
     enabledByDefault: false
     documentationUrl: TODO
     messageOnFailure: Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues
