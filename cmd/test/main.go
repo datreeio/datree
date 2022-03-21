@@ -107,7 +107,7 @@ var ViolationsFoundError = errors.New("")
 
 type CliClient interface {
 	RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error)
-	IsConnectionRefused() bool
+	IsBackendAvailable() bool
 }
 
 type TestCommandData struct {
@@ -197,24 +197,24 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			}
 
 			localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
-			isConnectionRefused := ctx.CliClient.IsConnectionRefused()
+			isBackendAvailable := ctx.CliClient.IsBackendAvailable()
 
-			if err != nil && !isConnectionRefused {
+			if err != nil && isBackendAvailable {
 				return err
 			}
 
 			evaluationPrerunData := &cliClient.EvaluationPrerunDataResponse{}
 
-			if localConfigContent.Token != "" {
+			if isBackendAvailable {
 				evaluationPrerunData, err = ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
-				isConnectionRefused = ctx.CliClient.IsConnectionRefused()
+				isBackendAvailable = ctx.CliClient.IsBackendAvailable()
 
-				if err != nil && !isConnectionRefused {
+				if err != nil && isBackendAvailable {
 					return err
 				}
 			}
 
-			testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData, isConnectionRefused)
+			testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData, isBackendAvailable)
 			if err != nil {
 				return err
 			}
@@ -272,9 +272,9 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 	} else {
 		if isConnectionRefused && localConfigContent.Offline == "fail" {
 			return nil, errors.New("connection refused and offline mode is on fail")
-		} else {
-			policies = evaluationPrerunDataResp.PoliciesJson
 		}
+
+		policies = evaluationPrerunDataResp.PoliciesJson
 	}
 
 	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName)
@@ -470,7 +470,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}
 
 	sendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{}
-	if !ctx.CliClient.IsConnectionRefused() {
+	if ctx.CliClient.IsBackendAvailable() {
 		ciContext := ciContext.Extract()
 
 		evaluationRequestData := evaluation.EvaluationRequestData{

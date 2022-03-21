@@ -30,11 +30,11 @@ func (c *CliClient) AddHttpError(errStr string) {
 	c.httpErrors = append(c.httpErrors, errStr)
 }
 
-func (c *CliClient) IsConnectionRefused() bool {
+func (c *CliClient) IsBackendAvailable() bool {
 	for _, httpError := range c.httpErrors {
 		if strings.Contains(httpError, "connection refused") || strings.Contains(httpError, "ECONNREFUSED") {
-			return true
+			return false
 		}
 	}
-	return false
+	return true
 }
