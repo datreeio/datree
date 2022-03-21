@@ -1129,7 +1129,7 @@ rules:
               progressDeadlineAbort:
                 const: true
   - id: 44
-    name: 'Ensure a Workflow retryPolicy is set on both Error and TransientError'
+    name: Ensure Workflow retryPolicy that is set to `Always` doesn't catch too many errors
     uniqueName: 'ARGO_WORKFLOW_ENSURE_RETRY_ON_BOTH_ERROR_AND_TRANSIENT_ERROR'
     enabledByDefault: false
     documentationUrl: TODO
