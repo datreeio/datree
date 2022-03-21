@@ -884,7 +884,7 @@ rules:
   - id: 35
     name: 'Ensure DAG fail-fast on node failure'
     uniqueName: 'ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE'
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: TODO
     messageOnFailure: Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches
     category: Argo
@@ -920,7 +920,7 @@ rules:
   - id: 36
     name: 'Ensure Workflow pods do not use the default service account'
     uniqueName: 'ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT'
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: TODO
     messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
     category: Argo
@@ -944,7 +944,7 @@ rules:
   - id: 37
     name: 'Ensure ConfigMap is usable by ArgoCD'
     uniqueName: 'ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD'
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: TODO
     messageOnFailure: Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won't recognize this resource
     category: Argo
@@ -977,7 +977,7 @@ rules:
   - id: 38
     name: 'Ensure ConfigMap is usable by ArgoCD'
     uniqueName: 'ARGO_ROLLOUT_MISSING_PAUSE_DURATION'
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: TODO
     messageOnFailure: Missing the key `duration` - prevent the rollout from waiting indefinitely for the pause condition
     category: Argo
@@ -1010,7 +1010,7 @@ rules:
   - id: 39
     name: 'Ensure Application and AppProject namespaces are valid'
     uniqueName: 'ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE'
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: TODO
     messageOnFailure: Incorrect value for property `namespace` - Application and AppProject have to be installed on the argocd namespace
     category: Argo
@@ -1033,7 +1033,7 @@ rules:
   - id: 40
     name: 'Ensure Application and AppProject namespaces are valid'
     uniqueName: 'ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY'
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: TODO
     messageOnFailure: Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues
     category: Argo
@@ -1056,7 +1056,7 @@ rules:
   - id: 41
     name: 'Ensure Rollouts revisionHistoryLimit is not set to 0'
     uniqueName: 'ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0'
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: TODO
     messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
     category: Argo
@@ -1077,7 +1077,7 @@ rules:
   - id: 42
     name: 'Ensure Bluegreen Rollouts scaleDownDelaySeconds is at least 30 seconds'
     uniqueName: 'ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30'
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: TODO
     messageOnFailure: Incorrect value for key `scalDownDelaySeconds` - value should be at least 30 to prevent packets from being sent to a node that killed the pod
     category: Argo
@@ -1104,7 +1104,7 @@ rules:
   - id: 43
     name: 'Ensure Rollouts with Progress DeadlineSeconds set have progressDeadlineAbort set to true'
     uniqueName: 'ARGO_ROLLOUT_INCORRECT_PROGRESS_DEADLINE_ABORT_VALUE_FALSE'
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: TODO
     messageOnFailure: Incorrect value for key `progressDeadlineAbort` - value should be `true` to prevent the rollout pod from retrying indefinitely
     category: Argo
@@ -1131,7 +1131,7 @@ rules:
   - id: 44
     name: 'Ensure a Workflow retryPolicy is set on both Error and TransientError'
     uniqueName: 'ARGO_WORKFLOW_ENSURE_RETRY_ON_BOTH_ERROR_AND_TRANSIENT_ERROR'
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: TODO
     messageOnFailure: Inccorect value for key `retryPolicy` - the expression should include retry on steps that failed either on transient or Argo controller errors
     category: Argo
