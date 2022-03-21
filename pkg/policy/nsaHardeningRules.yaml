@@ -258,7 +258,7 @@
     items:
       $ref: "#"
 - id: 42
-  name: Ensure each container is running without root privileges 
+  name: Prevent container from running with root privileges 
   uniqueName: CONTAINERS_INCORRECT_RUNASNONROOT_VALUE
   enabledByDefault: true
   documentationUrl: 'https://hub.datree.io/'
