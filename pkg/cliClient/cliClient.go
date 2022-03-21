@@ -1,8 +1,9 @@
 package cliClient
 
 import (
-	"github.com/datreeio/datree/pkg/httpClient"
 	"strings"
+
+	"github.com/datreeio/datree/pkg/httpClient"
 )
 
 type HTTPClient interface {
