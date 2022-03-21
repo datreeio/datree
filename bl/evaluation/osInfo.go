@@ -1,6 +1,6 @@
 package evaluation
 
-import "github.com/shirou/gopsutil/host"
+import "github.com/shirou/gopsutil/v3/host"
 
 type OSInfo struct {
 	OS              string
