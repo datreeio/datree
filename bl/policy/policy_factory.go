@@ -1,6 +1,7 @@
 package policy
 
 import (
+	_ "embed"
 	"fmt"
 
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -117,5 +118,4 @@ func createDefaultPolicy(defaultRules *internal_policy.DefaultRulesDefinitions) 
 	}
 
 	return Policy{"Default", rules}
-
 }

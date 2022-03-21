@@ -9,7 +9,7 @@ import (
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
-	"github.com/datreeio/datree/pkg/yamlSchemaValidator"
+	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 )
 
 type CLIClient interface {
@@ -106,7 +106,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, FailedRulesByFiles{}, rulesCount}, nil
 	}
 
-	yamlSchemaValidator := yamlSchemaValidator.New()
+	jsonSchemaValidator := jsonSchemaValidator.New()
 
 	// map of files paths to map of rules to failed rule data
 	failedRulesByFiles := make(FailedRulesByFiles)
@@ -135,7 +135,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 					return emptyPolicyCheckResult, err
 				}
 
-				validationResult, err := yamlSchemaValidator.Validate(string(ruleSchemaJson), string(configurationJson))
+				validationResult, err := jsonSchemaValidator.ValidateYamlSchema(string(ruleSchemaJson), string(configurationJson))
 
 				if err != nil {
 					return emptyPolicyCheckResult, err

@@ -32,7 +32,7 @@
                 "identifier": {
                   "uniqueItems": true,
                   "type": "string",
-                  "pattern": "^([A-Za-z0-9])+(_?[A-Za-z0-9])*$"
+                  "pattern": "^([A-Za-z0-9\\.])+(_?[A-Za-z0-9\\.])*$"
                 },
                 "messageOnFailure": {
                   "type": "string"
@@ -51,24 +51,28 @@
       "type": "array",
       "items": {
         "type": "object",
-        "identifier": {
-          "type": "string"
-        },
-        "pattern": "^([A-Za-z0-9])+(_?[A-Za-z0-9])*$",
-        "defaultMessageOnFailure": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "jsonSchema": {
-          "type": "string"
-        },
-        "schema": {
-          "type": "object"
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "pattern": "^([A-Za-z0-9\\.])+(_?[A-Za-z0-9\\.])*$"
+          },
+          "defaultMessageOnFailure": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "jsonSchema": {
+            "type": "string"
+          },
+          "schema": {
+            "type": "object"
+          }
         },
         "required": [
-          "identifier"
+          "identifier",
+          "name",
+          "defaultMessageOnFailure"
         ]
       }
     }

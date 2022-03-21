@@ -342,7 +342,7 @@ func test_getVersionMessage_success() *GetVersionMessageTestCase {
 }
 
 func mockGetPreRunData() *EvaluationPrerunDataResponse {
-	const policiesJsonPath = "../../internal/fixtures/policyAsCode/policies.json"
+	const policiesJsonPath = "../../internal/fixtures/policyAsCode/prerun.json"
 
 	fileReader := fileReader.CreateFileReader(nil)
 	policiesJsonStr, err := fileReader.ReadFileContent(policiesJsonPath)
