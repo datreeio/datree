@@ -103,7 +103,8 @@ const badRequestStatusCode = 400
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
 
-	if err != nil && res.StatusCode >= badRequestStatusCode {
+	if err != nil && (res.StatusCode >= badRequestStatusCode || res.Body == nil) {
+		c.AddHttpError(err.Error())
 		return &EvaluationPrerunDataResponse{}, err
 	}
 

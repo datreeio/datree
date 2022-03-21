@@ -14,6 +14,7 @@ func (c *CliClient) CreateToken() (*CreateTokenResponse, error) {
 	res, err := c.httpClient.Request(http.MethodPost, "/cli/tokens/", nil, headers)
 
 	if err != nil {
+		c.AddHttpError(err.Error())
 		return nil, err
 	}
 
