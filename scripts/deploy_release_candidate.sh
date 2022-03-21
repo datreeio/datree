@@ -16,7 +16,7 @@ export DATREE_BUILD_VERSION=$nextVersion-yishay-rc
 echo $DATREE_BUILD_VERSION
 
 git tag $DATREE_BUILD_VERSION -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-git push --tags
+git push origin $DATREE_BUILD_VERSION
 
 bash ./scripts/sign_application.sh
 curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging VERSION=v$GORELEASER_VERSION bash
