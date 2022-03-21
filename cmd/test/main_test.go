@@ -122,6 +122,24 @@ func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.LocalConfig, er
 	return &localConfig.LocalConfig{Token: "134kh"}, nil
 }
 
+type mockCliClient struct {
+	mock.Mock
+}
+
+func (m *mockCliClient) AddHttpError(errStr string) {
+	m.Called(errStr)
+}
+
+func (m *mockCliClient) IsConnectionRefused() bool {
+	args := m.Called()
+	return args.Get(0).(bool)
+}
+
+func (m *mockCliClient) RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error) {
+	args := m.Called(token)
+	return args.Get(0).(*cliClient.EvaluationPrerunDataResponse), args.Error(1)
+}
+
 func TestTestCommand(t *testing.T) {
 	evaluationId := 444
 
@@ -154,6 +172,9 @@ func TestTestCommand(t *testing.T) {
 	mockedEvaluator.On("Evaluate", mock.Anything).Return(policyCheckResultData, nil)
 	mockedEvaluator.On("SendEvaluationResult", mock.Anything).Return(sendEvaluationResultsResponse, nil)
 	mockedEvaluator.On("RequestEvaluationPrerunData", mock.Anything).Return(prerunData, nil)
+
+	mockedCliClient := &mockCliClient{}
+	mockedCliClient.On("IsConnectionRefused", mock.Anything).Return(false, nil)
 
 	messager := &mockMessager{}
 	messager.On("LoadVersionMessages", mock.Anything)
@@ -192,6 +213,7 @@ func TestTestCommand(t *testing.T) {
 		Messager:     messager,
 		Printer:      printerMock,
 		Reader:       readerMock,
+		CliClient:    mockedCliClient,
 	}
 
 	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
