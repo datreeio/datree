@@ -23,7 +23,7 @@ const VIOLATIONS_FOUND_EXIT_CODE = 2
 func main() {
 	validator := networkValidator.NewNetworkValidator()
 	cliClient := cliClient.NewCliClient(deploymentConfig.URL, validator)
-	localConfig := localConfig.NewLocalConfigClient(cliClient)
+	localConfig := localConfig.NewLocalConfigClient(cliClient, validator)
 
 	reporter := errorReporter.NewErrorReporter(cliClient, localConfig)
 	globalPrinter := printer.CreateNewPrinter()

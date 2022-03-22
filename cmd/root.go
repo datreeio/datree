@@ -107,7 +107,7 @@ type app struct {
 func startup() *app {
 	validator := networkValidator.NewNetworkValidator()
 	cliClient := cliClient.NewCliClient(deploymentConfig.URL, validator)
-	localConfig := localConfig.NewLocalConfigClient(cliClient)
+	localConfig := localConfig.NewLocalConfigClient(cliClient, validator)
 	printer := printer.CreateNewPrinter()
 
 	return &app{

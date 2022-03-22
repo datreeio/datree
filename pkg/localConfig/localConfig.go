@@ -1,6 +1,7 @@
 package localConfig
 
 import (
+	"github.com/datreeio/datree/pkg/networkValidator"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -22,12 +23,14 @@ type TokenClient interface {
 }
 
 type LocalConfigClient struct {
-	tokenClient TokenClient
+	tokenClient      TokenClient
+	networkValidator *networkValidator.NetworkValidator
 }
 
-func NewLocalConfigClient(t TokenClient) *LocalConfigClient {
+func NewLocalConfigClient(t TokenClient, nv *networkValidator.NetworkValidator) *LocalConfigClient {
 	return &LocalConfigClient{
-		tokenClient: t,
+		tokenClient:      t,
+		networkValidator: nv,
 	}
 }
 
@@ -51,6 +54,16 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 	clientId := viper.GetString(clientIdKey)
 	schemaVersion := viper.GetString(schemaVersionKey)
 	offline := viper.GetString(offlineKey)
+
+	if offline == "" {
+		viper.SetDefault(offlineKey, "fail")
+		writeOfflineErr := viper.WriteConfig()
+		if writeOfflineErr != nil {
+			return &LocalConfig{}, writeOfflineErr
+		}
+	}
+
+	lc.networkValidator.SetOfflineMode(offline)
 
 	if token == "" {
 		createTokenResponse, err := lc.tokenClient.CreateToken()
@@ -81,14 +94,6 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 			return &LocalConfig{}, readClientIdErr
 		}
 		clientId = viper.GetString(clientIdKey)
-	}
-
-	if offline == "" {
-		viper.SetDefault(offlineKey, "fail")
-		writeOfflineErr := viper.WriteConfig()
-		if writeOfflineErr != nil {
-			return &LocalConfig{}, writeOfflineErr
-		}
 	}
 
 	return &LocalConfig{Token: token, ClientId: clientId, SchemaVersion: schemaVersion, Offline: offline}, nil
