@@ -150,7 +150,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 				fmt.Fprintf(out, "%v %v %v\n", p.Theme.Emoji.Error, ruleName, occurrences)
 
 				if failedRule.HowToFix != "" {
-					howToFix := p.Theme.Colors.Yellow.Sprint(failedRule.HowToFix)
+					howToFix := p.Theme.Colors.Cyan.Sprint(failedRule.HowToFix)
 					fmt.Fprintf(out, "    How to fix: %v\n", howToFix)
 				}
 
