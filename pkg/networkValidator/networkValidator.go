@@ -21,7 +21,7 @@ func (nv *NetworkValidator) SetOfflineMode(offlineMode string) {
 	nv.offlineMode = offlineMode
 }
 
-func (nv *NetworkValidator) SetIsBackendAvailable(errStr string) error {
+func (nv *NetworkValidator) IdentifyNetworkError(errStr string) error {
 	if strings.Contains(errStr, "connection refused") || strings.Contains(errStr, "ECONNREFUSED") {
 		if nv.offlineMode == "fail" {
 			return errors.New("connection refused and offline mode is on fail")

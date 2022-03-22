@@ -108,9 +108,9 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrer
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
 
 	if err != nil && (res.StatusCode >= badRequestStatusCode || res.Body == nil) {
-		validatorErr := c.networkValidator.SetIsBackendAvailable(err.Error())
-		if validatorErr != nil {
-			return &EvaluationPrerunDataResponse{}, validatorErr
+		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
+		if networkErr != nil {
+			return &EvaluationPrerunDataResponse{}, networkErr
 		}
 
 		if c.networkValidator.IsLocalMode() {
@@ -171,9 +171,9 @@ func (c *CliClient) SendEvaluationResult(request *EvaluationResultRequest) (*Sen
 
 	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/result", request, nil)
 	if err != nil {
-		validatorErr := c.networkValidator.SetIsBackendAvailable(err.Error())
-		if validatorErr != nil {
-			return &SendEvaluationResultsResponse{}, validatorErr
+		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
+		if networkErr != nil {
+			return &SendEvaluationResultsResponse{}, networkErr
 		}
 
 		if c.networkValidator.IsLocalMode() {
