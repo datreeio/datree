@@ -227,16 +227,17 @@ func TestTestCommand(t *testing.T) {
 	test_testCommand_only_k8s_files(t, k8sValidatorMock, filesConfigurations, evaluationId, ctx)
 }
 
-func TestTestOfflineAndFailCommand(t *testing.T) {
-	mockedCliClient := &mockCliClient{}
-	mockedCliClient.On("IsBackendAvailable", mock.Anything).Return(false, nil)
-
-	localConfig := &localConfig.LocalConfig{Token: "134kh", Offline: "fail"}
-
-	testCommandFlags := &TestCommandFlags{K8sVersion: "1.21.0"}
-	test_generateTestCommandData_fail(t, testCommandFlags, localConfig)
-
-}
+// todo move this test to network validator test
+//func TestTestOfflineAndFailCommand(t *testing.T) {
+//	mockedCliClient := &mockCliClient{}
+//	mockedCliClient.On("IsBackendAvailable", mock.Anything).Return(false, nil)
+//
+//	localConfig := &localConfig.LocalConfig{Token: "134kh", Offline: "fail"}
+//
+//	testCommandFlags := &TestCommandFlags{K8sVersion: "1.21.0"}
+//	test_generateTestCommandData_fail(t, testCommandFlags, localConfig)
+//
+//}
 
 func TestTestOfflineAndLocalCommand(t *testing.T) {
 	mockedCliClient := &mockCliClient{}
@@ -517,7 +518,7 @@ func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
 }
 
 func test_generateTestCommandData_fail(t *testing.T, testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig) {
-	_, actualErr := GenerateTestCommandData(testCommandFlags, localConfigContent, nil, false)
+	_, actualErr := GenerateTestCommandData(testCommandFlags, localConfigContent, nil)
 	assert.Equal(t, "connection refused and offline mode is on fail", actualErr.Error())
 
 }

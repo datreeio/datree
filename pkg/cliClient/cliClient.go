@@ -8,7 +8,7 @@ type HTTPClient interface {
 	Request(method string, resourceURI string, body interface{}, headers map[string]string) (httpClient.Response, error)
 }
 type NetworkValidator interface {
-	SetIsBackendAvailable(errStr string)
+	SetIsBackendAvailable(errStr string) error
 	IsBackendAvailable() bool
 }
 
@@ -31,8 +31,8 @@ func NewCliClient(url string, networkValidator NetworkValidator) *CliClient {
 	}
 }
 
-func (c *CliClient) SetIsBackendAvailable(errStr string) {
-	c.networkValidator.SetIsBackendAvailable(errStr)
+func (c *CliClient) SetIsBackendAvailable(errStr string) error {
+	return c.networkValidator.SetIsBackendAvailable(errStr)
 }
 
 func (c *CliClient) IsBackendAvailable() bool {

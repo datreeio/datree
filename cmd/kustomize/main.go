@@ -79,7 +79,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				}
 			}
 
-			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData, isBackendAvailable)
+			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
 			if err != nil {
 				return err
 			}
