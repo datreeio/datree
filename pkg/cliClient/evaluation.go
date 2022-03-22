@@ -160,6 +160,10 @@ type EvaluationResultRequest struct {
 }
 
 func (c *CliClient) SendEvaluationResult(request *EvaluationResultRequest) (*SendEvaluationResultsResponse, error) {
+	if !c.networkValidator.IsBackendAvailable() {
+		return &SendEvaluationResultsResponse{}, nil
+	}
+
 	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/result", request, nil)
 	if err != nil {
 		return nil, err

@@ -199,9 +199,11 @@ func TestSendEvaluationResult(t *testing.T) {
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
 			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, nil).Once()
 
+			networkValidator := networkValidator.NewNetworkValidator()
 			client := &CliClient{
-				baseUrl:    "http://cli-service.test.io",
-				httpClient: &httpClientMock,
+				baseUrl:          "http://cli-service.test.io",
+				httpClient:       &httpClientMock,
+				networkValidator: networkValidator,
 			}
 
 			sendEvaluationResultsResponse, _ := client.SendEvaluationResult(tt.args.evaluationRequestData)

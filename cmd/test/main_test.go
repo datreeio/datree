@@ -239,74 +239,6 @@ func TestTestCommand(t *testing.T) {
 //
 //}
 
-func TestTestOfflineAndLocalCommand(t *testing.T) {
-	mockedCliClient := &mockCliClient{}
-	mockedCliClient.On("IsBackendAvailable", mock.Anything).Return(false, nil)
-
-	prerunData := mockGetPreRunData()
-
-	formattedResults := evaluation.FormattedResults{}
-
-	policyCheckResultData := evaluation.PolicyCheckResultData{
-		FormattedResults: formattedResults,
-		RulesData:        []cliClient.RuleData{},
-		FilesData:        []cliClient.FileData{},
-		RawResults:       nil,
-		RulesCount:       0,
-	}
-
-	formattedResults.EvaluationResults = &evaluation.EvaluationResults{
-		FileNameRuleMapper: map[string]map[string]*evaluation.Rule{}, Summary: struct {
-			TotalFailedRules int
-			FilesCount       int
-			TotalPassedCount int
-		}{TotalFailedRules: 0, FilesCount: 0, TotalPassedCount: 1},
-	}
-
-	mockedEvaluator := &mockEvaluator{}
-	mockedEvaluator.On("Evaluate", mock.Anything).Return(policyCheckResultData, nil)
-
-	messager := &mockMessager{}
-	messager.On("LoadVersionMessages", mock.Anything)
-
-	k8sValidatorMock := &K8sValidatorMock{}
-
-	path := "valid/path"
-	filesConfigurationsChan := newFilesConfigurationsChan(path)
-	filesConfigurations := newFilesConfigurations(path)
-
-	invalidK8sFilesChan := newInvalidK8sFilesChan()
-	ignoredFilesChan := newIgnoredYamlFilesChan()
-
-	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidK8sFilesChan, newErrorsChan())
-	k8sValidatorMock.On("GetK8sFiles", mock.Anything, mock.Anything).Return(filesConfigurationsChan, ignoredFilesChan, newErrorsChan())
-	k8sValidatorMock.On("InitClient", mock.Anything, mock.Anything, mock.Anything).Return()
-
-	printerMock := &PrinterMock{}
-	printerMock.On("PrintWarnings", mock.Anything)
-	printerMock.On("PrintSummaryTable", mock.Anything)
-	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
-	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
-	printerMock.On("PrintPromptMessage", mock.Anything)
-	printerMock.On("SetTheme", mock.Anything)
-
-	readerMock := &ReaderMock{}
-	readerMock.On("FilterFiles", mock.Anything).Return([]string{"file/path"}, nil)
-
-	ctx := &TestCommandContext{
-		K8sValidator: k8sValidatorMock,
-		Evaluator:    mockedEvaluator,
-		Messager:     messager,
-		Printer:      printerMock,
-		Reader:       readerMock,
-		CliClient:    mockedCliClient,
-	}
-
-	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
-
-	test_testCommand_offline_and_local(t, mockedEvaluator, k8sValidatorMock, filesConfigurations, ctx, policy)
-}
-
 func test_testCommand_flags_validation(t *testing.T, ctx *TestCommandContext) {
 
 	test_testCommand_output_flags_validation(t, ctx)
@@ -371,22 +303,6 @@ func test_testCommand_no_flags(t *testing.T, evaluator *mockEvaluator, k8sValida
 
 	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	evaluator.AssertCalled(t, "Evaluate", policyCheckData)
-}
-
-func test_testCommand_offline_and_local(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {
-	_ = Test(ctx, []string{"8/*"}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: policy, Token: "134kh"})
-
-	policyCheckData := evaluation.PolicyCheckData{
-		FilesConfigurations: filesConfigurations,
-		IsInteractiveMode:   true,
-		PolicyName:          policy.Name,
-		Policy:              policy,
-	}
-
-	assert.Equal(t, policy.Name, "labels_best_practices")
-	k8sValidator.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	evaluator.AssertCalled(t, "Evaluate", policyCheckData)
-	evaluator.AssertNotCalled(t, "SendEvaluationResult")
 }
 
 func test_testCommand_json_output(t *testing.T, evaluator *mockEvaluator, k8sValidator *K8sValidatorMock, filesConfigurations []*extractor.FileConfigurations, ctx *TestCommandContext, policy policy_factory.Policy) {

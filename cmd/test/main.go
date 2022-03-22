@@ -457,28 +457,26 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		}
 	}
 
-	sendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{}
-	if ctx.CliClient.IsBackendAvailable() {
-		ciContext := ciContext.Extract()
+	ciContext := ciContext.Extract()
 
-		evaluationRequestData := evaluation.EvaluationRequestData{
-			Token:              prerunData.Token,
-			ClientId:           prerunData.ClientId,
-			CliVersion:         ctx.CliVersion,
-			K8sVersion:         prerunData.K8sVersion,
-			PolicyName:         policyName,
-			CiContext:          ciContext,
-			RulesData:          policyCheckResultData.RulesData,
-			FilesData:          policyCheckResultData.FilesData,
-			FailedYamlFiles:    failedYamlFiles,
-			FailedK8sFiles:     failedK8sFiles,
-			PolicyCheckResults: policyCheckResultData.RawResults,
-		}
+	evaluationRequestData := evaluation.EvaluationRequestData{
+		Token:              prerunData.Token,
+		ClientId:           prerunData.ClientId,
+		CliVersion:         ctx.CliVersion,
+		K8sVersion:         prerunData.K8sVersion,
+		PolicyName:         policyName,
+		CiContext:          ciContext,
+		RulesData:          policyCheckResultData.RulesData,
+		FilesData:          policyCheckResultData.FilesData,
+		FailedYamlFiles:    failedYamlFiles,
+		FailedK8sFiles:     failedK8sFiles,
+		PolicyCheckResults: policyCheckResultData.RawResults,
+	}
 
-		sendEvaluationResultsResponse, err = ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
-		if err != nil {
-			return emptyEvaluationResultData, err
-		}
+	sendEvaluationResultsResponse, err := ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
+
+	if err != nil {
+		return emptyEvaluationResultData, err
 	}
 
 	evaluationResultData := EvaluationResultData{
