@@ -248,7 +248,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 }
 
-func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse, isConnectionRefused bool) (*TestCommandData, error) {
+func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse, isBackendAvailable bool) (*TestCommandData, error) {
 	k8sVersion := testCommandFlags.K8sVersion
 	if k8sVersion == "" {
 		k8sVersion = localConfigContent.SchemaVersion
@@ -270,7 +270,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 			return nil, err
 		}
 	} else {
-		if isConnectionRefused && localConfigContent.Offline == "fail" {
+		if !isBackendAvailable && localConfigContent.Offline == "fail" {
 			return nil, errors.New("connection refused and offline mode is on fail")
 		}
 
