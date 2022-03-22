@@ -112,6 +112,11 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrer
 		if validatorErr != nil {
 			return &EvaluationPrerunDataResponse{}, validatorErr
 		}
+
+		if !c.networkValidator.IsBackendAvailable() {
+			return &EvaluationPrerunDataResponse{}, nil
+		}
+
 		return &EvaluationPrerunDataResponse{}, err
 	}
 
@@ -166,6 +171,15 @@ func (c *CliClient) SendEvaluationResult(request *EvaluationResultRequest) (*Sen
 
 	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/result", request, nil)
 	if err != nil {
+		validatorErr := c.networkValidator.SetIsBackendAvailable(err.Error())
+		if validatorErr != nil {
+			return &SendEvaluationResultsResponse{}, validatorErr
+		}
+
+		if !c.networkValidator.IsBackendAvailable() {
+			return &SendEvaluationResultsResponse{}, nil
+		}
+
 		return nil, err
 	}
 

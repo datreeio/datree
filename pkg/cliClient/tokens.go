@@ -10,6 +10,10 @@ type CreateTokenResponse struct {
 }
 
 func (c *CliClient) CreateToken() (*CreateTokenResponse, error) {
+	if !c.networkValidator.IsBackendAvailable() {
+		return nil, nil
+	}
+
 	headers := map[string]string{}
 	res, err := c.httpClient.Request(http.MethodPost, "/cli/tokens/", nil, headers)
 
@@ -18,6 +22,11 @@ func (c *CliClient) CreateToken() (*CreateTokenResponse, error) {
 		if validatorErr != nil {
 			return nil, validatorErr
 		}
+
+		if !c.networkValidator.IsBackendAvailable() {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 
