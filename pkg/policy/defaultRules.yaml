@@ -882,10 +882,10 @@ rules:
                         - pattern: ^(169\.254\.)
                         - pattern: ^(127\.)
   - id: 35
-    name: 'Ensure DAG fail-fast on node failure'
+    name: 'Ensure Workflow DAG fail-fast on node failure'
     uniqueName: 'ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE'
     enabledByDefault: false
-    documentationUrl: TODO
+    documentationUrl: https://hub.datree.io/
     messageOnFailure: Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches
     category: Argo
     schema:
@@ -918,10 +918,10 @@ rules:
                         failFast:
                           const: true
   - id: 36
-    name: 'Ensure Workflow pods do not use the default service account'
+    name: 'Prevent Workflow pods from using the default service account'
     uniqueName: 'ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT'
     enabledByDefault: false
-    documentationUrl: TODO
+    documentationUrl: https://hub.datree.io/
     messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
     category: Argo
     schema:
@@ -942,10 +942,10 @@ rules:
             required:
               - serviceAccountName
   - id: 37
-    name: 'Ensure ConfigMap is usable by ArgoCD'
+    name: 'Ensure ConfigMap is recognized by ArgoCD'
     uniqueName: 'ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD'
     enabledByDefault: false
-    documentationUrl: TODO
+    documentationUrl: https://hub.datree.io/
     messageOnFailure: Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won't recognize this resource
     category: Argo
     schema:
@@ -975,10 +975,10 @@ rules:
                 required:
                   - app.kubernetes.io/part-of
   - id: 38
-    name: 'Ensure ConfigMap is usable by ArgoCD'
+    name: 'Ensure Rollout pause step has a configured duration'
     uniqueName: 'ARGO_ROLLOUT_MISSING_PAUSE_DURATION'
     enabledByDefault: false
-    documentationUrl: TODO
+    documentationUrl: https://hub.datree.io/
     messageOnFailure: Missing the key `duration` - prevent the rollout from waiting indefinitely for the pause condition
     category: Argo
     schema:
@@ -1008,10 +1008,10 @@ rules:
                               required:
                                 - duration
   - id: 39
-    name: 'Ensure Application and AppProject namespaces are valid'
+    name: 'Ensure Application and AppProject are part of the argocd namespace'
     uniqueName: 'ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE'
     enabledByDefault: false
-    documentationUrl: TODO
+    documentationUrl: https://hub.datree.io/
     messageOnFailure: Incorrect value for property `namespace` - Application and AppProject have to be installed on the argocd namespace
     category: Argo
     schema:
@@ -1031,10 +1031,10 @@ rules:
             required:
               - namespace
   - id: 40
-    name: 'Ensure Application and AppProject namespaces are valid'
-    uniqueName: 'ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE'
+    name: 'Prevent Workflow from having an empty retry strategy'
+    uniqueName: 'ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY'
     enabledByDefault: false
-    documentationUrl: TODO
+    documentationUrl: https://hub.datree.io/
     messageOnFailure: Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues
     category: Argo
     schema:
@@ -1054,10 +1054,10 @@ rules:
                       type: object
                       minProperties: 1
   - id: 41
-    name: 'Ensure Rollout revisionHistoryLimit is not set to 0'
+    name: 'Ensure Rollout has revision history set'
     uniqueName: 'ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0'
     enabledByDefault: false
-    documentationUrl: TODO
+    documentationUrl: https://hub.datree.io/
     messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
     category: Argo
     schema:
@@ -1075,10 +1075,10 @@ rules:
             required:
               - revisionHistoryLimit
   - id: 42
-    name: 'Ensure blueGreen Rollout scaleDownDelaySeconds is at least 30 seconds'
+    name: 'Ensure Rollout allows broadcasting IP table changes'
     uniqueName: 'ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30'
     enabledByDefault: false
-    documentationUrl: TODO
+    documentationUrl: https://hub.datree.io/
     messageOnFailure: Incorrect value for key `scalDownDelaySeconds` - value should be at least 30 to prevent packets from being sent to a node that killed the pod
     category: Argo
     schema:
@@ -1102,10 +1102,10 @@ rules:
                     required:
                       - scaleDownDelaySeconds
   - id: 43
-    name: 'Ensure Rollout with progressDeadlineSeconds set have progressDeadlineAbort set to true'
+    name: 'Ensure Rollout that is marked as degraded scales down ReplicaSet'
     uniqueName: 'ARGO_ROLLOUT_INCORRECT_PROGRESS_DEADLINE_ABORT_VALUE_FALSE'
     enabledByDefault: false
-    documentationUrl: TODO
+    documentationUrl: https://hub.datree.io/
     messageOnFailure: Incorrect value for key `progressDeadlineAbort` - value should be `true` to prevent the rollout pod from retrying indefinitely
     category: Argo
     schema:
@@ -1129,10 +1129,10 @@ rules:
             required:
               - progressDeadlineAbort
   - id: 44
-    name: Ensure Workflow retryPolicy that is set to `Always` doesn't catch too many errors
+    name: Ensure Workflow retry policy catches relevant errors only
     uniqueName: 'ARGO_WORKFLOW_ENSURE_RETRY_ON_BOTH_ERROR_AND_TRANSIENT_ERROR'
     enabledByDefault: false
-    documentationUrl: TODO
+    documentationUrl: https://hub.datree.io/
     messageOnFailure: Incorrect value for key `retryPolicy` - the expression should include retry on steps that failed either on transient or Argo controller errors
     category: Argo
     schema:
