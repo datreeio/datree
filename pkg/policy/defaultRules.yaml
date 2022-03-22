@@ -1120,14 +1120,14 @@ rules:
                 properties:
                   progressDeadlineSeconds:
                     type: integer
-                  progressDeadlineAbort:
-                    type: boolean
       then:
         properties:
           spec:
             properties:
               progressDeadlineAbort:
                 const: true
+            required:
+              - progressDeadlineAbort
   - id: 44
     name: Ensure Workflow retryPolicy that is set to `Always` doesn't catch too many errors
     uniqueName: 'ARGO_WORKFLOW_ENSURE_RETRY_ON_BOTH_ERROR_AND_TRANSIENT_ERROR'
@@ -1137,32 +1137,36 @@ rules:
     category: Argo
     schema:
       if:
-        properties:
-          kind:
-            enum:
-              - Workflow
+        allOf:
+          - properties:
+              kind:
+                enum:
+                  - Workflow
+          - properties:
+              spec:
+                properties:
+                  templates:
+                    type: array
+                    contains:
+                      properties:
+                        retryStrategy:
+                          properties:
+                            retryPolicy:
+                              const: Always
+      then:
+      properties:
           spec:
             properties:
               templates:
-                items:
+                type: array
+                contains:
                   properties:
                     retryStrategy:
                       properties:
                         retryPolicy:
                           const: Always
+                        expression:
+                          const: lastRetry.status == "Error" or (lastRetry.status == "Failed" and asInt(lastRetry.exitCode) not in [0])
                       required:
                         - retryPolicy
-      then:
-          properties:
-            spec:
-              properties:
-                templates:
-                  items:
-                    properties:
-                      retryStrategy:
-                        type: object
-                        properties:
-                          expression:
-                            const: lastRetry.status == "Error" or (lastRetry.status == "Failed" and asInt(lastRetry.exitCode) not in [0])
-                          retryPolicy:
-                            pattern: .*
+                        - expression
