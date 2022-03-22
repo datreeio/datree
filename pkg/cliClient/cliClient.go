@@ -30,11 +30,3 @@ func NewCliClient(url string, networkValidator NetworkValidator) *CliClient {
 		networkValidator: networkValidator,
 	}
 }
-
-func (c *CliClient) SetIsBackendAvailable(errStr string) error {
-	return c.networkValidator.SetIsBackendAvailable(errStr)
-}
-
-func (c *CliClient) IsBackendAvailable() bool {
-	return c.networkValidator.IsBackendAvailable()
-}

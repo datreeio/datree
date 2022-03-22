@@ -107,7 +107,6 @@ var ViolationsFoundError = errors.New("")
 
 type CliClient interface {
 	RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error)
-	IsBackendAvailable() bool
 }
 
 type TestCommandData struct {
