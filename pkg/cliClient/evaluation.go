@@ -101,6 +101,10 @@ type EvaluationPrerunDataResponse struct {
 const badRequestStatusCode = 400
 
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
+	if !c.networkValidator.IsBackendAvailable() {
+		return &EvaluationPrerunDataResponse{}, nil
+	}
+
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
 
 	if err != nil && (res.StatusCode >= badRequestStatusCode || res.Body == nil) {

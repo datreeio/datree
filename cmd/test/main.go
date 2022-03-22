@@ -197,21 +197,13 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			}
 
 			localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
-			isBackendAvailable := ctx.CliClient.IsBackendAvailable()
-
-			if err != nil && isBackendAvailable {
+			if err != nil {
 				return err
 			}
 
-			evaluationPrerunData := &cliClient.EvaluationPrerunDataResponse{}
-
-			if isBackendAvailable {
-				evaluationPrerunData, err = ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
-				isBackendAvailable = ctx.CliClient.IsBackendAvailable()
-
-				if err != nil && isBackendAvailable {
-					return err
-				}
+			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+			if err != nil {
+				return err
 			}
 
 			testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)

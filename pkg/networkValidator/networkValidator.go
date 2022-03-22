@@ -11,7 +11,10 @@ type NetworkValidator struct {
 }
 
 func NewNetworkValidator() *NetworkValidator {
-	return &NetworkValidator{}
+	return &NetworkValidator{
+		isBackendAvailable: true,
+		offlineMode:        "fail",
+	}
 }
 
 func (nv *NetworkValidator) SetOfflineMode(offlineMode string) {

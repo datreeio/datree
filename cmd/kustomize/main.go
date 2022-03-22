@@ -62,21 +62,13 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			}
 
 			localConfigContent, err := testCtx.LocalConfig.GetLocalConfiguration()
-			isBackendAvailable := testCtx.CliClient.IsBackendAvailable()
-
-			if err != nil && isBackendAvailable {
+			if err != nil {
 				return err
 			}
 
-			evaluationPrerunData := &cliClient.EvaluationPrerunDataResponse{}
-
-			if isBackendAvailable {
-				evaluationPrerunData, err = testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
-				isBackendAvailable = testCtx.CliClient.IsBackendAvailable()
-
-				if err != nil && isBackendAvailable {
-					return err
-				}
+			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+			if err != nil {
+				return err
 			}
 
 			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)

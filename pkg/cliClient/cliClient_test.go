@@ -143,9 +143,11 @@ func TestRequestEvaluationPrerunDataSuccess(t *testing.T) {
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
 			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, tt.mock.response.error).Once()
 
+			networkValidator := networkValidator.NewNetworkValidator()
 			client := &CliClient{
-				baseUrl:    "http://cli-service.test.io",
-				httpClient: &httpClientMock,
+				baseUrl:          "http://cli-service.test.io",
+				httpClient:       &httpClientMock,
+				networkValidator: networkValidator,
 			}
 
 			policyCheckData, _ := client.RequestEvaluationPrerunData(tt.args.token)
