@@ -104,7 +104,7 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrer
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
 
 	if err != nil && (res.StatusCode >= badRequestStatusCode || res.Body == nil) {
-		c.SetIsBackendAvailable(err.Error())
+		c.networkValidator.SetIsBackendAvailable(err.Error())
 		return &EvaluationPrerunDataResponse{}, err
 	}
 

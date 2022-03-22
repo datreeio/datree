@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/datreeio/datree/pkg/networkValidator"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -168,9 +169,11 @@ func TestRequestEvaluationPrerunDataFail(t *testing.T) {
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
 			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, tt.mock.response.error).Once()
 
+			validator := networkValidator.NewNetworkValidator()
 			client := &CliClient{
-				baseUrl:    "http://cli-service.test.io",
-				httpClient: &httpClientMock,
+				baseUrl:          "http://cli-service.test.io",
+				httpClient:       &httpClientMock,
+				networkValidator: validator,
 			}
 
 			_, err := client.RequestEvaluationPrerunData(tt.args.token)

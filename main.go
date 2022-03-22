@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/datreeio/datree/pkg/networkValidator"
 	"os"
 
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -20,7 +21,8 @@ const DEFAULT_ERR_EXIT_CODE = 1
 const VIOLATIONS_FOUND_EXIT_CODE = 2
 
 func main() {
-	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
+	validator := networkValidator.NewNetworkValidator()
+	cliClient := cliClient.NewCliClient(deploymentConfig.URL, validator)
 	localConfig := localConfig.NewLocalConfigClient(cliClient)
 
 	reporter := errorReporter.NewErrorReporter(cliClient, localConfig)

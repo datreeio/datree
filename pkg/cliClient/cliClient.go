@@ -1,39 +1,40 @@
 package cliClient
 
 import (
-	"strings"
-
 	"github.com/datreeio/datree/pkg/httpClient"
 )
 
 type HTTPClient interface {
 	Request(method string, resourceURI string, body interface{}, headers map[string]string) (httpClient.Response, error)
 }
-type CliClient struct {
-	baseUrl            string
-	httpClient         HTTPClient
-	timeoutClient      HTTPClient
-	httpErrors         []string
-	isBackendAvailable bool
+type NetworkValidator interface {
+	SetIsBackendAvailable(errStr string)
+	IsBackendAvailable() bool
 }
 
-func NewCliClient(url string) *CliClient {
+type CliClient struct {
+	baseUrl          string
+	httpClient       HTTPClient
+	timeoutClient    HTTPClient
+	httpErrors       []string
+	networkValidator NetworkValidator
+}
+
+func NewCliClient(url string, networkValidator NetworkValidator) *CliClient {
 	httpClient := httpClient.NewClient(url, nil)
 	return &CliClient{
-		baseUrl:            url,
-		httpClient:         httpClient,
-		timeoutClient:      nil,
-		httpErrors:         []string{},
-		isBackendAvailable: true,
+		baseUrl:          url,
+		httpClient:       httpClient,
+		timeoutClient:    nil,
+		httpErrors:       []string{},
+		networkValidator: networkValidator,
 	}
 }
 
 func (c *CliClient) SetIsBackendAvailable(errStr string) {
-	if strings.Contains(errStr, "connection refused") || strings.Contains(errStr, "ECONNREFUSED") {
-		c.isBackendAvailable = false
-	}
+	c.networkValidator.SetIsBackendAvailable(errStr)
 }
 
 func (c *CliClient) IsBackendAvailable() bool {
-	return c.isBackendAvailable
+	return c.networkValidator.IsBackendAvailable()
 }
