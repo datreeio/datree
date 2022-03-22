@@ -171,11 +171,11 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				errMessage := "Requires at least 1 arg\n"
 				return fmt.Errorf(errMessage)
 			}
-			err := testCommandFlags.Validate()
+			err := utils.ValidateStdinPathArgument(args)
 			if err != nil {
 				return err
 			}
-			return nil
+			return testCommandFlags.Validate()
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return LoadVersionMessages(ctx, args, cmd)
@@ -188,11 +188,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 					ctx.Printer.PrintMessage(strings.Join([]string{"\n", err.Error(), "\n"}, ""), "error")
 				}
 			}()
-
-			err = testCommandFlags.Validate()
-			if err != nil {
-				return err
-			}
 
 			localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
 			if err != nil {
@@ -301,9 +296,6 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 
 func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) error {
 	if paths[0] == "-" {
-		if len(paths) > 1 {
-			return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(paths[1:], ",")))
-		}
 		tempFile, err := os.CreateTemp("", "datree_temp_*.yaml")
 		if err != nil {
 			return err
