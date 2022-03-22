@@ -893,7 +893,7 @@ rules:
         properties:
           kind:
             enum:
-             - Workflow
+              - Workflow
           spec:
             properties:
               templates:
@@ -926,11 +926,11 @@ rules:
     category: Argo
     schema:
       if:
-          properties:
-          kind:
-            enum:
-              - WorkflowTemplate
-              - Workflow
+        properties:
+        kind:
+          enum:
+            - WorkflowTemplate
+            - Workflow
       then:
         properties:
           spec:
@@ -949,7 +949,7 @@ rules:
     messageOnFailure: Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won't recognize this resource
     category: Argo
     schema:
-      if: 
+      if:
         properties:
           kind:
             enum:
@@ -1025,7 +1025,7 @@ rules:
         properties:
           metadata:
             properties:
-              namespace: 
+              namespace:
                 type: string
                 const: argocd
             required:
@@ -1061,7 +1061,7 @@ rules:
     messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
     category: Argo
     schema:
-      if: 
+      if:
         properties:
           kind:
             enum:
@@ -1155,18 +1155,18 @@ rules:
                               const: Always
       then:
       properties:
-          spec:
-            properties:
-              templates:
-                type: array
-                contains:
-                  properties:
-                    retryStrategy:
-                      properties:
-                        retryPolicy:
-                          const: Always
-                        expression:
-                          const: lastRetry.status == "Error" or (lastRetry.status == "Failed" and asInt(lastRetry.exitCode) not in [0])
-                      required:
-                        - retryPolicy
-                        - expression
+        spec:
+          properties:
+            templates:
+              type: array
+              contains:
+                properties:
+                  retryStrategy:
+                    properties:
+                      retryPolicy:
+                        const: Always
+                      expression:
+                        const: lastRetry.status == "Error" or (lastRetry.status == "Failed" and asInt(lastRetry.exitCode) not in [0])
+                    required:
+                      - retryPolicy
+                      - expression
