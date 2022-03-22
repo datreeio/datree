@@ -174,7 +174,7 @@ func TestTestCommand(t *testing.T) {
 	mockedEvaluator.On("RequestEvaluationPrerunData", mock.Anything).Return(prerunData, nil)
 
 	mockedCliClient := &mockCliClient{}
-	mockedCliClient.On("IsBackendAvailable", mock.Anything).Return(true, nil)
+	mockedCliClient.On("IsLocalMode", mock.Anything).Return(true, nil)
 
 	messager := &mockMessager{}
 	messager.On("LoadVersionMessages", mock.Anything)
@@ -230,7 +230,7 @@ func TestTestCommand(t *testing.T) {
 // todo move this test to network validator test
 //func TestTestOfflineAndFailCommand(t *testing.T) {
 //	mockedCliClient := &mockCliClient{}
-//	mockedCliClient.On("IsBackendAvailable", mock.Anything).Return(false, nil)
+//	mockedCliClient.On("IsLocalMode", mock.Anything).Return(false, nil)
 //
 //	localConfig := &localConfig.LocalConfig{Token: "134kh", Offline: "fail"}
 //

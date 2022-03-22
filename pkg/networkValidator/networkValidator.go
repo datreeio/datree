@@ -31,6 +31,6 @@ func (nv *NetworkValidator) SetIsBackendAvailable(errStr string) error {
 	return nil
 }
 
-func (nv *NetworkValidator) IsBackendAvailable() bool {
-	return nv.isBackendAvailable
+func (nv *NetworkValidator) IsLocalMode() bool {
+	return !nv.isBackendAvailable && nv.offlineMode == "local"
 }

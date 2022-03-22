@@ -9,7 +9,7 @@ type HTTPClient interface {
 }
 type NetworkValidator interface {
 	SetIsBackendAvailable(errStr string) error
-	IsBackendAvailable() bool
+	IsLocalMode() bool
 }
 
 type CliClient struct {

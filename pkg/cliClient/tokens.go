@@ -10,7 +10,7 @@ type CreateTokenResponse struct {
 }
 
 func (c *CliClient) CreateToken() (*CreateTokenResponse, error) {
-	if !c.networkValidator.IsBackendAvailable() {
+	if c.networkValidator.IsLocalMode() {
 		return nil, nil
 	}
 
@@ -23,7 +23,7 @@ func (c *CliClient) CreateToken() (*CreateTokenResponse, error) {
 			return nil, validatorErr
 		}
 
-		if !c.networkValidator.IsBackendAvailable() {
+		if c.networkValidator.IsLocalMode() {
 			return nil, nil
 		}
 
