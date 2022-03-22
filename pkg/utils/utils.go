@@ -1,6 +1,9 @@
 package utils
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 func Example(s string) string {
 	if len(s) == 0 {
@@ -29,4 +32,14 @@ func (s normalize) indent() normalize {
 	}
 	s.string = strings.Join(indentedLines, "\n")
 	return s
+}
+
+func ValidateStdinPathArgument(paths []string) error {
+	if paths[0] == "-" {
+		if len(paths) > 1 {
+			return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(paths[1:], ",")))
+		}
+	}
+
+	return nil
 }

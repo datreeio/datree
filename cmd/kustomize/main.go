@@ -43,6 +43,9 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 		# Test the kustomize build from github
 		datree kustomize test https://github.com/kubernetes-sigs/kustomize.git/examples/helloWorld?ref=v1.0.6
 		`),
+		Args: func(cmd *cobra.Command, args []string) error {
+			return utils.ValidateStdinPathArgument(args)
+		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return test.LoadVersionMessages(testCtx, args, cmd)
 		},
