@@ -1110,24 +1110,24 @@ rules:
     category: Argo
     schema:
       if:
+    properties:
+      kind:
+        enum:
+          - Rollout
+      spec:
         properties:
-          kind:
-            enum:
-              - Rollout
-          spec:
+          allOf:
             properties:
-              allOf:
-                properties:
-                  progressDeadlineSeconds:
-                    type: integer
-      then:
-        properties:
-          spec:
-            properties:
-              progressDeadlineAbort:
-                const: true
-            required:
-              - progressDeadlineAbort
+              progressDeadlineSeconds:
+                type: integer
+    then:
+      properties:
+        spec:
+          properties:
+            progressDeadlineAbort:
+            const: true
+          required:
+          - progressDeadlineAbort  
   - id: 44
     name: Ensure Workflow retry policy catches relevant errors only
     uniqueName: 'ARGO_WORKFLOW_ENSURE_RETRY_ON_BOTH_ERROR_AND_TRANSIENT_ERROR'
