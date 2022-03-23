@@ -1110,16 +1110,16 @@ rules:
     category: Argo
     schema:
       if:
-    properties:
-      kind:
-        enum:
-          - Rollout
-      spec:
         properties:
-          allOf:
+          kind:
+            enum:
+              - Rollout
+          spec:
             properties:
-              progressDeadlineSeconds:
-                type: integer
+              allOf:
+                properties:
+                  progressDeadlineSeconds:
+                    type: integer
     then:
       properties:
         spec:
