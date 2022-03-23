@@ -61,6 +61,7 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 		if writeOfflineErr != nil {
 			return &LocalConfig{}, writeOfflineErr
 		}
+		offline = viper.GetString(offlineKey)
 	}
 
 	lc.networkValidator.SetOfflineMode(offline)
