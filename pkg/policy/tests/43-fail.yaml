@@ -5,7 +5,7 @@ metadata:
 spec:
   revisionHistoryLimit: 3
   progressDeadlineSeconds: 600
-  progressDeadlineAbort: false
+  progressDeadlineAbort: bla
   replicas: 5
   selector:
     matchLabels:

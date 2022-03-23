@@ -1120,14 +1120,14 @@ rules:
                 properties:
                   progressDeadlineSeconds:
                     type: integer
-    then:
-      properties:
-        spec:
-          properties:
-            progressDeadlineAbort:
-            const: true
-          required:
-          - progressDeadlineAbort  
+      then:
+        properties:
+          spec:
+            properties:
+              progressDeadlineAbort:
+                const: true
+            required:
+              - progressDeadlineAbort
   - id: 44
     name: Ensure Workflow retry policy catches relevant errors only
     uniqueName: 'ARGO_WORKFLOW_ENSURE_RETRY_ON_BOTH_ERROR_AND_TRANSIENT_ERROR'
@@ -1154,19 +1154,19 @@ rules:
                             retryPolicy:
                               const: Always
       then:
-      properties:
-        spec:
-          properties:
-            templates:
-              type: array
-              contains:
-                properties:
-                  retryStrategy:
-                    properties:
-                      retryPolicy:
-                        const: Always
-                      expression:
-                        const: lastRetry.status == "Error" or (lastRetry.status == "Failed" and asInt(lastRetry.exitCode) not in [0])
-                    required:
-                      - retryPolicy
-                      - expression
+        properties:
+          spec:
+            properties:
+              templates:
+                type: array
+                contains:
+                  properties:
+                    retryStrategy:
+                      properties:
+                        retryPolicy:
+                          const: Always
+                        expression:
+                          const: lastRetry.status == "Error" or (lastRetry.status == "Failed" and asInt(lastRetry.exitCode) not in [0])
+                      required:
+                        - retryPolicy
+                        - expression

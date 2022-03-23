@@ -1,12 +1,12 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+kind: Workflow
 metadata:
-  name: example-rollout-canary
+  name: my-workflow
 spec:
-  revisionHistoryLimit: 3
-  progressDeadlineSeconds: 600
-  progressDeadlineAbort: false
-  replicas: 5
-  selector:
-    matchLabels:
-      app: guestbook
+  entrypoint: entry
+  templates:
+    - name: entry
+      retryStrategy:
+        limit: 1
+        retryPolicy: Always
+        expression: lastRetry.status == "Failed"

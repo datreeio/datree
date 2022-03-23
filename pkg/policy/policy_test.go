@@ -67,7 +67,7 @@ func validatePassing(t *testing.T, validator *jsonSchemaValidator.JSONSchemaVali
 
 		res, err := validator.ValidateYamlSchema(string(schemaBytes), file.content)
 		if err != nil {
-			panic(errors.New(err.Error() + string(schemaBytes)))
+			panic(errors.New(err.Error() + "\nschema:\n" + string(schemaBytes)))
 		}
 
 		if len(res.Errors()) > 0 && expectPass {

@@ -7,6 +7,6 @@ spec:
   templates:
     - name: entry
       retryStrategy:
-        limit: "1"
-        retryPolicy: "Always"
-        expression: lastRetry.status == "Failed" and asInt(lastRetry.exitCode) not in [0]
+        limit: 1
+        retryPolicy: Always
+        expression: lastRetry.status == "Error" or (lastRetry.status == "Failed" and asInt(lastRetry.exitCode) not in [0])
