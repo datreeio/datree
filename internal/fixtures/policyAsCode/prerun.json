@@ -23,6 +23,28 @@
             }
           }
         }
+      },
+      {
+        "identifier": "UNIQUE2",
+        "name": "rule unique 2",
+        "defaultMessageOnFailure": "default message for rule fail number 2",
+        "jsonSchema": "{\"type\":\"object\",\"properties\":{\"apiVersion\":{\"type\":\"string\"}},\"required\":[\"apiVersion\"]}"
+      },
+      {
+        "identifier": "UNIQUE3",
+        "name": "rule unique 3",
+        "defaultMessageOnFailure": "default message for rule fail number 3",
+        "schema": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "apiVersion"
+          ],
+          "type": "object"
+        }
       }
     ],
     "policies": [
@@ -50,6 +72,19 @@
           {
             "identifier": "CUSTOM_WORKLOAD_INVALID_LABELS_VALUE",
             "messageOnFailure": "All lables values must follow the RFC 1123 hostname standard (https://knowledge.broadcom.com/external/article/49542/restrictions-on-valid-host-names.html)"
+          }
+        ]
+      },
+      {
+        "name": "labels_best_practices3",
+        "rules": [
+          {
+            "identifier": "UNIQUE2",
+            "messageOnFailure": "default message for rule fail number 2"
+          },
+          {
+            "identifier": "UNIQUE3",
+            "messageOnFailure": "default message for rule fail number 3"
           }
         ]
       }

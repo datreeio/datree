@@ -2,6 +2,7 @@ package policy
 
 import (
 	_ "embed"
+	"encoding/json"
 	"fmt"
 
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -16,7 +17,7 @@ type Policy struct {
 type RuleWithSchema struct {
 	RuleIdentifier   string
 	RuleName         string
-	Schema           map[string]interface{}
+	Schema           interface{}
 	MessageOnFailure string
 }
 
@@ -72,7 +73,16 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 		customRule := getCustomRuleByIdentifier(customRules, rule.Identifier)
 
 		if customRule != nil {
-			rules = append(rules, RuleWithSchema{rule.Identifier, customRule.Name, customRule.Schema, rule.MessageOnFailure})
+			if customRule.Schema == nil {
+				schema := make(map[string]interface{})
+				err := json.Unmarshal([]byte(customRule.JsonSchema), &schema)
+				if err != nil {
+					return nil, err
+				}
+				rules = append(rules, RuleWithSchema{rule.Identifier, customRule.Name, schema, rule.MessageOnFailure})
+			} else {
+				rules = append(rules, RuleWithSchema{rule.Identifier, customRule.Name, customRule.Schema, rule.MessageOnFailure})
+			}
 		} else {
 			defaultRule := getDefaultRuleByIdentifier(defaultRules, rule.Identifier)
 
