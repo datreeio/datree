@@ -927,10 +927,10 @@ rules:
     schema:
       if:
         properties:
-        kind:
-          enum:
-            - WorkflowTemplate
-            - Workflow
+          kind:
+            enum:
+              - WorkflowTemplate
+              - Workflow
       then:
         properties:
           spec:
