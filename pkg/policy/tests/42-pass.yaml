@@ -1,0 +1,9 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: example-rollout-canary
+spec:
+  strategy:
+   blueGreen:
+     revisionHistoryLimit: 3
+     scaleDownDelaySeconds: 30
