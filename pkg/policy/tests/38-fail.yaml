@@ -28,4 +28,4 @@ spec:
         - pause:
             duration: 1h # 1 hour
         - setWeight: 20
-        - pause: {} 
+        - pause: { }

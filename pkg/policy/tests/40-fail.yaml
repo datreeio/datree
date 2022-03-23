@@ -6,4 +6,4 @@ spec:
   entrypoint: retry-backoff
   templates:
     - name: retry-backoff
-      retryStrategy: {}
+      retryStrategy: { }

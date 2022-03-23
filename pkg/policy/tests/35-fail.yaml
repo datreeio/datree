@@ -8,27 +8,27 @@ spec:
     - name: a
       container:
         image: docker/whalesay:latest
-        command: [cowsay]
-        args: ["hello world"]
+        command: [ cowsay ]
+        args: [ "hello world" ]
     - name: b
       retryStrategy:
         limit: "2"
       container:
         image: alpine:latest
-        command: [sh, -c]
-        args: ["sleep 30; echo haha"]
+        command: [ sh, -c ]
+        args: [ "sleep 30; echo haha" ]
     - name: c
       retryStrategy:
         limit: "3"
       container:
         image: alpine:latest
-        command: [sh, -c]
-        args: ["echo intentional failure; exit 2"]
+        command: [ sh, -c ]
+        args: [ "echo intentional failure; exit 2" ]
     - name: d
       container:
         image: docker/whalesay:latest
-        command: [cowsay]
-        args: ["hello world"]
+        command: [ cowsay ]
+        args: [ "hello world" ]
     - name: statis
       dag:
         failFast: false

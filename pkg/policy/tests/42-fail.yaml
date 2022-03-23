@@ -4,6 +4,6 @@ metadata:
   name: example-rollout-canary
 spec:
   strategy:
-   blueGreen:
-     revisionHistoryLimit: 3
-     scaleDownDelaySeconds: 3
+    blueGreen:
+      revisionHistoryLimit: 3
+      scaleDownDelaySeconds: 3
