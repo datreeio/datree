@@ -41,7 +41,8 @@ func (c *mockHTTPClient) name() {
 type RequestEvaluationPrerunDataTestCase struct {
 	name string
 	args struct {
-		token string
+		token   string
+		offline string
 	}
 	mock struct {
 		response struct {
@@ -66,11 +67,13 @@ type SendEvaluationResultTestCase struct {
 	name string
 	args struct {
 		evaluationRequestData *EvaluationResultRequest
+		offline               string
 	}
 	mock struct {
 		response struct {
 			status int
 			body   *SendEvaluationResultsResponse
+			error  error
 		}
 	}
 	expected struct {
@@ -80,7 +83,8 @@ type SendEvaluationResultTestCase struct {
 			body    interface{}
 			headers map[string]string
 		}
-		response *SendEvaluationResultsResponse
+		responseErr error
+		response    *SendEvaluationResultsResponse
 	}
 }
 
@@ -159,8 +163,12 @@ func TestRequestEvaluationPrerunDataSuccess(t *testing.T) {
 }
 
 func TestRequestEvaluationPrerunDataFail(t *testing.T) {
+	preRunData := mockGetPreRunData()
+
 	tests := []*RequestEvaluationPrerunDataTestCase{
 		test_requestEvaluationPrerunData_error(),
+		test_requestEvaluationPrerunData_network_error("fail", errors.New("connection refused and offline mode is on fail"), &EvaluationPrerunDataResponse{}),
+		test_requestEvaluationPrerunData_network_error("local", nil, preRunData),
 	}
 
 	httpClientMock := mockHTTPClient{}
@@ -172,6 +180,7 @@ func TestRequestEvaluationPrerunDataFail(t *testing.T) {
 			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, tt.mock.response.error).Once()
 
 			validator := networkValidator.NewNetworkValidator()
+			validator.SetOfflineMode(tt.args.offline)
 			client := &CliClient{
 				baseUrl:          "http://cli-service.test.io",
 				httpClient:       &httpClientMock,
@@ -181,6 +190,12 @@ func TestRequestEvaluationPrerunDataFail(t *testing.T) {
 			_, err := client.RequestEvaluationPrerunData(tt.args.token)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
+			if tt.args.offline == "local" {
+				assert.Equal(t, tt.expected.response, preRunData)
+
+			} else {
+				assert.Equal(t, tt.expected.response, &EvaluationPrerunDataResponse{})
+			}
 			assert.Equal(t, tt.expected.responseErr, err)
 		})
 	}
@@ -210,6 +225,39 @@ func TestSendEvaluationResult(t *testing.T) {
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.response, sendEvaluationResultsResponse)
+		})
+	}
+}
+
+func TestSendEvaluationResultFail(t *testing.T) {
+	sendEvalResultResp := &SendEvaluationResultsResponse{}
+
+	tests := []*SendEvaluationResultTestCase{
+		test_sendEvaluationResult_network_error("fail", errors.New("connection refused and offline mode is on fail"), &SendEvaluationResultsResponse{}),
+		test_sendEvaluationResult_network_error("local", nil, sendEvalResultResp),
+	}
+
+	httpClientMock := mockHTTPClient{}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, _ := json.Marshal(tt.mock.response.body)
+			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
+			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, tt.mock.response.error).Once()
+
+			validator := networkValidator.NewNetworkValidator()
+			validator.SetOfflineMode(tt.args.offline)
+			client := &CliClient{
+				baseUrl:          "http://cli-service.test.io",
+				httpClient:       &httpClientMock,
+				networkValidator: validator,
+			}
+
+			sendEvaluationResultsResponse, err := client.SendEvaluationResult(tt.args.evaluationRequestData)
+
+			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
+			assert.Equal(t, tt.expected.response, sendEvaluationResultsResponse)
+			assert.Equal(t, tt.expected.responseErr, err)
 		})
 	}
 }
@@ -375,7 +423,8 @@ func test_requestEvaluationPrerunData_success() *RequestEvaluationPrerunDataTest
 	return &RequestEvaluationPrerunDataTestCase{
 		name: "success - get prerun data for evaluation",
 		args: struct {
-			token string
+			token   string
+			offline string
 		}{
 			token: "internal_test_token",
 		},
@@ -422,12 +471,11 @@ func test_requestEvaluationPrerunData_success() *RequestEvaluationPrerunDataTest
 }
 
 func test_requestEvaluationPrerunData_error() *RequestEvaluationPrerunDataTestCase {
-	preRunData := mockGetPreRunData()
-
 	return &RequestEvaluationPrerunDataTestCase{
-		name: "success - get prerun data for evaluation",
+		name: "fail - get prerun data for evaluation",
 		args: struct {
-			token string
+			token   string
+			offline string
 		}{
 			token: "internal_test_token",
 		},
@@ -444,7 +492,7 @@ func test_requestEvaluationPrerunData_error() *RequestEvaluationPrerunDataTestCa
 				error  error
 			}{
 				status: http.StatusBadRequest,
-				body:   preRunData,
+				body:   nil,
 				error:  errors.New("error from cli-service"),
 			},
 		},
@@ -470,7 +518,61 @@ func test_requestEvaluationPrerunData_error() *RequestEvaluationPrerunDataTestCa
 				headers: nil,
 			},
 			responseErr: errors.New("error from cli-service"),
-			response:    preRunData,
+			response:    &EvaluationPrerunDataResponse{},
+		},
+	}
+}
+
+func test_requestEvaluationPrerunData_network_error(offlineMode string, expectedResponseErr error, prerunData *EvaluationPrerunDataResponse) *RequestEvaluationPrerunDataTestCase {
+	return &RequestEvaluationPrerunDataTestCase{
+		name: "fail - get prerun data for evaluation",
+		args: struct {
+			token   string
+			offline string
+		}{
+			token:   "internal_test_token",
+			offline: offlineMode,
+		},
+		mock: struct {
+			response struct {
+				status int
+				body   *EvaluationPrerunDataResponse
+				error  error
+			}
+		}{
+			response: struct {
+				status int
+				body   *EvaluationPrerunDataResponse
+				error  error
+			}{
+				status: http.StatusInternalServerError,
+				body:   nil,
+				error:  errors.New("connection refused"),
+			},
+		},
+		expected: struct {
+			request struct {
+				method  string
+				uri     string
+				body    interface{}
+				headers map[string]string
+			}
+			responseErr error
+			response    *EvaluationPrerunDataResponse
+		}{
+			request: struct {
+				method  string
+				uri     string
+				body    interface{}
+				headers map[string]string
+			}{
+				method:  http.MethodGet,
+				uri:     "/cli/evaluation/tokens/internal_test_token/prerun",
+				body:    nil,
+				headers: nil,
+			},
+			responseErr: expectedResponseErr,
+			response:    prerunData,
 		},
 	}
 }
@@ -504,6 +606,7 @@ func test_sendEvaluationResult_success() *SendEvaluationResultTestCase {
 		name: "success - send local evaluation result to server",
 		args: struct {
 			evaluationRequestData *EvaluationResultRequest
+			offline               string
 		}{
 			evaluationRequestData: body,
 		},
@@ -511,11 +614,13 @@ func test_sendEvaluationResult_success() *SendEvaluationResultTestCase {
 			response struct {
 				status int
 				body   *SendEvaluationResultsResponse
+				error  error
 			}
 		}{
 			response: struct {
 				status int
 				body   *SendEvaluationResultsResponse
+				error  error
 			}{
 				status: http.StatusOK,
 				body: &SendEvaluationResultsResponse{
@@ -531,7 +636,8 @@ func test_sendEvaluationResult_success() *SendEvaluationResultTestCase {
 				body    interface{}
 				headers map[string]string
 			}
-			response *SendEvaluationResultsResponse
+			responseErr error
+			response    *SendEvaluationResultsResponse
 		}{
 			request: struct {
 				method  string
@@ -548,6 +654,84 @@ func test_sendEvaluationResult_success() *SendEvaluationResultTestCase {
 				EvaluationId:  1234,
 				PromptMessage: "",
 			},
+		},
+	}
+}
+
+func test_sendEvaluationResult_network_error(offlineMode string, expectedResponseErr error, sendEvalResultResp *SendEvaluationResultsResponse) *SendEvaluationResultTestCase {
+	body := &EvaluationResultRequest{
+		ClientId: "internal_cliId_test",
+		Token:    "internal_cliId_test",
+		Metadata: &Metadata{
+			CliVersion:      "0.0.01",
+			Os:              "darwin",
+			PlatformVersion: "1.2.3",
+			KernelVersion:   "4.5.6",
+			CIContext: &ciContext.CIContext{
+				IsCI: true,
+				CIMetadata: &ciContext.CIMetadata{
+					CIEnvValue:       "travis",
+					ShouldHideEmojis: false,
+				},
+			},
+		},
+		K8sVersion:         "1.18.0",
+		PolicyName:         "Default",
+		FailedYamlFiles:    []string{},
+		FailedK8sFiles:     []string{},
+		AllExecutedRules:   []RuleData{},
+		AllEvaluatedFiles:  []FileData{},
+		PolicyCheckResults: nil,
+	}
+	return &SendEvaluationResultTestCase{
+		name: "fail - send local evaluation result to server",
+		args: struct {
+			evaluationRequestData *EvaluationResultRequest
+			offline               string
+		}{
+			evaluationRequestData: body,
+			offline:               offlineMode,
+		},
+		mock: struct {
+			response struct {
+				status int
+				body   *SendEvaluationResultsResponse
+				error  error
+			}
+		}{
+			response: struct {
+				status int
+				body   *SendEvaluationResultsResponse
+				error  error
+			}{
+				status: http.StatusInternalServerError,
+				body:   nil,
+				error:  errors.New("connection refused"),
+			},
+		},
+		expected: struct {
+			request struct {
+				method  string
+				uri     string
+				body    interface{}
+				headers map[string]string
+			}
+			responseErr error
+			response    *SendEvaluationResultsResponse
+		}{
+			request: struct {
+				method  string
+				uri     string
+				body    interface{}
+				headers map[string]string
+			}{
+				method:  http.MethodPost,
+				uri:     "/cli/evaluation/result",
+				body:    body,
+				headers: nil,
+			},
+			responseErr: expectedResponseErr,
+			response:    sendEvalResultResp,
 		},
 	}
 }
