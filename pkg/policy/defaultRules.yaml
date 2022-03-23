@@ -1079,7 +1079,7 @@ rules:
     uniqueName: 'ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30'
     enabledByDefault: false
     documentationUrl: https://hub.datree.io/
-    messageOnFailure: Incorrect value for key `scalDownDelaySeconds` - value should be at least 30 to prevent packets from being sent to a node that killed the pod
+    messageOnFailure: Incorrect value for key `scaleDownDelaySeconds` - value should be at least 30 to prevent packets from being sent to a node that killed the pod
     category: Argo
     schema:
       if:
