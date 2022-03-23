@@ -1,6 +1,7 @@
 package localConfig
 
 import (
+	"fmt"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -107,6 +108,11 @@ func (lc *LocalConfigClient) Set(key string, value string) error {
 		return initConfigFileErr
 	}
 
+	err := validateKeyValueConfig(key, value)
+	if err != nil {
+		return err
+	}
+
 	viper.Set(key, value)
 	writeClientIdErr := viper.WriteConfig()
 	if writeClientIdErr != nil {
@@ -193,4 +199,12 @@ func setViperConfig() (string, string, string, error) {
 	viper.AddConfigPath(configHome)
 
 	return configHome, configName, configType, nil
+}
+
+func validateKeyValueConfig(key string, value string) error {
+	if key == "offline" && value != "fail" && value != "local" {
+		return fmt.Errorf("Invalid offline configuration value- %q\n"+
+			"Valid offline values are - fail, local\n", value)
+	}
+	return nil
 }
