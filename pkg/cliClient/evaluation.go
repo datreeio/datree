@@ -67,10 +67,11 @@ type EvaluationRequest struct {
 }
 
 type CustomRule struct {
-	Identifier              string                 `json:"identifier"`
-	Name                    string                 `json:"name"`
-	DefaultMessageOnFailure string                 `json:"defaultMessageOnFailure"`
-	Schema                  map[string]interface{} `json:"schema"`
+	Identifier              string      `json:"identifier"`
+	Name                    string      `json:"name"`
+	DefaultMessageOnFailure string      `json:"defaultMessageOnFailure"`
+	Schema                  interface{} `json:"schema"`
+	JsonSchema              string      `json:"jsonSchema"`
 }
 
 type Rule struct {
