@@ -56,27 +56,15 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 		}
 		token = createTokenResponse.Token
 		viper.SetDefault(tokenKey, token)
-		writeTokenErr := viper.WriteConfig()
-		if writeTokenErr != nil {
-			return nil, writeTokenErr
-		}
-		readTokenErr := viper.ReadInConfig()
-		if readTokenErr != nil {
-			return nil, readTokenErr
-		}
+		_ = viper.WriteConfig()
+		_ = viper.ReadInConfig()
 		token = viper.GetString(tokenKey)
 	}
 
 	if clientId == "" {
 		viper.SetDefault(clientIdKey, shortuuid.New())
-		writeClientIdErr := viper.WriteConfig()
-		if writeClientIdErr != nil {
-			return nil, writeClientIdErr
-		}
-		readClientIdErr := viper.ReadInConfig()
-		if readClientIdErr != nil {
-			return nil, readClientIdErr
-		}
+		_ = viper.WriteConfig()
+		_ = viper.ReadInConfig()
 		clientId = viper.GetString(clientIdKey)
 	}
 	return &LocalConfig{Token: token, ClientId: clientId, SchemaVersion: schemaVersion}, nil
@@ -106,26 +94,15 @@ func InitLocalConfigFile() error {
 	// should be fixed in pr https://github.com/spf13/viper/pull/936
 	configPath := filepath.Join(configHome, configName+"."+configType)
 
-	isDirExists, _ := exists(configHome)
-	if !isDirExists {
-		osMkdirErr := os.Mkdir(configHome, os.ModePerm)
-		if osMkdirErr != nil {
-			return osMkdirErr
-		}
-	}
-
+	// workaround for catching error if not enough permissions
+	// resolves issues in https://github.com/Homebrew/homebrew-core/pull/97061
 	isConfigExists, _ := exists(configPath)
 	if !isConfigExists {
-		_, osCreateErr := os.Create(configPath)
-		if osCreateErr != nil {
-			return osCreateErr
-		}
+		_ = os.Mkdir(configHome, os.ModePerm)
+		_, _ = os.Create(configPath)
 	}
 
-	readLocalFileErr := viper.ReadInConfig()
-	if readLocalFileErr != nil {
-		return readLocalFileErr
-	}
+	_ = viper.ReadInConfig()
 	return nil
 }
 
