@@ -166,7 +166,7 @@ func TestRequestEvaluationPrerunDataSuccess(t *testing.T) {
 func TestRequestEvaluationPrerunDataFail(t *testing.T) {
 	tests := []*RequestEvaluationPrerunDataTestCase{
 		test_requestEvaluationPrerunData_error(),
-		test_requestEvaluationPrerunData_network_error("fail", errors.New("connection refused and offline mode is on fail")),
+		test_requestEvaluationPrerunData_network_error("fail", errors.New("Failed since internet connection refused, you can use the following command to set your config to run offline:\ndatree config set offline local")),
 		test_requestEvaluationPrerunData_network_error("local", nil),
 	}
 
@@ -227,7 +227,7 @@ func TestSendEvaluationResultFail(t *testing.T) {
 	sendEvalResultResp := &SendEvaluationResultsResponse{}
 
 	tests := []*SendEvaluationResultTestCase{
-		test_sendEvaluationResult_network_error("fail", errors.New("connection refused and offline mode is on fail"), &SendEvaluationResultsResponse{}),
+		test_sendEvaluationResult_network_error("fail", errors.New("Failed since internet connection refused, you can use the following command to set your config to run offline:\ndatree config set offline local"), &SendEvaluationResultsResponse{}),
 		test_sendEvaluationResult_network_error("local", nil, sendEvalResultResp),
 	}
 
