@@ -171,11 +171,11 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				errMessage := "Requires at least 1 arg\n"
 				return fmt.Errorf(errMessage)
 			}
-			err := testCommandFlags.Validate()
+			err := utils.ValidateStdinPathArgument(args)
 			if err != nil {
 				return err
 			}
-			return nil
+			return testCommandFlags.Validate()
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return LoadVersionMessages(ctx, args, cmd)
@@ -188,11 +188,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 					ctx.Printer.PrintMessage(strings.Join([]string{"\n", err.Error(), "\n"}, ""), "error")
 				}
 			}()
-
-			err = testCommandFlags.Validate()
-			if err != nil {
-				return err
-			}
 
 			localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
 			if err != nil {
@@ -230,7 +225,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.19.0")
 	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
 
-	cmd.Flags().StringVar(&flags.PolicyConfig, "policy-config", "", "Policy name to run against")
+	cmd.Flags().StringVar(&flags.PolicyConfig, "policy-config", "", "Path for local policies configuration file")
 	cmd.Flags().BoolVar(&flags.OnlyK8sFiles, "only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
 
 	// kubeconform flag
@@ -255,6 +250,10 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 	var err error
 
 	if testCommandFlags.PolicyConfig != "" {
+		if !evaluationPrerunDataResp.IsPolicyAsCodeMode {
+			return nil, fmt.Errorf("To use --policy-config flag you must first enable policy-as-code mode: https://hub.datree.io/policy-as-code")
+		}
+
 		policies, err = policy.GetPoliciesFileFromPath(testCommandFlags.PolicyConfig)
 		if err != nil {
 			return nil, err
@@ -300,9 +299,6 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 
 func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) error {
 	if paths[0] == "-" {
-		if len(paths) > 1 {
-			return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(paths[1:], ",")))
-		}
 		tempFile, err := os.CreateTemp("", "datree_temp_*.yaml")
 		if err != nil {
 			return err

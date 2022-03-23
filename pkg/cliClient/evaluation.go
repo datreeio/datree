@@ -96,6 +96,7 @@ type EvaluationPrerunDataResponse struct {
 	AccountExists         bool                      `json:"accountExists"`
 	RegistrationURL       string                    `json:"registrationURL"`
 	PromptRegistrationURL string                    `json:"promptRegistrationURL"`
+	IsPolicyAsCodeMode    bool                      `json:"isPolicyAsCodeMode"`
 }
 
 const badRequestStatusCode = 400
