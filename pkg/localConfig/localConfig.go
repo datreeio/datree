@@ -1,10 +1,11 @@
 package localConfig
 
 import (
-	"github.com/datreeio/datree/pkg/networkValidator"
 	"os"
 	"os/user"
 	"path/filepath"
+
+	"github.com/datreeio/datree/pkg/networkValidator"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/lithammer/shortuuid"

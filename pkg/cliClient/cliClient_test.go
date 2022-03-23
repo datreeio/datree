@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/datreeio/datree/pkg/networkValidator"
 	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/datreeio/datree/pkg/networkValidator"
 
 	"github.com/datreeio/datree/pkg/ciContext"
 
