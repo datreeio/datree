@@ -9,8 +9,6 @@ import (
 	"sort"
 	"strings"
 
-	internal_policy "github.com/datreeio/datree/pkg/policy"
-
 	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/datreeio/datree/pkg/printer"
@@ -170,18 +168,12 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 				rulesUniqueNames = append(rulesUniqueNames, rulesUniqueName)
 			}
 
-			defaultRules, _ := internal_policy.GetDefaultRules()
-
 			for _, ruleUniqueName := range rulesUniqueNames {
+				rule := rules[ruleUniqueName]
 				var fixLink string = ""
 				if verbose {
-					for _, deaultRule := range defaultRules.Rules {
-						if deaultRule.UniqueName == ruleUniqueName {
-							fixLink = deaultRule.DocumentationUrl
-						}
-					}
+					fixLink = rule.DocumentationUrl
 				}
-				rule := rules[ruleUniqueName]
 				failedRule := printer.FailedRule{
 					Name:               rule.Name,
 					HowToFix:           fixLink,

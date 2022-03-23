@@ -134,6 +134,7 @@ type Configuration struct {
 
 type FailedRule struct {
 	Name             string          `json:"ruleName"`
+	DocumentationUrl string          `json:"documentationUrl"`
 	MessageOnFailure string          `json:"messageOnFailure"`
 	Configurations   []Configuration `json:"configurations"`
 }
