@@ -164,12 +164,10 @@ func TestRequestEvaluationPrerunDataSuccess(t *testing.T) {
 }
 
 func TestRequestEvaluationPrerunDataFail(t *testing.T) {
-	preRunData := mockGetPreRunData()
-
 	tests := []*RequestEvaluationPrerunDataTestCase{
 		test_requestEvaluationPrerunData_error(),
-		test_requestEvaluationPrerunData_network_error("fail", errors.New("connection refused and offline mode is on fail"), &EvaluationPrerunDataResponse{}),
-		test_requestEvaluationPrerunData_network_error("local", nil, preRunData),
+		test_requestEvaluationPrerunData_network_error("fail", errors.New("connection refused and offline mode is on fail")),
+		test_requestEvaluationPrerunData_network_error("local", nil),
 	}
 
 	httpClientMock := mockHTTPClient{}
@@ -188,15 +186,10 @@ func TestRequestEvaluationPrerunDataFail(t *testing.T) {
 				networkValidator: validator,
 			}
 
-			_, err := client.RequestEvaluationPrerunData(tt.args.token)
+			preRunDataResp, err := client.RequestEvaluationPrerunData(tt.args.token)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
-			if tt.args.offline == "local" {
-				assert.Equal(t, tt.expected.response, preRunData)
-
-			} else {
-				assert.Equal(t, tt.expected.response, &EvaluationPrerunDataResponse{})
-			}
+			assert.Equal(t, tt.expected.response, preRunDataResp)
 			assert.Equal(t, tt.expected.responseErr, err)
 		})
 	}
@@ -524,7 +517,12 @@ func test_requestEvaluationPrerunData_error() *RequestEvaluationPrerunDataTestCa
 	}
 }
 
-func test_requestEvaluationPrerunData_network_error(offlineMode string, expectedResponseErr error, prerunData *EvaluationPrerunDataResponse) *RequestEvaluationPrerunDataTestCase {
+func test_requestEvaluationPrerunData_network_error(offlineMode string, expectedResponseErr error) *RequestEvaluationPrerunDataTestCase {
+	emptyRes := &EvaluationPrerunDataResponse{}
+	if offlineMode == "local" {
+		emptyRes.IsPolicyAsCodeMode = true
+	}
+
 	return &RequestEvaluationPrerunDataTestCase{
 		name: "fail - get prerun data for evaluation",
 		args: struct {
@@ -573,7 +571,7 @@ func test_requestEvaluationPrerunData_network_error(offlineMode string, expected
 				headers: nil,
 			},
 			responseErr: expectedResponseErr,
-			response:    prerunData,
+			response:    emptyRes,
 		},
 	}
 }
