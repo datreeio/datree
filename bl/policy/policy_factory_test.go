@@ -78,6 +78,25 @@ func TestCreatePolicy(t *testing.T) {
 
 		assert.Equal(t, expectedPolicy, policy)
 	})
+
+	t.Run("Test Create Policy With Custom Rules", func(t *testing.T) {
+		policy, err := CreatePolicy(policiesJson.PoliciesJson, "labels_best_practices3")
+		var expectedRules []RuleWithSchema
+		if err != nil {
+			panic(err)
+		}
+
+		jsonSchemaStr := "{\"type\":\"object\",\"properties\":{\"apiVersion\":{\"type\":\"string\"}},\"required\":[\"apiVersion\"]}"
+		customRuleJsonSchema := make(map[string]interface{})
+		err = json.Unmarshal([]byte(jsonSchemaStr), &customRuleJsonSchema)
+		if err != nil {
+			panic(err)
+		}
+		expectedRules = append(expectedRules, RuleWithSchema{RuleIdentifier: "UNIQUE2", RuleName: "rule unique 2", Schema: customRuleJsonSchema, MessageOnFailure: "default message for rule fail number 2"})
+		expectedRules = append(expectedRules, RuleWithSchema{RuleIdentifier: "UNIQUE3", RuleName: "rule unique 3", Schema: customRuleJsonSchema, MessageOnFailure: "default message for rule fail number 3"})
+
+		assert.Equal(t, expectedRules, policy.Rules)
+	})
 }
 
 func mockGetPreRunData() *cliClient.EvaluationPrerunDataResponse {
