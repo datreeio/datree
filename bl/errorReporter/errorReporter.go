@@ -1,86 +1,68 @@
 package errorReporter
 
 import (
-	"fmt"
 	"runtime/debug"
 
-	"github.com/datreeio/datree/pkg/printer"
+	"github.com/datreeio/datree/pkg/utils"
 
 	"github.com/datreeio/datree/cmd"
 	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/localConfig"
 )
 
-func ReportCliError(panicErr interface{}) {
-	reporter := NewErrorReporter(cliClient.NewCliClient(deploymentConfig.URL), localConfig.NewLocalConfig(), printer.CreateNewPrinter())
-	reporter.ReportCliError(panicErr)
-}
-
 type LocalConfig interface {
-	GetLocalConfiguration() (*localConfig.ConfigContent, error)
+	GetLocalConfiguration() (*localConfig.LocalConfig, error)
 }
 
 type CliClient interface {
-	ReportCliError(reportCliErrorRequest cliClient.ReportCliErrorRequest) (StatusCode int, Error error)
-}
-
-type Printer interface {
-	PrintMessage(messageText string, messageColor string)
+	ReportCliError(reportCliErrorRequest cliClient.ReportCliErrorRequest, uri string) (StatusCode int, Error error)
 }
 
 type ErrorReporter struct {
-	config  LocalConfig
-	client  CliClient
-	printer Printer
+	config LocalConfig
+	client CliClient
 }
 
-func NewErrorReporter(client CliClient, localConfig LocalConfig, printer Printer) *ErrorReporter {
+func NewErrorReporter(client CliClient, localConfig LocalConfig) *ErrorReporter {
 	return &ErrorReporter{
-		client:  client,
-		config:  localConfig,
-		printer: printer,
+		client: client,
+		config: localConfig,
 	}
 }
 
-func (reporter *ErrorReporter) ReportCliError(panicErr interface{}) {
-	errorMessage := parsePanicError(panicErr)
-	cliId := reporter.getCliId()
-	_, err := reporter.client.ReportCliError(cliClient.ReportCliErrorRequest{
-		ClientId:     cliId,
-		Token:        cliId,
+func (reporter *ErrorReporter) ReportPanicError(panicErr interface{}) {
+	reporter.ReportError(panicErr, "/report-cli-panic-error")
+}
+
+func (reporter *ErrorReporter) ReportUnexpectedError(unexpectedError error) {
+	reporter.ReportError(unexpectedError, "/report-cli-unexpected-error")
+}
+
+func (reporter *ErrorReporter) ReportError(error interface{}, uri string) {
+	errorMessage := utils.ParseErrorToString(error)
+	localConfig := reporter.getLocalConfig()
+	_, _ = reporter.client.ReportCliError(cliClient.ReportCliErrorRequest{
+		ClientId:     localConfig.ClientId,
+		Token:        localConfig.Token,
 		CliVersion:   cmd.CliVersion,
 		ErrorMessage: errorMessage,
 		StackTrace:   string(debug.Stack()),
-	})
-	if err != nil {
-		// do nothing
-	}
-	reporter.printer.PrintMessage(fmt.Sprintf("Unexpected error: %s\n", errorMessage), "error")
+	}, uri)
+
 }
 
-func (reporter *ErrorReporter) getCliId() (cliId string) {
+func (reporter *ErrorReporter) getLocalConfig() (unknownLocalConfig *localConfig.LocalConfig) {
+	unknownLocalConfig = &localConfig.LocalConfig{ClientId: "unknown", Token: "unknown"}
 	defer func() {
-		if panicErr := recover(); panicErr != nil {
-			cliId = "unknown"
-		}
+		_ = recover()
+
 	}()
 
 	config, err := reporter.config.GetLocalConfiguration()
 	if err != nil {
-		return "unknown"
+		return unknownLocalConfig
 	} else {
-		return config.CliId
+		return config
 	}
-}
 
-func parsePanicError(panicErr interface{}) string {
-	switch panicErr := panicErr.(type) {
-	case string:
-		return panicErr
-	case error:
-		return panicErr.Error()
-	default:
-		return fmt.Sprintf("%v", panicErr)
-	}
 }

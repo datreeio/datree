@@ -10,17 +10,17 @@ import (
 
 type Result = gojsonschema.Result
 
-type YamlSchemaValidator interface {
-	Validate(yamlSchema string, yaml string) (*Result, error)
+type JSONSchemaValidator interface {
+	ValidateYamlSchema(yamlSchema string, yaml string) (*Result, error)
 }
 
-type YamlSchemaValidationPrinter interface {
+type JSONSchemaValidationPrinter interface {
 	PrintYamlSchemaResults(result *Result, error error)
 }
 
-type YamlSchemaValidatorCommandContext struct {
-	YamlSchemaValidator YamlSchemaValidator
-	Printer             YamlSchemaValidationPrinter
+type JSONSchemaValidatorCommandContext struct {
+	JSONSchemaValidator JSONSchemaValidator
+	Printer             JSONSchemaValidationPrinter
 }
 
 func ExtractYamlFilesContent(schemaPath string, yamlPath string) (string, string, error) {
@@ -40,7 +40,7 @@ func ExtractYamlFilesContent(schemaPath string, yamlPath string) (string, string
 	return schemaContent, yamlContent, nil
 }
 
-func New(ctx *YamlSchemaValidatorCommandContext) *cobra.Command {
+func New(ctx *JSONSchemaValidatorCommandContext) *cobra.Command {
 	schemaValidator := &cobra.Command{
 		Use:    "schema-validator",
 		Short:  "Execute schema validation to yaml files for given yaml schema",
@@ -62,7 +62,7 @@ func New(ctx *YamlSchemaValidatorCommandContext) *cobra.Command {
 				ctx.Printer.PrintYamlSchemaResults(nil, err)
 				return err
 			}
-			result, err := ctx.YamlSchemaValidator.Validate(schemaContent, yamlContent)
+			result, err := ctx.JSONSchemaValidator.ValidateYamlSchema(schemaContent, yamlContent)
 			ctx.Printer.PrintYamlSchemaResults(result, err)
 			if err != nil {
 				return err

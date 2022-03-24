@@ -17,7 +17,7 @@ type mockCliClient struct {
 	mock.Mock
 }
 
-func (m *mockCliClient) ReportCliError(reportCliErrorRequest cliClient.ReportCliErrorRequest) (StatusCode int, Error error) {
+func (m *mockCliClient) ReportCliError(reportCliErrorRequest cliClient.ReportCliErrorRequest, uri string) (StatusCode int, Error error) {
 	m.Called(reportCliErrorRequest)
 	return 201, nil
 }
@@ -27,10 +27,11 @@ type mockConfig struct {
 	mock.Mock
 }
 
-func (lc *mockConfig) GetLocalConfiguration() (*localConfig.ConfigContent, error) {
+func (lc *mockConfig) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
 	lc.Called()
-	return &localConfig.ConfigContent{
-		CliId:         "2qRg9jzJGcA73ftqEcXuBp",
+	return &localConfig.LocalConfig{
+		ClientId:      "2qRg9jzJGcA73ftqEcXuBp",
+		Token:         "ddfdea33-7a96-48ef-9155-d1ddc2078ff3",
 		SchemaVersion: "111",
 	}, nil
 }
@@ -61,19 +62,16 @@ func TestErrorReporter(t *testing.T) {
 	}
 	mockedCliClient := &mockCliClient{}
 	mockedConfig := &mockConfig{}
-	mockedPrinter := &mockPrinter{}
 	mockedCliClient.On("ReportCliError", mock.Anything).Return(nil)
 	mockedConfig.On("GetLocalConfiguration").Return(nil)
-	mockedPrinter.On("PrintMessage", mock.Anything, mock.Anything).Return()
 	errorReporter := &ErrorReporter{
-		client:  mockedCliClient,
-		config:  mockedConfig,
-		printer: mockedPrinter,
+		client: mockedCliClient,
+		config: mockedConfig,
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			errorReporter.ReportCliError(tt.args.panicErr)
+			errorReporter.ReportError(tt.args.panicErr, "/report-cli-panic-error")
 			reportCliErrorCalledArgs := (mockedCliClient.Calls[0].Arguments.Get(0)).(cliClient.ReportCliErrorRequest)
 			assert.Equal(t, tt.expected.ErrorMessage, reportCliErrorCalledArgs.ErrorMessage)
 			assert.Equal(t, tt.expected.ClientId, reportCliErrorCalledArgs.ClientId)
@@ -91,7 +89,7 @@ func reportErrorWithError() *ErrorReporterTestCase {
 		},
 		expected: cliClient.ReportCliErrorRequest{
 			ClientId:     "2qRg9jzJGcA73ftqEcXuBp",
-			Token:        "2qRg9jzJGcA73ftqEcXuBp",
+			Token:        "ddfdea33-7a96-48ef-9155-d1ddc2078ff3",
 			CliVersion:   cmd.CliVersion,
 			ErrorMessage: "this is the error message",
 			StackTrace:   mock.Anything,
@@ -107,7 +105,7 @@ func reportErrorWithStringError() *ErrorReporterTestCase {
 		},
 		expected: cliClient.ReportCliErrorRequest{
 			ClientId:     "2qRg9jzJGcA73ftqEcXuBp",
-			Token:        "2qRg9jzJGcA73ftqEcXuBp",
+			Token:        "ddfdea33-7a96-48ef-9155-d1ddc2078ff3",
 			CliVersion:   cmd.CliVersion,
 			ErrorMessage: "this is the error message",
 			StackTrace:   mock.Anything,

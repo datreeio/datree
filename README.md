@@ -59,6 +59,11 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 
 `helm plugin install https://github.com/datreeio/helm-datree`  
 
+## 🗂 Kustomize support
+Datree comes with out-of-the-box [support for Kustomize](https://hub.datree.io/kustomize-support/#utm_source=github&utm_medium=organic_oss):
+
+`datree kustomize test [kustomization.yaml dir path/]`
+
 ## 🤖 Built-in schema validation & policy check
 Every policy check will (also) validate your [Kubernetes schema](https://hub.datree.io/schema-validation/#utm_source=github&utm_medium=organic_oss). In addition, there are 30 battle-tested rules for you to select to create your policy.
 
@@ -89,10 +94,3 @@ You can also checkout our [interactive demo scenario](https://www.katacoda.com/d
 [![Contributors](https://contrib.rocks/image?repo=datreeio/datree)](https://github.com/datreeio/datree/graphs/contributors)
 
 Thank you to all the people who already contributed to Datree ❤️
-
-## Disclaimer
-
-We do our best to maintain backward compatibility, but there may be breaking changes in
-the future to the command usage, flags, and configuration file formats. The CLI will output a warning message when a new version with breaking changes is detected.
-We encourage you to use Datree to test your Kubernetes manifests files and Helm charts, see what
-breaks, and [contribute](./CONTRIBUTING.md).

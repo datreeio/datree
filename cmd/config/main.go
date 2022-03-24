@@ -16,7 +16,7 @@ type Printer interface {
 }
 
 type LocalConfig interface {
-	GetLocalConfiguration() (*localConfig.ConfigContent, error)
+	GetLocalConfiguration() (*localConfig.LocalConfig, error)
 	Set(key string, value string) error
 }
 
