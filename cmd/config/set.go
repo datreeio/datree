@@ -33,6 +33,7 @@ func NewSetCommand(ctx *ConfigCommandContext) *cobra.Command {
 
 			validKeys := make(map[string]bool)
 			validKeys["token"] = true
+			validKeys["offline"] = true
 
 			if val, ok := validKeys[args[0]]; !ok || !val {
 				return fmt.Errorf("key must be one of: %s", reflect.ValueOf(validKeys).MapKeys())

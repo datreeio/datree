@@ -10,10 +10,23 @@ type CreateTokenResponse struct {
 }
 
 func (c *CliClient) CreateToken() (*CreateTokenResponse, error) {
+	if c.networkValidator.IsLocalMode() {
+		return &CreateTokenResponse{}, nil
+	}
+
 	headers := map[string]string{}
 	res, err := c.httpClient.Request(http.MethodPost, "/cli/tokens/", nil, headers)
 
 	if err != nil {
+		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
+		if networkErr != nil {
+			return nil, networkErr
+		}
+
+		if c.networkValidator.IsLocalMode() {
+			return &CreateTokenResponse{}, nil
+		}
+
 		return nil, err
 	}
 

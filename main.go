@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/datreeio/datree/pkg/networkValidator"
+
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/localConfig"
@@ -20,8 +22,9 @@ const DEFAULT_ERR_EXIT_CODE = 1
 const VIOLATIONS_FOUND_EXIT_CODE = 2
 
 func main() {
-	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
-	localConfig := localConfig.NewLocalConfigClient(cliClient)
+	validator := networkValidator.NewNetworkValidator()
+	cliClient := cliClient.NewCliClient(deploymentConfig.URL, validator)
+	localConfig := localConfig.NewLocalConfigClient(cliClient, validator)
 
 	reporter := errorReporter.NewErrorReporter(cliClient, localConfig)
 	globalPrinter := printer.CreateNewPrinter()

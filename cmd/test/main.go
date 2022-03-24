@@ -195,7 +195,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			}
 
 			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
-
 			if err != nil {
 				return err
 			}
@@ -468,6 +467,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}
 
 	sendEvaluationResultsResponse, err := ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
+
 	if err != nil {
 		return emptyEvaluationResultData, err
 	}

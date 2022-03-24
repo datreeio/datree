@@ -17,6 +17,7 @@ import (
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/datreeio/datree/pkg/localConfig"
+	"github.com/datreeio/datree/pkg/networkValidator"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/spf13/cobra"
 )
@@ -104,8 +105,9 @@ type app struct {
 }
 
 func startup() *app {
-	cliClient := cliClient.NewCliClient(deploymentConfig.URL)
-	localConfig := localConfig.NewLocalConfigClient(cliClient)
+	validator := networkValidator.NewNetworkValidator()
+	cliClient := cliClient.NewCliClient(deploymentConfig.URL, validator)
+	localConfig := localConfig.NewLocalConfigClient(cliClient, validator)
 	printer := printer.CreateNewPrinter()
 
 	return &app{
