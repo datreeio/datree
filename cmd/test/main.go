@@ -226,7 +226,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.19.0")
 	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
 
-	cmd.Flags().StringVar(&flags.PolicyConfig, "policy-config", "", "Policy name to run against")
+	cmd.Flags().StringVar(&flags.PolicyConfig, "policy-config", "", "Path for local policies configuration file")
 	cmd.Flags().BoolVar(&flags.OnlyK8sFiles, "only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
 
 	// kubeconform flag
@@ -251,6 +251,10 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 	var err error
 
 	if testCommandFlags.PolicyConfig != "" {
+		if !evaluationPrerunDataResp.IsPolicyAsCodeMode {
+			return nil, fmt.Errorf("To use --policy-config flag you must first enable policy-as-code mode: https://hub.datree.io/policy-as-code")
+		}
+
 		policies, err = policy.GetPoliciesFileFromPath(testCommandFlags.PolicyConfig)
 		if err != nil {
 			return nil, err
