@@ -2,7 +2,6 @@ package networkValidator
 
 import (
 	"errors"
-	"strings"
 )
 
 type NetworkValidator struct {
@@ -22,7 +21,7 @@ func (nv *NetworkValidator) SetOfflineMode(offlineMode string) {
 }
 
 func (nv *NetworkValidator) IdentifyNetworkError(errStr string) error {
-	if strings.Contains(errStr, "connection refused") || strings.Contains(errStr, "ECONNREFUSED") {
+	if errStr == "network error" {
 		if nv.offlineMode == "fail" {
 			return errors.New("Failed since internet connection refused, you can use the following command to set your config to run offline:\ndatree config set offline local")
 		}

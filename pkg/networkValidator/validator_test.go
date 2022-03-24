@@ -38,7 +38,7 @@ func TestNetworkValidatorOtherError(t *testing.T) {
 
 func test_identifyNetworkError_network_error(validator *NetworkValidator, offlineMode string) error {
 	validator.SetOfflineMode(offlineMode)
-	return validator.IdentifyNetworkError("ECONNREFUSED")
+	return validator.IdentifyNetworkError("network error")
 }
 
 func test_identifyNetworkError_other_error(validator *NetworkValidator, offlineMode string) error {
