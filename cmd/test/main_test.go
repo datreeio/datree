@@ -28,6 +28,7 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
+// struct type for testing Test command flow
 type TestFlowTestCase struct {
 	name string
 	args struct {
