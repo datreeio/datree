@@ -27,7 +27,7 @@ type FailedRule struct {
 	Name               string
 	Occurrences        int
 	Suggestion         string
-	HowToFix           string
+	DocumentationUrl   string
 	OccurrencesDetails []OccurrenceDetails
 }
 
