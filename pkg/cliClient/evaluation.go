@@ -103,6 +103,10 @@ type EvaluationPrerunDataResponse struct {
 const badRequestStatusCode = 400
 
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
+	if c.networkValidator.IsLocalMode() {
+		return &EvaluationPrerunDataResponse{}, nil
+	}
+
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
 
 	if err != nil && (res.StatusCode >= badRequestStatusCode || res.Body == nil) {
@@ -163,6 +167,10 @@ type EvaluationResultRequest struct {
 }
 
 func (c *CliClient) SendEvaluationResult(request *EvaluationResultRequest) (*SendEvaluationResultsResponse, error) {
+	if c.networkValidator.IsLocalMode() {
+		return &SendEvaluationResultsResponse{}, nil
+	}
+
 	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/result", request, nil)
 	if err != nil {
 		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())

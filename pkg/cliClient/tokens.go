@@ -11,7 +11,7 @@ type CreateTokenResponse struct {
 
 func (c *CliClient) CreateToken() (*CreateTokenResponse, error) {
 	if c.networkValidator.IsLocalMode() {
-		return nil, nil
+		return &CreateTokenResponse{}, nil
 	}
 
 	headers := map[string]string{}
@@ -24,7 +24,7 @@ func (c *CliClient) CreateToken() (*CreateTokenResponse, error) {
 		}
 
 		if c.networkValidator.IsLocalMode() {
-			return nil, nil
+			return &CreateTokenResponse{}, nil
 		}
 
 		return nil, err

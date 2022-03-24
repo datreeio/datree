@@ -63,6 +63,10 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 		if writeOfflineErr != nil {
 			return &LocalConfig{}, writeOfflineErr
 		}
+		readOfflineErr := viper.ReadInConfig()
+		if readOfflineErr != nil {
+			return &LocalConfig{}, readOfflineErr
+		}
 		offline = viper.GetString(offlineKey)
 	}
 
