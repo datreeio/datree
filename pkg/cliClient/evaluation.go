@@ -100,8 +100,6 @@ type EvaluationPrerunDataResponse struct {
 	IsPolicyAsCodeMode    bool                      `json:"isPolicyAsCodeMode"`
 }
 
-const badRequestStatusCode = 400
-
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
 	if c.networkValidator.IsLocalMode() {
 		return &EvaluationPrerunDataResponse{}, nil
@@ -109,7 +107,7 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrer
 
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
 
-	if err != nil && (res.StatusCode >= badRequestStatusCode || res.Body == nil) {
+	if err != nil {
 		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
 		if networkErr != nil {
 			return &EvaluationPrerunDataResponse{}, networkErr
