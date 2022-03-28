@@ -5,6 +5,10 @@ import (
 	"strings"
 )
 
+type ValidationWarning struct {
+	Message string
+}
+
 type InvalidK8sSchemaError struct {
 	ErrorMessage string
 }

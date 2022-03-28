@@ -7,6 +7,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/datreeio/datree/pkg/printer"
@@ -66,7 +67,7 @@ func TestPrintResults(t *testing.T) {
 		mockedPrinter.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_ = PrintResults(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0", "Default")
+			_ = PrintResults(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0", "Default", validation.K8sValidationWarningPerValidFile{})
 
 			if tt.args.outputFormat == "json" {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
@@ -76,7 +77,7 @@ func TestPrintResults(t *testing.T) {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
 			} else {
 				pwd, _ := os.Getwd()
-				warnings, _ := parseToPrinterWarnings(tt.args.results.EvaluationResults, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0")
+				warnings, _ := parseToPrinterWarnings(tt.args.results.EvaluationResults, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0", validation.K8sValidationWarningPerValidFile{})
 				mockedPrinter.AssertCalled(t, "PrintWarnings", warnings)
 			}
 		})
@@ -190,7 +191,7 @@ func createFormattedOutput() FormattedOutput {
 			ConfigsCount:                1,
 			FilesCount:                  1,
 			PassedYamlValidationCount:   1,
-			PassedK8sValidationCount:    1,
+			K8sValidation:               "1/1",
 			PassedPolicyValidationCount: 0,
 		},
 	}

@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/datreeio/datree/pkg/printer"
@@ -21,7 +22,7 @@ type Printer interface {
 	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 }
 
-func PrintResults(results FormattedResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string, policyName string) error {
+func PrintResults(results FormattedResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string, policyName string, k8sValidationWarnings validation.K8sValidationWarningPerValidFile) error {
 	if outputFormat == "json" || outputFormat == "yaml" || outputFormat == "xml" {
 		nonInteractiveEvaluationResults := results.NonInteractiveEvaluationResults
 		if nonInteractiveEvaluationResults == nil {
@@ -34,7 +35,7 @@ func PrintResults(results FormattedResults, invalidYamlFiles []*extractor.Invali
 				ConfigsCount:                evaluationSummary.ConfigsCount,
 				FilesCount:                  evaluationSummary.FilesCount,
 				PassedYamlValidationCount:   evaluationSummary.PassedYamlValidationCount,
-				PassedK8sValidationCount:    evaluationSummary.PassedK8sValidationCount,
+				K8sValidation:               evaluationSummary.K8sValidation,
 				PassedPolicyValidationCount: evaluationSummary.PassedPolicyCheckCount,
 			},
 			YamlValidationResults: invalidYamlFiles,
@@ -49,7 +50,7 @@ func PrintResults(results FormattedResults, invalidYamlFiles []*extractor.Invali
 			return xmlOutput(&formattedOutput)
 		}
 	} else {
-		return textOutput(results.EvaluationResults, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion, policyName)
+		return textOutput(results.EvaluationResults, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion, policyName, k8sValidationWarnings)
 	}
 }
 
@@ -87,13 +88,13 @@ func xmlOutput(formattedOutput *FormattedOutput) error {
 	return nil
 }
 
-func textOutput(results *EvaluationResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string, policyName string) error {
+func textOutput(results *EvaluationResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string, policyName string, k8sValidationWarnings validation.K8sValidationWarningPerValidFile) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	warnings, err := parseToPrinterWarnings(results, invalidYamlFiles, invalidK8sFiles, pwd, k8sVersion)
+	warnings, err := parseToPrinterWarnings(results, invalidYamlFiles, invalidK8sFiles, pwd, k8sVersion, k8sValidationWarnings)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -144,7 +145,7 @@ func parseInvalidK8sFilesToWarnings(invalidK8sFiles []*extractor.InvalidFile, k8
 	return warnings
 }
 
-func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, pwd string, k8sVersion string) ([]printer.Warning, error) {
+func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, pwd string, k8sVersion string, k8sValidationWarnings validation.K8sValidationWarningPerValidFile) ([]printer.Warning, error) {
 	var warnings = []printer.Warning{}
 
 	warnings = append(warnings, parseInvalidYamlFilesToWarnings(invalidYamlFiles)...)
@@ -192,7 +193,9 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 				Title:           fmt.Sprintf(">>  File: %s\n", relativePath),
 				FailedRules:     failedRules,
 				InvalidYamlInfo: printer.InvalidYamlInfo{},
-				InvalidK8sInfo:  printer.InvalidK8sInfo{},
+				InvalidK8sInfo: printer.InvalidK8sInfo{
+					ValidationWarning: k8sValidationWarnings[filename],
+				},
 			})
 		}
 	}
@@ -214,6 +217,7 @@ func GetWarningExtraMessages(invalidFile *extractor.InvalidFile) []printer.Extra
 			Color: "cyan",
 		})
 	}
+
 	return extraMessages
 }
 

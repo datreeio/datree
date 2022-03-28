@@ -120,7 +120,7 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrer
 		return &EvaluationPrerunDataResponse{}, err
 	}
 
-	var evaluationPrerunDataResponse = &EvaluationPrerunDataResponse{}
+	var evaluationPrerunDataResponse = &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true}
 	err = json.Unmarshal(res.Body, &evaluationPrerunDataResponse)
 	if err != nil {
 		return &EvaluationPrerunDataResponse{}, err

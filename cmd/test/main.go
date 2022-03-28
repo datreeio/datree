@@ -11,6 +11,7 @@ import (
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	policy_factory "github.com/datreeio/datree/bl/policy"
+	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/policy"
@@ -36,7 +37,7 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile)
+	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, validation.K8sValidationWarningPerValidFile)
 	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
 	GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations)
 }
@@ -62,8 +63,6 @@ func NewTestCommandFlags() *TestCommandFlags {
 		SchemaLocations:      make([]string, 0),
 	}
 }
-
-//
 
 func (flags *TestCommandFlags) Validate() error {
 	outputValue := flags.Output
@@ -315,8 +314,8 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 	if err != nil {
 		return err
 	}
-	filesPathsLen := len(filesPaths)
-	if filesPathsLen == 0 {
+	filesCount := len(filesPaths)
+	if filesCount == 0 {
 		noFilesErr := fmt.Errorf("No files detected")
 		return noFilesErr
 	}
@@ -338,18 +337,18 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 
 	validationManager := evaluationResultData.ValidationManager
 
-	passedYamlValidationCount := filesPathsLen - validationManager.InvalidYamlFilesCount()
+	passedYamlValidationCount := filesCount - validationManager.InvalidYamlFilesCount()
 
 	evaluationSummary := printer.EvaluationSummary{
-		FilesCount:                filesPathsLen,
+		FilesCount:                filesCount,
 		RulesCount:                evaluationResultData.RulesCount,
 		PassedYamlValidationCount: passedYamlValidationCount,
-		PassedK8sValidationCount:  validationManager.ValidK8sFilesConfigurationsCount(),
+		K8sValidation:             validationManager.GetK8sValidationSummaryStr(filesCount),
 		ConfigsCount:              validationManager.ValidK8sConfigurationsCount(),
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, prerunData.RegistrationURL, prerunData.Output, ctx.Printer, prerunData.K8sVersion, prerunData.Policy.Name)
+	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, prerunData.RegistrationURL, prerunData.Output, ctx.Printer, prerunData.K8sVersion, prerunData.Policy.Name, *validationManager.k8sValidationWarningPerValidFile)
 
 	if evaluationResultData.PromptMessage != "" {
 		ctx.Printer.PrintPromptMessage(evaluationResultData.PromptMessage)
@@ -414,11 +413,11 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		validationManager.AggregateIgnoredYamlFiles(ignoredYamlFilesChan)
 	}
 
-	validK8sFilesConfigurationsChan, invalidK8sFilesChan := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)
+	validK8sFilesConfigurationsChan, invalidK8sFilesChan, k8sValidationWarningPerValidFile := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)
 
 	validationManager.AggregateInvalidK8sFiles(invalidK8sFilesChan)
-
 	validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan)
+	validationManager.SaveK8sValidationWarningPerValidFile(&k8sValidationWarningPerValidFile)
 
 	policyName := prerunData.Policy.Name
 

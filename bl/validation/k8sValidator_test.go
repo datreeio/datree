@@ -46,7 +46,7 @@ func test_valid_multiple_configurations(t *testing.T) {
 		Configurations: []extractor.Configuration{},
 	}
 	close(filesConfigurationsChan)
-	validConfigurationsChan, _ := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	validConfigurationsChan, _, _ := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
 
 	for p := range validConfigurationsChan {
 		assert.Equal(t, path, p.FileName)
@@ -94,7 +94,7 @@ func test_invalid_file(t *testing.T) {
 		Configurations: []extractor.Configuration{},
 	}
 	close(filesConfigurationsChan)
-	_, invalidFilesChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	_, invalidFilesChan, _ := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
 
 	for p := range invalidFilesChan {
 		assert.Equal(t, path, p.Path)
@@ -118,7 +118,7 @@ func test_empty_file(t *testing.T) {
 		Configurations: []extractor.Configuration{},
 	}
 	close(filesConfigurationsChan)
-	_, invalidFilesChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	_, invalidFilesChan, _ := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
 
 	for p := range invalidFilesChan {
 		assert.Equal(t, path, p.Path)

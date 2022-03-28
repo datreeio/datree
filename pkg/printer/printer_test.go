@@ -153,7 +153,7 @@ func TestPrintEvaluationSummary(t *testing.T) {
 			RulesCount:                21,
 			FilesCount:                5,
 			PassedYamlValidationCount: 4,
-			PassedK8sValidationCount:  3,
+			K8sValidation:             "3/5",
 			PassedPolicyCheckCount:    2,
 		}
 		k8sVersion := "1.2.3"
