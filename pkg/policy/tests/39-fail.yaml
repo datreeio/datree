@@ -3,3 +3,5 @@ kind: AppProject
 metadata:
   name: my-project
   namespace: no-argocd
+spec:
+  entrypoint: statis

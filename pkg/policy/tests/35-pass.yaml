@@ -32,3 +32,5 @@ spec:
     - name: statis
       dag:
         failFast: true
+        tasks:
+          - name: my-task
