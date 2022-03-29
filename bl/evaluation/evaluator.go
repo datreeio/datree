@@ -249,7 +249,14 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 func extractConfigurationInfo(configuration extractor.Configuration) (string, string) {
 	kind := configuration["kind"].(string)
 	metadata := configuration["metadata"]
-	name := metadata.(map[string]interface{})["name"].(string)
+
+	nonStringName := metadata.(map[string]interface{})["name"]
+	var name string
+	if nonStringName != nil {
+		name = nonStringName.(string)
+	} else {
+		name = ""
+	}
 
 	return name, kind
 }
