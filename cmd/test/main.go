@@ -348,7 +348,18 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(results, validationManager.InvalidYamlFiles(), validationManager.InvalidK8sFiles(), evaluationSummary, prerunData.RegistrationURL, prerunData.Output, ctx.Printer, prerunData.K8sVersion, prerunData.Policy.Name, *validationManager.k8sValidationWarningPerValidFile)
+	err = evaluation.PrintResults(&evaluation.PrintResultsData{
+		Results:               results,
+		InvalidYamlFiles:      validationManager.InvalidYamlFiles(),
+		InvalidK8sFiles:       validationManager.InvalidK8sFiles(),
+		EvaluationSummary:     evaluationSummary,
+		LoginURL:              prerunData.RegistrationURL,
+		OutputFormat:          prerunData.Output,
+		Printer:               ctx.Printer,
+		K8sVersion:            prerunData.K8sVersion,
+		PolicyName:            prerunData.Policy.Name,
+		K8sValidationWarnings: *validationManager.k8sValidationWarningPerValidFile,
+	})
 
 	if evaluationResultData.PromptMessage != "" {
 		ctx.Printer.PrintPromptMessage(evaluationResultData.PromptMessage)
@@ -417,7 +428,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	validationManager.AggregateInvalidK8sFiles(invalidK8sFilesChan)
 	validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan)
-	validationManager.SaveK8sValidationWarningPerValidFile(&k8sValidationWarningPerValidFile)
+	validationManager.SetK8sValidationWarningPerValidFile(&k8sValidationWarningPerValidFile)
 
 	policyName := prerunData.Policy.Name
 

@@ -51,6 +51,7 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 			if isValid {
 				validK8sFilesConfigurationsChan <- fileConfigurations
 				k8sValidationWarningPerValidFile[fileConfigurations.FileName] = validationWarning
+				_ = validationWarning
 			} else {
 				invalidK8sFilesChan <- &extractor.InvalidFile{
 					Path:             fileConfigurations.FileName,
@@ -102,7 +103,11 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, error
 	if err != nil {
 		return false, []error{}, fmt.Errorf("failed opening %s: %s", filepath, &InvalidK8sSchemaError{ErrorMessage: err.Error()}), nil
 	}
-	defer f.Close()
+
+	defer func() {
+		f.Close()
+	}()
+	// defer f.Close()
 
 	results := val.validationClient.Validate(filepath, f)
 

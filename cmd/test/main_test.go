@@ -134,7 +134,7 @@ var mockedEvaluator *mockEvaluator
 var localConfigMock *LocalConfigMock
 var messagerMock *mockMessager
 
-func init() {
+func setup() {
 	evaluationId = 444
 
 	prerunData := mockGetPreRunData()
@@ -195,7 +195,7 @@ func init() {
 	readerMock := &ReaderMock{}
 	readerMock.On("FilterFiles", mock.Anything).Return([]string{"file/path"}, nil)
 
-	localConfigMock := &LocalConfigMock{}
+	localConfigMock = &LocalConfigMock{}
 	localConfigMock.On("GetLocalConfiguration").Return(&localConfig.LocalConfig{Token: "134kh"}, nil)
 
 	ctx = &TestCommandContext{
@@ -211,11 +211,13 @@ func init() {
 }
 
 func TestTestCommandFlagsValidation(t *testing.T) {
+	setup()
 	test_testCommand_output_flags_validation(t, ctx)
 	test_testCommand_version_flags_validation(t, ctx)
 }
 
 func TestTestCommandNoFlags(t *testing.T) {
+	setup()
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: testingPolicy, Token: "134kh"})
 
 	policyCheckData := evaluation.PolicyCheckData{
@@ -230,11 +232,12 @@ func TestTestCommandNoFlags(t *testing.T) {
 }
 
 func TestTestCommandJsonOutput(t *testing.T) {
+	setup()
 	_ = Test(ctx, []string{"valid/path"}, &TestCommandData{Output: "json", Policy: testingPolicy})
 
 	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
-		IsInteractiveMode:   true,
+		IsInteractiveMode:   false,
 		PolicyName:          testingPolicy.Name,
 		Policy:              testingPolicy,
 	}
@@ -244,11 +247,12 @@ func TestTestCommandJsonOutput(t *testing.T) {
 }
 
 func TestTestCommandYamlOutput(t *testing.T) {
-	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "yaml"})
+	setup()
+	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "yaml", Policy: testingPolicy})
 
 	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
-		IsInteractiveMode:   true,
+		IsInteractiveMode:   false,
 		PolicyName:          testingPolicy.Name,
 		Policy:              testingPolicy,
 	}
@@ -258,11 +262,12 @@ func TestTestCommandYamlOutput(t *testing.T) {
 }
 
 func TestTestCommandXmlOutput(t *testing.T) {
-	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "xml"})
+	setup()
+	_ = Test(ctx, []string{"valid/path"}, &TestCommandData{Output: "xml", Policy: testingPolicy})
 
 	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
-		IsInteractiveMode:   true,
+		IsInteractiveMode:   false,
 		PolicyName:          testingPolicy.Name,
 		Policy:              testingPolicy,
 	}
@@ -272,10 +277,33 @@ func TestTestCommandXmlOutput(t *testing.T) {
 }
 
 func TestTestCommandOnlyK8sFiles(t *testing.T) {
+	setup()
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{OnlyK8sFiles: true})
 
 	k8sValidatorMock.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	k8sValidatorMock.AssertCalled(t, "GetK8sFiles", mock.Anything, 100)
+}
+
+func TestTestCommandNoInternetConnection(t *testing.T) {
+	setup()
+	_ = Test(ctx, []string{"valid/path"}, &TestCommandData{Policy: testingPolicy})
+
+	policyCheckData := evaluation.PolicyCheckData{
+		FilesConfigurations: filesConfigurations,
+		IsInteractiveMode:   true,
+		PolicyName:          testingPolicy.Name,
+		Policy:              testingPolicy,
+	}
+
+	path := "valid/path"
+	filesConfigurationsChan := newFilesConfigurationsChan(path)
+	invalidK8sFilesChan := newInvalidK8sFilesChan()
+	K8sValidationWarnings := validation.K8sValidationWarningPerValidFile{"valid/path": &validation.ValidationWarning{Message: "Validation warning message - no internet"}}
+
+	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidK8sFilesChan, K8sValidationWarnings, newErrorsChan())
+
+	k8sValidatorMock.AssertCalled(t, "ValidateResources", mock.Anything, 100)
+	mockedEvaluator.AssertCalled(t, "Evaluate", policyCheckData)
 }
 
 func executeTestCommand(ctx *TestCommandContext, args []string) error {

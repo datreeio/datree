@@ -85,7 +85,7 @@ func (v *ValidationManager) ValidK8sConfigurationsCount() int {
 	return totalConfigs
 }
 
-func (v *ValidationManager) SaveK8sValidationWarningPerValidFile(k8sValidationWarningPerValidFile *validation.K8sValidationWarningPerValidFile) {
+func (v *ValidationManager) SetK8sValidationWarningPerValidFile(k8sValidationWarningPerValidFile *validation.K8sValidationWarningPerValidFile) {
 	v.k8sValidationWarningPerValidFile = k8sValidationWarningPerValidFile
 }
 

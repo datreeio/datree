@@ -22,9 +22,34 @@ type Printer interface {
 	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 }
 
-func PrintResults(results FormattedResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string, policyName string, k8sValidationWarnings validation.K8sValidationWarningPerValidFile) error {
-	if outputFormat == "json" || outputFormat == "yaml" || outputFormat == "xml" {
-		nonInteractiveEvaluationResults := results.NonInteractiveEvaluationResults
+type PrintResultsData struct {
+	Results               FormattedResults
+	InvalidYamlFiles      []*extractor.InvalidFile
+	InvalidK8sFiles       []*extractor.InvalidFile
+	EvaluationSummary     printer.EvaluationSummary
+	LoginURL              string
+	OutputFormat          string
+	Printer               Printer
+	K8sVersion            string
+	PolicyName            string
+	K8sValidationWarnings validation.K8sValidationWarningPerValidFile
+}
+
+type textOutputData struct {
+	results               *EvaluationResults
+	invalidYamlFiles      []*extractor.InvalidFile
+	invalidK8sFiles       []*extractor.InvalidFile
+	evaluationSummary     printer.EvaluationSummary
+	url                   string
+	printer               Printer
+	k8sVersion            string
+	policyName            string
+	k8sValidationWarnings validation.K8sValidationWarningPerValidFile
+}
+
+func PrintResults(resultsData *PrintResultsData) error {
+	if resultsData.OutputFormat == "json" || resultsData.OutputFormat == "yaml" || resultsData.OutputFormat == "xml" {
+		nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
 		if nonInteractiveEvaluationResults == nil {
 			nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
 		}
@@ -32,25 +57,35 @@ func PrintResults(results FormattedResults, invalidYamlFiles []*extractor.Invali
 			PolicyValidationResults: nonInteractiveEvaluationResults.FormattedEvaluationResults,
 			PolicySummary:           nonInteractiveEvaluationResults.PolicySummary,
 			EvaluationSummary: NonInteractiveEvaluationSummary{
-				ConfigsCount:                evaluationSummary.ConfigsCount,
-				FilesCount:                  evaluationSummary.FilesCount,
-				PassedYamlValidationCount:   evaluationSummary.PassedYamlValidationCount,
-				K8sValidation:               evaluationSummary.K8sValidation,
-				PassedPolicyValidationCount: evaluationSummary.PassedPolicyCheckCount,
+				ConfigsCount:                resultsData.EvaluationSummary.ConfigsCount,
+				FilesCount:                  resultsData.EvaluationSummary.FilesCount,
+				PassedYamlValidationCount:   resultsData.EvaluationSummary.PassedYamlValidationCount,
+				K8sValidation:               resultsData.EvaluationSummary.K8sValidation,
+				PassedPolicyValidationCount: resultsData.EvaluationSummary.PassedPolicyCheckCount,
 			},
-			YamlValidationResults: invalidYamlFiles,
-			K8sValidationResults:  invalidK8sFiles,
+			YamlValidationResults: resultsData.InvalidYamlFiles,
+			K8sValidationResults:  resultsData.InvalidK8sFiles,
 		}
 
-		if outputFormat == "json" {
+		if resultsData.OutputFormat == "json" {
 			return jsonOutput(&formattedOutput)
-		} else if outputFormat == "yaml" {
+		} else if resultsData.OutputFormat == "yaml" {
 			return yamlOutput(&formattedOutput)
 		} else {
 			return xmlOutput(&formattedOutput)
 		}
 	} else {
-		return textOutput(results.EvaluationResults, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion, policyName, k8sValidationWarnings)
+		return textOutput(textOutputData{
+			results:               resultsData.Results.EvaluationResults,
+			invalidYamlFiles:      resultsData.InvalidYamlFiles,
+			invalidK8sFiles:       resultsData.InvalidK8sFiles,
+			evaluationSummary:     resultsData.EvaluationSummary,
+			url:                   resultsData.LoginURL,
+			printer:               resultsData.Printer,
+			k8sVersion:            resultsData.K8sVersion,
+			policyName:            resultsData.PolicyName,
+			k8sValidationWarnings: resultsData.K8sValidationWarnings,
+		})
 	}
 }
 
@@ -88,25 +123,25 @@ func xmlOutput(formattedOutput *FormattedOutput) error {
 	return nil
 }
 
-func textOutput(results *EvaluationResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string, policyName string, k8sValidationWarnings validation.K8sValidationWarningPerValidFile) error {
+func textOutput(outputData textOutputData) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	warnings, err := parseToPrinterWarnings(results, invalidYamlFiles, invalidK8sFiles, pwd, k8sVersion, k8sValidationWarnings)
+	warnings, err := parseToPrinterWarnings(outputData.results, outputData.invalidYamlFiles, outputData.invalidK8sFiles, pwd, outputData.k8sVersion, outputData.k8sValidationWarnings)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 
-	printer.PrintWarnings(warnings)
+	outputData.printer.PrintWarnings(warnings)
 
-	summary := parseEvaluationResultsToSummary(results, evaluationSummary, url, policyName)
+	summary := parseEvaluationResultsToSummary(outputData.results, outputData.evaluationSummary, outputData.url, outputData.policyName)
 
-	printer.PrintEvaluationSummary(evaluationSummary, k8sVersion)
+	outputData.printer.PrintEvaluationSummary(outputData.evaluationSummary, outputData.k8sVersion)
 
-	printer.PrintSummaryTable(summary)
+	outputData.printer.PrintSummaryTable(summary)
 
 	return nil
 }

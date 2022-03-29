@@ -67,7 +67,7 @@ func TestPrintResults(t *testing.T) {
 		mockedPrinter.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_ = PrintResults(tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0", "Default", validation.K8sValidationWarningPerValidFile{})
+			_ = PrintResults(&PrintResultsData{tt.args.results, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0", "Default", validation.K8sValidationWarningPerValidFile{}})
 
 			if tt.args.outputFormat == "json" {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")

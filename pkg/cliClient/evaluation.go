@@ -102,7 +102,7 @@ type EvaluationPrerunDataResponse struct {
 
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
 	if c.networkValidator.IsLocalMode() {
-		return &EvaluationPrerunDataResponse{}, nil
+		return &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true}, nil
 	}
 
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)

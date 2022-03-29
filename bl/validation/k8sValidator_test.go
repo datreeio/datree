@@ -3,6 +3,7 @@ package validation
 import (
 	"fmt"
 	"io"
+	"sync"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/extractor"
@@ -27,6 +28,7 @@ func TestValidateResources(t *testing.T) {
 	test_default_schema_location(t)
 	test_get_datree_crd_schema_by_name(t)
 	t.Run("test empty file", test_empty_file)
+	t.Run("test no internet connection", test_no_connection)
 }
 
 func test_valid_multiple_configurations(t *testing.T) {
@@ -123,6 +125,42 @@ func test_empty_file(t *testing.T) {
 	for p := range invalidFilesChan {
 		assert.Equal(t, path, p.Path)
 	}
+}
+
+func test_no_connection(t *testing.T) {
+	validationClient := &mockValidationClient{}
+	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
+		{Status: kubeconformValidator.Error, Err: fmt.Errorf("no such host")},
+	})
+	k8sValidator := K8sValidator{
+		validationClient: validationClient,
+	}
+
+	path := "../../internal/fixtures/kube/pass-all.yaml"
+
+	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
+	filesConfigurationsChan <- &extractor.FileConfigurations{
+		FileName:       path,
+		Configurations: []extractor.Configuration{},
+	}
+	close(filesConfigurationsChan)
+
+	var wg sync.WaitGroup
+	filesConfigurationsChanRes, invalidFilesChan, k8sValidationWarningPerValidFile := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	wg.Add(1)
+	go func() {
+		for p := range filesConfigurationsChanRes {
+			_ = p
+		}
+		for p := range invalidFilesChan {
+			_ = p
+		}
+		wg.Done()
+	}()
+	wg.Wait()
+
+	assert.Equal(t, 1, len(k8sValidationWarningPerValidFile))
+	assert.Equal(t, "k8s schema validation skipped: no internet connection", k8sValidationWarningPerValidFile["../../internal/fixtures/kube/pass-all.yaml"].Message)
 }
 
 func test_default_schema_location(t *testing.T) {
