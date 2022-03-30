@@ -1,7 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+kind: AppProject
 metadata:
-  name: wf-name
+  name: my-project
+  namespace: argocd
 spec:
-  entrypoint: entry-point
-  serviceAccountName: value
+  roles:
+    # A role which provides read-only access to all applications in the project
+    - name: read-only
+      description: Read-only privileges to my-project
+      policies:
+        - p, proj:my-project:read-only, applications, get, my-project/*, allow
+      groups:
+        - my-oidc-group
