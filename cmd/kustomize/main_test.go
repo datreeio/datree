@@ -118,9 +118,9 @@ type k8sValidatorMock struct {
 	mock.Mock
 }
 
-func (kv *k8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, validation.K8sValidationWarningPerValidFile) {
+func (kv *k8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *validation.FileWithWarning) {
 	args := kv.Called(filesConfigurationsChan, concurrency)
-	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *extractor.InvalidFile), args.Get(2).(validation.K8sValidationWarningPerValidFile)
+	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *extractor.InvalidFile), args.Get(2).(chan *validation.FileWithWarning)
 }
 
 func (kv *k8sValidatorMock) GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations) {

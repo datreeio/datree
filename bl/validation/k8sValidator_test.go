@@ -144,9 +144,10 @@ func test_no_connection(t *testing.T) {
 		Configurations: []extractor.Configuration{},
 	}
 	close(filesConfigurationsChan)
+	k8sValidationWarningPerValidFile := make(K8sValidationWarningPerValidFile)
 
 	var wg sync.WaitGroup
-	filesConfigurationsChanRes, invalidFilesChan, k8sValidationWarningPerValidFile := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	filesConfigurationsChanRes, invalidFilesChan, filesWithWarningsChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
 	wg.Add(1)
 	go func() {
 		for p := range filesConfigurationsChanRes {
@@ -154,6 +155,9 @@ func test_no_connection(t *testing.T) {
 		}
 		for p := range invalidFilesChan {
 			_ = p
+		}
+		for p := range filesWithWarningsChan {
+			k8sValidationWarningPerValidFile[p.Filename] = p.Warning
 		}
 		wg.Done()
 	}()

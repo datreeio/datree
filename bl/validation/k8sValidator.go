@@ -28,20 +28,27 @@ func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool
 	val.validationClient = newKubconformValidator(k8sVersion, ignoreMissingSchemas, append(getDefaultSchemaLocation(), schemaLocations...))
 }
 
-func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, K8sValidationWarningPerValidFile) {
+type FileWithWarning struct {
+	Filename string
+	Warning  *ValidationWarning
+}
+
+func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *FileWithWarning) {
 	validK8sFilesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
-	k8sValidationWarningPerValidFile := make(K8sValidationWarningPerValidFile)
 	invalidK8sFilesChan := make(chan *extractor.InvalidFile, concurrency)
+	k8sValidationWarningPerValidFileChan := make(chan *FileWithWarning, concurrency)
 
 	go func() {
+
 		defer func() {
 			close(invalidK8sFilesChan)
 			close(validK8sFilesConfigurationsChan)
+			close(k8sValidationWarningPerValidFileChan)
 		}()
 
 		for fileConfigurations := range filesConfigurationsChan {
 
-			isValid, validationErrors, err, validationWarning := val.validateResource(fileConfigurations.FileName)
+			isValid, validationErrors, validationWarning, err := val.validateResource(fileConfigurations.FileName)
 			if err != nil {
 				invalidK8sFilesChan <- &extractor.InvalidFile{
 					Path:             fileConfigurations.FileName,
@@ -50,7 +57,12 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 			}
 			if isValid {
 				validK8sFilesConfigurationsChan <- fileConfigurations
-				k8sValidationWarningPerValidFile[fileConfigurations.FileName] = validationWarning
+				if validationWarning != nil {
+					k8sValidationWarningPerValidFileChan <- &FileWithWarning{
+						Filename: fileConfigurations.FileName,
+						Warning:  validationWarning,
+					}
+				}
 				_ = validationWarning
 			} else {
 				invalidK8sFilesChan <- &extractor.InvalidFile{
@@ -60,7 +72,8 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 			}
 		}
 	}()
-	return validK8sFilesConfigurationsChan, invalidK8sFilesChan, k8sValidationWarningPerValidFile
+
+	return validK8sFilesConfigurationsChan, invalidK8sFilesChan, k8sValidationWarningPerValidFileChan
 }
 
 func (val *K8sValidator) GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations) {
@@ -98,16 +111,13 @@ func (val *K8sValidator) isK8sFile(fileConfigurations []extractor.Configuration)
 	return true
 }
 
-func (val *K8sValidator) validateResource(filepath string) (bool, []error, error, *ValidationWarning) {
+func (val *K8sValidator) validateResource(filepath string) (bool, []error, *ValidationWarning, error) {
 	f, err := os.Open(filepath)
 	if err != nil {
-		return false, []error{}, fmt.Errorf("failed opening %s: %s", filepath, &InvalidK8sSchemaError{ErrorMessage: err.Error()}), nil
+		return false, []error{}, nil, fmt.Errorf("failed opening %s: %s", filepath, &InvalidK8sSchemaError{ErrorMessage: err.Error()})
 	}
 
-	defer func() {
-		f.Close()
-	}()
-	// defer f.Close()
+	defer f.Close()
 
 	results := val.validationClient.Validate(filepath, f)
 
@@ -125,7 +135,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, error
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
 			if val.isNetworkError(res.Err.Error()) {
 				noConnectionWarning := &ValidationWarning{Message: "k8s schema validation skipped: no internet connection"}
-				return isValid, []error{}, nil, noConnectionWarning
+				return isValid, []error{}, noConnectionWarning, nil
 			}
 			isValid = false
 

@@ -11,8 +11,14 @@ type ValidationManager struct {
 	invalidYamlFiles                 []*extractor.InvalidFile
 	invalidK8sFiles                  []*extractor.InvalidFile
 	validK8sFilesConfigurations      []*extractor.FileConfigurations
-	k8sValidationWarningPerValidFile *validation.K8sValidationWarningPerValidFile
+	k8sValidationWarningPerValidFile validation.K8sValidationWarningPerValidFile
 	ignoredFiles                     []extractor.FileConfigurations
+}
+
+func NewValidationManager() *ValidationManager {
+	return &ValidationManager{
+		k8sValidationWarningPerValidFile: make(validation.K8sValidationWarningPerValidFile),
+	}
 }
 
 func (v *ValidationManager) AggregateInvalidYamlFiles(invalidFilesChan chan *extractor.InvalidFile) {
@@ -62,7 +68,7 @@ func (v *ValidationManager) GetK8sValidationSummaryStr(filesCount int) string {
 }
 
 func (v *ValidationManager) hasFilesWithWarnings() bool {
-	for _, value := range *v.k8sValidationWarningPerValidFile {
+	for _, value := range v.k8sValidationWarningPerValidFile {
 		if value != nil {
 			return true
 		}
@@ -85,11 +91,13 @@ func (v *ValidationManager) ValidK8sConfigurationsCount() int {
 	return totalConfigs
 }
 
-func (v *ValidationManager) SetK8sValidationWarningPerValidFile(k8sValidationWarningPerValidFile *validation.K8sValidationWarningPerValidFile) {
-	v.k8sValidationWarningPerValidFile = k8sValidationWarningPerValidFile
+func (v *ValidationManager) AggregateK8sValidationWarningsPerValidFile(filesWithWarningsChan chan *validation.FileWithWarning) {
+	for fileWithWarning := range filesWithWarningsChan {
+		v.k8sValidationWarningPerValidFile[fileWithWarning.Filename] = fileWithWarning.Warning
+	}
 }
 
-func (v *ValidationManager) GetK8sValidationWarningPerValidFile() *validation.K8sValidationWarningPerValidFile {
+func (v *ValidationManager) GetK8sValidationWarningPerValidFile() validation.K8sValidationWarningPerValidFile {
 	return v.k8sValidationWarningPerValidFile
 }
 

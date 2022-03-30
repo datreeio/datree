@@ -37,7 +37,7 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, validation.K8sValidationWarningPerValidFile)
+	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *validation.FileWithWarning)
 	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
 	GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations)
 }
@@ -358,7 +358,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 		Printer:               ctx.Printer,
 		K8sVersion:            prerunData.K8sVersion,
 		PolicyName:            prerunData.Policy.Name,
-		K8sValidationWarnings: *validationManager.k8sValidationWarningPerValidFile,
+		K8sValidationWarnings: validationManager.k8sValidationWarningPerValidFile,
 	})
 
 	if evaluationResultData.PromptMessage != "" {
@@ -408,7 +408,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		}
 	}()
 
-	validationManager := &ValidationManager{}
+	validationManager := NewValidationManager()
 
 	ctx.K8sValidator.InitClient(prerunData.K8sVersion, prerunData.IgnoreMissingSchemas, prerunData.SchemaLocations)
 
@@ -424,11 +424,11 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		validationManager.AggregateIgnoredYamlFiles(ignoredYamlFilesChan)
 	}
 
-	validK8sFilesConfigurationsChan, invalidK8sFilesChan, k8sValidationWarningPerValidFile := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)
+	validK8sFilesConfigurationsChan, invalidK8sFilesChan, filesWithWarningsChan := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)
 
 	validationManager.AggregateInvalidK8sFiles(invalidK8sFilesChan)
 	validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan)
-	validationManager.SetK8sValidationWarningPerValidFile(&k8sValidationWarningPerValidFile)
+	validationManager.AggregateK8sValidationWarningsPerValidFile(filesWithWarningsChan)
 
 	policyName := prerunData.Policy.Name
 
