@@ -5,6 +5,7 @@ import (
 
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
+	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/executor"
@@ -117,9 +118,9 @@ type k8sValidatorMock struct {
 	mock.Mock
 }
 
-func (kv *k8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile) {
+func (kv *k8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *validation.FileWithWarning) {
 	args := kv.Called(filesConfigurationsChan, concurrency)
-	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *extractor.InvalidFile)
+	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *extractor.InvalidFile), args.Get(2).(chan *validation.FileWithWarning)
 }
 
 func (kv *k8sValidatorMock) GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations) {
