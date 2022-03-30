@@ -164,7 +164,7 @@ func test_no_connection(t *testing.T) {
 	wg.Wait()
 
 	assert.Equal(t, 1, len(k8sValidationWarningPerValidFile))
-	assert.Equal(t, "k8s schema validation skipped: no internet connection", k8sValidationWarningPerValidFile["../../internal/fixtures/kube/pass-all.yaml"].Message)
+	assert.Equal(t, "k8s schema validation skipped: no internet connection", k8sValidationWarningPerValidFile["../../internal/fixtures/kube/pass-all.yaml"])
 }
 
 func test_default_schema_location(t *testing.T) {

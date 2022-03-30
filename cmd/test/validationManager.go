@@ -69,7 +69,7 @@ func (v *ValidationManager) GetK8sValidationSummaryStr(filesCount int) string {
 
 func (v *ValidationManager) hasFilesWithWarnings() bool {
 	for _, value := range v.k8sValidationWarningPerValidFile {
-		if value != nil {
+		if value != "" {
 			return true
 		}
 	}

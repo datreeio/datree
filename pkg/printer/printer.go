@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/datreeio/datree/bl/validation"
 	"github.com/xeipuuv/gojsonschema"
 
 	"github.com/fatih/color"
@@ -41,7 +40,7 @@ type InvalidYamlInfo struct {
 }
 type InvalidK8sInfo struct {
 	ValidationErrors  []error
-	ValidationWarning *validation.ValidationWarning
+	ValidationWarning string
 	K8sVersion        string
 }
 
@@ -101,7 +100,7 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 	fmt.Println("[?] Kubernetes schema validation")
 	fmt.Fprintln(out)
 
-	fmt.Println(warning.InvalidK8sInfo.ValidationWarning.Message)
+	fmt.Println(warning.InvalidK8sInfo.ValidationWarning)
 	fmt.Fprintln(out)
 }
 
@@ -139,7 +138,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 		} else {
 			p.printPassedYamlValidation()
 
-			if warning.InvalidK8sInfo.ValidationWarning != nil {
+			if warning.InvalidK8sInfo.ValidationWarning != "" {
 				p.printK8sValidationWarning(warning)
 			} else {
 				p.printInColor("[V] Kubernetes schema validation\n", p.Theme.Colors.Green)
