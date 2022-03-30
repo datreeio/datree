@@ -216,6 +216,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 				mapper[filePath][ruleIdentifier] = &Rule{
 					Identifier:         ruleIdentifier,
 					Name:               failedRuleData.Name,
+					DocumentationUrl:   failedRuleData.DocumentationUrl,
 					MessageOnFailure:   failedRuleData.MessageOnFailure,
 					OccurrencesDetails: []OccurrenceDetails{},
 				}
@@ -278,10 +279,10 @@ func calculateFailedRulesByFiles(currentFailedRulesByFiles FailedRulesByFiles, v
 				ruleData.Configurations = append(ruleData.Configurations, configurationData)
 				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = ruleData
 			} else {
-				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = cliClient.FailedRule{Name: rule.RuleName, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}
+				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = cliClient.FailedRule{Name: rule.RuleName, DocumentationUrl: rule.DocumentationUrl, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}
 			}
 		} else {
-			currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{rule.RuleIdentifier: {Name: rule.RuleName, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
+			currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{rule.RuleIdentifier: {Name: rule.RuleName, DocumentationUrl: rule.DocumentationUrl, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
 		}
 	}
 
