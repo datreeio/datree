@@ -32,3 +32,18 @@ spec:
     - name: statis
       dag:
         failFast: false
+        tasks:
+          - name: A
+            template: a
+          - name: B
+            depends: "A"
+            template: b
+          - name: C
+            depends: "A"
+            template: c
+          - name: D
+            depends: "B"
+            template: d
+          - name: E
+            depends: "D"
+            template: d
