@@ -1,0 +1,24 @@
+# Rollout doesn't require the metadata key,
+# should fail gracefully for rule 38 ARGO_ROLLOUT_MISSING_PAUSE_DURATION
+# and display metadata.name: N/A
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+spec:
+  strategy:
+    canary:
+      analysis:
+        templates:
+          - templateName: success-rate
+        startingStep: 2 # delay starting analysis run until setWeight: 40%
+        args:
+          - name: service-name
+            value: guestbook-svc.default.svc.cluster.local
+      steps:
+        - setWeight: 20
+        - pause: {duration: 10m}
+        - setWeight: 40
+        - pause: {duration: 10m}
+        - setWeight: 60
+        - pause: {duration: 10m}
+        - setWeight: 80
+        - pause: { }
