@@ -30,11 +30,11 @@ type RuleResult struct {
 }
 
 type NonInteractiveEvaluationSummary struct {
-	ConfigsCount                int `yaml:"configsCount" json:"configsCount" xml:"configsCount"`
-	FilesCount                  int `yaml:"filesCount" json:"filesCount" xml:"filesCount"`
-	PassedYamlValidationCount   int `yaml:"passedYamlValidationCount" json:"passedYamlValidationCount" xml:"passedYamlValidationCount"`
-	PassedK8sValidationCount    int `yaml:"passedK8sValidationCount" json:"passedK8sValidationCount" xml:"passedK8sValidationCount"`
-	PassedPolicyValidationCount int `yaml:"passedPolicyValidationCount" json:"passedPolicyValidationCount" xml:"passedPolicyValidationCount"`
+	ConfigsCount                int    `yaml:"configsCount" json:"configsCount" xml:"configsCount"`
+	FilesCount                  int    `yaml:"filesCount" json:"filesCount" xml:"filesCount"`
+	PassedYamlValidationCount   int    `yaml:"passedYamlValidationCount" json:"passedYamlValidationCount" xml:"passedYamlValidationCount"`
+	K8sValidation               string `yaml:"k8sValidation" json:"k8sValidation" xml:"k8sValidation"`
+	PassedPolicyValidationCount int    `yaml:"passedPolicyValidationCount" json:"passedPolicyValidationCount" xml:"passedPolicyValidationCount"`
 }
 
 type PolicySummary struct {
