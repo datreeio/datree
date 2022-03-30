@@ -247,15 +247,20 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 }
 
 func extractConfigurationInfo(configuration extractor.Configuration) (string, string) {
-	kind := configuration["kind"].(string)
-	metadata := configuration["metadata"]
+	kind := ""
+	name := ""
 
-	nonStringName := metadata.(map[string]interface{})["name"]
-	var name string
-	if nonStringName != nil {
-		name = nonStringName.(string)
-	} else {
-		name = ""
+	nonStringKind := configuration["kind"]
+	if nonStringKind != nil {
+		kind = nonStringKind.(string)
+	}
+
+	nonObjectMetadata := configuration["metadata"]
+	if nonObjectMetadata != nil {
+		nonStringName := nonObjectMetadata.(map[string]interface{})["name"]
+		if nonStringName != nil {
+			name = nonStringName.(string)
+		}
 	}
 
 	return name, kind
