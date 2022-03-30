@@ -205,12 +205,12 @@ func GetWarningExtraMessages(invalidFile *extractor.InvalidFile) []printer.Extra
 
 	if IsHelmFile(invalidFile.Path) {
 		extraMessages = append(extraMessages, printer.ExtraMessage{
-			Text:  "Are you trying to test a raw helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree \n",
+			Text:  "Are you trying to test a raw Helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree \n",
 			Color: "cyan",
 		})
 	} else if IsKustomizationFile(invalidFile.Path) {
 		extraMessages = append(extraMessages, printer.ExtraMessage{
-			Text:  "Are you trying to test kustomize files? To run Datree with Kustomize, use `datree kustomize test` command, or check out kustomize support docs:\nhttps://hub.datree.io/kustomize-support \n",
+			Text:  "Are you trying to test Kustomize files? To run Datree with Kustomize, use `datree kustomize test` command, or check out Kustomize support docs:\nhttps://hub.datree.io/kustomize-support \n",
 			Color: "cyan",
 		})
 	}
