@@ -52,7 +52,6 @@ class Datree < Formula
       \033[35m Usage: $ datree test [k8s-file.yaml]
        Using Helm? => https://github.com/datreeio/helm-datree
        Using Kustomize? => https://hub.datree.io/kustomize-support
-      tput init
     EOS
   end
 end

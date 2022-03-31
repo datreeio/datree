@@ -41,8 +41,8 @@ spec:
               path: /healthz
               port: 8080
               httpHeaders:
-              - name: Custom-Header
-                value: Awesome
+                - name: Custom-Header
+                  value: Awesome
           readinessProbe:
             tcpSocket:
               port: 8080

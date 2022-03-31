@@ -1,6 +1,8 @@
 package policy
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"reflect"
 	"strconv"
@@ -66,7 +68,7 @@ func validatePassing(t *testing.T, validator *jsonSchemaValidator.JSONSchemaVali
 
 		res, err := validator.ValidateYamlSchema(string(schemaBytes), file.content)
 		if err != nil {
-			panic(err)
+			panic(errors.New(err.Error() + fmt.Sprintf("\nruleId: %d", ruleId)))
 		}
 
 		if len(res.Errors()) > 0 && expectPass {

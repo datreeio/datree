@@ -18,14 +18,12 @@ type CLIClient interface {
 
 type Evaluator struct {
 	cliClient CLIClient
-	osInfo    *OSInfo
 	ciContext *ciContext.CIContext
 }
 
 func New(c CLIClient) *Evaluator {
 	return &Evaluator{
 		cliClient: c,
-		osInfo:    NewOSInfo(),
 		ciContext: ciContext.Extract(),
 	}
 }
@@ -61,7 +59,10 @@ type EvaluationRequestData struct {
 	PolicyCheckResults FailedRulesByFiles
 }
 
+var OSInfoFn = NewOSInfo
+
 func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
+	osInfo := OSInfoFn()
 	sendEvaluationResultsResponse, err := e.cliClient.SendEvaluationResult(&cliClient.EvaluationResultRequest{
 		K8sVersion: evaluationRequestData.K8sVersion,
 		ClientId:   evaluationRequestData.ClientId,
@@ -69,9 +70,9 @@ func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequest
 		PolicyName: evaluationRequestData.PolicyName,
 		Metadata: &cliClient.Metadata{
 			CliVersion:      evaluationRequestData.CliVersion,
-			Os:              e.osInfo.OS,
-			PlatformVersion: e.osInfo.PlatformVersion,
-			KernelVersion:   e.osInfo.KernelVersion,
+			Os:              osInfo.OS,
+			PlatformVersion: osInfo.PlatformVersion,
+			KernelVersion:   osInfo.KernelVersion,
 			CIContext:       evaluationRequestData.CiContext,
 		},
 		FailedYamlFiles:    evaluationRequestData.FailedYamlFiles,
@@ -216,6 +217,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 				mapper[filePath][ruleIdentifier] = &Rule{
 					Identifier:         ruleIdentifier,
 					Name:               failedRuleData.Name,
+					DocumentationUrl:   failedRuleData.DocumentationUrl,
 					MessageOnFailure:   failedRuleData.MessageOnFailure,
 					OccurrencesDetails: []OccurrenceDetails{},
 				}
@@ -247,9 +249,21 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 }
 
 func extractConfigurationInfo(configuration extractor.Configuration) (string, string) {
-	kind := configuration["kind"].(string)
-	metadata := configuration["metadata"]
-	name := metadata.(map[string]interface{})["name"].(string)
+	kind := ""
+	name := ""
+
+	nonStringKind := configuration["kind"]
+	if nonStringKind != nil {
+		kind = nonStringKind.(string)
+	}
+
+	nonObjectMetadata := configuration["metadata"]
+	if nonObjectMetadata != nil {
+		nonStringName := nonObjectMetadata.(map[string]interface{})["name"]
+		if nonStringName != nil {
+			name = nonStringName.(string)
+		}
+	}
 
 	return name, kind
 }
@@ -266,10 +280,10 @@ func calculateFailedRulesByFiles(currentFailedRulesByFiles FailedRulesByFiles, v
 				ruleData.Configurations = append(ruleData.Configurations, configurationData)
 				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = ruleData
 			} else {
-				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = cliClient.FailedRule{Name: rule.RuleName, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}
+				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = cliClient.FailedRule{Name: rule.RuleName, DocumentationUrl: rule.DocumentationUrl, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}
 			}
 		} else {
-			currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{rule.RuleIdentifier: {Name: rule.RuleName, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
+			currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{rule.RuleIdentifier: {Name: rule.RuleName, DocumentationUrl: rule.DocumentationUrl, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
 		}
 	}
 
