@@ -98,7 +98,7 @@ If you run into any difficulties with CI/CD integrations, please join our [commu
 
 ## Architecture
 
-![GitHub-Mark-Light](https://github.com/datreeio/datree/blob/main/images/datree_architecture_light.png#gh-dark-mode-only)![GitHub-Mark-Dark](https://github.com/datreeio/datree/blob/main/images/datree_architecture_dark.png#gh-light-mode-only)
+![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_light.png#gh-dark-mode-only)![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_dark.png#gh-light-mode-only)
 
 ## Contributing
 
