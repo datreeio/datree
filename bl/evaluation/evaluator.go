@@ -18,14 +18,12 @@ type CLIClient interface {
 
 type Evaluator struct {
 	cliClient CLIClient
-	osInfo    *OSInfo
 	ciContext *ciContext.CIContext
 }
 
 func New(c CLIClient) *Evaluator {
 	return &Evaluator{
 		cliClient: c,
-		osInfo:    NewOSInfo(),
 		ciContext: ciContext.Extract(),
 	}
 }
@@ -61,7 +59,10 @@ type EvaluationRequestData struct {
 	PolicyCheckResults FailedRulesByFiles
 }
 
+var OSInfoFn = NewOSInfo
+
 func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
+	osInfo := OSInfoFn()
 	sendEvaluationResultsResponse, err := e.cliClient.SendEvaluationResult(&cliClient.EvaluationResultRequest{
 		K8sVersion: evaluationRequestData.K8sVersion,
 		ClientId:   evaluationRequestData.ClientId,
@@ -69,9 +70,9 @@ func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequest
 		PolicyName: evaluationRequestData.PolicyName,
 		Metadata: &cliClient.Metadata{
 			CliVersion:      evaluationRequestData.CliVersion,
-			Os:              e.osInfo.OS,
-			PlatformVersion: e.osInfo.PlatformVersion,
-			KernelVersion:   e.osInfo.KernelVersion,
+			Os:              osInfo.OS,
+			PlatformVersion: osInfo.PlatformVersion,
+			KernelVersion:   osInfo.KernelVersion,
 			CIContext:       evaluationRequestData.CiContext,
 		},
 		FailedYamlFiles:    evaluationRequestData.FailedYamlFiles,
