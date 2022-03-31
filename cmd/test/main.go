@@ -47,6 +47,7 @@ type TestCommandFlags struct {
 	K8sVersion           string
 	IgnoreMissingSchemas bool
 	OnlyK8sFiles         bool
+	Verbose              bool
 	PolicyName           string
 	SchemaLocations      []string
 	PolicyConfig         string
@@ -59,6 +60,7 @@ func NewTestCommandFlags() *TestCommandFlags {
 		K8sVersion:           "",
 		IgnoreMissingSchemas: false,
 		OnlyK8sFiles:         false,
+		Verbose:              false,
 		PolicyName:           "",
 		SchemaLocations:      make([]string, 0),
 	}
@@ -113,6 +115,7 @@ type TestCommandData struct {
 	K8sVersion            string
 	IgnoreMissingSchemas  bool
 	OnlyK8sFiles          bool
+	Verbose               bool
 	Policy                policy_factory.Policy
 	SchemaLocations       []string
 	Token                 string
@@ -226,6 +229,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 
 	cmd.Flags().StringVar(&flags.PolicyConfig, "policy-config", "", "Path for local policies configuration file")
 	cmd.Flags().BoolVar(&flags.OnlyK8sFiles, "only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
+	cmd.Flags().BoolVar(&flags.Verbose, "verbose", false, "Display 'How to Fix' link")
 
 	// kubeconform flag
 	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
@@ -270,6 +274,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		K8sVersion:            k8sVersion,
 		IgnoreMissingSchemas:  testCommandFlags.IgnoreMissingSchemas,
 		OnlyK8sFiles:          testCommandFlags.OnlyK8sFiles,
+		Verbose:               testCommandFlags.Verbose,
 		Policy:                policy,
 		SchemaLocations:       testCommandFlags.SchemaLocations,
 		Token:                 localConfigContent.Token,
@@ -357,6 +362,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 		OutputFormat:          prerunData.Output,
 		Printer:               ctx.Printer,
 		K8sVersion:            prerunData.K8sVersion,
+		Verbose:               prerunData.Verbose,
 		PolicyName:            prerunData.Policy.Name,
 		K8sValidationWarnings: validationManager.k8sValidationWarningPerValidFile,
 	})
