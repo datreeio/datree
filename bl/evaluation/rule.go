@@ -4,6 +4,7 @@ type Rule struct {
 	Identifier         string
 	Name               string
 	MessageOnFailure   string
+	DocumentationUrl   string
 	OccurrencesDetails []OccurrenceDetails
 }
 
