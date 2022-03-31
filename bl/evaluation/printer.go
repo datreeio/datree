@@ -31,6 +31,7 @@ type PrintResultsData struct {
 	OutputFormat          string
 	Printer               Printer
 	K8sVersion            string
+	Verbose               bool
 	PolicyName            string
 	K8sValidationWarnings validation.K8sValidationWarningPerValidFile
 }
@@ -43,6 +44,7 @@ type textOutputData struct {
 	url                   string
 	printer               Printer
 	k8sVersion            string
+	Verbose               bool
 	policyName            string
 	k8sValidationWarnings validation.K8sValidationWarningPerValidFile
 }
@@ -84,6 +86,7 @@ func PrintResults(resultsData *PrintResultsData) error {
 			printer:               resultsData.Printer,
 			k8sVersion:            resultsData.K8sVersion,
 			policyName:            resultsData.PolicyName,
+			Verbose:               resultsData.Verbose,
 			k8sValidationWarnings: resultsData.K8sValidationWarnings,
 		})
 	}
@@ -129,7 +132,7 @@ func textOutput(outputData textOutputData) error {
 		return err
 	}
 
-	warnings, err := parseToPrinterWarnings(outputData.results, outputData.invalidYamlFiles, outputData.invalidK8sFiles, pwd, outputData.k8sVersion, outputData.k8sValidationWarnings)
+	warnings, err := parseToPrinterWarnings(outputData.results, outputData.invalidYamlFiles, outputData.invalidK8sFiles, pwd, outputData.k8sVersion, outputData.k8sValidationWarnings, outputData.Verbose)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -180,7 +183,7 @@ func parseInvalidK8sFilesToWarnings(invalidK8sFiles []*extractor.InvalidFile, k8
 	return warnings
 }
 
-func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, pwd string, k8sVersion string, k8sValidationWarnings validation.K8sValidationWarningPerValidFile) ([]printer.Warning, error) {
+func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, pwd string, k8sVersion string, k8sValidationWarnings validation.K8sValidationWarningPerValidFile, verbose bool) ([]printer.Warning, error) {
 	var warnings = []printer.Warning{}
 
 	warnings = append(warnings, parseInvalidYamlFilesToWarnings(invalidYamlFiles)...)
@@ -206,8 +209,13 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 
 			for _, ruleUniqueName := range rulesUniqueNames {
 				rule := rules[ruleUniqueName]
+				var fixLink string
+				if verbose {
+					fixLink = rule.DocumentationUrl
+				}
 				failedRule := printer.FailedRule{
 					Name:               rule.Name,
+					DocumentationUrl:   fixLink,
 					Occurrences:        rule.GetOccurrencesCount(),
 					Suggestion:         rule.MessageOnFailure,
 					OccurrencesDetails: []printer.OccurrenceDetails{},
