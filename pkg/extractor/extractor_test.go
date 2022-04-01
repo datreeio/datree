@@ -75,28 +75,28 @@ func TestToAbsolutePath(t *testing.T) {
 
 func TestExtractConfigurationsFromYamlFile(t *testing.T) {
 	t.Run("invalid yaml path, should return invalid file with returned ToAbsolutePath error", func(t *testing.T) {
-		actualVal, actualStr, actualErr := ExtractConfigurationsFromYamlFile("")
+		configurations, absolutePath, err := ExtractConfigurationsFromYamlFile("")
 
-		assert.Empty(t, actualVal)
-		assert.Equal(t, "", actualStr)
-		assert.NotNil(t, actualErr)
+		assert.Empty(t, configurations)
+		assert.Empty(t, absolutePath)
+		assert.NotNil(t, err)
 	})
 
 	t.Run("invalid yaml file, should return an error", func(t *testing.T) {
 		path := "../../internal/fixtures/policyAsCode/invalid-yaml.yaml"
-		actualVal, actualResult, actualErr := ExtractConfigurationsFromYamlFile(path)
+		configurations, absolutePath, err := ExtractConfigurationsFromYamlFile(path)
 
-		assert.Empty(t, actualVal)
-		assert.Equal(t, "", actualResult)
-		assert.EqualValues(t, "yaml validation error: yaml: line 2: did not find expected key\n", actualErr.ValidationErrors[0].Error())
+		assert.Empty(t, configurations)
+		assert.Empty(t, absolutePath)
+		assert.Equal(t, "yaml validation error: yaml: line 2: did not find expected key\n", err.ValidationErrors[0].Error())
 	})
 
-	t.Run("valid yaml file, should return a Configuration and no error", func(t *testing.T) {
+	t.Run("valid yaml file, should return a configuration and no error", func(t *testing.T) {
 		path := "../../internal/fixtures/jsonSchema/yamlSchema.yaml"
-		actualValue, actualResult, actualErr := ExtractConfigurationsFromYamlFile(path)
+		configurations, absolutePath, err := ExtractConfigurationsFromYamlFile(path)
 
-		assert.NotEmpty(t, actualValue)
-		assert.NotEqual(t, "", actualResult)
-		assert.Nil(t, actualErr)
+		assert.NotEmpty(t, configurations)
+		assert.NotEmpty(t, absolutePath)
+		assert.Nil(t, err)
 	})
 }
