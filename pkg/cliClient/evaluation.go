@@ -100,16 +100,27 @@ type EvaluationPrerunDataResponse struct {
 	IsPolicyAsCodeMode    bool                      `json:"isPolicyAsCodeMode"`
 }
 
-const badRequestStatusCode = 400
-
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
+	if c.networkValidator.IsLocalMode() {
+		return &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true}, nil
+	}
+
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
 
-	if err != nil && res.StatusCode >= badRequestStatusCode {
+	if err != nil {
+		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
+		if networkErr != nil {
+			return &EvaluationPrerunDataResponse{}, networkErr
+		}
+
+		if c.networkValidator.IsLocalMode() {
+			return &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true}, nil
+		}
+
 		return &EvaluationPrerunDataResponse{}, err
 	}
 
-	var evaluationPrerunDataResponse = &EvaluationPrerunDataResponse{}
+	var evaluationPrerunDataResponse = &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true}
 	err = json.Unmarshal(res.Body, &evaluationPrerunDataResponse)
 	if err != nil {
 		return &EvaluationPrerunDataResponse{}, err
@@ -136,6 +147,7 @@ type Configuration struct {
 
 type FailedRule struct {
 	Name             string          `json:"ruleName"`
+	DocumentationUrl string          `json:"DocumentationUrl"`
 	MessageOnFailure string          `json:"messageOnFailure"`
 	Configurations   []Configuration `json:"configurations"`
 }
@@ -154,8 +166,21 @@ type EvaluationResultRequest struct {
 }
 
 func (c *CliClient) SendEvaluationResult(request *EvaluationResultRequest) (*SendEvaluationResultsResponse, error) {
+	if c.networkValidator.IsLocalMode() {
+		return &SendEvaluationResultsResponse{}, nil
+	}
+
 	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/result", request, nil)
 	if err != nil {
+		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
+		if networkErr != nil {
+			return &SendEvaluationResultsResponse{}, networkErr
+		}
+
+		if c.networkValidator.IsLocalMode() {
+			return &SendEvaluationResultsResponse{}, nil
+		}
+
 		return nil, err
 	}
 

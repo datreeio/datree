@@ -38,7 +38,7 @@ var ciMap = map[string]*CIMetadata{
 	"SHIPPABLE":                          {CIEnvValue: "shippable", ShouldHideEmojis: false},
 	"BITBUCKET_BUILD_NUMBER":             {CIEnvValue: "bitbucket-pipelines", ShouldHideEmojis: false},
 	"CIRRUS_CI":                          {CIEnvValue: "cirrusci", ShouldHideEmojis: false},
-	"DRONE":                              {CIEnvValue: "drone", ShouldHideEmojis: false},
+	"DRONE":                              {CIEnvValue: "drone", ShouldHideEmojis: true},
 	"GO_PIPELINE_NAME":                   {CIEnvValue: "gocd", ShouldHideEmojis: false},
 	"SAIL_CI":                            {CIEnvValue: "sail", ShouldHideEmojis: false},
 }

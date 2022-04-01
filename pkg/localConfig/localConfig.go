@@ -1,9 +1,12 @@
 package localConfig
 
 import (
+	"fmt"
 	"os"
 	"os/user"
 	"path/filepath"
+
+	"github.com/datreeio/datree/pkg/networkValidator"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/lithammer/shortuuid"
@@ -14,6 +17,7 @@ type LocalConfig struct {
 	Token         string
 	ClientId      string
 	SchemaVersion string
+	Offline       string
 }
 
 type TokenClient interface {
@@ -21,12 +25,14 @@ type TokenClient interface {
 }
 
 type LocalConfigClient struct {
-	tokenClient TokenClient
+	tokenClient      TokenClient
+	networkValidator *networkValidator.NetworkValidator
 }
 
-func NewLocalConfigClient(t TokenClient) *LocalConfigClient {
+func NewLocalConfigClient(t TokenClient, nv *networkValidator.NetworkValidator) *LocalConfigClient {
 	return &LocalConfigClient{
-		tokenClient: t,
+		tokenClient:      t,
+		networkValidator: nv,
 	}
 }
 
@@ -34,6 +40,7 @@ const (
 	clientIdKey      = "client_id"
 	tokenKey         = "token"
 	schemaVersionKey = "schema_version"
+	offlineKey       = "offline"
 )
 
 func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
@@ -48,44 +55,48 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 	token := viper.GetString(tokenKey)
 	clientId := viper.GetString(clientIdKey)
 	schemaVersion := viper.GetString(schemaVersionKey)
+	offline := viper.GetString(offlineKey)
+
+	if offline == "" {
+		viper.SetDefault(offlineKey, "fail")
+		_ = viper.WriteConfig()
+		_ = viper.ReadInConfig()
+		offline = viper.GetString(offlineKey)
+	}
+
+	lc.networkValidator.SetOfflineMode(offline)
 
 	if token == "" {
 		createTokenResponse, err := lc.tokenClient.CreateToken()
 		if err != nil {
-			return nil, err
+			return &LocalConfig{}, err
 		}
 		token = createTokenResponse.Token
 		viper.SetDefault(tokenKey, token)
-		writeTokenErr := viper.WriteConfig()
-		if writeTokenErr != nil {
-			return nil, writeTokenErr
-		}
-		readTokenErr := viper.ReadInConfig()
-		if readTokenErr != nil {
-			return nil, readTokenErr
-		}
+		_ = viper.WriteConfig()
+		_ = viper.ReadInConfig()
 		token = viper.GetString(tokenKey)
 	}
 
 	if clientId == "" {
 		viper.SetDefault(clientIdKey, shortuuid.New())
-		writeClientIdErr := viper.WriteConfig()
-		if writeClientIdErr != nil {
-			return nil, writeClientIdErr
-		}
-		readClientIdErr := viper.ReadInConfig()
-		if readClientIdErr != nil {
-			return nil, readClientIdErr
-		}
+		_ = viper.WriteConfig()
+		_ = viper.ReadInConfig()
 		clientId = viper.GetString(clientIdKey)
 	}
-	return &LocalConfig{Token: token, ClientId: clientId, SchemaVersion: schemaVersion}, nil
+
+	return &LocalConfig{Token: token, ClientId: clientId, SchemaVersion: schemaVersion, Offline: offline}, nil
 }
 
 func (lc *LocalConfigClient) Set(key string, value string) error {
 	initConfigFileErr := InitLocalConfigFile()
 	if initConfigFileErr != nil {
 		return initConfigFileErr
+	}
+
+	err := validateKeyValueConfig(key, value)
+	if err != nil {
+		return err
 	}
 
 	viper.Set(key, value)
@@ -106,26 +117,15 @@ func InitLocalConfigFile() error {
 	// should be fixed in pr https://github.com/spf13/viper/pull/936
 	configPath := filepath.Join(configHome, configName+"."+configType)
 
-	isDirExists, _ := exists(configHome)
-	if !isDirExists {
-		osMkdirErr := os.Mkdir(configHome, os.ModePerm)
-		if osMkdirErr != nil {
-			return osMkdirErr
-		}
-	}
-
+	// workaround for catching error if not enough permissions
+	// resolves issues in https://github.com/Homebrew/homebrew-core/pull/97061
 	isConfigExists, _ := exists(configPath)
 	if !isConfigExists {
-		_, osCreateErr := os.Create(configPath)
-		if osCreateErr != nil {
-			return osCreateErr
-		}
+		_ = os.Mkdir(configHome, os.ModePerm)
+		_, _ = os.Create(configPath)
 	}
 
-	readLocalFileErr := viper.ReadInConfig()
-	if readLocalFileErr != nil {
-		return readLocalFileErr
-	}
+	_ = viper.ReadInConfig()
 	return nil
 }
 
@@ -174,4 +174,12 @@ func setViperConfig() (string, string, string, error) {
 	viper.AddConfigPath(configHome)
 
 	return configHome, configName, configType, nil
+}
+
+func validateKeyValueConfig(key string, value string) error {
+	if key == "offline" && value != "fail" && value != "local" {
+		return fmt.Errorf("Invalid offline configuration value- %q\n"+
+			"Valid offline values are - fail, local\n", value)
+	}
+	return nil
 }
