@@ -36,7 +36,7 @@ func (s normalize) indent() normalize {
 
 func ValidateStdinPathArgument(paths []string) error {
 	if len(paths) < 1 {
-		return fmt.Errorf("This command requires at least 1 argument.\n")
+		return fmt.Errorf("Requires at least 1 arg\n")
 	}
 
 	if paths[0] == "-" {
