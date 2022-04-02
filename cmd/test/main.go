@@ -169,10 +169,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 		cat kube-prod/deployment.yaml | datree test -
 		`),
 		Args: func(cmd *cobra.Command, args []string) error {
-			if len(args) < 1 {
-				errMessage := "Requires at least 1 arg\n"
-				return fmt.Errorf(errMessage)
-			}
 			err := utils.ValidateStdinPathArgument(args)
 			if err != nil {
 				return err
