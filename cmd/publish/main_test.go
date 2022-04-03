@@ -8,7 +8,6 @@ import (
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,20 +20,6 @@ type LocalConfigMock struct {
 func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
 	lc.Called()
 	return &localConfig.LocalConfig{Token: "token"}, nil
-}
-
-type FilesExtractorMock struct {
-	mock.Mock
-}
-
-func (fe *FilesExtractorMock) ExtractFilesConfigurations(paths []string, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile) {
-	args := fe.Called(paths, concurrency)
-	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *extractor.InvalidFile)
-}
-
-func (fe *FilesExtractorMock) ExtractYamlFileToUnknownStruct(path string) (files.UnknownStruct, error) {
-	args := fe.Called(path)
-	return args.Get(0).(files.UnknownStruct), args.Error(1)
 }
 
 type MessagerMock struct {
@@ -85,8 +70,6 @@ func TestPublishCommand(t *testing.T) {
 	localConfigMock := &LocalConfigMock{}
 	localConfigMock.On("GetLocalConfiguration")
 
-	filesExtractorMock := &FilesExtractorMock{}
-
 	messagerMock := &MessagerMock{}
 	messagerMock.On("LoadVersionMessages", mock.Anything)
 
@@ -101,42 +84,30 @@ func TestPublishCommand(t *testing.T) {
 		Messager:         messagerMock,
 		Printer:          printerMock,
 		PublishCliClient: publishClientMock,
-		FilesExtractor:   filesExtractorMock,
+		FilesExtractor:   &files.FilesExtractor{},
 	}
 
 	localConfigContent, _ := ctx.LocalConfig.GetLocalConfiguration()
 
-	testPublishCommandSuccess(t, ctx, publishClientMock, localConfigContent, filesExtractorMock)
-	testPublishCommandFailedYaml(t, ctx, localConfigContent, filesExtractorMock)
-	testPublishCommandFailedSchema(t, ctx, publishClientMock, localConfigContent, filesExtractorMock)
+	testPublishCommandSuccess(t, ctx, publishClientMock, localConfigContent)
+	testPublishCommandFailedYaml(t, ctx, localConfigContent)
+	testPublishCommandFailedSchema(t, ctx, publishClientMock, localConfigContent)
 }
 
-func testPublishCommandSuccess(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.LocalConfig, filesExtractorMock *FilesExtractorMock) {
-	path := "../../internal/fixtures/policyAsCode/valid-schema.yaml"
-	FilesExtractor := files.FilesExtractor{}
-	policies, extractError := FilesExtractor.ExtractYamlFileToUnknownStruct(path)
-	filesExtractorMock.On("ExtractYamlFileToUnknownStruct", path).Return(policies, extractError)
+func testPublishCommandSuccess(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.LocalConfig) {
 	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(&cliClient.PublishFailedResponse{}, nil).Once()
-	_, err := publish(ctx, path, localConfigContent)
+	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/valid-schema.yaml", localConfigContent)
 	assert.Equal(t, nil, err)
 }
 
-func testPublishCommandFailedYaml(t *testing.T, ctx *PublishCommandContext, localConfigContent *localConfig.LocalConfig, filesExtractorMock *FilesExtractorMock) {
-	path := "../../internal/fixtures/policyAsCode/invalid-yaml.yaml"
-	FilesExtractor := files.FilesExtractor{}
-	policies, extractError := FilesExtractor.ExtractYamlFileToUnknownStruct(path)
-	filesExtractorMock.On("ExtractYamlFileToUnknownStruct", path).Return(policies, extractError)
-	_, err := publish(ctx, path, localConfigContent)
+func testPublishCommandFailedYaml(t *testing.T, ctx *PublishCommandContext, localConfigContent *localConfig.LocalConfig) {
+	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-yaml.yaml", localConfigContent)
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, "yaml: line 2: did not find expected key", err.Error())
 }
 
-func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.LocalConfig, filesExtractorMock *FilesExtractorMock) {
-	path := "../../internal/fixtures/policyAsCode/invalid-schemas/duplicate-rule-id.yaml"
-	FilesExtractor := files.FilesExtractor{}
+func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.LocalConfig) {
 	publishFailedPayloadMock := []string{"first error", "second error"}
-	policies, extractError := FilesExtractor.ExtractYamlFileToUnknownStruct(path)
-	filesExtractorMock.On("ExtractYamlFileToUnknownStruct", path).Return(policies, extractError)
 	errMessage := strings.Join(publishFailedPayloadMock, ",")
 	publishFailedResponseMock := &cliClient.PublishFailedResponse{
 		Code:    "mocked code",
@@ -145,7 +116,7 @@ func testPublishCommandFailedSchema(t *testing.T, ctx *PublishCommandContext, pu
 	}
 
 	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(publishFailedResponseMock, errors.New(errMessage)).Once()
-	publishFailedRes, err := publish(ctx, path, localConfigContent)
+	publishFailedRes, err := publish(ctx, "../../internal/fixtures/policyAsCode/invalid-schemas/duplicate-rule-id.yaml", localConfigContent)
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, errMessage, err.Error())
 	assert.Equal(t, publishFailedResponseMock, publishFailedRes)
