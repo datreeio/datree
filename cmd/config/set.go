@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"reflect"
 
 	"github.com/spf13/cobra"
 )
@@ -31,15 +30,7 @@ func NewSetCommand(ctx *ConfigCommandContext) *cobra.Command {
 				return errors.New("requires exactly 2 arguments")
 			}
 
-			validKeys := make(map[string]bool)
-			validKeys["token"] = true
-			validKeys["offline"] = true
-
-			if val, ok := validKeys[args[0]]; !ok || !val {
-				return fmt.Errorf("key must be one of: %s", reflect.ValueOf(validKeys).MapKeys())
-			}
-
-			return nil
+			return validateKey(args[0])
 		},
 	}
 

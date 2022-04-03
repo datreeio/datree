@@ -140,6 +140,10 @@ func exists(path string) (bool, error) {
 	return false, err
 }
 
+func (lc *LocalConfigClient) Get(key string) string {
+	return viper.GetString(key)
+}
+
 func getConfigHome() (string, error) {
 	usr, err := user.Current()
 	if err != nil {
