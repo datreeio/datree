@@ -53,7 +53,7 @@ type TestCommandFlags struct {
 	PolicyConfig         string
 }
 
-// TestCommandFlags constructor
+// TestCommandFlags constructor a
 func NewTestCommandFlags() *TestCommandFlags {
 	return &TestCommandFlags{
 		Output:               "",
