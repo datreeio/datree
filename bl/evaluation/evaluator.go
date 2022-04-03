@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/xeipuuv/gojsonschema"
 
@@ -12,6 +13,10 @@ import (
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 )
 
+const (
+	SKIP_RULE_PREFIX string = "datree.io/skip/"
+	SKIP_ALL_KEY string = SKIP_RULE_PREFIX + "ALL"
+)
 type CLIClient interface {
 	SendEvaluationResult(request *cliClient.EvaluationResultRequest) (*cliClient.SendEvaluationResultsResponse, error)
 }
@@ -121,9 +126,17 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 		filesData = append(filesData, cliClient.FileData{FilePath: filesConfiguration.FileName, ConfigurationsCount: len(filesConfiguration.Configurations)})
 
 		for _, configuration := range filesConfiguration.Configurations {
+			skipAnnotations := extractSkipAnnotations(configuration)
+			if _, ok := skipAnnotations[SKIP_ALL_KEY]; ok {
+				continue
+			}
+
 			for _, ruleWithSchema := range policyCheckData.Policy.Rules {
 				rulesData = append(rulesData, cliClient.RuleData{Identifier: ruleWithSchema.RuleIdentifier, Name: ruleWithSchema.RuleName})
 
+				if _, ok := skipAnnotations[SKIP_RULE_PREFIX + ruleWithSchema.RuleIdentifier]; ok {
+					continue
+				}
 				configurationName, configurationKind := extractConfigurationInfo(configuration)
 
 				configurationJson, err := json.Marshal(configuration)
@@ -298,4 +311,20 @@ func countOccurrences(validationResult *Result) int {
 		}
 	}
 	return count
+}
+
+func extractSkipAnnotations(configuration extractor.Configuration) map[string]string {
+	skipAnnotations := make(map[string]string)
+	if configurationMetadata, ok := configuration["metadata"].(map[string]interface{}); ok {
+		if annotationsMap, ok := configurationMetadata["annotations"].(map[string]interface{}); ok {
+			for annotationKey, annotationValue := range annotationsMap {
+				if strings.Contains(annotationKey, SKIP_RULE_PREFIX) {
+					skipAnnotations[annotationKey] = annotationValue.(string)
+				}
+			}
+			return skipAnnotations
+		}
+	}
+
+	return nil
 }
