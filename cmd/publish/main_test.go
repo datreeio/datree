@@ -84,6 +84,7 @@ func TestPublishCommand(t *testing.T) {
 		Messager:         messagerMock,
 		Printer:          printerMock,
 		PublishCliClient: publishClientMock,
+		FilesExtractor:   &files.FilesExtractor{},
 	}
 
 	localConfigContent, _ := ctx.LocalConfig.GetLocalConfiguration()
