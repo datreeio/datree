@@ -705,7 +705,6 @@ func TestTestCommandEmptyDir(t *testing.T) {
 	err := Test(ctx, []string{emptyDirPaths}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: testingPolicy, Token: "134kh"})
 
 	assert.EqualError(t, err, "No files detected")
-	readerMock.AssertCalled(t, "FilterFiles", []string{emptyDirPaths})
 }
 func TestTestCommandNoFlags(t *testing.T) {
 	setup()
