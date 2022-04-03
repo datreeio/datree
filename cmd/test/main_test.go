@@ -2,7 +2,6 @@ package test
 
 import (
 	"encoding/json"
-	"fmt"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -307,9 +306,6 @@ func TestTestFlow(t *testing.T) {
 			}))
 			printerMock.AssertCalled(t, "PrintEvaluationSummary", mock.MatchedBy(func(evaluationSummary printer.EvaluationSummary) bool {
 				expected := tt.expected.EvaluationSummary
-				fmt.Println("evaluationSummary ", evaluationSummary)
-				fmt.Println()
-				fmt.Println("expected: ", expected)
 				if (evaluationSummary.ConfigsCount == expected.ConfigsCount) && (evaluationSummary.RulesCount == expected.RulesCount) &&
 					(evaluationSummary.FilesCount == expected.FilesCount) && (evaluationSummary.PassedYamlValidationCount == expected.PassedYamlValidationCount) &&
 					(evaluationSummary.K8sValidation == expected.K8sValidation) && (evaluationSummary.PassedPolicyCheckCount == expected.PassedPolicyCheckCount) {
