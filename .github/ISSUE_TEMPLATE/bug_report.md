@@ -27,6 +27,9 @@ If applicable, add screenshots to help explain your problem.
 **Datree version (run `datree version`):**
  - Version: [e.g. 0.1.443]
 
+**Client ID (`cat ~/.datree/config.yaml`):**
+ - client_id: [e.g. C5fiX5Tm4SvxwkcfXVSHu5]
+
 **Additional context**  
 Add any other context about the problem here.  
 If possible, include a YAML file to reproduce the bug. 
