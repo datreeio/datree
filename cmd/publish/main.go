@@ -33,6 +33,7 @@ type PublishCommandContext struct {
 	Messager         Messager
 	Printer          Printer
 	PublishCliClient CliClient
+	FilesExtractor   files.FilesExtractorInterface
 }
 
 func New(ctx *PublishCommandContext) *cobra.Command {
@@ -103,7 +104,7 @@ type MessagesContext struct {
 }
 
 func publish(ctx *PublishCommandContext, path string, localConfigContent *localConfig.LocalConfig) (*cliClient.PublishFailedResponse, error) {
-	policiesConfiguration, err := files.ExtractYamlFileToUnknownStruct(path)
+	policiesConfiguration, err := ctx.FilesExtractor.ExtractYamlFileToUnknownStruct(path)
 	if err != nil {
 		return nil, err
 	}

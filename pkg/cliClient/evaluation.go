@@ -102,7 +102,7 @@ type EvaluationPrerunDataResponse struct {
 
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
 	if c.networkValidator.IsLocalMode() {
-		return &EvaluationPrerunDataResponse{}, nil
+		return &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true}, nil
 	}
 
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
@@ -120,7 +120,7 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrer
 		return &EvaluationPrerunDataResponse{}, err
 	}
 
-	var evaluationPrerunDataResponse = &EvaluationPrerunDataResponse{}
+	var evaluationPrerunDataResponse = &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true}
 	err = json.Unmarshal(res.Body, &evaluationPrerunDataResponse)
 	if err != nil {
 		return &EvaluationPrerunDataResponse{}, err
@@ -147,6 +147,7 @@ type Configuration struct {
 
 type FailedRule struct {
 	Name             string          `json:"ruleName"`
+	DocumentationUrl string          `json:"DocumentationUrl"`
 	MessageOnFailure string          `json:"messageOnFailure"`
 	Configurations   []Configuration `json:"configurations"`
 }

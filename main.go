@@ -7,8 +7,8 @@ import (
 
 	"github.com/datreeio/datree/pkg/networkValidator"
 
+	"github.com/datreeio/datree/internal/deploymentConfig"
 	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/datreeio/datree/pkg/utils"

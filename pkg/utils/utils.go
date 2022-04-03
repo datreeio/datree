@@ -35,6 +35,10 @@ func (s normalize) indent() normalize {
 }
 
 func ValidateStdinPathArgument(paths []string) error {
+	if len(paths) < 1 {
+		return fmt.Errorf("Requires at least 1 arg\n")
+	}
+
 	if paths[0] == "-" {
 		if len(paths) > 1 {
 			return fmt.Errorf(fmt.Sprintf("Unexpected args: [%s]", strings.Join(paths[1:], ",")))

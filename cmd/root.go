@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/datreeio/datree/bl/evaluation"
+	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/cmd/completion"
@@ -11,8 +12,8 @@ import (
 	schema_validator "github.com/datreeio/datree/cmd/schema-validator"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
+	"github.com/datreeio/datree/internal/deploymentConfig"
 	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"github.com/datreeio/datree/pkg/executor"
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
@@ -34,14 +35,15 @@ func init() {
 	app := startup()
 
 	rootCmd.AddCommand(test.New(&test.TestCommandContext{
-		CliVersion:   CliVersion,
-		Evaluator:    app.context.Evaluator,
-		LocalConfig:  app.context.LocalConfig,
-		Messager:     app.context.Messager,
-		Printer:      app.context.Printer,
-		Reader:       app.context.Reader,
-		K8sValidator: app.context.K8sValidator,
-		CliClient:    app.context.CliClient,
+		CliVersion:     CliVersion,
+		Evaluator:      app.context.Evaluator,
+		LocalConfig:    app.context.LocalConfig,
+		Messager:       app.context.Messager,
+		Printer:        app.context.Printer,
+		Reader:         app.context.Reader,
+		K8sValidator:   app.context.K8sValidator,
+		CliClient:      app.context.CliClient,
+		FilesExtractor: app.context.FilesExtractor,
 	}))
 
 	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
@@ -74,6 +76,7 @@ func init() {
 		Messager:         app.context.Messager,
 		Printer:          app.context.Printer,
 		PublishCliClient: app.context.CliClient,
+		FilesExtractor:   app.context.FilesExtractor,
 	}))
 
 	rootCmd.AddCommand(completion.New())
@@ -98,6 +101,7 @@ type context struct {
 	K8sValidator        *validation.K8sValidator
 	JSONSchemaValidator *jsonSchemaValidator.JSONSchemaValidator
 	CommandRunner       *executor.CommandRunner
+	FilesExtractor      *files.FilesExtractor
 }
 
 type app struct {
@@ -121,6 +125,7 @@ func startup() *app {
 			K8sValidator:        validation.New(),
 			JSONSchemaValidator: jsonSchemaValidator.New(),
 			CommandRunner:       executor.CreateNewCommandRunner(),
+			FilesExtractor:      files.New(),
 		},
 	}
 }

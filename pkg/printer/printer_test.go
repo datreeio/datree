@@ -153,7 +153,7 @@ func TestPrintEvaluationSummary(t *testing.T) {
 			RulesCount:                21,
 			FilesCount:                5,
 			PassedYamlValidationCount: 4,
-			PassedK8sValidationCount:  3,
+			K8sValidation:             "3/5",
 			PassedPolicyCheckCount:    2,
 		}
 		k8sVersion := "1.2.3"
@@ -164,6 +164,36 @@ func TestPrintEvaluationSummary(t *testing.T) {
 - Passing YAML validation: 4/5
 
 - Passing Kubernetes (1.2.3) schema validation: 3/5
+
+- Passing policy check: 2/5
+
+`)
+
+		got := out.(*bytes.Buffer).Bytes()
+
+		assert.Equal(t, string(expected), string(got))
+
+	})
+
+	t.Run("Test PrintEvaluationSummary with no connection warning", func(t *testing.T) {
+		out = new(bytes.Buffer)
+		printer := CreateNewPrinter()
+		summary := EvaluationSummary{
+			ConfigsCount:              6,
+			RulesCount:                21,
+			FilesCount:                5,
+			PassedYamlValidationCount: 4,
+			K8sValidation:             "no internet connection",
+			PassedPolicyCheckCount:    2,
+		}
+		k8sVersion := "1.2.3"
+
+		printer.PrintEvaluationSummary(summary, k8sVersion)
+		expected := []byte(`(Summary)
+
+- Passing YAML validation: 4/5
+
+- Passing Kubernetes (1.2.3) schema validation: no internet connection
 
 - Passing policy check: 2/5
 
