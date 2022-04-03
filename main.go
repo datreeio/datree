@@ -3,8 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/datreeio/datree/pkg/deploymentConfig"
 	"os"
+
+	"github.com/datreeio/datree/pkg/deploymentConfig"
 
 	"github.com/datreeio/datree/pkg/networkValidator"
 
