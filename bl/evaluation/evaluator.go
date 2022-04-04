@@ -139,14 +139,14 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 				continue
 			}
 
+			configurationName, configurationKind := extractConfigurationInfo(configuration)
+
+			configurationJson, err := json.Marshal(configuration)
+			if err != nil {
+				return emptyPolicyCheckResult, err
+			}
+
 			for _, rule := range policyCheckData.Policy.Rules {
-
-				configurationName, configurationKind := extractConfigurationInfo(configuration)
-
-				configurationJson, err := json.Marshal(configuration)
-				if err != nil {
-					return emptyPolicyCheckResult, err
-				}
 
 				ruleSchemaJson, err := json.Marshal(rule.Schema)
 				if err != nil {
