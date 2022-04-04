@@ -1,0 +1,10 @@
+yaml:
+  - list:
+      - string
+      - bool
+      - number
+
+  - object:
+      string: "hello string"
+      bool: true
+      any: 12
