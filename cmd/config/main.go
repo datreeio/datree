@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var ConfigAvailableKeys = []string{"token", "offline"}
+
 type Messager interface {
 	LoadVersionMessages(cliVersion string) chan *messager.VersionMessage
 }
@@ -53,7 +55,10 @@ func New(ctx *ConfigCommandContext) *cobra.Command {
 
 func validateKey(key string) error {
 	validKeys := make(map[string]bool)
-	validKeys["token"] = true
+
+	for _, key := range ConfigAvailableKeys {
+		validKeys[key] = true
+	}
 
 	if val, ok := validKeys[key]; !ok || !val {
 		return fmt.Errorf("key must be one of: %s", reflect.ValueOf(validKeys).MapKeys())
