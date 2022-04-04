@@ -143,6 +143,8 @@ type Configuration struct {
 	Name        string `json:"metadataName"`
 	Kind        string `json:"kind"`
 	Occurrences int    `json:"occurrences"`
+	IsSkipped   bool   `json:"isSkipped"`
+	SkipMessage string `json:"skipMessage"`
 }
 
 type FailedRule struct {

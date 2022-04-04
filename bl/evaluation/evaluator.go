@@ -128,15 +128,13 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 		for _, configuration := range filesConfiguration.Configurations {
 			skipAnnotations := extractSkipAnnotations(configuration)
 			if _, ok := skipAnnotations[SKIP_ALL_KEY]; ok {
+				// addSkipRule
 				continue
 			}
 
 			for _, ruleWithSchema := range policyCheckData.Policy.Rules {
 				rulesData = append(rulesData, cliClient.RuleData{Identifier: ruleWithSchema.RuleIdentifier, Name: ruleWithSchema.RuleName})
 
-				if _, ok := skipAnnotations[SKIP_RULE_PREFIX + ruleWithSchema.RuleIdentifier]; ok {
-					continue
-				}
 				configurationName, configurationKind := extractConfigurationInfo(configuration)
 
 				configurationJson, err := json.Marshal(configuration)
@@ -154,8 +152,35 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 				if err != nil {
 					return emptyPolicyCheckResult, err
 				}
+				
+				occurrences := countOccurrences(validationResult)
 
-				failedRulesByFiles = calculateFailedRulesByFiles(failedRulesByFiles, validationResult, filesConfiguration.FileName, ruleWithSchema, configurationName, configurationKind)
+				if occurrences < 1 {
+					continue
+				}
+
+				configurationData := cliClient.Configuration{
+					Name: configurationName,
+					Kind: configurationKind,
+					Occurrences: occurrences,
+					IsSkipped: false,
+					SkipMessage: "",
+				}
+
+				if skipMessage, ok := skipAnnotations[SKIP_RULE_PREFIX + ruleWithSchema.RuleIdentifier]; ok {
+					configurationData.IsSkipped = true
+					configurationData.SkipMessage = skipMessage
+				}
+
+				failedRule := cliClient.FailedRule{
+					Name: ruleWithSchema.RuleName,
+					DocumentationUrl: ruleWithSchema.DocumentationUrl,
+					MessageOnFailure: ruleWithSchema.MessageOnFailure,
+					Configurations: []cliClient.Configuration{configurationData},
+				};
+
+
+				addFailedRule(failedRulesByFiles, filesConfiguration.FileName, ruleWithSchema.RuleIdentifier, failedRule)
 			}
 		}
 
@@ -225,6 +250,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 
 		for ruleIdentifier, failedRuleData := range evaluationResults[filePath] {
 			// file and rule not already exists in mapper
+			// all configuration is skipped then skip
 			if _, exists := mapper[filePath][ruleIdentifier]; !exists {
 				totalFailedCount++
 				mapper[filePath][ruleIdentifier] = &Rule{
@@ -283,24 +309,20 @@ func extractConfigurationInfo(configuration extractor.Configuration) (string, st
 
 type Result = gojsonschema.Result
 
-func calculateFailedRulesByFiles(currentFailedRulesByFiles FailedRulesByFiles, validationResult *Result, fileName string, rule policy_factory.RuleWithSchema, configurationName string, configurationKind string) map[string]map[string]cliClient.FailedRule {
-	occurrences := countOccurrences(validationResult)
-	if occurrences > 0 {
-		configurationData := cliClient.Configuration{Name: configurationName, Kind: configurationKind, Occurrences: occurrences}
+func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string, ruleIdentifier string, newFailedRule cliClient.FailedRule) {
+	fileData, ok := currentFailedRulesByFiles[fileName];
 
-		if fileData, ok := currentFailedRulesByFiles[fileName]; ok {
-			if ruleData, ok := fileData[rule.RuleIdentifier]; ok {
-				ruleData.Configurations = append(ruleData.Configurations, configurationData)
-				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = ruleData
-			} else {
-				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = cliClient.FailedRule{Name: rule.RuleName, DocumentationUrl: rule.DocumentationUrl, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}
-			}
-		} else {
-			currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{rule.RuleIdentifier: {Name: rule.RuleName, DocumentationUrl: rule.DocumentationUrl, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
-		}
+	if !ok {
+		currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{ruleIdentifier: newFailedRule}
+		return;
 	}
 
-	return currentFailedRulesByFiles
+	if exitingRule, ok := fileData[ruleIdentifier]; ok {
+		exitingRule.Configurations = append(exitingRule.Configurations, newFailedRule.Configurations...)
+		currentFailedRulesByFiles[fileName][ruleIdentifier] = exitingRule
+	} else {
+		currentFailedRulesByFiles[fileName][ruleIdentifier] = newFailedRule
+	}
 }
 
 func countOccurrences(validationResult *Result) int {
