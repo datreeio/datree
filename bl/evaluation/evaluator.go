@@ -275,21 +275,21 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 			totalPassedCount = totalPassedCount - 1
 		}
 
-		for ruleIdentifier, failedRuleData := range evaluationResults[filePath] {
+		for ruleIdentifier, failedRule := range evaluationResults[filePath] {
 			// file and rule not already exists in mapper
-			// all configuration is skipped then skip
+			
 			if _, exists := mapper[filePath][ruleIdentifier]; !exists {
 				totalFailedCount++
 				mapper[filePath][ruleIdentifier] = &Rule{
 					Identifier:         ruleIdentifier,
-					Name:               failedRuleData.Name,
-					DocumentationUrl:   failedRuleData.DocumentationUrl,
-					MessageOnFailure:   failedRuleData.MessageOnFailure,
+					Name:               failedRule.Name,
+					DocumentationUrl:   failedRule.DocumentationUrl,
+					MessageOnFailure:   failedRule.MessageOnFailure,
 					OccurrencesDetails: []OccurrenceDetails{},
 				}
 			}
 
-			for _, configuration := range failedRuleData.Configurations {
+			for _, configuration := range failedRule.Configurations {
 				mapper[filePath][ruleIdentifier].OccurrencesDetails = append(
 					mapper[filePath][ruleIdentifier].OccurrencesDetails,
 					OccurrenceDetails{MetadataName: configuration.Name, Kind: configuration.Kind, Occurrences: configuration.Occurrences},
