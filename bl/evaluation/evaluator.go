@@ -313,18 +313,18 @@ func extractConfigurationInfo(configuration extractor.Configuration) (string, st
 
 type Result = gojsonschema.Result
 
-func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string, ruleIdentifier string, newFailedRule cliClient.FailedRule) {
+func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string, ruleIdentifier string, failedRule cliClient.FailedRule) {
 	fileData, ok := currentFailedRulesByFiles[fileName]
 
 	if !ok {
-		currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{ruleIdentifier: newFailedRule}
+		currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{ruleIdentifier: failedRule}
 		return
 	}
 
 	if exitingRule, ok := fileData[ruleIdentifier]; ok {
-		exitingRule.Configurations = append(exitingRule.Configurations, newFailedRule.Configurations...)
+		exitingRule.Configurations = append(exitingRule.Configurations, failedRule.Configurations...)
 	} else {
-		currentFailedRulesByFiles[fileName][ruleIdentifier] = newFailedRule
+		currentFailedRulesByFiles[fileName][ruleIdentifier] = failedRule
 	}
 }
 
