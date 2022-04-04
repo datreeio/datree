@@ -277,7 +277,19 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 
 		for ruleIdentifier, failedRule := range evaluationResults[filePath] {
 			// file and rule not already exists in mapper
-			
+			allConfigurationsAreSkipped := true
+
+			for _, configuration := range failedRule.Configurations {
+				if !configuration.IsSkipped {
+					allConfigurationsAreSkipped = false
+					break;
+				}
+			}
+
+			if allConfigurationsAreSkipped {
+				continue;
+			}
+
 			if _, exists := mapper[filePath][ruleIdentifier]; !exists {
 				totalFailedCount++
 				mapper[filePath][ruleIdentifier] = &Rule{
