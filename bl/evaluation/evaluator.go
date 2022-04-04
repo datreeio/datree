@@ -135,8 +135,8 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 				continue
 			}
 
-			for _, ruleWithSchema := range policyCheckData.Policy.Rules {
-				rulesData = append(rulesData, cliClient.RuleData{Identifier: ruleWithSchema.RuleIdentifier, Name: ruleWithSchema.RuleName})
+			for _, rule := range policyCheckData.Policy.Rules {
+				rulesData = append(rulesData, cliClient.RuleData{Identifier: rule.RuleIdentifier, Name: rule.RuleName})
 
 				configurationName, configurationKind := extractConfigurationInfo(configuration)
 
@@ -145,7 +145,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 					return emptyPolicyCheckResult, err
 				}
 
-				ruleSchemaJson, err := json.Marshal(ruleWithSchema.Schema)
+				ruleSchemaJson, err := json.Marshal(rule.Schema)
 				if err != nil {
 					return emptyPolicyCheckResult, err
 				}
@@ -170,19 +170,19 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 					SkipMessage: "",
 				}
 
-				if skipMessage, ok := skipAnnotations[SKIP_RULE_PREFIX+ruleWithSchema.RuleIdentifier]; ok {
+				if skipMessage, ok := skipAnnotations[SKIP_RULE_PREFIX+rule.RuleIdentifier]; ok {
 					configurationData.IsSkipped = true
 					configurationData.SkipMessage = skipMessage
 				}
 
 				failedRule := cliClient.FailedRule{
-					Name:             ruleWithSchema.RuleName,
-					DocumentationUrl: ruleWithSchema.DocumentationUrl,
-					MessageOnFailure: ruleWithSchema.MessageOnFailure,
+					Name:             rule.RuleName,
+					DocumentationUrl: rule.DocumentationUrl,
+					MessageOnFailure: rule.MessageOnFailure,
 					Configurations:   []cliClient.Configuration{configurationData},
 				}
 
-				addFailedRule(failedRulesByFiles, filesConfiguration.FileName, ruleWithSchema.RuleIdentifier, failedRule)
+				addFailedRule(failedRulesByFiles, filesConfiguration.FileName, rule.RuleIdentifier, failedRule)
 			}
 		}
 
