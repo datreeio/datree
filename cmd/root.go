@@ -40,6 +40,7 @@ func NewRootCommand(app *App) *cobra.Command {
 		Reader:       app.Context.Reader,
 		K8sValidator: app.Context.K8sValidator,
 		CliClient:    app.Context.CliClient,
+		FilesExtractor: app.Context.FilesExtractor,
 	}))
 
 	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
@@ -51,6 +52,7 @@ func NewRootCommand(app *App) *cobra.Command {
 		Reader:       app.Context.Reader,
 		K8sValidator: app.Context.K8sValidator,
 		CliClient:    app.Context.CliClient,
+		FilesExtractor: app.Context.FilesExtractor,
 	}, &kustomize.KustomizeContext{CommandRunner: app.Context.CommandRunner}))
 
 	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
@@ -72,6 +74,7 @@ func NewRootCommand(app *App) *cobra.Command {
 		Messager:         app.Context.Messager,
 		Printer:          app.Context.Printer,
 		PublishCliClient: app.Context.CliClient,
+		FilesExtractor:   app.Context.FilesExtractor,
 	}))
 
 	rootCmd.AddCommand(completion.New())
