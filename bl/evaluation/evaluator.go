@@ -38,14 +38,15 @@ func New(c CLIClient) *Evaluator {
 
 type FileNameRuleMapper map[string]map[string]*Rule
 type FailedRulesByFiles map[string]map[string]*cliClient.FailedRule
+type EvaluationResultsSummery struct {
+	TotalFailedRules int
+	FilesCount       int
+	TotalPassedCount int
+}
 
 type EvaluationResults struct {
 	FileNameRuleMapper FileNameRuleMapper
-	Summary            struct {
-		TotalFailedRules int
-		FilesCount       int
-		TotalPassedCount int
-	}
+	Summary            EvaluationResultsSummery
 }
 
 type FormattedResults struct {
@@ -312,11 +313,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 
 	results := &EvaluationResults{
 		FileNameRuleMapper: mapper,
-		Summary: struct {
-			TotalFailedRules int
-			FilesCount       int
-			TotalPassedCount int
-		}{
+		Summary: EvaluationResultsSummery{
 			TotalFailedRules: totalFailedCount,
 			FilesCount:       filesCount,
 			TotalPassedCount: totalPassedCount,
