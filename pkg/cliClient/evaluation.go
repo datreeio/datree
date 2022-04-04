@@ -164,7 +164,7 @@ type EvaluationResultRequest struct {
 	FailedK8sFiles     []string                         `json:"failedK8sFiles"`
 	AllExecutedRules   []RuleData                       `json:"allExecutedRules"`
 	AllEvaluatedFiles  []FileData                       `json:"allEvaluatedFiles"`
-	PolicyCheckResults map[string]map[string]FailedRule `json:"policyCheckResults"`
+	PolicyCheckResults map[string]map[string]*FailedRule `json:"policyCheckResults"`
 }
 
 func (c *CliClient) SendEvaluationResult(request *EvaluationResultRequest) (*SendEvaluationResultsResponse, error) {

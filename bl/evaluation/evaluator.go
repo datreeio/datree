@@ -35,7 +35,7 @@ func New(c CLIClient) *Evaluator {
 }
 
 type FileNameRuleMapper map[string]map[string]*Rule
-type FailedRulesByFiles map[string]map[string]cliClient.FailedRule
+type FailedRulesByFiles map[string]map[string]*cliClient.FailedRule
 
 type EvaluationResults struct {
 	FileNameRuleMapper FileNameRuleMapper
@@ -113,8 +113,6 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, FailedRulesByFiles{}, rulesCount}, nil
 	}
 
-	jsonSchemaValidator := jsonSchemaValidator.New()
-
 	// map of files paths to map of rules to failed rule data
 	failedRulesByFiles := make(FailedRulesByFiles)
 
@@ -147,41 +145,13 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 
 			for _, rule := range policyCheckData.Policy.Rules {
 
-				ruleSchemaJson, err := json.Marshal(rule.Schema)
+				failedRule, err := evaluateRule(rule, configurationJson, configurationName, configurationKind, skipAnnotations)
 				if err != nil {
 					return emptyPolicyCheckResult, err
 				}
 
-				validationResult, err := jsonSchemaValidator.ValidateYamlSchema(string(ruleSchemaJson), string(configurationJson))
-
-				if err != nil {
-					return emptyPolicyCheckResult, err
-				}
-
-				occurrences := countOccurrences(validationResult)
-
-				if occurrences < 1 {
+				if failedRule == nil {
 					continue
-				}
-
-				configurationData := cliClient.Configuration{
-					Name:        configurationName,
-					Kind:        configurationKind,
-					Occurrences: occurrences,
-					IsSkipped:   false,
-					SkipMessage: "",
-				}
-
-				if skipMessage, ok := skipAnnotations[SKIP_RULE_PREFIX+rule.RuleIdentifier]; ok {
-					configurationData.IsSkipped = true
-					configurationData.SkipMessage = skipMessage
-				}
-
-				failedRule := cliClient.FailedRule{
-					Name:             rule.RuleName,
-					DocumentationUrl: rule.DocumentationUrl,
-					MessageOnFailure: rule.MessageOnFailure,
-					Configurations:   []cliClient.Configuration{configurationData},
 				}
 
 				addFailedRule(failedRulesByFiles, filesConfiguration.FileName, rule.RuleIdentifier, failedRule)
@@ -198,6 +168,49 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 	}
 
 	return PolicyCheckResultData{formattedResults, rulesData, filesData, failedRulesByFiles, rulesCount}, nil
+}
+
+func evaluateRule(rule policy_factory.RuleWithSchema, configurationJson []byte, configurationName string, configurationKind string, skipAnnotations map[string]string) (*cliClient.FailedRule, error) {
+	jsonSchemaValidator := jsonSchemaValidator.New()
+
+	ruleSchemaJson, err := json.Marshal(rule.Schema)
+	if err != nil {
+		return nil, err
+	}
+
+	validationResult, err := jsonSchemaValidator.ValidateYamlSchema(string(ruleSchemaJson), string(configurationJson))
+
+	if err != nil {
+		return nil, err
+	}
+
+	occurrences := countOccurrences(validationResult)
+
+	if occurrences < 1 {
+		return nil, nil
+	}
+
+	configurationData := cliClient.Configuration{
+		Name:        configurationName,
+		Kind:        configurationKind,
+		Occurrences: occurrences,
+		IsSkipped:   false,
+		SkipMessage: "",
+	}
+
+	if skipMessage, ok := skipAnnotations[SKIP_RULE_PREFIX+rule.RuleIdentifier]; ok {
+		configurationData.IsSkipped = true
+		configurationData.SkipMessage = skipMessage
+	}
+
+	failedRule := &cliClient.FailedRule{
+		Name:             rule.RuleName,
+		DocumentationUrl: rule.DocumentationUrl,
+		MessageOnFailure: rule.MessageOnFailure,
+		Configurations:   []cliClient.Configuration{configurationData},
+	}
+
+	return failedRule, nil
 }
 
 // This method creates a NonInteractiveEvaluationResults structure
@@ -313,11 +326,11 @@ func extractConfigurationInfo(configuration extractor.Configuration) (string, st
 
 type Result = gojsonschema.Result
 
-func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string, ruleIdentifier string, failedRule cliClient.FailedRule) {
+func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string, ruleIdentifier string, failedRule *cliClient.FailedRule) {
 	fileData, ok := currentFailedRulesByFiles[fileName]
 
 	if !ok {
-		currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{ruleIdentifier: failedRule}
+		currentFailedRulesByFiles[fileName] = map[string]*cliClient.FailedRule{ruleIdentifier: failedRule}
 		return
 	}
 
