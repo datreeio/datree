@@ -127,6 +127,10 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 		filesData = append(filesData, cliClient.FileData{FilePath: filesConfiguration.FileName, ConfigurationsCount: len(filesConfiguration.Configurations)})
 	}
 
+	for _, rule := range policyCheckData.Policy.Rules {
+		rulesData = append(rulesData, cliClient.RuleData{Identifier: rule.RuleIdentifier, Name: rule.RuleName})
+	}
+
 	for _, filesConfiguration := range policyCheckData.FilesConfigurations {
 		for _, configuration := range filesConfiguration.Configurations {
 			skipAnnotations := extractSkipAnnotations(configuration)
@@ -136,7 +140,6 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 			}
 
 			for _, rule := range policyCheckData.Policy.Rules {
-				rulesData = append(rulesData, cliClient.RuleData{Identifier: rule.RuleIdentifier, Name: rule.RuleName})
 
 				configurationName, configurationKind := extractConfigurationInfo(configuration)
 
