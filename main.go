@@ -3,8 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/datreeio/datree/bl/files"
 	"os"
+
+	"github.com/datreeio/datree/bl/files"
 
 	"github.com/datreeio/datree/pkg/deploymentConfig"
 

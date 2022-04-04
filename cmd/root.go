@@ -32,26 +32,26 @@ var CliVersion string
 func NewRootCommand(app *App) *cobra.Command {
 
 	rootCmd.AddCommand(test.New(&test.TestCommandContext{
-		CliVersion:   CliVersion,
-		Evaluator:    app.Context.Evaluator,
-		LocalConfig:  app.Context.LocalConfig,
-		Messager:     app.Context.Messager,
-		Printer:      app.Context.Printer,
-		Reader:       app.Context.Reader,
-		K8sValidator: app.Context.K8sValidator,
-		CliClient:    app.Context.CliClient,
+		CliVersion:     CliVersion,
+		Evaluator:      app.Context.Evaluator,
+		LocalConfig:    app.Context.LocalConfig,
+		Messager:       app.Context.Messager,
+		Printer:        app.Context.Printer,
+		Reader:         app.Context.Reader,
+		K8sValidator:   app.Context.K8sValidator,
+		CliClient:      app.Context.CliClient,
 		FilesExtractor: app.Context.FilesExtractor,
 	}))
 
 	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
-		CliVersion:   CliVersion,
-		Evaluator:    app.Context.Evaluator,
-		LocalConfig:  app.Context.LocalConfig,
-		Messager:     app.Context.Messager,
-		Printer:      app.Context.Printer,
-		Reader:       app.Context.Reader,
-		K8sValidator: app.Context.K8sValidator,
-		CliClient:    app.Context.CliClient,
+		CliVersion:     CliVersion,
+		Evaluator:      app.Context.Evaluator,
+		LocalConfig:    app.Context.LocalConfig,
+		Messager:       app.Context.Messager,
+		Printer:        app.Context.Printer,
+		Reader:         app.Context.Reader,
+		K8sValidator:   app.Context.K8sValidator,
+		CliClient:      app.Context.CliClient,
 		FilesExtractor: app.Context.FilesExtractor,
 	}, &kustomize.KustomizeContext{CommandRunner: app.Context.CommandRunner}))
 
