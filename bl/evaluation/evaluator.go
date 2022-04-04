@@ -15,8 +15,9 @@ import (
 
 const (
 	SKIP_RULE_PREFIX string = "datree.io/skip/"
-	SKIP_ALL_KEY string = SKIP_RULE_PREFIX + "ALL"
+	SKIP_ALL_KEY     string = SKIP_RULE_PREFIX + "ALL"
 )
+
 type CLIClient interface {
 	SendEvaluationResult(request *cliClient.EvaluationResultRequest) (*cliClient.SendEvaluationResultsResponse, error)
 }
@@ -124,7 +125,9 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 
 	for _, filesConfiguration := range policyCheckData.FilesConfigurations {
 		filesData = append(filesData, cliClient.FileData{FilePath: filesConfiguration.FileName, ConfigurationsCount: len(filesConfiguration.Configurations)})
+	}
 
+	for _, filesConfiguration := range policyCheckData.FilesConfigurations {
 		for _, configuration := range filesConfiguration.Configurations {
 			skipAnnotations := extractSkipAnnotations(configuration)
 			if _, ok := skipAnnotations[SKIP_ALL_KEY]; ok {
@@ -152,7 +155,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 				if err != nil {
 					return emptyPolicyCheckResult, err
 				}
-				
+
 				occurrences := countOccurrences(validationResult)
 
 				if occurrences < 1 {
@@ -160,25 +163,24 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 				}
 
 				configurationData := cliClient.Configuration{
-					Name: configurationName,
-					Kind: configurationKind,
+					Name:        configurationName,
+					Kind:        configurationKind,
 					Occurrences: occurrences,
-					IsSkipped: false,
+					IsSkipped:   false,
 					SkipMessage: "",
 				}
 
-				if skipMessage, ok := skipAnnotations[SKIP_RULE_PREFIX + ruleWithSchema.RuleIdentifier]; ok {
+				if skipMessage, ok := skipAnnotations[SKIP_RULE_PREFIX+ruleWithSchema.RuleIdentifier]; ok {
 					configurationData.IsSkipped = true
 					configurationData.SkipMessage = skipMessage
 				}
 
 				failedRule := cliClient.FailedRule{
-					Name: ruleWithSchema.RuleName,
+					Name:             ruleWithSchema.RuleName,
 					DocumentationUrl: ruleWithSchema.DocumentationUrl,
 					MessageOnFailure: ruleWithSchema.MessageOnFailure,
-					Configurations: []cliClient.Configuration{configurationData},
-				};
-
+					Configurations:   []cliClient.Configuration{configurationData},
+				}
 
 				addFailedRule(failedRulesByFiles, filesConfiguration.FileName, ruleWithSchema.RuleIdentifier, failedRule)
 			}
@@ -310,11 +312,11 @@ func extractConfigurationInfo(configuration extractor.Configuration) (string, st
 type Result = gojsonschema.Result
 
 func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string, ruleIdentifier string, newFailedRule cliClient.FailedRule) {
-	fileData, ok := currentFailedRulesByFiles[fileName];
+	fileData, ok := currentFailedRulesByFiles[fileName]
 
 	if !ok {
 		currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{ruleIdentifier: newFailedRule}
-		return;
+		return
 	}
 
 	if exitingRule, ok := fileData[ruleIdentifier]; ok {
