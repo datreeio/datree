@@ -323,7 +323,6 @@ func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string
 
 	if exitingRule, ok := fileData[ruleIdentifier]; ok {
 		exitingRule.Configurations = append(exitingRule.Configurations, newFailedRule.Configurations...)
-		currentFailedRulesByFiles[fileName][ruleIdentifier] = exitingRule
 	} else {
 		currentFailedRulesByFiles[fileName][ruleIdentifier] = newFailedRule
 	}
