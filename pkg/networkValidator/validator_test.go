@@ -19,12 +19,22 @@ func TestNetworkValidatorNetworkError(t *testing.T) {
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, isLocalMode)
 
-	err = test_identifyNoInternet_network_error(validator, "fail")
+	err = test_identifyNoInternet_noSuchHost_network_error(validator, "fail")
 	isLocalMode = validator.IsLocalMode()
 	assert.NotNil(t, err)
 	assert.Equal(t, false, isLocalMode)
 
-	err = test_identifyNoInternet_network_error(validator, "local")
+	err = test_identifyNoInternet_noSuchHost_network_error(validator, "local")
+	isLocalMode = validator.IsLocalMode()
+	assert.Equal(t, nil, err)
+	assert.Equal(t, true, isLocalMode)
+
+	err = test_identifyNoInternet_connectionRefused_network_error(validator, "fail")
+	isLocalMode = validator.IsLocalMode()
+	assert.NotNil(t, err)
+	assert.Equal(t, false, isLocalMode)
+
+	err = test_identifyNoInternet_connectionRefused_network_error(validator, "local")
 	isLocalMode = validator.IsLocalMode()
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, isLocalMode)
@@ -51,9 +61,14 @@ func test_identifyNetworkError_network_error(validator *NetworkValidator, offlin
 	return validator.IdentifyNetworkError("network error")
 }
 
-func test_identifyNoInternet_network_error(validator *NetworkValidator, offlineMode string) error {
+func test_identifyNoInternet_noSuchHost_network_error(validator *NetworkValidator, offlineMode string) error {
 	validator.SetOfflineMode(offlineMode)
 	return validator.IdentifyNetworkError("no such host")
+}
+
+func test_identifyNoInternet_connectionRefused_network_error(validator *NetworkValidator, offlineMode string) error {
+	validator.SetOfflineMode(offlineMode)
+	return validator.IdentifyNetworkError("tcp dial connection refused")
 }
 
 func test_identifyNetworkError_other_error(validator *NetworkValidator, offlineMode string) error {
