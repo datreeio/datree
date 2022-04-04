@@ -68,9 +68,12 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 	if token == "" {
 		createTokenResponse, err := lc.tokenClient.CreateToken()
 		if err != nil {
-			return &LocalConfig{}, err
+			return nil, err
 		}
 		token = createTokenResponse.Token
+		if token == "" {
+			return nil, nil
+		}
 		err = setViperVariable(tokenKey, token)
 		if err != nil {
 			return nil, err
@@ -198,7 +201,11 @@ func setViperConfig() (string, string, string, error) {
 }
 
 func setViperVariable(key string, value string) error {
-	viper.SetDefault(key, value)
+	if value == "" {
+		return fmt.Errorf("value is empty")
+	}
+
+	viper.Set(key, value)
 
 	err := viper.WriteConfig()
 	if err != nil {
