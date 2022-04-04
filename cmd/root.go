@@ -47,14 +47,15 @@ func init() {
 	}))
 
 	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
-		CliVersion:   CliVersion,
-		Evaluator:    app.context.Evaluator,
-		LocalConfig:  app.context.LocalConfig,
-		Messager:     app.context.Messager,
-		Printer:      app.context.Printer,
-		Reader:       app.context.Reader,
-		K8sValidator: app.context.K8sValidator,
-		CliClient:    app.context.CliClient,
+		CliVersion:     CliVersion,
+		Evaluator:      app.context.Evaluator,
+		LocalConfig:    app.context.LocalConfig,
+		Messager:       app.context.Messager,
+		Printer:        app.context.Printer,
+		Reader:         app.context.Reader,
+		K8sValidator:   app.context.K8sValidator,
+		CliClient:      app.context.CliClient,
+		FilesExtractor: app.context.FilesExtractor,
 	}, &kustomize.KustomizeContext{CommandRunner: app.context.CommandRunner}))
 
 	rootCmd.AddCommand(version.New(&version.VersionCommandContext{
