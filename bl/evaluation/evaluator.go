@@ -118,15 +118,14 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 	// map of files paths to map of rules to failed rule data
 	failedRulesByFiles := make(FailedRulesByFiles)
 
-	rulesData := []cliClient.RuleData{}
-	var filesData []cliClient.FileData
-
 	emptyPolicyCheckResult := PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}
 
+	var filesData []cliClient.FileData
 	for _, filesConfiguration := range policyCheckData.FilesConfigurations {
 		filesData = append(filesData, cliClient.FileData{FilePath: filesConfiguration.FileName, ConfigurationsCount: len(filesConfiguration.Configurations)})
 	}
 
+	rulesData := []cliClient.RuleData{}
 	for _, rule := range policyCheckData.Policy.Rules {
 		rulesData = append(rulesData, cliClient.RuleData{Identifier: rule.RuleIdentifier, Name: rule.RuleName})
 	}
