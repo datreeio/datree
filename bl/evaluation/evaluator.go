@@ -115,9 +115,6 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, FailedRulesByFiles{}, rulesCount}, nil
 	}
 
-	// map of files paths to map of rules to failed rule data
-	failedRulesByFiles := make(FailedRulesByFiles)
-
 	emptyPolicyCheckResult := PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}
 
 	var filesData []cliClient.FileData
@@ -130,33 +127,13 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 		rulesData = append(rulesData, cliClient.RuleData{Identifier: rule.RuleIdentifier, Name: rule.RuleName})
 	}
 
+	// map of files paths to map of rules to failed rule data
+	failedRulesByFiles := make(FailedRulesByFiles)
 	for _, filesConfiguration := range policyCheckData.FilesConfigurations {
 		for _, configuration := range filesConfiguration.Configurations {
-			skipAnnotations := extractSkipAnnotations(configuration)
-			if _, ok := skipAnnotations[SKIP_ALL_KEY]; ok {
-				// addSkipRule
-				continue
-			}
-
-			configurationName, configurationKind := extractConfigurationInfo(configuration)
-
-			configurationJson, err := json.Marshal(configuration)
+			err := e.evaluateConfiguration(failedRulesByFiles, policyCheckData, filesConfiguration.FileName, configuration)
 			if err != nil {
 				return emptyPolicyCheckResult, err
-			}
-
-			for _, rule := range policyCheckData.Policy.Rules {
-
-				failedRule, err := e.evaluateRule(rule, configurationJson, configurationName, configurationKind, skipAnnotations)
-				if err != nil {
-					return emptyPolicyCheckResult, err
-				}
-
-				if failedRule == nil {
-					continue
-				}
-
-				addFailedRule(failedRulesByFiles, filesConfiguration.FileName, rule.RuleIdentifier, failedRule)
 			}
 		}
 
@@ -170,6 +147,39 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 	}
 
 	return PolicyCheckResultData{formattedResults, rulesData, filesData, failedRulesByFiles, rulesCount}, nil
+}
+
+
+
+func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
+	skipAnnotations := extractSkipAnnotations(configuration)
+	if _, ok := skipAnnotations[SKIP_ALL_KEY]; ok {
+		// addSkipRule
+		return nil
+	}
+
+	configurationName, configurationKind := extractConfigurationInfo(configuration)
+
+	configurationJson, err := json.Marshal(configuration)
+	if err != nil {
+		return err
+	}
+
+	for _, rule := range policyCheckData.Policy.Rules {
+
+		failedRule, err := e.evaluateRule(rule, configurationJson, configurationName, configurationKind, skipAnnotations)
+		if err != nil {
+			return err
+		}
+
+		if failedRule == nil {
+			continue
+		}
+
+		addFailedRule(failedRulesByFiles, fileName, rule.RuleIdentifier, failedRule)
+	}
+
+	return nil
 }
 
 func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurationJson []byte, configurationName string, configurationKind string, skipAnnotations map[string]string) (*cliClient.FailedRule, error) {
