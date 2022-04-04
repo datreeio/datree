@@ -25,12 +25,14 @@ type CLIClient interface {
 type Evaluator struct {
 	cliClient CLIClient
 	ciContext *ciContext.CIContext
+	jsonSchemaValidator *jsonSchemaValidator.JSONSchemaValidator
 }
 
 func New(c CLIClient) *Evaluator {
 	return &Evaluator{
 		cliClient: c,
 		ciContext: ciContext.Extract(),
+		jsonSchemaValidator: jsonSchemaValidator.New(),
 	}
 }
 
@@ -145,7 +147,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 
 			for _, rule := range policyCheckData.Policy.Rules {
 
-				failedRule, err := evaluateRule(rule, configurationJson, configurationName, configurationKind, skipAnnotations)
+				failedRule, err := e.evaluateRule(rule, configurationJson, configurationName, configurationKind, skipAnnotations)
 				if err != nil {
 					return emptyPolicyCheckResult, err
 				}
@@ -170,15 +172,13 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 	return PolicyCheckResultData{formattedResults, rulesData, filesData, failedRulesByFiles, rulesCount}, nil
 }
 
-func evaluateRule(rule policy_factory.RuleWithSchema, configurationJson []byte, configurationName string, configurationKind string, skipAnnotations map[string]string) (*cliClient.FailedRule, error) {
-	jsonSchemaValidator := jsonSchemaValidator.New()
-
+func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurationJson []byte, configurationName string, configurationKind string, skipAnnotations map[string]string) (*cliClient.FailedRule, error) {
 	ruleSchemaJson, err := json.Marshal(rule.Schema)
 	if err != nil {
 		return nil, err
 	}
 
-	validationResult, err := jsonSchemaValidator.ValidateYamlSchema(string(ruleSchemaJson), string(configurationJson))
+	validationResult, err := e.jsonSchemaValidator.ValidateYamlSchema(string(ruleSchemaJson), string(configurationJson))
 
 	if err != nil {
 		return nil, err
