@@ -5,7 +5,7 @@ go:
 dist: trusty
 
 before_script:
-  - pyenv local 3.6
+  - pyenv global 3.6
   - pip install -U pip
   - pip install --user awscli
   - aws --version
