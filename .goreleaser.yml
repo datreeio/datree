@@ -39,8 +39,6 @@ builds:
       - -tags={{.Env.GO_BUILD_TAG}}
     ldflags:
       - -X github.com/datreeio/datree/cmd.CliVersion={{.Env.DATREE_BUILD_VERSION}}
-    # hooks:
-    #  post: gon gon.hcl
 archives:
   - replacements:
       darwin: Darwin
