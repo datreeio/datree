@@ -2,20 +2,15 @@ language: go
 go:
   - "1.17"
 
-os: osx
-osx_image: xcode13.2
-
-# dist: trusty
+dist: xenial
 
 before_script:
-  # - pyenv local 3.6
-  # - pip install -U pip
-  # - pip install --user awscli
-  # - aws --version
-  # - sudo apt-get -y install jq
-  # - jq --version
-  - HOMEBREW_NO_AUTO_UPDATE=1 brew install awscli
-  - HOMEBREW_NO_AUTO_UPDATE=1 brew install jq
+  - pyenv local 3.6
+  - pip install -U pip
+  - pip install --user awscli
+  - aws --version
+  - sudo apt-get -y install jq
+  - jq --version
 
 script:
   - echo $RELEASE_DATREE_PROD
