@@ -1,7 +1,7 @@
 language: go
 go:
   - "1.17"
-
+os: linux
 dist: trusty
 
 before_script:
