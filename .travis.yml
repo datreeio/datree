@@ -2,8 +2,6 @@ language: go
 go:
   - "1.17"
 
-dist: xenial
-
 before_script:
   - pyenv local 3.6
   - pip install -U pip
