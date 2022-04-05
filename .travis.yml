@@ -25,8 +25,6 @@ before_deploy:
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
-  - bash ./scripts/install_svu.sh
-  - echo $(svu --version)
 
 deploy:
   - provider: script
