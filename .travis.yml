@@ -31,7 +31,7 @@ deploy:
     skip_cleanup: true
     script: bash ./scripts/deploy_release_candidate.sh
     on:
-      branch: travis-linux
+      branch: main
       condition: $RELEASE_DATREE_PROD != true
   - provider: script
     skip_cleanup: true
