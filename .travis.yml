@@ -9,6 +9,8 @@ before_script:
   - pip install -U pip
   - pip install --user awscli
   - aws --version
+  - sudo apt-get -y install jq
+  - jq --version
 
 script:
   - echo $RELEASE_DATREE_PROD
@@ -18,9 +20,8 @@ script:
   - go test ./...
 
 before_deploy:
-  - curl -sfL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION sh -s -- check
-  - sudo apt-get -y install jq
   - jq --version
+  - curl -sfL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION sh -s -- check
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
