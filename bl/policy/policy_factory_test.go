@@ -2,6 +2,7 @@ package policy
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 
@@ -17,7 +18,7 @@ import (
 const policiesJsonPath = "../../internal/fixtures/policyAsCode/prerun.json"
 
 func TestCreatePolicy(t *testing.T) {
-	policiesJson := mockGetPreRunData()
+	preRunData := mockGetPreRunData()
 
 	err := os.Chdir("../../")
 	if err != nil {
@@ -25,7 +26,7 @@ func TestCreatePolicy(t *testing.T) {
 	}
 
 	t.Run("Test Create Policy With Default Policy", func(t *testing.T) {
-		policy, _ := CreatePolicy(policiesJson.PoliciesJson, "")
+		policy, _ := CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL)
 		var expectedRules []RuleWithSchema
 
 		defaultRules, err := internal_policy.GetDefaultRules()
@@ -58,7 +59,7 @@ func TestCreatePolicy(t *testing.T) {
 	})
 
 	t.Run("Test Create Policy With Specific Policy", func(t *testing.T) {
-		policy, err := CreatePolicy(policiesJson.PoliciesJson, "labels_best_practices2")
+		policy, err := CreatePolicy(preRunData.PoliciesJson, "labels_best_practices2", preRunData.RegistrationURL)
 		var expectedRules []RuleWithSchema
 
 		if err != nil {
@@ -80,7 +81,7 @@ func TestCreatePolicy(t *testing.T) {
 	})
 
 	t.Run("Test Create Policy With Custom Rules", func(t *testing.T) {
-		policy, err := CreatePolicy(policiesJson.PoliciesJson, "labels_best_practices3")
+		policy, err := CreatePolicy(preRunData.PoliciesJson, "labels_best_practices3", preRunData.RegistrationURL)
 		var expectedRules []RuleWithSchema
 		if err != nil {
 			panic(err)
@@ -96,6 +97,17 @@ func TestCreatePolicy(t *testing.T) {
 		expectedRules = append(expectedRules, RuleWithSchema{RuleIdentifier: "UNIQUE3", RuleName: "rule unique 3", Schema: customRuleJsonSchema, MessageOnFailure: "default message for rule fail number 3"})
 
 		assert.Equal(t, expectedRules, policy.Rules)
+	})
+	t.Run("Test Create Policy for anonymous user with --policy flag Default", func(t *testing.T) {
+		_, err := CreatePolicy(nil, "Default", preRunData.RegistrationURL)
+
+		assert.Equal(t, nil, err)
+	})
+	t.Run("Test Create Policy for anonymous user with --policy flag not default", func(t *testing.T) {
+		policy, err := CreatePolicy(nil, "my-policy", preRunData.RegistrationURL)
+
+		assert.Equal(t, fmt.Errorf("policy my-policy doesn't exist, sign in to the dashboard to customize your policies: %s", preRunData.RegistrationURL), err)
+		assert.Equal(t, Policy{}, policy)
 	})
 }
 
