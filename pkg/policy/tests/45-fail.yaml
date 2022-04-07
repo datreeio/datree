@@ -1,12 +1,14 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Workflow
-metadata:
-  name: my-workflow
+apiVersion: v1
+kind: Pod
 spec:
-  entrypoint: entry
-  templates:
-    - name: entry
-      retryStrategy:
-        limit: 1
-        retryPolicy: Always
-        expression: lastRetry.status == "Error" or (lastRetry.status == "Failed" and asInt(lastRetry.exitCode) not in [0])
+  containers:
+    - image: k8s.gcr.io/test-webserver
+      name: test-container
+      volumeMounts:
+        - mountPath: /test-pd
+          name: test-volume
+  volumes:
+    - name: test-volume
+      hostPath:
+        path: /data
+        type: Directory
