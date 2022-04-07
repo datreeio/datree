@@ -2,29 +2,29 @@ language: go
 go:
   - "1.17"
 
-os: osx
-osx_image: xcode13.2
+dist: trusty
 
 before_script:
-  - HOMEBREW_NO_AUTO_UPDATE=1 brew install awscli
+  - pyenv global 3.6
+  - pip install -U pip
+  - pip install --user awscli
   - aws --version
+  - sudo apt-get -y install jq
+  - jq --version
 
 script:
   - echo $RELEASE_DATREE_PROD
-  - "travis_wait 60 sleep 3600 &"
+  # - "travis_wait 60 sleep 3600 &"
   - export GO_BUILD_TAG=$(bash ./scripts/define_build_tag.sh)
   - go build -tags $GO_BUILD_TAG
   - go test ./...
 
 before_deploy:
+  - jq --version
   - curl -sfL https://git.io/goreleaser | VERSION=v$GORELEASER_VERSION sh -s -- check
-  - HOMEBREW_NO_AUTO_UPDATE=1 brew install mitchellh/gon/gon
-  - HOMEBREW_NO_AUTO_UPDATE=1 brew install jq
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
   - git remote set-url origin https://datree-ci:$GITHUB_TOKEN@github.com/datreeio/datree.git
-  - bash ./scripts/install_svu.sh
-  - echo $(svu --version)
 
 deploy:
   - provider: script
@@ -45,12 +45,6 @@ env:
     #GITHUB_TOKEN
     - secure: "OQTTfOMNYFxGNkizM7bhK3OJXUntazxaQ6rliRO327fRnMPacK/pswMIwUjjzwTwLV8nVIvACSIWmo/45SeJtLVcHsle3RBn0OZFmgMFjySkLldP71t/4HzV3ef24px9JNX/FO6kQ7tqzzS7SRwlekL4v/r6K8ro1kqmFDLQ2uibgSXqkI7rNwPP56L5+QTX46pA2113NnGpywAm/K33ky40Fb2QclDH41ax+Jm7zyDy1ry0d/T9db+GBOnBsfkqkuBiBDvJ2tp4n0KbvAIt870O8Ey9jB7MUkwdGKH/0ZlEFXihEmKIVn9pih5t8EFZzVxdPK+aJ3SHeqWAu9v0Iy1lsxs1je6fIkhA5hkHk9Hz4mgRrwiGRG1d25sBoNegnu0uA5Iowtwp4Rp7lTfDJSdazTW7W3L5+qzd9b1LA7GfIlATcSwDrPicf6RBX0r2eb0o2fiFi/B24X8J84CAmdnhlBjGYhoKdBZv3+ngopZAJNbbclD1YKMBhVEfjVGQMDOm6yVejIrPWq1asupX+JEpF4/myLXilooUKt2Znx01EG2UVZ31o6e5m3Hn/XWa5z5HR/zsYTozLUFe0kbJvBVwy4v/8YgUyoGGaxAifs6Eh3rmKzmQLa8eyZjIIUAibOd19uL7ZZSGAvKDr93N/8rlZnHA0PRsDNhNxVyCFu8="
     - GORELEASER_VERSION="0.155.1"
-    #AC_USERNAME
-    - secure: "eyz1nelBEtNDwYYXPn5X8Fh76q6tXudD7Z6qpu/0I8c4dACg0zK2h2BwzetVoDQZ6+E1nzWS6raaSOpXAzn/ezB7lb0zEWCoSjsuCxN7LiKikQn1rLWg7SNOYF2HJYENJLUVeBElHAcZOVXFa/G4u4Djq1lDNRqQaKlZ8EKhJswMCqa9gyo9oTvWiWuWXbI33aU6fFGpj/BH5ZxQPupA1uFPYLalt2cxB4D7SDGoIdDx5uUedzcPC2vxq9H5Qh0Lj6QdJ6Xq0RHZZw9TEKHJlCM1pyjWsFmAX/SEmsahc2RSExm6biOGjiorzDvtW0nF3MmZfz9k4+M24lSTLh/Lpvc+JAkRIRiv7vegvA9f5am3WbUESzFA5CfZWbn7uH4gtQoguPNQXBKe2a/nkHgQciKTntqrLiiQp+FpxH+u5AAQPkPLhhbPHfGH/CL8GfrCtRBL13GXkfVK093NXWmPqKb7GOIwTkmc9itocdWxLwMJpCnUf0dSRnmBefg2N65Uz0EsdGQMeRmZNcY0F3NvSOxhi1RN84LuiKlXeJa0jNiaSplS/jZNpRvWPlpg5oj5M5AqjF0gL8Mt6BdB7JsbGX9VIE4RjMmkGhshkb5hZk3TqRozAxqLw4q+NePyiKmCzax5KQIj0CuDDqxU2PZYFOG6Mun/f4alU2M86zzcc1M="
-    #AC_PASSWORD
-    - secure: "KWpsLZ3fPSDa4dZGzVpIQjzhxmhqSYI4dbgFs+NmteBB7hLRpMP6gjLy1BAoVW74jMr8Mo7ThGDRHq9leemrwplJHIrvmoNBl2l96rmOC/+W8IoFThpFIJxNUyqudQkFO0pDMH31F7WGUouzXaMyzM1CZI2lSeBmS9XNKkgWDbVuKb4703GEzfNG8LBn9vMJns4ZYAOSK8aAQi4alo9dR8emNg2o27xshoXG25vCz7hp9N9+1+h1yP7QLLlfD+ZV3IvO8hKYfm9eb36rARsOEt5059gBs2jeVcKxYJn6bWnlgzrSIMbpSGbUvuDkiT6sllPt73GQKQ5k7n7qhYUxc8/qL8xanGutEdyCxoU5MJ1l42T9KoLNmCboS6FDWqEeZ2hLOL9rPQyWOwZlKkviczKNAvtEaqK94GX2ARiKkmIA/sJcCqACFM3HeSOxxlrBl4K07fX8sGheuU1We33PU1IYPmeYqFwECciuGwFgOqVDrmLcFr20C9X0gDx3WQzutmLf5YVia2ItvXbohTe3Cg3y5b4ECZ5YtW9WtSazkY+zfAtMloe3xpRdz7lahSe7YPdfwef61mYcMI9+PzImpN0JL/FCd6kvI+mNocdY4PB7RD5G6ozBa5qJFtEFWlJhqyGOcJRNEJt/UvSaFeKV7XV6PUqyxAdZHcga5VERBSs="
-    #P12_PASSWORD
-    - secure: "eSkV14fXLnTIX/QGfrzUMACLCgNICEGxhS4AX+UCYnhNKyhOvXQjWJVOHnwuy4Oon75Ueev3PiUTlZBviPWZsAiy6VMpxUA5R149BtpQjUBfvzugA04ooxn6BD+zssIpSnld8VFENxNLRTzMcOyHyQAiwbKIG+TMOGcD8rYR58zJ60DispXY0otg+R/MEofcGXgb59bgD406kcUcEmBKRamE0oU1Xk0TxWrTJg3n7IM34qfPc2KUuO5DdPaxuOvfJ++b9YDyH4n0GFKMW6fuHxoDjMT7O6s2WrYlx+PF294RKiiVV1yCMhDvszu7uMkDgmWbZasmaj6ENBZ6b/RD0PNXHYwh/WvertL2y0waCfAmB9ULk1WYuFOvoqni+jYbcf7fMlLG06xOVF9JKakP1MOBy/K1ESJnOvvl5kpjiSJxK6y/KEcIP9A/RFNdZQX+1pYvPnFk+9IIAtcnE361fu66+E9/HO5yv9BcSiQhQMWiajNnfMlSNEy3vtSEHYovhwo3pfBtgRDlvYxeRQnmjpZH1UjLFhVrq6/qfQGGAkA4eu9uoKuyg9Mf7LFnUhOeknxNZe8eBGHhQ6zMIVzjV72vVSpx1fbUcTHhet+AMCS9fP5NgqOtTTNZ65wIWuwXJAh8jfed3tJ4qTL3GHmnVj/0nSLVIFISy8rwMWb00Cw="
     # AWS_ACCESS_KEY_ID
     - secure: "DoYHN09zYlwjaG9TpoKoNfEigFMmGzShCs6K40cwaTx3Ohr9W2NuiQZXO8eDIWJIh/x6C2cZpgCFGh/c08/OJw8F9F1gTGLgi1HFdLB7p3fwWV14Et3bUGKtVyV9aGnlBqr93u8t7bFPDdLc+GHl/8E9/f3qjuhpDUcGQbp5bamioWkxDmt3mampCfcJjFmLDgk/9ElWwAc4rF+K2uNPGAyxvXU5lvIHC9VYbHMiBgo49+qKtRRXOO85yFw4eIStGNeRKlsAqw7DdehUVvk4BqL4epU+itLqPe4QLE7RnVzMYLdtGuqebNzbvhJuGZiaYjcakrZcGyTlZKG1DfUPZoqUqZOC7/lAkafPq31uCFZnW+27EYdWy4SA1amQ1/DMkp226UDWho2Tu4kcT/0CTGq7VSFIqhuc3IyXQoO5V62cyLkD2e52lO5IPzqWkVXQoh4JOvn46qQFBfVgHp1ciEd6CJJ3HFOtEJZBtL/YqePQJgABkDtmyuE93ZaBh/FM7JaZOVKKTm9MzEi8QJbidk7kuKtH7j8lVhAU77bm84/2dcFDlyusEEvPtN5ufCfbpHzj9ypX4qfvp4y9NhlcTU9zEn0/ajjLc39Mbxfrcr+/gdt/+gj5yED1/Xyhdz+Uh9HIhPHQaWfWro21ya34oU01duk9AetXHaJ7owwvTrk="
     # AWS_SECRET_ACCESS_KEY
