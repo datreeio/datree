@@ -1184,15 +1184,15 @@ rules:
             metadata:
               required:
               - name
+          required:
+          - metadata
         metadataGenerateNamePattern:
           properties:
             metadata:
               required:
               - generateName
+          required:
+          - metadata
       anyOf:
         - $ref: "#/definitions/metadataNamePattern"
         - $ref: "#/definitions/metadataGenerateNamePattern"
-      additionalProperties:
-        $ref: "#"
-      items:
-        $ref: "#"
