@@ -1,4 +1,4 @@
-- id: 45
+- id: 46
   name: Ensure each container has a read-only root filesystem
   uniqueName: CONTAINERS_INCORRECT_READONLYROOTFILESYSTEM_VALUE
   enabledByDefault: true
@@ -48,7 +48,7 @@
       $ref: "#"
     items:
       $ref: "#"
-- id: 46
+- id: 47
   name: Prevent containers from accessing underlying host
   uniqueName: CONTAINERS_INCORRECT_KEY_HOSTPATH
   enabledByDefault: true
@@ -74,7 +74,7 @@
       $ref: "#"
     items:
       $ref: "#"
-- id: 47
+- id: 48
   name: Prevent containers from escalating privileges
   uniqueName: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
   enabledByDefault: true
@@ -105,7 +105,7 @@
       $ref: "#"
     items:
       $ref: "#"
-- id: 48
+- id: 49
   name: Prevent containers from allowing command execution
   uniqueName: CONTAINERS_INCORRECT_RESOURCES_VERBS_VALUE
   enabledByDefault: true
@@ -139,7 +139,7 @@
                     enum:
                       - "create"
                       - "*"
-- id: 49
+- id: 50
   name: Prevent containers from having insecure capabilities
   uniqueName: CONTAINERS_INVALID_CAPABILITIES_VALUE
   enabledByDefault: true
@@ -184,7 +184,7 @@
       $ref: "#"
     items:
       $ref: "#"
-- id: 50
+- id: 51
   name: Prevent containers from insecurely exposing workload
   uniqueName: CONTAINERS_INCORRECT_KEY_HOSTPORT
   enabledByDefault: true
@@ -214,7 +214,7 @@
       $ref: "#"
     items:
       $ref: "#"
-- id: 51
+- id: 52
   name: Prevent containers from accessing host files by using high GIDs
   uniqueName: CONTAINERS_INCORRECT_RUNASGROUP_VALUE_LOWGID
   enabledByDefault: true
@@ -257,7 +257,7 @@
       $ref: "#"
     items:
       $ref: "#"
-- id: 52
+- id: 53
   name: Prevent container from running with root privileges 
   uniqueName: CONTAINERS_INCORRECT_RUNASNONROOT_VALUE
   enabledByDefault: true
@@ -305,7 +305,7 @@
       $ref: "#"
     items:
       $ref: "#"
-- id: 53
+- id: 54
   name: Prevent service account token auto-mounting on pods 
   uniqueName: SRVACC_INCORRECT_AUTOMOUNTSERVICEACCOUNTTOKEN_VALUE
   enabledByDefault: true
