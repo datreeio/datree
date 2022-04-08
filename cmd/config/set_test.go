@@ -3,6 +3,8 @@ package config
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
@@ -88,4 +90,14 @@ func TestSetCommand(t *testing.T) {
 
 	set(ctx, "testkey", "testvalue")
 	localConfigMock.AssertCalled(t, "Set", "testkey", "testvalue")
+}
+
+func TestValidateKey(t *testing.T) {
+	for _, key := range ConfigAvailableKeys {
+		err := validateKey(key)
+		assert.Nil(t, err)
+	}
+
+	err := validateKey("Not_a_valid_key")
+	assert.NotNil(t, err)
 }

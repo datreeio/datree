@@ -154,7 +154,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, strin
 }
 
 func (val *K8sValidator) isNetworkError(errorString string) bool {
-	return strings.Contains(errorString, "no such host")
+	return strings.Contains(errorString, "no such host") || strings.Contains(errorString, "connection refused")
 }
 
 func newKubconformValidator(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) ValidationClient {

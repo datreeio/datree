@@ -262,7 +262,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		policies = evaluationPrerunDataResp.PoliciesJson
 	}
 
-	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName)
+	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName, evaluationPrerunDataResp.RegistrationURL)
 	if err != nil {
 		return nil, err
 	}
