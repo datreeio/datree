@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"gopkg.in/yaml.v2"
@@ -21,23 +22,73 @@ type Printer interface {
 	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 }
 
-type FormattedOutput struct {
-	EvaluationResults *EvaluationResults
-	EvaluationSummary printer.EvaluationSummary
-	InvalidYamlFiles  []*validation.InvalidYamlFile
-	InvalidK8sFiles   []*validation.InvalidK8sFile
+type PrintResultsData struct {
+	Results               FormattedResults
+	InvalidYamlFiles      []*extractor.InvalidFile
+	InvalidK8sFiles       []*extractor.InvalidFile
+	EvaluationSummary     printer.EvaluationSummary
+	LoginURL              string
+	OutputFormat          string
+	Printer               Printer
+	K8sVersion            string
+	Verbose               bool
+	PolicyName            string
+	K8sValidationWarnings validation.K8sValidationWarningPerValidFile
 }
 
-func PrintResults(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, loginURL string, outputFormat string, printer Printer, k8sVersion string, policyName string) error {
-	switch {
-	case outputFormat == "json":
-		return jsonOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
-	case outputFormat == "yaml":
-		return yamlOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
-	case outputFormat == "xml":
-		return xmlOutput(&FormattedOutput{EvaluationResults: results, EvaluationSummary: evaluationSummary, InvalidYamlFiles: invalidYamlFiles, InvalidK8sFiles: invalidK8sFiles})
-	default:
-		return textOutput(results, invalidYamlFiles, invalidK8sFiles, evaluationSummary, loginURL, printer, k8sVersion, policyName)
+type textOutputData struct {
+	results               *EvaluationResults
+	invalidYamlFiles      []*extractor.InvalidFile
+	invalidK8sFiles       []*extractor.InvalidFile
+	evaluationSummary     printer.EvaluationSummary
+	url                   string
+	printer               Printer
+	k8sVersion            string
+	Verbose               bool
+	policyName            string
+	k8sValidationWarnings validation.K8sValidationWarningPerValidFile
+}
+
+func PrintResults(resultsData *PrintResultsData) error {
+	if resultsData.OutputFormat == "json" || resultsData.OutputFormat == "yaml" || resultsData.OutputFormat == "xml" {
+		nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
+		if nonInteractiveEvaluationResults == nil {
+			nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
+		}
+		formattedOutput := FormattedOutput{
+			PolicyValidationResults: nonInteractiveEvaluationResults.FormattedEvaluationResults,
+			PolicySummary:           nonInteractiveEvaluationResults.PolicySummary,
+			EvaluationSummary: NonInteractiveEvaluationSummary{
+				ConfigsCount:                resultsData.EvaluationSummary.ConfigsCount,
+				FilesCount:                  resultsData.EvaluationSummary.FilesCount,
+				PassedYamlValidationCount:   resultsData.EvaluationSummary.PassedYamlValidationCount,
+				K8sValidation:               resultsData.EvaluationSummary.K8sValidation,
+				PassedPolicyValidationCount: resultsData.EvaluationSummary.PassedPolicyCheckCount,
+			},
+			YamlValidationResults: resultsData.InvalidYamlFiles,
+			K8sValidationResults:  resultsData.InvalidK8sFiles,
+		}
+
+		if resultsData.OutputFormat == "json" {
+			return jsonOutput(&formattedOutput)
+		} else if resultsData.OutputFormat == "yaml" {
+			return yamlOutput(&formattedOutput)
+		} else {
+			return xmlOutput(&formattedOutput)
+		}
+	} else {
+		return textOutput(textOutputData{
+			results:               resultsData.Results.EvaluationResults,
+			invalidYamlFiles:      resultsData.InvalidYamlFiles,
+			invalidK8sFiles:       resultsData.InvalidK8sFiles,
+			evaluationSummary:     resultsData.EvaluationSummary,
+			url:                   resultsData.LoginURL,
+			printer:               resultsData.Printer,
+			k8sVersion:            resultsData.K8sVersion,
+			policyName:            resultsData.PolicyName,
+			Verbose:               resultsData.Verbose,
+			k8sValidationWarnings: resultsData.K8sValidationWarnings,
+		})
 	}
 }
 
@@ -75,30 +126,30 @@ func xmlOutput(formattedOutput *FormattedOutput) error {
 	return nil
 }
 
-func textOutput(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, evaluationSummary printer.EvaluationSummary, url string, printer Printer, k8sVersion string, policyName string) error {
+func textOutput(outputData textOutputData) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	warnings, err := parseToPrinterWarnings(results, invalidYamlFiles, invalidK8sFiles, pwd, k8sVersion)
+	warnings, err := parseToPrinterWarnings(outputData.results, outputData.invalidYamlFiles, outputData.invalidK8sFiles, pwd, outputData.k8sVersion, outputData.k8sValidationWarnings, outputData.Verbose)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 
-	printer.PrintWarnings(warnings)
+	outputData.printer.PrintWarnings(warnings)
 
-	summary := parseEvaluationResultsToSummary(results, evaluationSummary, url, policyName)
+	summary := parseEvaluationResultsToSummary(outputData.results, outputData.evaluationSummary, outputData.url, outputData.policyName)
 
-	printer.PrintEvaluationSummary(evaluationSummary, k8sVersion)
+	outputData.printer.PrintEvaluationSummary(outputData.evaluationSummary, outputData.k8sVersion)
 
-	printer.PrintSummaryTable(summary)
+	outputData.printer.PrintSummaryTable(summary)
 
 	return nil
 }
 
-func parseInvalidYamlFilesToWarnings(invalidYamlFiles []*validation.InvalidYamlFile) []printer.Warning {
+func parseInvalidYamlFilesToWarnings(invalidYamlFiles []*extractor.InvalidFile) []printer.Warning {
 	var warnings []printer.Warning
 
 	for _, invalidFile := range invalidYamlFiles {
@@ -114,7 +165,7 @@ func parseInvalidYamlFilesToWarnings(invalidYamlFiles []*validation.InvalidYamlF
 	return warnings
 }
 
-func parseInvalidK8sFilesToWarnings(invalidK8sFiles []*validation.InvalidK8sFile, k8sVersion string) []printer.Warning {
+func parseInvalidK8sFilesToWarnings(invalidK8sFiles []*extractor.InvalidFile, k8sVersion string) []printer.Warning {
 	var warnings []printer.Warning
 
 	for _, invalidFile := range invalidK8sFiles {
@@ -125,13 +176,14 @@ func parseInvalidK8sFilesToWarnings(invalidK8sFiles []*validation.InvalidK8sFile
 				ValidationErrors: invalidFile.ValidationErrors,
 				K8sVersion:       k8sVersion,
 			},
+			ExtraMessages: GetWarningExtraMessages(invalidFile),
 		})
 	}
 
 	return warnings
 }
 
-func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*validation.InvalidYamlFile, invalidK8sFiles []*validation.InvalidK8sFile, pwd string, k8sVersion string) ([]printer.Warning, error) {
+func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extractor.InvalidFile, invalidK8sFiles []*extractor.InvalidFile, pwd string, k8sVersion string, k8sValidationWarnings validation.K8sValidationWarningPerValidFile, verbose bool) ([]printer.Warning, error) {
 	var warnings = []printer.Warning{}
 
 	warnings = append(warnings, parseInvalidYamlFilesToWarnings(invalidYamlFiles)...)
@@ -150,18 +202,22 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 			rules := results.FileNameRuleMapper[filename]
 			var failedRules = []printer.FailedRule{}
 
-			rulesIds := []int{}
-			for ruleId := range rules {
-				rulesIds = append(rulesIds, ruleId)
+			rulesUniqueNames := []string{}
+			for rulesUniqueName := range rules {
+				rulesUniqueNames = append(rulesUniqueNames, rulesUniqueName)
 			}
-			sort.Ints(rulesIds)
 
-			for _, ruleId := range rulesIds {
-				rule := rules[ruleId]
+			for _, ruleUniqueName := range rulesUniqueNames {
+				rule := rules[ruleUniqueName]
+				var fixLink string
+				if verbose {
+					fixLink = rule.DocumentationUrl
+				}
 				failedRule := printer.FailedRule{
 					Name:               rule.Name,
-					Occurrences:        rule.GetCount(),
-					Suggestion:         rule.FailSuggestion,
+					DocumentationUrl:   fixLink,
+					Occurrences:        rule.GetOccurrencesCount(),
+					Suggestion:         rule.MessageOnFailure,
 					OccurrencesDetails: []printer.OccurrenceDetails{},
 				}
 				for _, occurrenceDetails := range rule.OccurrencesDetails {
@@ -180,12 +236,65 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*vali
 				Title:           fmt.Sprintf(">>  File: %s\n", relativePath),
 				FailedRules:     failedRules,
 				InvalidYamlInfo: printer.InvalidYamlInfo{},
-				InvalidK8sInfo:  printer.InvalidK8sInfo{},
+				InvalidK8sInfo: printer.InvalidK8sInfo{
+					ValidationWarning: k8sValidationWarnings[filename],
+				},
 			})
 		}
 	}
 
 	return warnings, nil
+}
+
+func GetWarningExtraMessages(invalidFile *extractor.InvalidFile) []printer.ExtraMessage {
+	var extraMessages []printer.ExtraMessage
+
+	if IsHelmFile(invalidFile.Path) {
+		extraMessages = append(extraMessages, printer.ExtraMessage{
+			Text:  "Are you trying to test a raw Helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree \n",
+			Color: "cyan",
+		})
+	} else if IsKustomizationFile(invalidFile.Path) {
+		extraMessages = append(extraMessages, printer.ExtraMessage{
+			Text:  "Are you trying to test Kustomize files? To run Datree with Kustomize, use `datree kustomize test` command, or check out Kustomize support docs:\nhttps://hub.datree.io/kustomize-support \n",
+			Color: "cyan",
+		})
+	}
+
+	return extraMessages
+}
+
+func IsHelmFile(filePath string) bool {
+	cleanFilePath := strings.Replace(filePath, "\n", "", -1)
+	fileExtension := filepath.Ext(cleanFilePath)
+
+	if fileExtension != ".yml" && fileExtension != ".yaml" {
+		return false
+	}
+
+	helmFilesExtensions := [...]string{"Chart", "chart", "Values", "values"}
+
+	for _, extension := range helmFilesExtensions {
+		if strings.Contains(cleanFilePath, extension) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func IsKustomizationFile(filePath string) bool {
+	cleanFilePath := strings.Replace(filePath, "\n", "", -1)
+
+	kustomizeFilesExtensions := [...]string{"kustomization.yml", "kustomization.yaml", "Kustomization"}
+
+	for _, extension := range kustomizeFilesExtensions {
+		if strings.Contains(cleanFilePath, extension) {
+			return true
+		}
+	}
+
+	return false
 }
 
 type OutputTitle int
@@ -241,47 +350,4 @@ func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSumma
 		PlainRows:  plainRows,
 	}
 	return *summary
-}
-
-func (mapper FileNameRuleMapper) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	if len(mapper) == 0 {
-		return nil
-	}
-
-	tokens := []xml.Token{start}
-	fileXMLName := xml.Name{Space: "", Local: "File"}
-	filenameXMLName := xml.Name{Space: "", Local: "filename"}
-
-	// Iterate over mapper and create XML tokens for all entries
-	for filePath, encapsulatedRule := range mapper {
-		keys := make([]int, 0)
-		for i := range encapsulatedRule {
-			keys = append(keys, i)
-		}
-		sort.Ints(keys)
-
-		for _, key := range keys { // Since rule is encapsulated by its id (int), we don't add is a tag
-			rule := encapsulatedRule[key]
-			startToken := xml.StartElement{Name: fileXMLName, Attr: []xml.Attr{{Name: filenameXMLName, Value: filePath}}}
-			endToken := xml.EndElement{Name: fileXMLName}
-			tokens = append(tokens, startToken, rule, endToken)
-		}
-	}
-
-	tokens = append(tokens, xml.EndElement{Name: start.Name})
-
-	for _, t := range tokens {
-		var err error
-		switch t.(type) {
-		default:
-			err = e.EncodeToken(t)
-		case *Rule:
-			err = e.EncodeElement(t, xml.StartElement{Name: xml.Name{Space: "", Local: "Rule"}})
-		}
-		if err != nil {
-			return err
-		}
-	}
-
-	return e.Flush()
 }

@@ -9,7 +9,8 @@ fi
 VERSION=$1
 DESTINATION_FOLDER=$2
 
-SHA256_MAC=$(cat ./dist/checksums.txt | grep Darwin_x86_64 | cut -d" " -f1)
+SHA256_MAC_INTEL=$(cat ./dist/checksums.txt | grep Darwin_x86_64 | cut -d" " -f1)
+SHA256_MAC_ARM=$(cat ./dist/checksums.txt | grep Darwin_arm64 | cut -d" " -f1)
 SHA256_LINUX_INTEL=$(cat ./dist/checksums.txt | grep Linux_x86_64 | cut -d" " -f1)
 SHA256_LINUX_ARM=$(cat ./dist/checksums.txt | grep Linux_arm64 | cut -d" " -f1)
 
@@ -22,9 +23,13 @@ class Datree < Formula
   homepage "https://datree.io/"
   version "$VERSION"
 
-  if OS.mac?
+  if OS.mac? && Hardware::CPU.intel?
     url "https://github.com/datreeio/datree/releases/download/$VERSION/datree-cli_${VERSION}_Darwin_x86_64.zip"
-    sha256 "$SHA256_MAC"
+    sha256 "$SHA256_MAC_INTEL"
+  end
+  if OS.mac? && Hardware::CPU.arm?
+    url "https://github.com/datreeio/datree/releases/download/$VERSION/datree-cli_${VERSION}_Darwin_arm64.zip"
+    sha256 "$SHA256_MAC_ARM"
   end
   if OS.linux? && Hardware::CPU.intel?
     url "https://github.com/datreeio/datree/releases/download/$VERSION/datree-cli_${VERSION}_Linux_x86_64.zip"
@@ -45,8 +50,8 @@ class Datree < Formula
       [V] Finished Installation
 
       \033[35m Usage: $ datree test [k8s-file.yaml]
-       Using Helm? => https://hub.datree.io/helm-plugin
-      tput init
+       Using Helm? => https://github.com/datreeio/helm-datree
+       Using Kustomize? => https://hub.datree.io/kustomize-support
     EOS
   end
 end

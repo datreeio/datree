@@ -1,6 +1,5 @@
-// +build !main
-// +build !staging
-// +build !dev
+//go:build !main && !staging && !dev
+// +build !main,!staging,!dev
 
 package deploymentConfig
 

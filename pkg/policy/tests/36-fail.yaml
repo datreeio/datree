@@ -1,0 +1,7 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: wf-name
+spec:
+  entrypoint: entry-point
+  serviceAccountName: default

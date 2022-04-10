@@ -1,24 +1,33 @@
 package test
 
 import (
+	"fmt"
+
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 )
 
 type ValidationManager struct {
-	invalidYamlFiles            []*validation.InvalidYamlFile
-	invalidK8sFiles             []*validation.InvalidK8sFile
-	validK8sFilesConfigurations []*extractor.FileConfigurations
-	ignoredFiles                []extractor.FileConfigurations
+	invalidYamlFiles                 []*extractor.InvalidFile
+	invalidK8sFiles                  []*extractor.InvalidFile
+	validK8sFilesConfigurations      []*extractor.FileConfigurations
+	k8sValidationWarningPerValidFile validation.K8sValidationWarningPerValidFile
+	ignoredFiles                     []extractor.FileConfigurations
 }
 
-func (v *ValidationManager) AggregateInvalidYamlFiles(invalidFilesChan chan *validation.InvalidYamlFile) {
+func NewValidationManager() *ValidationManager {
+	return &ValidationManager{
+		k8sValidationWarningPerValidFile: make(validation.K8sValidationWarningPerValidFile),
+	}
+}
+
+func (v *ValidationManager) AggregateInvalidYamlFiles(invalidFilesChan chan *extractor.InvalidFile) {
 	for invalidFile := range invalidFilesChan {
 		v.invalidYamlFiles = append(v.invalidYamlFiles, invalidFile)
 	}
 }
 
-func (v *ValidationManager) InvalidYamlFiles() []*validation.InvalidYamlFile {
+func (v *ValidationManager) InvalidYamlFiles() []*extractor.InvalidFile {
 	return v.invalidYamlFiles
 }
 
@@ -26,13 +35,13 @@ func (v *ValidationManager) InvalidYamlFilesCount() int {
 	return len(v.invalidYamlFiles)
 }
 
-func (v *ValidationManager) AggregateInvalidK8sFiles(invalidFilesChan chan *validation.InvalidK8sFile) {
+func (v *ValidationManager) AggregateInvalidK8sFiles(invalidFilesChan chan *extractor.InvalidFile) {
 	for invalidFile := range invalidFilesChan {
 		v.invalidK8sFiles = append(v.invalidK8sFiles, invalidFile)
 	}
 }
 
-func (v *ValidationManager) InvalidK8sFiles() []*validation.InvalidK8sFile {
+func (v *ValidationManager) InvalidK8sFiles() []*extractor.InvalidFile {
 	return v.invalidK8sFiles
 }
 
@@ -50,6 +59,24 @@ func (v *ValidationManager) ValidK8sFilesConfigurations() []*extractor.FileConfi
 	return v.validK8sFilesConfigurations
 }
 
+func (v *ValidationManager) GetK8sValidationSummaryStr(filesCount int) string {
+	if v.hasFilesWithWarnings() {
+		return "skipped since there is no internet connection"
+	}
+
+	return fmt.Sprintf("%v/%v", v.ValidK8sFilesConfigurationsCount(), filesCount)
+}
+
+func (v *ValidationManager) hasFilesWithWarnings() bool {
+	for _, value := range v.k8sValidationWarningPerValidFile {
+		if value != "" {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (v *ValidationManager) ValidK8sFilesConfigurationsCount() int {
 	return len(v.validK8sFilesConfigurations)
 }
@@ -62,6 +89,16 @@ func (v *ValidationManager) ValidK8sConfigurationsCount() int {
 	}
 
 	return totalConfigs
+}
+
+func (v *ValidationManager) AggregateK8sValidationWarningsPerValidFile(filesWithWarningsChan chan *validation.FileWithWarning) {
+	for fileWithWarning := range filesWithWarningsChan {
+		v.k8sValidationWarningPerValidFile[fileWithWarning.Filename] = fileWithWarning.Warning
+	}
+}
+
+func (v *ValidationManager) GetK8sValidationWarningPerValidFile() validation.K8sValidationWarningPerValidFile {
+	return v.k8sValidationWarningPerValidFile
 }
 
 func (v *ValidationManager) AggregateIgnoredYamlFiles(ignoredFilesChan chan *extractor.FileConfigurations) {
@@ -77,4 +114,3 @@ func (v *ValidationManager) IgnoredFiles() []*extractor.FileConfigurations {
 func (v *ValidationManager) IgnoredFilesCount() int {
 	return len(v.ignoredFiles)
 }
-

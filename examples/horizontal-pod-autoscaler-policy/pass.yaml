@@ -1,0 +1,23 @@
+---
+apiVersion: apps/v1
+kind: HorizontalPodAutoscaler 
+metadata:
+  name: pass-policy
+spec:
+  maxReplicas: 10
+  minReplicas: 2
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    resources:
+      limits:
+        memory: "200Mi"
+      requests:
+        memory: "100Mi"
+    ports:
+    - containerPort: 80
+  targetCPUUtilizationPercentage: 50
+  scaleTargetRef:
+    apiVersion: 1
+    kind: Deployment
+    name: pass-ref

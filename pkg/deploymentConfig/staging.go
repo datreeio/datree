@@ -1,3 +1,4 @@
+//go:build staging
 // +build staging
 
 package deploymentConfig

@@ -7,17 +7,26 @@ import (
 type HTTPClient interface {
 	Request(method string, resourceURI string, body interface{}, headers map[string]string) (httpClient.Response, error)
 }
-type CliClient struct {
-	baseUrl       string
-	httpClient    HTTPClient
-	timeoutClient HTTPClient
+type NetworkValidator interface {
+	IdentifyNetworkError(errStr string) error
+	IsLocalMode() bool
 }
 
-func NewCliClient(url string) *CliClient {
+type CliClient struct {
+	baseUrl          string
+	httpClient       HTTPClient
+	timeoutClient    HTTPClient
+	httpErrors       []string
+	networkValidator NetworkValidator
+}
+
+func NewCliClient(url string, networkValidator NetworkValidator) *CliClient {
 	httpClient := httpClient.NewClient(url, nil)
 	return &CliClient{
-		baseUrl:       url,
-		httpClient:    httpClient,
-		timeoutClient: nil,
+		baseUrl:          url,
+		httpClient:       httpClient,
+		timeoutClient:    nil,
+		httpErrors:       []string{},
+		networkValidator: networkValidator,
 	}
 }

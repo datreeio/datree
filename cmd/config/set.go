@@ -3,9 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
-	"reflect"
 
-	"github.com/datreeio/datree/bl/messager"
 	"github.com/spf13/cobra"
 )
 
@@ -15,8 +13,7 @@ func NewSetCommand(ctx *ConfigCommandContext) *cobra.Command {
 		Short: "Set configuration value",
 		Long:  `Apply value for specific key in datree config.yaml file. Defaults to $HOME/.datree/config.yaml`,
 		Run: func(cmd *cobra.Command, args []string) {
-			messages := make(chan *messager.VersionMessage, 1)
-			go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
+			messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
 
 			err := set(ctx, args[0], args[1])
 			if err != nil {
@@ -33,14 +30,7 @@ func NewSetCommand(ctx *ConfigCommandContext) *cobra.Command {
 				return errors.New("requires exactly 2 arguments")
 			}
 
-			validKeys := make(map[string]bool)
-			validKeys["token"] = true
-
-			if val, ok := validKeys[args[0]]; !ok || !val {
-				return fmt.Errorf("key must be one of: %s", reflect.ValueOf(validKeys).MapKeys())
-			}
-
-			return nil
+			return validateKey(args[0])
 		},
 	}
 
@@ -48,11 +38,6 @@ func NewSetCommand(ctx *ConfigCommandContext) *cobra.Command {
 }
 
 func set(ctx *ConfigCommandContext, key string, value string) error {
-	_, err := ctx.LocalConfig.GetLocalConfiguration()
-	if err != nil {
-		return err
-	}
-
-	err = ctx.LocalConfig.Set(key, value)
+	err := ctx.LocalConfig.Set(key, value)
 	return err
 }

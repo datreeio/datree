@@ -71,6 +71,11 @@ func (c *Client) Request(method string, resourceURI string, body interface{}, he
 		return responseBody, err
 	}
 
+	if response.StatusCode > 500 {
+		responseBody.StatusCode = response.StatusCode
+		return responseBody, fmt.Errorf("network error")
+	}
+
 	if response.StatusCode > 399 {
 		var errorJson map[string]interface{}
 		err = json.Unmarshal(b, &errorJson)

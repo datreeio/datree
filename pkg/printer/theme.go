@@ -14,6 +14,7 @@ type Theme struct {
 		RedBold *color.Color
 		White   *color.Color
 		Error   *color.Color
+		Cyan    *color.Color
 	}
 	ColorsAttributes struct {
 		Green color.Attribute
@@ -36,12 +37,14 @@ func createDefaultTheme() *Theme {
 			RedBold *color.Color
 			White   *color.Color
 			Error   *color.Color
+			Cyan    *color.Color
 		}{
 			Green:   color.New(color.FgGreen),
 			Yellow:  color.New(color.FgYellow),
 			RedBold: color.New(color.FgHiRed, color.Bold),
 			Error:   color.New(color.FgHiRed),
 			White:   color.New(color.FgHiWhite),
+			Cyan:    color.New(color.FgCyan),
 		},
 		ColorsAttributes: struct {
 			Green color.Attribute
@@ -70,12 +73,14 @@ func CreateSimpleTheme() *Theme {
 			RedBold *color.Color
 			White   *color.Color
 			Error   *color.Color
+			Cyan    *color.Color
 		}{
 			Green:   color.New(),
 			Yellow:  color.New(),
 			RedBold: color.New(),
 			Error:   color.New(),
 			White:   color.New(),
+			Cyan:    color.New(),
 		},
 		ColorsAttributes: struct {
 			Green color.Attribute

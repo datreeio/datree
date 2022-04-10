@@ -1,0 +1,131 @@
+apiVersion: v1
+policies:
+  - name: security_best_practices
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_CONTAINERS_INCORRECT_ROOT_FILESYSTEM_PERMISSION
+        messageOnFailure: ""
+      - identifier: CUSTOM_CONTAINERS_INCORRECT_PRIVILEGE_ESCALATION_PERMISSION
+        messageOnFailure: ""
+      - identifier: CUSTOM_CONTAINERS_INCORRECT_PROCESS_PERMISSION
+        messageOnFailure: ""
+      - identifier: CUSTOM_CONTAINERS_EXPOSED_SENSITIVE_HOST_SYSTEM_DIRECTORY
+        messageOnFailure: ""
+
+customRules:
+  - identifier: CUSTOM_CONTAINERS_INCORRECT_ROOT_FILESYSTEM_PERMISSION
+    name: Prevent containers from running without a read-only root filesystem [CUSTOM RULE]
+    defaultMessageOnFailure: Set readOnlyRootFilesystem to true in the container securityContext
+    schema:
+      definitions:
+        readOnlyRootFilesystemPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      securityContext:
+                        properties:
+                          readOnlyRootFilesystem:
+                            enum:
+                              - true
+                        required:
+                          - readOnlyRootFilesystem
+                    required:
+                      - securityContext
+      allOf:
+        - $ref: "#/definitions/readOnlyRootFilesystemPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - identifier: CUSTOM_CONTAINERS_INCORRECT_PRIVILEGE_ESCALATION_PERMISSION
+    name: Ensure containers do not allow privilege escalation [CUSTOM RULE]
+    defaultMessageOnFailure: Set allowPrivilegeEscalation to false in the container securityContext
+    schema:
+      definitions:
+        allowPrivilegeEscalationPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      securityContext:
+                        properties:
+                          allowPrivilegeEscalation:
+                            enum:
+                              - false
+                        required:
+                          - allowPrivilegeEscalation
+                    required:
+                      - securityContext
+      allOf:
+        - $ref: "#/definitions/allowPrivilegeEscalationPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - identifier: CUSTOM_CONTAINERS_INCORRECT_PROCESS_PERMISSION
+    name: Ensure containers do not run processes with root privileges [CUSTOM RULE]
+    defaultMessageOnFailure: Set runAsUser to a non-zero number and runAsNonRoot to true in the container securityContext
+    schema:
+      definitions:
+        processPermissionPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      securityContext:
+                        properties:
+                          runAsUser:
+                            minimum: 1
+                          runAsNonRoot:
+                            enum:
+                              - true
+                        required:
+                          - runAsUser
+                          - runAsNonRoot
+                    required:
+                      - securityContext
+      allOf:
+        - $ref: "#/definitions/processPermissionPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - identifier: CUSTOM_CONTAINERS_EXPOSED_SENSITIVE_HOST_SYSTEM_DIRECTORY
+    name: Ensure containers do not expose sensitive host system directories [CUSTOM RULE]
+    defaultMessageOnFailure: Do not expose sensitive host system directories in the container (/dev, /proc, /sys, /boot, /etc, /lib, /usr)
+    schema:
+      definitions:
+        sensitiveHostSystemDirectoryPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      volumeMounts:
+                        type: array
+                        items:
+                          properties:
+                            mountPath:
+                              pattern: ^(?!/(dev|proc|sys|boot|etc|lib|usr)).*$
+                          required:
+                            - mountPath
+                    required:
+                      - volumeMounts
+      allOf:
+        - $ref: "#/definitions/sensitiveHostSystemDirectoryPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"

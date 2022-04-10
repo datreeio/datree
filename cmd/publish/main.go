@@ -7,11 +7,12 @@ import (
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/localConfig"
+	"github.com/datreeio/datree/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 type Messager interface {
-	LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string)
+	LoadVersionMessages(cliVersion string) chan *messager.VersionMessage
 }
 
 type Printer interface {
@@ -19,11 +20,11 @@ type Printer interface {
 }
 
 type LocalConfig interface {
-	GetLocalConfiguration() (*localConfig.ConfigContent, error)
+	GetLocalConfiguration() (*localConfig.LocalConfig, error)
 }
 
 type CliClient interface {
-	PublishPolicies(policiesConfiguration files.UnknownStruct, cliId string) (*cliClient.PublishFailedResponse, error)
+	PublishPolicies(policiesConfiguration files.UnknownStruct, token string) (*cliClient.PublishFailedResponse, error)
 }
 
 type PublishCommandContext struct {
@@ -32,13 +33,22 @@ type PublishCommandContext struct {
 	Messager         Messager
 	Printer          Printer
 	PublishCliClient CliClient
+	FilesExtractor   files.FilesExtractorInterface
 }
 
 func New(ctx *PublishCommandContext) *cobra.Command {
+	var localConfigContent *localConfig.LocalConfig
+
 	publishCommand := &cobra.Command{
 		Use:   "publish <fileName>",
 		Short: "Publish policies configuration for given <fileName>.",
 		Long:  "Publish policies configuration for given <fileName>. Input should be the path to the Policy-as-Code yaml configuration file",
+		Example: utils.Example(`
+		# Publish the policies configuration YAML file
+		datree publish policies.yaml
+
+		# Note You need to first enable Policy-as-Code (PaC) on the settings page in the dashboard
+		`),
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 1 {
 				errMessage := "Requires 1 arg\n"
@@ -46,19 +56,27 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 			}
 			return nil
 		},
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			outputFlag, _ := cmd.Flags().GetString("output")
+			if (outputFlag != "json") && (outputFlag != "yaml") && (outputFlag != "xml") {
+
+				messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
+				for msg := range messages {
+					ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
+				}
+			}
+			var err error
+			localConfigContent, err = ctx.LocalConfig.GetLocalConfiguration()
+			if err != nil {
+				return err
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 			cmd.SilenceErrors = true
-			messages := make(chan *messager.VersionMessage, 1)
-			go ctx.Messager.LoadVersionMessages(messages, ctx.CliVersion)
-			defer func() {
-				msg, ok := <-messages
-				if ok {
-					ctx.Printer.PrintMessage(msg.MessageText+"\n", msg.MessageColor)
-				}
-			}()
 
-			publishFailedResponse, err := publish(ctx, args[0])
+			publishFailedResponse, err := publish(ctx, args[0], localConfigContent)
 			if publishFailedResponse != nil {
 				ctx.Printer.PrintMessage("Publish failed:\n", "error")
 				for _, message := range publishFailedResponse.Payload {
@@ -85,16 +103,11 @@ type MessagesContext struct {
 	CliClient   *cliClient.CliClient
 }
 
-func publish(ctx *PublishCommandContext, path string) (*cliClient.PublishFailedResponse, error) {
-	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
+func publish(ctx *PublishCommandContext, path string, localConfigContent *localConfig.LocalConfig) (*cliClient.PublishFailedResponse, error) {
+	policiesConfiguration, err := ctx.FilesExtractor.ExtractYamlFileToUnknownStruct(path)
 	if err != nil {
 		return nil, err
 	}
 
-	policiesConfiguration, err := files.ExtractYamlFileToUnknownStruct(path)
-	if err != nil {
-		return nil, err
-	}
-
-	return ctx.PublishCliClient.PublishPolicies(policiesConfiguration, localConfigContent.CliId)
+	return ctx.PublishCliClient.PublishPolicies(policiesConfiguration, localConfigContent.Token)
 }

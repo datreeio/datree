@@ -3,6 +3,8 @@ package config
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
@@ -13,7 +15,8 @@ type mockMessager struct {
 	mock.Mock
 }
 
-func (m *mockMessager) LoadVersionMessages(messages chan *messager.VersionMessage, cliVersion string) {
+func (m *mockMessager) LoadVersionMessages(cliVersion string) chan *messager.VersionMessage {
+	messages := make(chan *messager.VersionMessage, 1)
 	go func() {
 		messages <- &messager.VersionMessage{
 			CliVersion:   "1.2.3",
@@ -23,6 +26,7 @@ func (m *mockMessager) LoadVersionMessages(messages chan *messager.VersionMessag
 	}()
 
 	m.Called(messages, cliVersion)
+	return messages
 }
 
 func (m *mockMessager) HandleVersionMessage(messageChannel <-chan *messager.VersionMessage) {
@@ -53,9 +57,9 @@ type LocalConfigMock struct {
 	mock.Mock
 }
 
-func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.ConfigContent, error) {
+func (lc *LocalConfigMock) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
 	lc.Called()
-	return &localConfig.ConfigContent{CliId: "previousToken"}, nil
+	return &localConfig.LocalConfig{Token: "previousToken"}, nil
 }
 
 func (lc *LocalConfigMock) Set(key string, value string) error {
@@ -65,7 +69,7 @@ func (lc *LocalConfigMock) Set(key string, value string) error {
 
 func TestSetCommand(t *testing.T) {
 	messager := &mockMessager{}
-	messager.On("LoadVersionMessages", mock.Anything, mock.Anything)
+	messager.On("LoadVersionMessages", mock.Anything)
 
 	printerMock := &PrinterMock{}
 	printerMock.On("PrintWarnings", mock.Anything)
@@ -74,7 +78,7 @@ func TestSetCommand(t *testing.T) {
 	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 
 	localConfigMock := &LocalConfigMock{}
-	localConfigMock.On("GetLocalConfiguration").Return(&localConfig.ConfigContent{CliId: "previousToken"}, nil)
+	localConfigMock.On("GetLocalConfiguration").Return(&localConfig.LocalConfig{Token: "previousToken"}, nil)
 	localConfigMock.On("Set", mock.Anything, mock.Anything)
 
 	ctx := &ConfigCommandContext{
@@ -86,4 +90,14 @@ func TestSetCommand(t *testing.T) {
 
 	set(ctx, "testkey", "testvalue")
 	localConfigMock.AssertCalled(t, "Set", "testkey", "testvalue")
+}
+
+func TestValidateKey(t *testing.T) {
+	for _, key := range ConfigAvailableKeys {
+		err := validateKey(key)
+		assert.Nil(t, err)
+	}
+
+	err := validateKey("Not_a_valid_key")
+	assert.NotNil(t, err)
 }
