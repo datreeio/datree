@@ -223,6 +223,7 @@ type SummaryItem struct {
 
 type Summary struct {
 	PlainRows  []SummaryItem
+	SkipRow    SummaryItem
 	ErrorRow   SummaryItem
 	SuccessRow SummaryItem
 }
@@ -262,6 +263,10 @@ func (p *Printer) PrintSummaryTable(summary Summary) {
 			rowIndex++
 		}
 	}
+
+	skipRow := []string{summary.SkipRow.LeftCol, summary.SkipRow.RightCol}
+	summaryTable.Rich(skipRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Cyan)}, {int(p.Theme.ColorsAttributes.Cyan)}})
+	rowIndex++
 
 	errorRow := []string{summary.ErrorRow.LeftCol, summary.ErrorRow.RightCol}
 	summaryTable.Rich(errorRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Red)}, {int(p.Theme.ColorsAttributes.Red)}})

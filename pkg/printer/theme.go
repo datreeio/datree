@@ -19,6 +19,7 @@ type Theme struct {
 		CyanBold  *color.Color
 	}
 	ColorsAttributes struct {
+		Cyan  color.Attribute
 		Green color.Attribute
 		Red   color.Attribute
 	}
@@ -54,9 +55,11 @@ func createDefaultTheme() *Theme {
 			CyanBold:  color.New(color.FgCyan, color.Bold),
 		},
 		ColorsAttributes: struct {
+			Cyan  color.Attribute
 			Green color.Attribute
 			Red   color.Attribute
 		}{
+			Cyan:  color.FgCyan,
 			Green: color.FgGreen,
 			Red:   color.FgHiRed,
 		},
@@ -96,9 +99,11 @@ func CreateSimpleTheme() *Theme {
 			CyanBold:  color.New(),
 		},
 		ColorsAttributes: struct {
+			Cyan  color.Attribute
 			Green color.Attribute
 			Red   color.Attribute
 		}{
+			Cyan:  color.Reset,
 			Green: color.Reset,
 			Red:   color.Reset,
 		},

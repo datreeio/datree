@@ -368,14 +368,15 @@ func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSumma
 		{LeftCol: buildEnabledRulesTitle(policyName), RightCol: fmt.Sprint(evaluationSummary.RulesCount), RowIndex: 0},
 		{LeftCol: EvaluatedConfigurations.String(), RightCol: fmt.Sprint(configsCount), RowIndex: 1},
 		{LeftCol: TotalRulesEvaluated.String(), RightCol: fmt.Sprint(totalRulesEvaluated), RowIndex: 2},
-		{LeftCol: TotalSkippedRules.String(), RightCol: fmt.Sprint(totalSkippedRules), RowIndex: 3},
 		{LeftCol: SeeAll.String(), RightCol: loginURL, RowIndex: 6},
 	}
 
+	skipRow := printer.SummaryItem{LeftCol: TotalSkippedRules.String(), RightCol: fmt.Sprint(totalSkippedRules), RowIndex: 3}
 	successRow := printer.SummaryItem{LeftCol: TotalRulesPassed.String(), RightCol: fmt.Sprint(totalPassedRules), RowIndex: 5}
 	errorRow := printer.SummaryItem{LeftCol: TotalRulesFailed.String(), RightCol: fmt.Sprint(totalFailedRules), RowIndex: 4}
 
 	summary := &printer.Summary{
+		SkipRow:    skipRow,
 		ErrorRow:   errorRow,
 		SuccessRow: successRow,
 		PlainRows:  plainRows,
