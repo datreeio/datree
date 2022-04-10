@@ -1,13 +1,65 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: test-pd
+  name: example-depl
+  namespace: exmpl
+  labels:
+    environment: prod
+    app: web
+    on-call: yoda-at-datree.io
 spec:
-  containers:
-  - image: k8s.gcr.io/test-webserver
-    name: test-container
-    volumeMounts:
-    - mountPath: /test-pd
-      name: test-volume
-  volumes:
-  - name: test-volume
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      namespace: exmpl
+      labels:
+        app: web
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: front-end
+          image: nginx@sha256:0a564e80a3156f2cc825d1720f303d59bd521da19bcbd01316870e1313ecbd23
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 810
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "64m"
+            limits:
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+        - name: rss-reader
+          image: datree/nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2
+          securityContext:
+            readOnlyRootFilesystem: true
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+              httpHeaders:
+                - name: Custom-Header
+                  value: Awesome
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "64m"
+              memory: "128Mi"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 88

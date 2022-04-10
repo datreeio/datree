@@ -3,9 +3,8 @@ kind: Pod
 metadata:
   name: myPod
 spec:
-  securityContext:
-    runAsUser: 2000
-    runAsGroup: 2000
   containers:
-  - name: myContainer
+  - name: container
     image: node
+    ports:
+    - containerPort: 80
