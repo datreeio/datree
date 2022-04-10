@@ -9,14 +9,14 @@ import (
 
 type Theme struct {
 	Colors struct {
-		Green   *color.Color
-		Yellow  *color.Color
-		RedBold *color.Color
-		White   *color.Color
+		Green     *color.Color
+		Yellow    *color.Color
+		RedBold   *color.Color
+		White     *color.Color
 		WhiteBold *color.Color
-		Error   *color.Color
-		Cyan    *color.Color
-		CyanBold *color.Color
+		Error     *color.Color
+		Cyan      *color.Color
+		CyanBold  *color.Color
 	}
 	ColorsAttributes struct {
 		Green color.Attribute
@@ -28,30 +28,30 @@ type Theme struct {
 	Emoji struct {
 		Error      string
 		Suggestion string
-		Skip	   string
+		Skip       string
 	}
 }
 
 func createDefaultTheme() *Theme {
 	return &Theme{
 		Colors: struct {
-			Green   *color.Color
-			Yellow  *color.Color
-			RedBold *color.Color
-			White   *color.Color
+			Green     *color.Color
+			Yellow    *color.Color
+			RedBold   *color.Color
+			White     *color.Color
 			WhiteBold *color.Color
-			Error   *color.Color
-			Cyan    *color.Color
-			CyanBold *color.Color
+			Error     *color.Color
+			Cyan      *color.Color
+			CyanBold  *color.Color
 		}{
-			Green:   color.New(color.FgGreen),
-			Yellow:  color.New(color.FgYellow),
-			RedBold: color.New(color.FgHiRed, color.Bold),
-			Error:   color.New(color.FgHiRed),
-			White:   color.New(color.FgHiWhite),
+			Green:     color.New(color.FgGreen),
+			Yellow:    color.New(color.FgYellow),
+			RedBold:   color.New(color.FgHiRed, color.Bold),
+			Error:     color.New(color.FgHiRed),
+			White:     color.New(color.FgHiWhite),
 			WhiteBold: color.New(color.FgHiWhite, color.Bold),
-			Cyan:    color.New(color.FgCyan),
-			CyanBold: color.New(color.FgCyan, color.Bold),
+			Cyan:      color.New(color.FgCyan),
+			CyanBold:  color.New(color.FgCyan, color.Bold),
 		},
 		ColorsAttributes: struct {
 			Green color.Attribute
@@ -66,34 +66,34 @@ func createDefaultTheme() *Theme {
 		Emoji: struct {
 			Error      string
 			Suggestion string
-			Skip	   string
+			Skip       string
 		}{
 			Error:      emoji.Sprint(":cross_mark:"),
 			Suggestion: emoji.Sprint(":light_bulb:"),
-			Skip: 		emoji.Sprint(":fast_forward:"),
+			Skip:       emoji.Sprint(":fast_forward:"),
 		},
 	}
 }
 func CreateSimpleTheme() *Theme {
 	return &Theme{
 		Colors: struct {
-			Green   *color.Color
-			Yellow  *color.Color
-			RedBold *color.Color
-			White   *color.Color
+			Green     *color.Color
+			Yellow    *color.Color
+			RedBold   *color.Color
+			White     *color.Color
 			WhiteBold *color.Color
-			Error   *color.Color
-			Cyan    *color.Color
-			CyanBold *color.Color
+			Error     *color.Color
+			Cyan      *color.Color
+			CyanBold  *color.Color
 		}{
-			Green:   color.New(),
-			Yellow:  color.New(),
-			RedBold: color.New(),
-			Error:   color.New(),
-			White:   color.New(),
+			Green:     color.New(),
+			Yellow:    color.New(),
+			RedBold:   color.New(),
+			Error:     color.New(),
+			White:     color.New(),
 			WhiteBold: color.New(),
-			Cyan:    color.New(),
-			CyanBold: color.New(),
+			Cyan:      color.New(),
+			CyanBold:  color.New(),
 		},
 		ColorsAttributes: struct {
 			Green color.Attribute
@@ -108,11 +108,11 @@ func CreateSimpleTheme() *Theme {
 		Emoji: struct {
 			Error      string
 			Suggestion string
-			Skip	   string
+			Skip       string
 		}{
 			Error:      "[X] ",
 			Suggestion: "[*] ",
-			Skip: 		"[>>]",
+			Skip:       "[>>]",
 		},
 	}
 }

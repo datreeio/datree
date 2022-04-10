@@ -152,7 +152,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 			fmt.Fprintln(out)
 
 			if len(warning.SkippedRules) > 0 {
-				fmt.Fprintf(out,  "%v", p.Theme.Colors.CyanBold.Sprintf("SKIPPED") + "\n\n")
+				fmt.Fprintf(out, "%v", p.Theme.Colors.CyanBold.Sprintf("SKIPPED")+"\n\n")
 			}
 
 			for _, skippedRule := range warning.SkippedRules {

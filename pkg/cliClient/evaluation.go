@@ -155,15 +155,15 @@ type FailedRule struct {
 }
 
 type EvaluationResultRequest struct {
-	ClientId           string                           `json:"clientId"`
-	Token              string                           `json:"token"`
-	Metadata           *Metadata                        `json:"metadata"`
-	K8sVersion         string                           `json:"k8sVersion"`
-	PolicyName         string                           `json:"policyName"`
-	FailedYamlFiles    []string                         `json:"failedYamlFiles"`
-	FailedK8sFiles     []string                         `json:"failedK8sFiles"`
-	AllExecutedRules   []RuleData                       `json:"allExecutedRules"`
-	AllEvaluatedFiles  []FileData                       `json:"allEvaluatedFiles"`
+	ClientId           string                            `json:"clientId"`
+	Token              string                            `json:"token"`
+	Metadata           *Metadata                         `json:"metadata"`
+	K8sVersion         string                            `json:"k8sVersion"`
+	PolicyName         string                            `json:"policyName"`
+	FailedYamlFiles    []string                          `json:"failedYamlFiles"`
+	FailedK8sFiles     []string                          `json:"failedK8sFiles"`
+	AllExecutedRules   []RuleData                        `json:"allExecutedRules"`
+	AllEvaluatedFiles  []FileData                        `json:"allEvaluatedFiles"`
 	PolicyCheckResults map[string]map[string]*FailedRule `json:"policyCheckResults"`
 }
 

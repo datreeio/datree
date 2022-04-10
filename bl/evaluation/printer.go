@@ -231,8 +231,8 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 						hasSkippedOccurrences = true
 						skippedRule.OccurrencesDetails = append(skippedRule.OccurrencesDetails, printer.OccurrenceDetails{
 							MetadataName: occurrenceDetails.MetadataName,
-							Kind: occurrenceDetails.Kind,
-							SkipMessage: occurrenceDetails.SkipMessage,
+							Kind:         occurrenceDetails.Kind,
+							SkipMessage:  occurrenceDetails.SkipMessage,
 						})
 					} else {
 						hasFailedOccurrences = true
@@ -240,7 +240,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 							failedRule.OccurrencesDetails,
 							printer.OccurrenceDetails{
 								MetadataName: occurrenceDetails.MetadataName,
-								Kind: occurrenceDetails.Kind,
+								Kind:         occurrenceDetails.Kind,
 							},
 						)
 					}
@@ -258,9 +258,9 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 			relativePath, _ := filepath.Rel(pwd, filename)
 
 			warnings = append(warnings, printer.Warning{
-				Title: fmt.Sprintf(">>  File: %s\n", relativePath),
-				FailedRules: failedRules,
-				SkippedRules: skippedRules,
+				Title:           fmt.Sprintf(">>  File: %s\n", relativePath),
+				FailedRules:     failedRules,
+				SkippedRules:    skippedRules,
 				InvalidYamlInfo: printer.InvalidYamlInfo{},
 				InvalidK8sInfo: printer.InvalidK8sInfo{
 					ValidationWarning: k8sValidationWarnings[filename],

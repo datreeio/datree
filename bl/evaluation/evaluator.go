@@ -151,7 +151,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 
 func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
 	skipAnnotations := extractSkipAnnotations(configuration)
-	
+
 	configurationName, configurationKind := extractConfigurationInfo(configuration)
 
 	configurationJson, err := json.Marshal(configuration)
@@ -281,7 +281,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 					OccurrencesDetails: []OccurrenceDetails{},
 				}
 			}
-			
+
 			for _, configuration := range failedRule.Configurations {
 				mapper[filePath][ruleIdentifier].OccurrencesDetails = append(
 					mapper[filePath][ruleIdentifier].OccurrencesDetails,
@@ -305,7 +305,6 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 					skippedOccurrences++
 				}
 			}
-
 
 			if totalOccurrences == skippedOccurrences { // everything was skipped
 				totalSkippedCount++

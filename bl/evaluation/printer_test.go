@@ -212,11 +212,11 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 			results: FormattedResults{
 				EvaluationResults: &EvaluationResults{
 					FileNameRuleMapper: map[string]map[string]*Rule{},
-					Summary: EvaluationResultsSummery {
-						TotalFailedRules: 0,
+					Summary: EvaluationResultsSummery{
+						TotalFailedRules:  0,
 						TotalSkippedRules: 0,
-						FilesCount:       0,
-						TotalPassedCount: 0,
+						FilesCount:        0,
+						TotalPassedCount:  0,
 					},
 				},
 				NonInteractiveEvaluationResults: &NonInteractiveEvaluationResults{

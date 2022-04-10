@@ -202,11 +202,11 @@ func request_evaluation_all_valid() *evaluateTestCase {
 				FormattedResults: FormattedResults{
 					EvaluationResults: &EvaluationResults{
 						FileNameRuleMapper: make(map[string]map[string]*Rule),
-						Summary: EvaluationResultsSummery {
-							TotalFailedRules: 0,
+						Summary: EvaluationResultsSummery{
+							TotalFailedRules:  0,
 							TotalSkippedRules: 0,
-							FilesCount:       1,
-							TotalPassedCount: 1,
+							FilesCount:        1,
+							TotalPassedCount:  1,
 						},
 					},
 					NonInteractiveEvaluationResults: nil,
