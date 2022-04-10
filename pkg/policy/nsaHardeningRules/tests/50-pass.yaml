@@ -1,10 +1,11 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: myPod
+  name: security-context-demo-4
 spec:
   containers:
-  - name: container
-    image: node
-    ports:
-    - containerPort: 80
+  - name: sec-ctx-4
+    image: gcr.io/google-samples/node-hello:1.0
+    securityContext:
+      capabilities:
+        add: ["SYS_TIME"]
