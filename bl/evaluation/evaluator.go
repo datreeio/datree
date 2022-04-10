@@ -15,7 +15,6 @@ import (
 
 const (
 	SKIP_RULE_PREFIX string = "datree.io/skip/"
-	SKIP_ALL_KEY     string = SKIP_RULE_PREFIX + "ALL"
 )
 
 type CLIClient interface {
@@ -23,15 +22,15 @@ type CLIClient interface {
 }
 
 type Evaluator struct {
-	cliClient CLIClient
-	ciContext *ciContext.CIContext
+	cliClient           CLIClient
+	ciContext           *ciContext.CIContext
 	jsonSchemaValidator *jsonSchemaValidator.JSONSchemaValidator
 }
 
 func New(c CLIClient) *Evaluator {
 	return &Evaluator{
-		cliClient: c,
-		ciContext: ciContext.Extract(),
+		cliClient:           c,
+		ciContext:           ciContext.Extract(),
 		jsonSchemaValidator: jsonSchemaValidator.New(),
 	}
 }
@@ -39,9 +38,10 @@ func New(c CLIClient) *Evaluator {
 type FileNameRuleMapper map[string]map[string]*Rule
 type FailedRulesByFiles map[string]map[string]*cliClient.FailedRule
 type EvaluationResultsSummery struct {
-	TotalFailedRules int
-	FilesCount       int
-	TotalPassedCount int
+	TotalFailedRules  int
+	TotalSkippedRules int
+	FilesCount        int
+	TotalPassedCount  int
 }
 
 type EvaluationResults struct {
@@ -137,7 +137,6 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 				return emptyPolicyCheckResult, err
 			}
 		}
-
 	}
 
 	formattedResults := FormattedResults{}
@@ -150,15 +149,9 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 	return PolicyCheckResultData{formattedResults, rulesData, filesData, failedRulesByFiles, rulesCount}, nil
 }
 
-
-
 func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
 	skipAnnotations := extractSkipAnnotations(configuration)
-	if _, ok := skipAnnotations[SKIP_ALL_KEY]; ok {
-		// addSkipRule
-		return nil
-	}
-
+	
 	configurationName, configurationKind := extractConfigurationInfo(configuration)
 
 	configurationJson, err := json.Marshal(configuration)
@@ -268,6 +261,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 	mapper := make(map[string]map[string]*Rule)
 
 	totalFailedCount := 0
+	totalSkippedCount := 0
 	totalPassedCount := filesCount
 
 	for filePath := range evaluationResults {
@@ -278,21 +272,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 
 		for ruleIdentifier, failedRule := range evaluationResults[filePath] {
 			// file and rule not already exists in mapper
-			allConfigurationsAreSkipped := true
-
-			for _, configuration := range failedRule.Configurations {
-				if !configuration.IsSkipped {
-					allConfigurationsAreSkipped = false
-					break;
-				}
-			}
-
-			if allConfigurationsAreSkipped {
-				continue;
-			}
-
 			if _, exists := mapper[filePath][ruleIdentifier]; !exists {
-				totalFailedCount++
 				mapper[filePath][ruleIdentifier] = &Rule{
 					Identifier:         ruleIdentifier,
 					Name:               failedRule.Name,
@@ -301,12 +281,40 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 					OccurrencesDetails: []OccurrenceDetails{},
 				}
 			}
-
+			
 			for _, configuration := range failedRule.Configurations {
 				mapper[filePath][ruleIdentifier].OccurrencesDetails = append(
 					mapper[filePath][ruleIdentifier].OccurrencesDetails,
-					OccurrenceDetails{MetadataName: configuration.Name, Kind: configuration.Kind, Occurrences: configuration.Occurrences},
+					OccurrenceDetails{
+						MetadataName: configuration.Name,
+						Kind:         configuration.Kind,
+						Occurrences:  configuration.Occurrences,
+						IsSkipped:    configuration.IsSkipped,
+						SkipMessage:  configuration.SkipMessage,
+					},
 				)
+			}
+		}
+
+		for _, rule := range mapper[filePath] {
+			skippedOccurrences := 0
+			totalOccurrences := len(rule.OccurrencesDetails)
+
+			for _, occurrence := range rule.OccurrencesDetails {
+				if occurrence.IsSkipped {
+					skippedOccurrences++
+				}
+			}
+
+
+			if totalOccurrences == skippedOccurrences { // everything was skipped
+				totalSkippedCount++
+				totalPassedCount++
+			} else if skippedOccurrences > 1 { // some were skipped
+				totalSkippedCount++
+				totalFailedCount++
+			} else { // none were skipped
+				totalFailedCount++
 			}
 		}
 	}
@@ -314,9 +322,10 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 	results := &EvaluationResults{
 		FileNameRuleMapper: mapper,
 		Summary: EvaluationResultsSummery{
-			TotalFailedRules: totalFailedCount,
-			FilesCount:       filesCount,
-			TotalPassedCount: totalPassedCount,
+			TotalFailedRules:  totalFailedCount,
+			FilesCount:        filesCount,
+			TotalPassedCount:  totalPassedCount,
+			TotalSkippedRules: totalSkippedCount,
 		},
 	}
 

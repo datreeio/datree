@@ -34,6 +34,7 @@ type FailedRule struct {
 type OccurrenceDetails struct {
 	MetadataName string
 	Kind         string
+	SkipMessage  string
 }
 
 type InvalidYamlInfo struct {
@@ -53,6 +54,7 @@ type ExtraMessage struct {
 type Warning struct {
 	Title           string
 	FailedRules     []FailedRule
+	SkippedRules    []FailedRule
 	InvalidYamlInfo InvalidYamlInfo
 	InvalidK8sInfo  InvalidK8sInfo
 	ExtraMessages   []ExtraMessage
@@ -148,6 +150,38 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 			fmt.Fprintln(out)
 			p.printInColor("[X] Policy check\n", p.Theme.Colors.White)
 			fmt.Fprintln(out)
+
+			if len(warning.SkippedRules) > 0 {
+				fmt.Fprintf(out,  "%v", p.Theme.Colors.CyanBold.Sprintf("SKIPPED") + "\n\n")
+			}
+
+			for _, skippedRule := range warning.SkippedRules {
+				var occurrencesPostfix string
+				if skippedRule.Occurrences > 1 {
+					occurrencesPostfix = "s"
+				} else {
+					occurrencesPostfix = ""
+				}
+				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", skippedRule.Occurrences, occurrencesPostfix)
+				occurrences := p.Theme.Colors.White.Sprintf(formattedOccurrences)
+
+				ruleName := p.Theme.Colors.CyanBold.Sprint(skippedRule.Name)
+
+				fmt.Fprintf(out, "%v %v %v\n", p.Theme.Emoji.Skip, ruleName, occurrences)
+
+				if skippedRule.DocumentationUrl != "" {
+					howToFix := p.Theme.Colors.Cyan.Sprint(skippedRule.DocumentationUrl)
+					fmt.Fprintf(out, "    How to fix: %v\n", howToFix)
+				}
+
+				for _, occurrenceDetails := range skippedRule.OccurrencesDetails {
+					fmt.Fprintf(out, "    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
+					m := p.Theme.Colors.White.Sprint(occurrenceDetails.SkipMessage)
+					fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Suggestion, m)
+				}
+
+				fmt.Fprintln(out)
+			}
 
 			for _, failedRule := range warning.FailedRules {
 				var occurrencesPostfix string
