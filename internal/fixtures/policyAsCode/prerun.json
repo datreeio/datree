@@ -91,5 +91,7 @@
     ]
   },
   "accountExists": true,
-  "isPolicyAsCodeMode": false
+  "isPolicyAsCodeMode": false,
+  "registrationURL": "https://app.datree.io/login?t=gfdgdsteasgfsdgfdsfsd",
+  "promptRegistrationURL": "https://app.datree.io/promptLogin?t=gfdgdsteasgfsdgfdsfsd"
 }
