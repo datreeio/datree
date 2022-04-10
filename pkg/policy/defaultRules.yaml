@@ -1182,17 +1182,25 @@ rules:
         metadataNamePattern:
           properties:
             metadata:
+              type: object
+              properties:
+                name:
+                  type: string
               required:
-              - name
+                - name
           required:
-          - metadata
+            - metadata
         metadataGenerateNamePattern:
           properties:
             metadata:
+              type: object
+              properties:
+                generateName:
+                  type: string
               required:
-              - generateName
+                - generateName
           required:
-          - metadata
+            - metadata
       anyOf:
         - $ref: "#/definitions/metadataNamePattern"
         - $ref: "#/definitions/metadataGenerateNamePattern"
