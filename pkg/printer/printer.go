@@ -34,6 +34,7 @@ type FailedRule struct {
 type OccurrenceDetails struct {
 	MetadataName string
 	Kind         string
+	SkipMessage  string
 }
 
 type InvalidYamlInfo struct {
@@ -53,6 +54,7 @@ type ExtraMessage struct {
 type Warning struct {
 	Title           string
 	FailedRules     []FailedRule
+	SkippedRules    []FailedRule
 	InvalidYamlInfo InvalidYamlInfo
 	InvalidK8sInfo  InvalidK8sInfo
 	ExtraMessages   []ExtraMessage
@@ -149,6 +151,29 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 			p.printInColor("[X] Policy check\n", p.Theme.Colors.White)
 			fmt.Fprintln(out)
 
+			if len(warning.SkippedRules) > 0 {
+				fmt.Fprintf(out, "%v", p.Theme.Colors.CyanBold.Sprintf("SKIPPED")+"\n\n")
+			}
+
+			for _, skippedRule := range warning.SkippedRules {
+				ruleName := p.Theme.Colors.CyanBold.Sprint(skippedRule.Name)
+
+				fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Skip, ruleName)
+
+				if skippedRule.DocumentationUrl != "" {
+					howToFix := p.Theme.Colors.Cyan.Sprint(skippedRule.DocumentationUrl)
+					fmt.Fprintf(out, "    How to fix: %v\n", howToFix)
+				}
+
+				for _, occurrenceDetails := range skippedRule.OccurrencesDetails {
+					fmt.Fprintf(out, "    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
+					m := p.Theme.Colors.White.Sprint(occurrenceDetails.SkipMessage)
+					fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Suggestion, m)
+				}
+
+				fmt.Fprintln(out)
+			}
+
 			for _, failedRule := range warning.FailedRules {
 				var occurrencesPostfix string
 				if failedRule.Occurrences > 1 {
@@ -189,6 +214,7 @@ type SummaryItem struct {
 
 type Summary struct {
 	PlainRows  []SummaryItem
+	SkipRow    SummaryItem
 	ErrorRow   SummaryItem
 	SuccessRow SummaryItem
 }
@@ -228,6 +254,10 @@ func (p *Printer) PrintSummaryTable(summary Summary) {
 			rowIndex++
 		}
 	}
+
+	skipRow := []string{summary.SkipRow.LeftCol, summary.SkipRow.RightCol}
+	summaryTable.Rich(skipRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Cyan)}, {int(p.Theme.ColorsAttributes.Cyan)}})
+	rowIndex++
 
 	errorRow := []string{summary.ErrorRow.LeftCol, summary.ErrorRow.RightCol}
 	summaryTable.Rich(errorRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Red)}, {int(p.Theme.ColorsAttributes.Red)}})

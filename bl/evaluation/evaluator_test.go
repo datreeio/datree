@@ -121,7 +121,7 @@ func TestEvaluate(t *testing.T) {
 	}
 
 	prerunData := mockGetPreRunData()
-	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -174,7 +174,7 @@ func request_evaluation_all_valid() *evaluateTestCase {
 	validFilePath := "internal/fixtures/kube/pass-all.yaml"
 
 	prerunData := mockGetPreRunData()
-	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL)
 
 	return &evaluateTestCase{
 		name: "should request validation without invalid files",
@@ -202,14 +202,12 @@ func request_evaluation_all_valid() *evaluateTestCase {
 				FormattedResults: FormattedResults{
 					EvaluationResults: &EvaluationResults{
 						FileNameRuleMapper: make(map[string]map[string]*Rule),
-						Summary: struct {
-							TotalFailedRules int
-							FilesCount       int
-							TotalPassedCount int
-						}{
-							TotalFailedRules: 0,
-							FilesCount:       1,
-							TotalPassedCount: 1,
+						Summary: EvaluationResultsSummery{
+							TotalFailedRules:  0,
+							TotalSkippedRules: 0,
+							TotalPassedRules:  3,
+							FilesCount:        1,
+							FilesPassedCount:  1,
 						},
 					},
 					NonInteractiveEvaluationResults: nil,
@@ -222,7 +220,7 @@ func request_evaluation_all_valid() *evaluateTestCase {
 
 func request_evaluation_all_invalid() *evaluateTestCase {
 	prerunData := mockGetPreRunData()
-	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "")
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL)
 
 	return &evaluateTestCase{
 		name: "should not request validation if there are no valid files",

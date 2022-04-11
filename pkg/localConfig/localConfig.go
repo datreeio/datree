@@ -3,7 +3,6 @@ package localConfig
 import (
 	"fmt"
 	"os"
-	"os/user"
 	"path/filepath"
 
 	"github.com/datreeio/datree/pkg/networkValidator"
@@ -58,31 +57,35 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 	offline := viper.GetString(offlineKey)
 
 	if offline == "" {
-		viper.SetDefault(offlineKey, "fail")
-		_ = viper.WriteConfig()
-		_ = viper.ReadInConfig()
-		offline = viper.GetString(offlineKey)
+		offline = "fail"
+		err := setViperVariable(offlineKey, offline)
+		if err != nil {
+			return nil, err
+		}
 	}
-
 	lc.networkValidator.SetOfflineMode(offline)
 
 	if token == "" {
 		createTokenResponse, err := lc.tokenClient.CreateToken()
 		if err != nil {
-			return &LocalConfig{}, err
+			return nil, err
 		}
 		token = createTokenResponse.Token
-		viper.SetDefault(tokenKey, token)
-		_ = viper.WriteConfig()
-		_ = viper.ReadInConfig()
-		token = viper.GetString(tokenKey)
+		if token == "" {
+			return nil, nil
+		}
+		err = setViperVariable(tokenKey, token)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if clientId == "" {
-		viper.SetDefault(clientIdKey, shortuuid.New())
-		_ = viper.WriteConfig()
-		_ = viper.ReadInConfig()
-		clientId = viper.GetString(clientIdKey)
+		clientId = shortuuid.New()
+		err := setViperVariable(clientIdKey, clientId)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &LocalConfig{Token: token, ClientId: clientId, SchemaVersion: schemaVersion, Offline: offline}, nil
@@ -117,15 +120,33 @@ func InitLocalConfigFile() error {
 	// should be fixed in pr https://github.com/spf13/viper/pull/936
 	configPath := filepath.Join(configHome, configName+"."+configType)
 
-	// workaround for catching error if not enough permissions
-	// resolves issues in https://github.com/Homebrew/homebrew-core/pull/97061
-	isConfigExists, _ := exists(configPath)
-	if !isConfigExists {
-		_ = os.Mkdir(configHome, os.ModePerm)
-		_, _ = os.Create(configPath)
+	isDirExists, err := exists(configHome)
+	if err != nil {
+		return err
+	}
+	if !isDirExists {
+		osMkdirErr := os.Mkdir(configHome, os.ModePerm)
+		if osMkdirErr != nil {
+			return osMkdirErr
+		}
 	}
 
-	_ = viper.ReadInConfig()
+	isConfigExists, err := exists(configPath)
+	if err != nil {
+		return err
+	}
+	if !isConfigExists {
+		_, osCreateErr := os.Create(configPath)
+		if osCreateErr != nil {
+			return osCreateErr
+		}
+	}
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -145,12 +166,11 @@ func (lc *LocalConfigClient) Get(key string) string {
 }
 
 func getConfigHome() (string, error) {
-	usr, err := user.Current()
+	homedir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
 
-	homedir := usr.HomeDir
 	configHome := filepath.Join(homedir, ".datree")
 
 	return configHome, nil
@@ -167,7 +187,7 @@ func getConfigType() string {
 func setViperConfig() (string, string, string, error) {
 	configHome, err := getConfigHome()
 	if err != nil {
-		return "", "", "", nil
+		return "", "", "", err
 	}
 
 	configName := getConfigName()
@@ -178,6 +198,25 @@ func setViperConfig() (string, string, string, error) {
 	viper.AddConfigPath(configHome)
 
 	return configHome, configName, configType, nil
+}
+
+func setViperVariable(key string, value string) error {
+	if value == "" {
+		return fmt.Errorf("value is empty")
+	}
+
+	viper.Set(key, value)
+
+	err := viper.WriteConfig()
+	if err != nil {
+		return err
+	}
+	err = viper.ReadInConfig()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func validateKeyValueConfig(key string, value string) error {

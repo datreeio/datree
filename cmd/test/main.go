@@ -51,6 +51,7 @@ type TestCommandFlags struct {
 	PolicyName           string
 	SchemaLocations      []string
 	PolicyConfig         string
+	NoRecord             bool
 }
 
 // TestCommandFlags constructor
@@ -116,6 +117,7 @@ type TestCommandData struct {
 	IgnoreMissingSchemas  bool
 	OnlyK8sFiles          bool
 	Verbose               bool
+	NoRecord              bool
 	Policy                policy_factory.Policy
 	SchemaLocations       []string
 	Token                 string
@@ -125,14 +127,15 @@ type TestCommandData struct {
 }
 
 type TestCommandContext struct {
-	CliVersion   string
-	LocalConfig  LocalConfig
-	Evaluator    Evaluator
-	Messager     Messager
-	K8sValidator K8sValidator
-	Printer      EvaluationPrinter
-	Reader       Reader
-	CliClient    CliClient
+	CliVersion     string
+	LocalConfig    LocalConfig
+	Evaluator      Evaluator
+	Messager       Messager
+	K8sValidator   K8sValidator
+	Printer        EvaluationPrinter
+	Reader         Reader
+	CliClient      CliClient
+	FilesExtractor files.FilesExtractorInterface
 }
 
 func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
@@ -169,10 +172,6 @@ func New(ctx *TestCommandContext) *cobra.Command {
 		cat kube-prod/deployment.yaml | datree test -
 		`),
 		Args: func(cmd *cobra.Command, args []string) error {
-			if len(args) < 1 {
-				errMessage := "Requires at least 1 arg\n"
-				return fmt.Errorf(errMessage)
-			}
 			err := utils.ValidateStdinPathArgument(args)
 			if err != nil {
 				return err
@@ -230,6 +229,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&flags.PolicyConfig, "policy-config", "", "Path for local policies configuration file")
 	cmd.Flags().BoolVar(&flags.OnlyK8sFiles, "only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
 	cmd.Flags().BoolVar(&flags.Verbose, "verbose", false, "Display 'How to Fix' link")
+	cmd.Flags().BoolVar(&flags.NoRecord, "no-record", false, "Don’t send policy checks metadata to the backend")
 
 	// kubeconform flag
 	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
@@ -265,7 +265,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		policies = evaluationPrerunDataResp.PoliciesJson
 	}
 
-	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName)
+	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName, evaluationPrerunDataResp.RegistrationURL)
 	if err != nil {
 		return nil, err
 	}
@@ -275,6 +275,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		IgnoreMissingSchemas:  testCommandFlags.IgnoreMissingSchemas,
 		OnlyK8sFiles:          testCommandFlags.OnlyK8sFiles,
 		Verbose:               testCommandFlags.Verbose,
+		NoRecord:              testCommandFlags.NoRecord,
 		Policy:                policy,
 		SchemaLocations:       testCommandFlags.SchemaLocations,
 		Token:                 localConfigContent.Token,
@@ -337,7 +338,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 	results := evaluationResultData.FormattedResults
 	passedPolicyCheckCount := 0
 	if results.EvaluationResults != nil {
-		passedPolicyCheckCount = results.EvaluationResults.Summary.TotalPassedCount
+		passedPolicyCheckCount = results.EvaluationResults.Summary.FilesPassedCount
 	}
 
 	validationManager := evaluationResultData.ValidationManager
@@ -420,7 +421,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	concurrency := 100
 
-	validYamlConfigurationsChan, invalidYamlFilesChan := files.ExtractFilesConfigurations(filesPaths, concurrency)
+	validYamlConfigurationsChan, invalidYamlFilesChan := ctx.FilesExtractor.ExtractFilesConfigurations(filesPaths, concurrency)
 
 	validationManager.AggregateInvalidYamlFiles(invalidYamlFilesChan)
 
@@ -452,6 +453,15 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		return emptyEvaluationResultData, err
 	}
 
+	if prerunData.NoRecord {
+		return EvaluationResultData{
+			ValidationManager: validationManager,
+			RulesCount:        policyCheckResultData.RulesCount,
+			FormattedResults:  policyCheckResultData.FormattedResults,
+			PromptMessage:     "",
+		}, nil
+	}
+
 	var failedYamlFiles []string
 	if validationManager.InvalidYamlFilesCount() > 0 {
 		for _, invalidYamlFile := range validationManager.InvalidYamlFiles() {
@@ -481,7 +491,6 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		FailedK8sFiles:     failedK8sFiles,
 		PolicyCheckResults: policyCheckResultData.RawResults,
 	}
-
 	sendEvaluationResultsResponse, err := ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
 
 	if err != nil {
@@ -495,7 +504,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		PromptMessage:     sendEvaluationResultsResponse.PromptMessage,
 	}
 
-	return evaluationResultData, err
+	return evaluationResultData, nil
 }
 
 func wereViolationsFound(validationManager *ValidationManager, results *evaluation.FormattedResults) bool {

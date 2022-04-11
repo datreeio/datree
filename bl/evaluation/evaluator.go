@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/xeipuuv/gojsonschema"
 
@@ -12,32 +13,41 @@ import (
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 )
 
+const (
+	SKIP_RULE_PREFIX string = "datree.io/skip/"
+)
+
 type CLIClient interface {
 	SendEvaluationResult(request *cliClient.EvaluationResultRequest) (*cliClient.SendEvaluationResultsResponse, error)
 }
 
 type Evaluator struct {
-	cliClient CLIClient
-	ciContext *ciContext.CIContext
+	cliClient           CLIClient
+	ciContext           *ciContext.CIContext
+	jsonSchemaValidator *jsonSchemaValidator.JSONSchemaValidator
 }
 
 func New(c CLIClient) *Evaluator {
 	return &Evaluator{
-		cliClient: c,
-		ciContext: ciContext.Extract(),
+		cliClient:           c,
+		ciContext:           ciContext.Extract(),
+		jsonSchemaValidator: jsonSchemaValidator.New(),
 	}
 }
 
 type FileNameRuleMapper map[string]map[string]*Rule
-type FailedRulesByFiles map[string]map[string]cliClient.FailedRule
+type FailedRulesByFiles map[string]map[string]*cliClient.FailedRule
+type EvaluationResultsSummery struct {
+	TotalFailedRules  int
+	TotalSkippedRules int
+	TotalPassedRules  int
+	FilesCount        int
+	FilesPassedCount  int
+}
 
 type EvaluationResults struct {
 	FileNameRuleMapper FileNameRuleMapper
-	Summary            struct {
-		TotalFailedRules int
-		FilesCount       int
-		TotalPassedCount int
-	}
+	Summary            EvaluationResultsSummery
 }
 
 type FormattedResults struct {
@@ -107,55 +117,107 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, FailedRulesByFiles{}, rulesCount}, nil
 	}
 
-	jsonSchemaValidator := jsonSchemaValidator.New()
+	emptyPolicyCheckResult := PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}
+
+	var filesData []cliClient.FileData
+	for _, filesConfiguration := range policyCheckData.FilesConfigurations {
+		filesData = append(filesData, cliClient.FileData{FilePath: filesConfiguration.FileName, ConfigurationsCount: len(filesConfiguration.Configurations)})
+	}
+
+	rulesData := []cliClient.RuleData{}
+	for _, rule := range policyCheckData.Policy.Rules {
+		rulesData = append(rulesData, cliClient.RuleData{Identifier: rule.RuleIdentifier, Name: rule.RuleName})
+	}
 
 	// map of files paths to map of rules to failed rule data
 	failedRulesByFiles := make(FailedRulesByFiles)
-
-	rulesData := []cliClient.RuleData{}
-	var filesData []cliClient.FileData
-
-	emptyPolicyCheckResult := PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}
-
 	for _, filesConfiguration := range policyCheckData.FilesConfigurations {
-		filesData = append(filesData, cliClient.FileData{FilePath: filesConfiguration.FileName, ConfigurationsCount: len(filesConfiguration.Configurations)})
-
 		for _, configuration := range filesConfiguration.Configurations {
-			for _, ruleWithSchema := range policyCheckData.Policy.Rules {
-				rulesData = append(rulesData, cliClient.RuleData{Identifier: ruleWithSchema.RuleIdentifier, Name: ruleWithSchema.RuleName})
-
-				configurationName, configurationKind := extractConfigurationInfo(configuration)
-
-				configurationJson, err := json.Marshal(configuration)
-				if err != nil {
-					return emptyPolicyCheckResult, err
-				}
-
-				ruleSchemaJson, err := json.Marshal(ruleWithSchema.Schema)
-				if err != nil {
-					return emptyPolicyCheckResult, err
-				}
-
-				validationResult, err := jsonSchemaValidator.ValidateYamlSchema(string(ruleSchemaJson), string(configurationJson))
-
-				if err != nil {
-					return emptyPolicyCheckResult, err
-				}
-
-				failedRulesByFiles = calculateFailedRulesByFiles(failedRulesByFiles, validationResult, filesConfiguration.FileName, ruleWithSchema, configurationName, configurationKind)
+			// add all configurations skipped rules to the skipped rules map
+			err := e.evaluateConfiguration(failedRulesByFiles, policyCheckData, filesConfiguration.FileName, configuration)
+			if err != nil {
+				return emptyPolicyCheckResult, err
 			}
 		}
-
 	}
 
 	formattedResults := FormattedResults{}
-	formattedResults.EvaluationResults = e.formatEvaluationResults(failedRulesByFiles, len(policyCheckData.FilesConfigurations))
+	formattedResults.EvaluationResults = e.formatEvaluationResults(failedRulesByFiles, len(policyCheckData.FilesConfigurations), rulesCount)
 
 	if !policyCheckData.IsInteractiveMode {
 		formattedResults.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(formattedResults.EvaluationResults, failedRulesByFiles, policyCheckData.PolicyName, rulesCount)
 	}
 
 	return PolicyCheckResultData{formattedResults, rulesData, filesData, failedRulesByFiles, rulesCount}, nil
+}
+
+func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
+	skipAnnotations := extractSkipAnnotations(configuration)
+
+	configurationName, configurationKind := extractConfigurationInfo(configuration)
+
+	configurationJson, err := json.Marshal(configuration)
+	if err != nil {
+		return err
+	}
+
+	for _, rule := range policyCheckData.Policy.Rules {
+
+		failedRule, err := e.evaluateRule(rule, configurationJson, configurationName, configurationKind, skipAnnotations)
+		if err != nil {
+			return err
+		}
+
+		if failedRule == nil {
+			continue
+		}
+
+		addFailedRule(failedRulesByFiles, fileName, rule.RuleIdentifier, failedRule)
+	}
+
+	return nil
+}
+
+func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurationJson []byte, configurationName string, configurationKind string, skipAnnotations map[string]string) (*cliClient.FailedRule, error) {
+	ruleSchemaJson, err := json.Marshal(rule.Schema)
+	if err != nil {
+		return nil, err
+	}
+
+	validationResult, err := e.jsonSchemaValidator.ValidateYamlSchema(string(ruleSchemaJson), string(configurationJson))
+
+	if err != nil {
+		return nil, err
+	}
+
+	occurrences := countOccurrences(validationResult)
+	skipMessage, skipRuleExists := skipAnnotations[SKIP_RULE_PREFIX+rule.RuleIdentifier]
+
+	if occurrences < 1 && !skipRuleExists {
+		return nil, nil
+	}
+
+	configuration := cliClient.Configuration{
+		Name:        configurationName,
+		Kind:        configurationKind,
+		Occurrences: occurrences,
+		IsSkipped:   false,
+		SkipMessage: "",
+	}
+
+	if skipRuleExists {
+		configuration.IsSkipped = true
+		configuration.SkipMessage = skipMessage
+	}
+
+	failedRule := &cliClient.FailedRule{
+		Name:             rule.RuleName,
+		DocumentationUrl: rule.DocumentationUrl,
+		MessageOnFailure: rule.MessageOnFailure,
+		Configurations:   []cliClient.Configuration{configuration},
+	}
+
+	return failedRule, nil
 }
 
 // This method creates a NonInteractiveEvaluationResults structure
@@ -192,56 +254,87 @@ func (e *Evaluator) formatNonInteractiveEvaluationResults(formattedEvaluationRes
 		PolicyName:         policyName,
 		TotalRulesInPolicy: totalRulesInPolicy,
 		TotalRulesFailed:   formattedEvaluationResults.Summary.TotalFailedRules,
-		TotalPassedCount:   formattedEvaluationResults.Summary.TotalPassedCount,
+		TotalSkippedRules:  formattedEvaluationResults.Summary.TotalSkippedRules,
+		TotalPassedCount:   formattedEvaluationResults.Summary.FilesPassedCount,
 	}
 
 	return &nonInteractiveEvaluationResults
 }
 
-func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles, filesCount int) *EvaluationResults {
+func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles, filesCount int, rulesCount int) *EvaluationResults {
 	mapper := make(map[string]map[string]*Rule)
 
 	totalFailedCount := 0
-	totalPassedCount := filesCount
+	totalSkippedCount := 0
+	failedFilesCount := len(evaluationResults)
 
 	for filePath := range evaluationResults {
 		if _, exists := mapper[filePath]; !exists {
 			mapper[filePath] = make(map[string]*Rule)
-			totalPassedCount = totalPassedCount - 1
 		}
 
-		for ruleIdentifier, failedRuleData := range evaluationResults[filePath] {
+		for ruleIdentifier, failedRule := range evaluationResults[filePath] {
 			// file and rule not already exists in mapper
 			if _, exists := mapper[filePath][ruleIdentifier]; !exists {
-				totalFailedCount++
 				mapper[filePath][ruleIdentifier] = &Rule{
 					Identifier:         ruleIdentifier,
-					Name:               failedRuleData.Name,
-					DocumentationUrl:   failedRuleData.DocumentationUrl,
-					MessageOnFailure:   failedRuleData.MessageOnFailure,
+					Name:               failedRule.Name,
+					DocumentationUrl:   failedRule.DocumentationUrl,
+					MessageOnFailure:   failedRule.MessageOnFailure,
 					OccurrencesDetails: []OccurrenceDetails{},
 				}
 			}
 
-			for _, configuration := range failedRuleData.Configurations {
+			for _, configuration := range failedRule.Configurations {
 				mapper[filePath][ruleIdentifier].OccurrencesDetails = append(
 					mapper[filePath][ruleIdentifier].OccurrencesDetails,
-					OccurrenceDetails{MetadataName: configuration.Name, Kind: configuration.Kind, Occurrences: configuration.Occurrences},
+					OccurrenceDetails{
+						MetadataName: configuration.Name,
+						Kind:         configuration.Kind,
+						Occurrences:  configuration.Occurrences,
+						IsSkipped:    configuration.IsSkipped,
+						SkipMessage:  configuration.SkipMessage,
+					},
 				)
 			}
+		}
+
+		allRulesAreSkipped := true
+		for _, rule := range mapper[filePath] {
+			skippedOccurrences := 0
+			totalOccurrences := len(rule.OccurrencesDetails)
+
+			for _, occurrence := range rule.OccurrencesDetails {
+				if occurrence.IsSkipped {
+					skippedOccurrences++
+				} else {
+					allRulesAreSkipped = false
+				}
+			}
+
+			if totalOccurrences == skippedOccurrences {
+				totalSkippedCount++
+			} else if skippedOccurrences > 1 {
+				totalSkippedCount++
+				totalFailedCount++
+			} else {
+				totalFailedCount++
+			}
+		}
+
+		if allRulesAreSkipped {
+			failedFilesCount--
 		}
 	}
 
 	results := &EvaluationResults{
 		FileNameRuleMapper: mapper,
-		Summary: struct {
-			TotalFailedRules int
-			FilesCount       int
-			TotalPassedCount int
-		}{
-			TotalFailedRules: totalFailedCount,
-			FilesCount:       filesCount,
-			TotalPassedCount: totalPassedCount,
+		Summary: EvaluationResultsSummery{
+			TotalFailedRules:  totalFailedCount,
+			TotalSkippedRules: totalSkippedCount,
+			TotalPassedRules:  (rulesCount * filesCount) - (totalFailedCount + totalSkippedCount),
+			FilesCount:        filesCount,
+			FilesPassedCount:  filesCount - failedFilesCount,
 		},
 	}
 
@@ -270,24 +363,19 @@ func extractConfigurationInfo(configuration extractor.Configuration) (string, st
 
 type Result = gojsonschema.Result
 
-func calculateFailedRulesByFiles(currentFailedRulesByFiles FailedRulesByFiles, validationResult *Result, fileName string, rule policy_factory.RuleWithSchema, configurationName string, configurationKind string) map[string]map[string]cliClient.FailedRule {
-	occurrences := countOccurrences(validationResult)
-	if occurrences > 0 {
-		configurationData := cliClient.Configuration{Name: configurationName, Kind: configurationKind, Occurrences: occurrences}
+func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string, ruleIdentifier string, failedRule *cliClient.FailedRule) {
+	fileData, ok := currentFailedRulesByFiles[fileName]
 
-		if fileData, ok := currentFailedRulesByFiles[fileName]; ok {
-			if ruleData, ok := fileData[rule.RuleIdentifier]; ok {
-				ruleData.Configurations = append(ruleData.Configurations, configurationData)
-				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = ruleData
-			} else {
-				currentFailedRulesByFiles[fileName][rule.RuleIdentifier] = cliClient.FailedRule{Name: rule.RuleName, DocumentationUrl: rule.DocumentationUrl, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}
-			}
-		} else {
-			currentFailedRulesByFiles[fileName] = map[string]cliClient.FailedRule{rule.RuleIdentifier: {Name: rule.RuleName, DocumentationUrl: rule.DocumentationUrl, MessageOnFailure: rule.MessageOnFailure, Configurations: []cliClient.Configuration{configurationData}}}
-		}
+	if !ok {
+		currentFailedRulesByFiles[fileName] = map[string]*cliClient.FailedRule{ruleIdentifier: failedRule}
+		return
 	}
 
-	return currentFailedRulesByFiles
+	if exitingRule, ok := fileData[ruleIdentifier]; ok {
+		exitingRule.Configurations = append(exitingRule.Configurations, failedRule.Configurations...)
+	} else {
+		currentFailedRulesByFiles[fileName][ruleIdentifier] = failedRule
+	}
 }
 
 func countOccurrences(validationResult *Result) int {
@@ -298,4 +386,26 @@ func countOccurrences(validationResult *Result) int {
 		}
 	}
 	return count
+}
+
+func extractSkipAnnotations(configuration extractor.Configuration) map[string]string {
+	skipAnnotations := make(map[string]string)
+
+	configurationMetadata, ok := configuration["metadata"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	annotationsMap, ok := configurationMetadata["annotations"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	for annotationKey, annotationValue := range annotationsMap {
+		if strings.Contains(annotationKey, SKIP_RULE_PREFIX) {
+			skipAnnotations[annotationKey] = annotationValue.(string)
+		}
+	}
+
+	return skipAnnotations
 }
