@@ -60,6 +60,10 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 
 <img src="https://user-images.githubusercontent.com/19731161/130957021-4b825b82-01e1-47ba-bf6f-68003f08a532.png" alt="Datree-saas" width="60%" height="50%">
 
+## Architecture
+
+![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_light.png#gh-dark-mode-only)![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_dark.png#gh-light-mode-only)
+
 ## 🔌 Helm plugin
 
 [Datree's Helm plugin](https://github.com/datreeio/helm-datree) can be accessed through the helm CLI, to provide a seamless experience to Helm users:
@@ -95,10 +99,6 @@ In addition to our built-in rules, you can write [any custom rule](https://hub.d
 Like any linter or static code analysis tool, Datree's command-line tool can be **integrated with all CI/CD platforms** to automatically scan every code change and provide feedback as part of the workflow. In the [docs](https://hub.datree.io/integrations/#utm_source=github&utm_medium=organic_oss), you can find examples of some of the common CI/CD platforms.
 
 If you run into any difficulties with CI/CD integrations, please join our [community Slack channel](https://bit.ly/3BHwCEG) or open an issue, and we'd be happy to guide you through it.
-
-## Architecture
-
-![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_light.png#gh-dark-mode-only)![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_dark.png#gh-light-mode-only)
 
 ## Contributing
 
