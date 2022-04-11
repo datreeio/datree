@@ -62,7 +62,8 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 
 ## 🏛️ Architecture
 
-![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_light.png#gh-dark-mode-only)![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_dark.png#gh-light-mode-only)
+![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_light.png#gh-light-mode-only)  
+![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_dark.png#gh-dark-mode-only)  
 
 ## 🔌 Helm plugin
 
