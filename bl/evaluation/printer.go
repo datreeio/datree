@@ -217,7 +217,6 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 				failedRule := printer.FailedRule{
 					Name:               rule.Name,
 					DocumentationUrl:   fixLink,
-					Occurrences:        rule.GetOccurrencesCount(),
 					Suggestion:         rule.MessageOnFailure,
 					OccurrencesDetails: []printer.OccurrenceDetails{},
 				}
