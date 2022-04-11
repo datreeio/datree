@@ -389,14 +389,11 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 					FormattedResults: evaluation.FormattedResults{
 						EvaluationResults: &evaluation.EvaluationResults{
 							FileNameRuleMapper: make(map[string]map[string]*evaluation.Rule),
-							Summary: struct {
-								TotalFailedRules int
-								FilesCount       int
-								TotalPassedCount int
-							}{
-								TotalFailedRules: 0,
-								FilesCount:       1,
-								TotalPassedCount: 1,
+							Summary: evaluation.EvaluationResultsSummery{
+								TotalFailedRules:  0,
+								TotalSkippedRules: 0,
+								FilesCount:        1,
+								FilesPassedCount:  1,
 							},
 						},
 					},
@@ -630,11 +627,13 @@ func setup() {
 	}
 
 	formattedResults.EvaluationResults = &evaluation.EvaluationResults{
-		FileNameRuleMapper: map[string]map[string]*evaluation.Rule{}, Summary: struct {
-			TotalFailedRules int
-			FilesCount       int
-			TotalPassedCount int
-		}{TotalFailedRules: 0, FilesCount: 0, TotalPassedCount: 1},
+		FileNameRuleMapper: map[string]map[string]*evaluation.Rule{},
+		Summary: evaluation.EvaluationResultsSummery{
+			TotalFailedRules:  0,
+			TotalSkippedRules: 0,
+			FilesCount:        0,
+			FilesPassedCount:  1,
+		},
 	}
 
 	sendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{

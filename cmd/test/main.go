@@ -338,7 +338,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 	results := evaluationResultData.FormattedResults
 	passedPolicyCheckCount := 0
 	if results.EvaluationResults != nil {
-		passedPolicyCheckCount = results.EvaluationResults.Summary.TotalPassedCount
+		passedPolicyCheckCount = results.EvaluationResults.Summary.FilesPassedCount
 	}
 
 	validationManager := evaluationResultData.ValidationManager

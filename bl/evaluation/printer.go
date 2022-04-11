@@ -201,6 +201,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 		for _, filename := range filenames {
 			rules := results.FileNameRuleMapper[filename]
 			var failedRules = []printer.FailedRule{}
+			var skippedRules = []printer.FailedRule{}
 
 			rulesUniqueNames := []string{}
 			for rulesUniqueName := range rules {
@@ -220,14 +221,38 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 					Suggestion:         rule.MessageOnFailure,
 					OccurrencesDetails: []printer.OccurrenceDetails{},
 				}
+
+				hasSkippedOccurrences := false
+				hasFailedOccurrences := false
+				skippedRule := failedRule
+
 				for _, occurrenceDetails := range rule.OccurrencesDetails {
-					failedRule.OccurrencesDetails = append(
-						failedRule.OccurrencesDetails,
-						printer.OccurrenceDetails{MetadataName: occurrenceDetails.MetadataName, Kind: occurrenceDetails.Kind},
-					)
+					if occurrenceDetails.IsSkipped {
+						hasSkippedOccurrences = true
+						skippedRule.OccurrencesDetails = append(skippedRule.OccurrencesDetails, printer.OccurrenceDetails{
+							MetadataName: occurrenceDetails.MetadataName,
+							Kind:         occurrenceDetails.Kind,
+							SkipMessage:  occurrenceDetails.SkipMessage,
+						})
+					} else {
+						hasFailedOccurrences = true
+						failedRule.OccurrencesDetails = append(
+							failedRule.OccurrencesDetails,
+							printer.OccurrenceDetails{
+								MetadataName: occurrenceDetails.MetadataName,
+								Kind:         occurrenceDetails.Kind,
+							},
+						)
+					}
+
 				}
 
-				failedRules = append(failedRules, failedRule)
+				if hasSkippedOccurrences {
+					skippedRules = append(skippedRules, skippedRule)
+				}
+				if hasFailedOccurrences {
+					failedRules = append(failedRules, failedRule)
+				}
 			}
 
 			relativePath, _ := filepath.Rel(pwd, filename)
@@ -235,6 +260,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 			warnings = append(warnings, printer.Warning{
 				Title:           fmt.Sprintf(">>  File: %s\n", relativePath),
 				FailedRules:     failedRules,
+				SkippedRules:    skippedRules,
 				InvalidYamlInfo: printer.InvalidYamlInfo{},
 				InvalidK8sInfo: printer.InvalidK8sInfo{
 					ValidationWarning: k8sValidationWarnings[filename],
@@ -304,6 +330,7 @@ const (
 	TotalRulesEvaluated
 	SeeAll
 	TotalRulesPassed
+	TotalSkippedRules
 	TotalRulesFailed
 )
 
@@ -313,6 +340,7 @@ func (t OutputTitle) String() string {
 		"Total rules evaluated",
 		"See all rules in policy",
 		"Total rules passed",
+		"Total Rules skipped",
 		"Total rules failed"}[t]
 }
 
@@ -326,25 +354,29 @@ func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSumma
 	configsCount := evaluationSummary.ConfigsCount
 	totalRulesEvaluated := 0
 	totalFailedRules := 0
+	totalSkippedRules := 0
 	totalPassedRules := 0
 
 	if results != nil {
 		totalRulesEvaluated = evaluationSummary.RulesCount * results.Summary.FilesCount
 		totalFailedRules = results.Summary.TotalFailedRules
-		totalPassedRules = totalRulesEvaluated - totalFailedRules
+		totalSkippedRules = results.Summary.TotalSkippedRules
+		totalPassedRules = results.Summary.TotalPassedRules
 	}
 
 	plainRows := []printer.SummaryItem{
 		{LeftCol: buildEnabledRulesTitle(policyName), RightCol: fmt.Sprint(evaluationSummary.RulesCount), RowIndex: 0},
 		{LeftCol: EvaluatedConfigurations.String(), RightCol: fmt.Sprint(configsCount), RowIndex: 1},
 		{LeftCol: TotalRulesEvaluated.String(), RightCol: fmt.Sprint(totalRulesEvaluated), RowIndex: 2},
-		{LeftCol: SeeAll.String(), RightCol: loginURL, RowIndex: 5},
+		{LeftCol: SeeAll.String(), RightCol: loginURL, RowIndex: 6},
 	}
 
-	successRow := printer.SummaryItem{LeftCol: TotalRulesPassed.String(), RightCol: fmt.Sprint(totalPassedRules), RowIndex: 4}
-	errorRow := printer.SummaryItem{LeftCol: TotalRulesFailed.String(), RightCol: fmt.Sprint(totalFailedRules), RowIndex: 3}
+	skipRow := printer.SummaryItem{LeftCol: TotalSkippedRules.String(), RightCol: fmt.Sprint(totalSkippedRules), RowIndex: 3}
+	successRow := printer.SummaryItem{LeftCol: TotalRulesPassed.String(), RightCol: fmt.Sprint(totalPassedRules), RowIndex: 5}
+	errorRow := printer.SummaryItem{LeftCol: TotalRulesFailed.String(), RightCol: fmt.Sprint(totalFailedRules), RowIndex: 4}
 
 	summary := &printer.Summary{
+		SkipRow:    skipRow,
 		ErrorRow:   errorRow,
 		SuccessRow: successRow,
 		PlainRows:  plainRows,
