@@ -60,7 +60,7 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 
 <img src="https://user-images.githubusercontent.com/19731161/130957021-4b825b82-01e1-47ba-bf6f-68003f08a532.png" alt="Datree-saas" width="60%" height="50%">
 
-## Architecture
+## 🏛️ Architecture
 
 ![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_light.png#gh-dark-mode-only)![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_dark.png#gh-light-mode-only)
 
