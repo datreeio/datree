@@ -962,7 +962,7 @@ rules:
                   - argocd-rbac-cm
                   - argocd-ssh-known-hosts-cm
                   - argocd-cmd-params-cm
-                  - argo-cm
+                  - argocd-cm
       then:
         properties:
           metadata:

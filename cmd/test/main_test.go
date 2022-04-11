@@ -164,6 +164,15 @@ func (p *PrinterMock) SetTheme(theme *printer.Theme) {
 	p.Called(theme)
 }
 
+type CliClientMock struct {
+	mock.Mock
+}
+
+func (c *CliClientMock) RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error) {
+	args := c.Called(token)
+	return args.Get(0).(*cliClient.EvaluationPrerunDataResponse), nil
+}
+
 type ReaderMock struct {
 	mock.Mock
 }
@@ -193,6 +202,7 @@ var mockedEvaluator *mockEvaluator
 var localConfigMock *LocalConfigMock
 var messagerMock *mockMessager
 var readerMock *ReaderMock
+var mockedCliClient *CliClientMock
 
 func pathFromRoot(path string) string {
 	_, filename, _, _ := runtime.Caller(0)
@@ -634,7 +644,6 @@ func setup() {
 	mockedEvaluator = &mockEvaluator{}
 	mockedEvaluator.On("Evaluate", mock.Anything).Return(policyCheckResultData, nil)
 	mockedEvaluator.On("SendEvaluationResult", mock.Anything).Return(sendEvaluationResultsResponse, nil)
-	mockedEvaluator.On("RequestEvaluationPrerunData", mock.Anything).Return(prerunData, nil)
 
 	messagerMock = &mockMessager{}
 	messagerMock.On("LoadVersionMessages", mock.Anything)
@@ -672,6 +681,9 @@ func setup() {
 	localConfigMock = &LocalConfigMock{}
 	localConfigMock.On("GetLocalConfiguration").Return(&localConfig.LocalConfig{Token: "134kh"}, nil)
 
+	mockedCliClient = &CliClientMock{}
+	mockedCliClient.On("RequestEvaluationPrerunData", mock.Anything).Return(prerunData, nil)
+
 	ctx = &TestCommandContext{
 		K8sValidator:   k8sValidatorMock,
 		Evaluator:      mockedEvaluator,
@@ -680,6 +692,7 @@ func setup() {
 		Printer:        printerMock,
 		Reader:         readerMock,
 		FilesExtractor: filesExtractorMock,
+		CliClient:      mockedCliClient,
 	}
 
 	testingPolicy, _ = policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL)
@@ -689,6 +702,7 @@ func TestTestCommandFlagsValidation(t *testing.T) {
 	setup()
 	test_testCommand_output_flags_validation(t, ctx)
 	test_testCommand_version_flags_validation(t, ctx)
+	test_testCommand_no_record_flag(t, ctx)
 }
 
 func TestTestCommandEmptyDir(t *testing.T) {
@@ -811,7 +825,7 @@ func test_testCommand_output_flags_validation(t *testing.T, ctx *TestCommandCont
 	values := []string{"Simple", "Json", "Yaml", "Xml", "invalid", "113", "true"}
 
 	for _, value := range values {
-		err := executeTestCommand(ctx, []string{"test", "8/*", "--output=" + value})
+		err := executeTestCommand(ctx, []string{"8/*", "--output=" + value})
 		expectedErrorStr := "Invalid --output option - \"" + value + "\"\n" +
 			"Valid output values are - simple, yaml, json, xml\n"
 		assert.EqualError(t, err, expectedErrorStr)
@@ -828,13 +842,19 @@ func test_testCommand_version_flags_validation(t *testing.T, ctx *TestCommandCon
 
 	values := []string{"1", "1.15", "1.15.", "1.15.0.", "1.15.0.1", "1..15.0", "str.12.bool"}
 	for _, value := range values {
-		err := executeTestCommand(ctx, []string{"test", "8/*", "--schema-version=" + value})
+		err := executeTestCommand(ctx, []string{"8/*", "--schema-version=" + value})
 		assert.EqualError(t, err, getExpectedErrorStr(value))
 	}
 
 	flags := TestCommandFlags{K8sVersion: "1.21.0"}
 	err := flags.Validate()
 	assert.NoError(t, err)
+}
+
+func test_testCommand_no_record_flag(t *testing.T, ctx *TestCommandContext) {
+	err := executeTestCommand(ctx, []string{"8/*", "--no-record"})
+	mockedEvaluator.AssertNotCalled(t, "SendEvaluationResult")
+	assert.Equal(t, ViolationsFoundError, err)
 }
 
 func newFilesConfigurationsChan(path string) chan *extractor.FileConfigurations {
