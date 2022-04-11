@@ -21,5 +21,5 @@ type OccurrenceDetails struct {
 	Kind         string `yaml:"kind" json:"kind" xml:"kind"`
 	SkipMessage  string `yaml:"skipMessage" json:"skipMessage" xml:"skipMessage"`
 	Occurrences  int    `yaml:"occurrences" json:"occurrences" xml:"occurrences"`
-	IsSkipped    bool
+	IsSkipped    bool   `yaml:"isSkipped" json:"isSkipped" xml:"isSkipped"`
 }

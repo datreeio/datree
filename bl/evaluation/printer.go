@@ -361,7 +361,7 @@ func parseEvaluationResultsToSummary(results *EvaluationResults, evaluationSumma
 		totalRulesEvaluated = evaluationSummary.RulesCount * results.Summary.FilesCount
 		totalFailedRules = results.Summary.TotalFailedRules
 		totalSkippedRules = results.Summary.TotalSkippedRules
-		totalPassedRules = totalRulesEvaluated - totalFailedRules
+		totalPassedRules = results.Summary.TotalPassedRules
 	}
 
 	plainRows := []printer.SummaryItem{

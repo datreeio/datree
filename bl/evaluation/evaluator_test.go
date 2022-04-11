@@ -205,8 +205,9 @@ func request_evaluation_all_valid() *evaluateTestCase {
 						Summary: EvaluationResultsSummery{
 							TotalFailedRules:  0,
 							TotalSkippedRules: 0,
+							TotalPassedRules:  3,
 							FilesCount:        1,
-							TotalPassedCount:  1,
+							FilesPassedCount:  1,
 						},
 					},
 					NonInteractiveEvaluationResults: nil,

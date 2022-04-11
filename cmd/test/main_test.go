@@ -383,7 +383,7 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 								TotalFailedRules:  0,
 								TotalSkippedRules: 0,
 								FilesCount:        1,
-								TotalPassedCount:  1,
+								FilesPassedCount:  1,
 							},
 						},
 					},
@@ -622,7 +622,7 @@ func setup() {
 			TotalFailedRules:  0,
 			TotalSkippedRules: 0,
 			FilesCount:        0,
-			TotalPassedCount:  1,
+			FilesPassedCount:  1,
 		},
 	}
 

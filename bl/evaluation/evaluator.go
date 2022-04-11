@@ -40,8 +40,9 @@ type FailedRulesByFiles map[string]map[string]*cliClient.FailedRule
 type EvaluationResultsSummery struct {
 	TotalFailedRules  int
 	TotalSkippedRules int
+	TotalPassedRules  int
 	FilesCount        int
-	TotalPassedCount  int
+	FilesPassedCount  int
 }
 
 type EvaluationResults struct {
@@ -132,6 +133,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 	failedRulesByFiles := make(FailedRulesByFiles)
 	for _, filesConfiguration := range policyCheckData.FilesConfigurations {
 		for _, configuration := range filesConfiguration.Configurations {
+			// add all configurations skipped rules to the skipped rules map
 			err := e.evaluateConfiguration(failedRulesByFiles, policyCheckData, filesConfiguration.FileName, configuration)
 			if err != nil {
 				return emptyPolicyCheckResult, err
@@ -140,7 +142,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 	}
 
 	formattedResults := FormattedResults{}
-	formattedResults.EvaluationResults = e.formatEvaluationResults(failedRulesByFiles, len(policyCheckData.FilesConfigurations))
+	formattedResults.EvaluationResults = e.formatEvaluationResults(failedRulesByFiles, len(policyCheckData.FilesConfigurations), rulesCount)
 
 	if !policyCheckData.IsInteractiveMode {
 		formattedResults.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(formattedResults.EvaluationResults, failedRulesByFiles, policyCheckData.PolicyName, rulesCount)
@@ -189,12 +191,13 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 	}
 
 	occurrences := countOccurrences(validationResult)
+	skipMessage, skipRuleExists := skipAnnotations[SKIP_RULE_PREFIX+rule.RuleIdentifier]
 
-	if occurrences < 1 {
+	if occurrences < 1 && !skipRuleExists {
 		return nil, nil
 	}
 
-	configurationData := cliClient.Configuration{
+	configuration := cliClient.Configuration{
 		Name:        configurationName,
 		Kind:        configurationKind,
 		Occurrences: occurrences,
@@ -202,16 +205,16 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 		SkipMessage: "",
 	}
 
-	if skipMessage, ok := skipAnnotations[SKIP_RULE_PREFIX+rule.RuleIdentifier]; ok {
-		configurationData.IsSkipped = true
-		configurationData.SkipMessage = skipMessage
+	if skipRuleExists {
+		configuration.IsSkipped = true
+		configuration.SkipMessage = skipMessage
 	}
 
 	failedRule := &cliClient.FailedRule{
 		Name:             rule.RuleName,
 		DocumentationUrl: rule.DocumentationUrl,
 		MessageOnFailure: rule.MessageOnFailure,
-		Configurations:   []cliClient.Configuration{configurationData},
+		Configurations:   []cliClient.Configuration{configuration},
 	}
 
 	return failedRule, nil
@@ -251,23 +254,23 @@ func (e *Evaluator) formatNonInteractiveEvaluationResults(formattedEvaluationRes
 		PolicyName:         policyName,
 		TotalRulesInPolicy: totalRulesInPolicy,
 		TotalRulesFailed:   formattedEvaluationResults.Summary.TotalFailedRules,
-		TotalPassedCount:   formattedEvaluationResults.Summary.TotalPassedCount,
+		TotalSkippedRules:  formattedEvaluationResults.Summary.TotalSkippedRules,
+		TotalPassedCount:   formattedEvaluationResults.Summary.FilesPassedCount,
 	}
 
 	return &nonInteractiveEvaluationResults
 }
 
-func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles, filesCount int) *EvaluationResults {
+func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles, filesCount int, rulesCount int) *EvaluationResults {
 	mapper := make(map[string]map[string]*Rule)
 
 	totalFailedCount := 0
 	totalSkippedCount := 0
-	totalPassedCount := filesCount
+	failedFilesCount := len(evaluationResults)
 
 	for filePath := range evaluationResults {
 		if _, exists := mapper[filePath]; !exists {
 			mapper[filePath] = make(map[string]*Rule)
-			totalPassedCount = totalPassedCount - 1
 		}
 
 		for ruleIdentifier, failedRule := range evaluationResults[filePath] {
@@ -296,6 +299,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 			}
 		}
 
+		allRulesAreSkipped := true
 		for _, rule := range mapper[filePath] {
 			skippedOccurrences := 0
 			totalOccurrences := len(rule.OccurrencesDetails)
@@ -303,18 +307,23 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 			for _, occurrence := range rule.OccurrencesDetails {
 				if occurrence.IsSkipped {
 					skippedOccurrences++
+				} else {
+					allRulesAreSkipped = false
 				}
 			}
 
-			if totalOccurrences == skippedOccurrences { // everything was skipped
+			if totalOccurrences == skippedOccurrences {
 				totalSkippedCount++
-				totalPassedCount++
-			} else if skippedOccurrences > 1 { // some were skipped
+			} else if skippedOccurrences > 1 {
 				totalSkippedCount++
 				totalFailedCount++
-			} else { // none were skipped
+			} else {
 				totalFailedCount++
 			}
+		}
+
+		if allRulesAreSkipped {
+			failedFilesCount--
 		}
 	}
 
@@ -322,9 +331,10 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 		FileNameRuleMapper: mapper,
 		Summary: EvaluationResultsSummery{
 			TotalFailedRules:  totalFailedCount,
-			FilesCount:        filesCount,
-			TotalPassedCount:  totalPassedCount,
 			TotalSkippedRules: totalSkippedCount,
+			TotalPassedRules:  (rulesCount * filesCount) - (totalFailedCount + totalSkippedCount),
+			FilesCount:        filesCount,
+			FilesPassedCount:  filesCount - failedFilesCount,
 		},
 	}
 
@@ -380,16 +390,22 @@ func countOccurrences(validationResult *Result) int {
 
 func extractSkipAnnotations(configuration extractor.Configuration) map[string]string {
 	skipAnnotations := make(map[string]string)
-	if configurationMetadata, ok := configuration["metadata"].(map[string]interface{}); ok {
-		if annotationsMap, ok := configurationMetadata["annotations"].(map[string]interface{}); ok {
-			for annotationKey, annotationValue := range annotationsMap {
-				if strings.Contains(annotationKey, SKIP_RULE_PREFIX) {
-					skipAnnotations[annotationKey] = annotationValue.(string)
-				}
-			}
-			return skipAnnotations
+
+	configurationMetadata, ok := configuration["metadata"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	annotationsMap, ok := configurationMetadata["annotations"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	for annotationKey, annotationValue := range annotationsMap {
+		if strings.Contains(annotationKey, SKIP_RULE_PREFIX) {
+			skipAnnotations[annotationKey] = annotationValue.(string)
 		}
 	}
 
-	return nil
+	return skipAnnotations
 }

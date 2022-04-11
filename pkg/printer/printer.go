@@ -156,18 +156,9 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 			}
 
 			for _, skippedRule := range warning.SkippedRules {
-				var occurrencesPostfix string
-				if skippedRule.Occurrences > 1 {
-					occurrencesPostfix = "s"
-				} else {
-					occurrencesPostfix = ""
-				}
-				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", skippedRule.Occurrences, occurrencesPostfix)
-				occurrences := p.Theme.Colors.White.Sprintf(formattedOccurrences)
-
 				ruleName := p.Theme.Colors.CyanBold.Sprint(skippedRule.Name)
 
-				fmt.Fprintf(out, "%v %v %v\n", p.Theme.Emoji.Skip, ruleName, occurrences)
+				fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Skip, ruleName)
 
 				if skippedRule.DocumentationUrl != "" {
 					howToFix := p.Theme.Colors.Cyan.Sprint(skippedRule.DocumentationUrl)
