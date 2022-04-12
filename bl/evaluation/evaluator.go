@@ -255,7 +255,7 @@ func (e *Evaluator) formatNonInteractiveEvaluationResults(formattedEvaluationRes
 		TotalRulesInPolicy: totalRulesInPolicy,
 		TotalRulesFailed:   formattedEvaluationResults.Summary.TotalFailedRules,
 		TotalSkippedRules:  formattedEvaluationResults.Summary.TotalSkippedRules,
-		TotalPassedCount:   formattedEvaluationResults.Summary.FilesPassedCount,
+		TotalPassedCount:   formattedEvaluationResults.Summary.TotalPassedRules,
 	}
 
 	return &nonInteractiveEvaluationResults
