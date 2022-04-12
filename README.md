@@ -50,11 +50,11 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 
 ...and voilà, you just ran your first policy check! 🥳
 
-## [Command Line Interface](https://hub.datree.io/cli-output/#utm_source=github&utm_medium=organic_oss)
+## [Command Line Interface](https://hub.datree.io/cli-output/#utm_source=github&utm_medium=organic_oss) (CLI)
 
 <img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree-cli" width="60%" height="50%">
 
-## [Web Application Interface](https://hub.datree.io/centralized-policy/#utm_source=github&utm_medium=organic_oss)
+## [Web Application Interface](https://hub.datree.io/centralized-policy/#utm_source=github&utm_medium=organic_oss) (Dashboard)
 
 <img src="https://user-images.githubusercontent.com/19731161/130956287-ca44e831-46ba-48fa-96eb-be8e23d43bdf.png" alt="Datree-saas" width="60%" height="50%">
 
