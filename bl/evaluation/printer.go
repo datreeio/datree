@@ -218,6 +218,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 					Name:               rule.Name,
 					DocumentationUrl:   fixLink,
 					Suggestion:         rule.MessageOnFailure,
+					Occurrences:        rule.GetFailedOccurrencesCount(),
 					OccurrencesDetails: []printer.OccurrenceDetails{},
 				}
 				skippedRule := failedRule
@@ -235,7 +236,6 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 						})
 					} else {
 						hasFailedOccurrences = true
-						failedRule.Occurrences += occurrenceDetails.Occurrences
 						failedRule.OccurrencesDetails = append(
 							failedRule.OccurrencesDetails,
 							printer.OccurrenceDetails{

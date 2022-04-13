@@ -176,14 +176,13 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 
 			for _, failedRule := range warning.FailedRules {
 				var occurrencesPostfix string
-				occurrencesCount := failedRule.Occurrences
 
-				if occurrencesCount > 1 {
+				if failedRule.Occurrences > 1 {
 					occurrencesPostfix = "s"
 				} else {
 					occurrencesPostfix = ""
 				}
-				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", occurrencesCount, occurrencesPostfix)
+				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", failedRule.Occurrences, occurrencesPostfix)
 				occurrences := p.Theme.Colors.White.Sprintf(formattedOccurrences)
 
 				ruleName := p.Theme.Colors.RedBold.Sprint(failedRule.Name)
