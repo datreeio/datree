@@ -176,7 +176,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 
 			for _, failedRule := range warning.FailedRules {
 				var occurrencesPostfix string
-				occurrencesCount := len(failedRule.OccurrencesDetails)
+				occurrencesCount := failedRule.Occurrences
 
 				if occurrencesCount > 1 {
 					occurrencesPostfix = "s"
