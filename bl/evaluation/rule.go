@@ -8,10 +8,12 @@ type Rule struct {
 	OccurrencesDetails []OccurrenceDetails
 }
 
-func (rp *Rule) GetOccurrencesCount() int {
+func (rp *Rule) GetFailedOccurrencesCount() int {
 	count := 0
 	for _, occurrence := range rp.OccurrencesDetails {
-		count += occurrence.Occurrences
+		if !occurrence.IsSkipped {
+			count += occurrence.Occurrences
+		}
 	}
 	return count
 }

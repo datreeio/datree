@@ -255,7 +255,7 @@ func (e *Evaluator) formatNonInteractiveEvaluationResults(formattedEvaluationRes
 		TotalRulesInPolicy: totalRulesInPolicy,
 		TotalRulesFailed:   formattedEvaluationResults.Summary.TotalFailedRules,
 		TotalSkippedRules:  formattedEvaluationResults.Summary.TotalSkippedRules,
-		TotalPassedCount:   formattedEvaluationResults.Summary.FilesPassedCount,
+		TotalPassedCount:   formattedEvaluationResults.Summary.TotalPassedRules,
 	}
 
 	return &nonInteractiveEvaluationResults
@@ -300,6 +300,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 		}
 
 		allRulesAreSkipped := true
+
 		for _, rule := range mapper[filePath] {
 			skippedOccurrences := 0
 			totalOccurrences := len(rule.OccurrencesDetails)
@@ -314,7 +315,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 
 			if totalOccurrences == skippedOccurrences {
 				totalSkippedCount++
-			} else if skippedOccurrences > 1 {
+			} else if skippedOccurrences >= 1 {
 				totalSkippedCount++
 				totalFailedCount++
 			} else {
