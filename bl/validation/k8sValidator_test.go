@@ -168,8 +168,12 @@ func test_no_connection(t *testing.T) {
 }
 
 func test_default_schema_location(t *testing.T) {
-	expectedOutput := []string{"default", "https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/argo/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"}
-	actual := getDefaultSchemaLocation()
+	expectedOutput := []string{
+		"default",
+		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
+		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/argo/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
+	}
+	actual := getDefaultSchemaLocations()
 	assert.Equal(t, expectedOutput, actual)
 }
 
