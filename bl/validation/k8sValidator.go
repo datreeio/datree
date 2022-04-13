@@ -25,7 +25,7 @@ func New() *K8sValidator {
 }
 
 func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) {
-	val.validationClient = newKubconformValidator(k8sVersion, ignoreMissingSchemas, append(getDefaultSchemaLocation(), schemaLocations...))
+	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, append(getDefaultSchemaLocations(), schemaLocations...))
 }
 
 type FileWithWarning struct {
@@ -157,7 +157,7 @@ func (val *K8sValidator) isNetworkError(errorString string) bool {
 	return strings.Contains(errorString, "no such host") || strings.Contains(errorString, "connection refused")
 }
 
-func newKubconformValidator(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) ValidationClient {
+func newKubeconformValidator(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) ValidationClient {
 	v, _ := kubeconformValidator.New(schemaLocations, kubeconformValidator.Opts{Strict: true, KubernetesVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas})
 	return v
 }
@@ -172,12 +172,14 @@ func isEveryResultStatusEmpty(results []kubeconformValidator.Result) bool {
 	return isEveryResultStatusEmpty
 }
 
-func getDefaultSchemaLocation() []string {
-	defaultSchemaLocations := [...]string{
+func getDefaultSchemaLocations() []string {
+	return []string{
 		"default",
+		// this is a workaround for https://github.com/yannh/kubeconform/issues/100
+		// notice: order here is important because this fallback doesn't have strict mode enabled (in contrast to "default")
+		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
 		getDatreeCRDSchemaByName("argo"),
 	}
-	return (defaultSchemaLocations[:])
 }
 
 func getDatreeCRDSchemaByName(crdCatalogName string) string {
