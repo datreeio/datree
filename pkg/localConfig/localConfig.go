@@ -71,12 +71,11 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 			return nil, err
 		}
 		token = createTokenResponse.Token
-		if token == "" {
-			return nil, nil
-		}
-		err = setViperVariable(tokenKey, token)
-		if err != nil {
-			return nil, err
+		if token != "" {
+			err = setViperVariable(tokenKey, token)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
