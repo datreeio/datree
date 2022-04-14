@@ -77,7 +77,6 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 				return nil, err
 			}
 		}
-
 	}
 
 	if clientId == "" {
