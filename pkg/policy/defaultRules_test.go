@@ -51,7 +51,7 @@ func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
 	}
 
 	if !result.Valid() {
-		validationErrors := fmt.Errorf("Received some validation errors for %s:\n", yamlFilePath)
+		validationErrors := fmt.Errorf("Received validation errors for %s:\n", yamlFilePath)
 
 		for _, validationError := range result.Errors() {
 			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError)
