@@ -14,18 +14,15 @@
       "properties": {
         "id": {
           "type": "number",
-          "unique": true,
           "minimum": 1,
           "maximum": 44
         },
         "name": {
           "type": "string",
-          "minLength": 1,
-          "unique": true
+          "minLength": 1
         },
         "uniqueName": {
           "type": "string",
-          "unique": true,
           "minLength": 1,
           "pattern": "^[a-zA-Z0-9_]*$"
         },
