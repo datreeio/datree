@@ -51,7 +51,7 @@ func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
 	var defaultRulesFileContentJSON map[string][]interface{}
 	json.Unmarshal(defaultRulesFileContentRawJSON, &defaultRulesFileContentJSON)
 
-	err := validateUniqueIntPropertyValuesInArray("id", defaultRulesFileContentJSON["rules"])
+	err := validateUniqueFloat64PropertyValuesInArray("id", defaultRulesFileContentJSON["rules"])
 
 	assert.Nil(t, err)
 }
@@ -107,16 +107,16 @@ func validateUniqueStringPropertyValuesInArray(propertyName string, array []inte
 	return nil
 }
 
-func validateUniqueIntPropertyValuesInArray(propertyName string, array []interface{}) error {
-	propertyValuesExistenceMap := make(map[int]bool)
+func validateUniqueFloat64PropertyValuesInArray(propertyName string, array []interface{}) error {
+	propertyValuesExistenceMap := make(map[float64]bool)
 
 	for _, item := range array {
 		itemObject := item.(map[string]interface{})
 
-		propertyValue := itemObject[propertyName].(int)
+		propertyValue := itemObject[propertyName].(float64)
 
 		if propertyValuesExistenceMap[propertyValue] {
-			return fmt.Errorf("Property %s has duplicate value %d", propertyName, propertyValue)
+			return fmt.Errorf("Property %s has duplicate value %f", propertyName, propertyValue)
 		}
 
 		propertyValuesExistenceMap[propertyValue] = true
