@@ -340,7 +340,7 @@ func (t OutputTitle) String() string {
 		"Total rules evaluated",
 		"See all rules in policy",
 		"Total rules passed",
-		"Total Rules skipped",
+		"Total rules skipped",
 		"Total rules failed"}[t]
 }
 
