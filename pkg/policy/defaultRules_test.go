@@ -1,44 +1,64 @@
 package policy
 
 import (
-    "testing"
-    "fmt"
+	_ "embed"
+	"fmt"
+	"testing"
+
+	"github.com/datreeio/datree/pkg/fileReader"
+	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
+	"github.com/stretchr/testify/assert"
 )
 
-type Service struct {
-    APIVersion string `yaml:"apiVersion"`
-    Kind       string `yaml:"kind"`
-    Metadata   struct {
-        Name      string `yaml:"name"`
-        Namespace string `yaml:"namespace"`
-        Labels    struct {
-            RouterDeisIoRoutable string `yaml:"router.deis.io/routable"`
-        } `yaml:"labels"`
-        Annotations struct {
-            RouterDeisIoDomains string `yaml:"router.deis.io/domains"`
-        } `yaml:"annotations"`
-    } `yaml:"metadata"`
-    Spec struct {
-        Type     string `yaml:"type"`
-        Selector struct {
-            App string `yaml:"app"`
-        } `yaml:"selector"`
-        Ports []struct {
-            Name       string `yaml:"name"`
-            Port       int    `yaml:"port"`
-            TargetPort int    `yaml:"targetPort"`
-            NodePort   int    `yaml:"nodePort,omitempty"`
-        } `yaml:"ports"`
-    } `yaml:"spec"`
+//go:embed defaultRulesSchema.json
+var defaultRulesSchemaContent string
+
+func TestDefaultRulesFileExists(t *testing.T) {
+	defaultRulesYamlPath := "./defaultRules.yaml"
+	_, err := getFileFromPath(defaultRulesYamlPath)
+
+	assert.Nil(t, err)
 }
 
+func TestDefaultRulesFileFitsSchema(t *testing.T) {
+	defaultRulesYamlPath := "./defaultRules.yaml"
 
-func TestDefaultRulesSyntax(t *testing.T) {
-    var service Service
-    file = yaml.Unmarshal('./defaultRules.yaml', &service)
- if err != nil {
-    panic(err)
+	err := validateYamlUsingJSONSchema(defaultRulesYamlPath, defaultRulesSchemaContent)
+
+	assert.Nil(t, err)
 }
 
-fmt.Print(service.Metadata.Name)
+func getFileFromPath(path string) (string, error) {
+	fileReader := fileReader.CreateFileReader(nil)
+	fileContent, err := fileReader.ReadFileContent(path)
+
+	if err != nil {
+		return "", err
+	}
+
+	return fileContent, nil
+}
+
+func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
+	fileContent, _ := getFileFromPath(yamlFilePath)
+	jsonSchemaValidator := jsonSchemaValidator.New()
+	result, err := jsonSchemaValidator.ValidateYamlSchema(schema, fileContent)
+
+	if err != nil {
+		fmt.Errorf("Failed to validate %s:\n", yamlFilePath)
+
+		return err
+	}
+
+	if !result.Valid() {
+		validationErrors := fmt.Errorf("Received some validation errors for %s:\n", yamlFilePath)
+
+		for _, validationError := range result.Errors() {
+			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError)
+		}
+
+		return validationErrors
+	}
+
+	return nil
 }

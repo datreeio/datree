@@ -1,0 +1,67 @@
+{
+  "type": "object",
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "enum": [
+        "v1"
+      ]
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 44,
+      "maxItems": 44,
+      "properties": {
+        "id": {
+          "type": "number",
+          "unique": true,
+          "minimum": 1,
+          "maximum": 44
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "unique": true
+        },
+        "uniqueName": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_]*$"
+        },
+        "enabledByDefault": {
+          "type": "boolean"
+        },
+        "documentationUrl": {
+          "type": "string",
+          "minLength": 1
+        },
+        "messageOnFailure": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "enum": ["Containers", "Workload", "CronJob", "Networking", "Deprecation", "Security", "Other", "Custom", "Argo"]
+        },
+        "schema": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "uniqueName",
+        "enabledByDefault",
+        "documentationUrl",
+        "messageOnFailure",
+        "category",
+        "schema"
+      ]
+    }
+  },
+  "required": [
+    "apiVersion",
+    "rules"
+  ]
+}
