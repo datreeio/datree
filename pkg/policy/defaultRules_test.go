@@ -77,18 +77,18 @@ func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
 }
 
 func validateUniqueStringPropertyValuesInArray(propertyName string, array []interface{}) error {
-	propertyValues := make(map[string]bool)
+	propertyValuesExistenceMap := make(map[string]bool)
 
-	for _, object := range array {
-		objectMap := object.(map[string]interface{})
+	for _, item := range array {
+		itemObject := item.(map[string]interface{})
 
-		propertyValue := objectMap[propertyName].(string)
+		propertyValue := itemObject[propertyName].(string)
 
-		if propertyValues[propertyValue] {
+		if propertyValuesExistenceMap[propertyValue] {
 			return fmt.Errorf("Property %s has duplicate value %s", propertyName, propertyValue)
 		}
 
-		propertyValues[propertyValue] = true
+		propertyValuesExistenceMap[propertyValue] = true
 	}
 
 	return nil
