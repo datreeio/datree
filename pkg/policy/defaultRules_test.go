@@ -94,7 +94,8 @@ func convertYamlFileContentToJSON(yamlFileContent string) (map[string][]interfac
 	var yamlFileContentJSON map[string][]interface{}
 	jsonMarshallingError := json.Unmarshal(yamlFileContentRawJSON, &yamlFileContentJSON)
 
-	if jsonMarshallingError != nil && reflect.TypeOf(yamlFileContentJSON) != reflect.TypeOf(map[string][]interface{}{}) {
+	var jsonMarshallingNotFailed = jsonMarshallingError != nil && reflect.TypeOf(yamlFileContentJSON) != reflect.TypeOf(map[string][]interface{}{})
+	if jsonMarshallingNotFailed {
 		return map[string][]interface{}{}, jsonMarshallingError
 	}
 
