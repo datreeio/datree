@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites
+        name="POLICY_NAME"
+        tests="TOTAL_RULES_IN_POLICY"
+        failures="TOTAL_RULES_FAILED"
+>
+    <testsuite name="policySummary" tests="1">
+        <properties>
+            <property name="policyName" value="POLICY_NAME"/>
+            <property name="totalRulesInPolicy" value="TOTAL_RULES_IN_POLICY"/>
+            <property name="totalRulesFailed" value="TOTAL_RULES_FAILED"/>
+            <property name="totalSkippedRules" value="TOTAL_SKIPPED_RULES"/>
+            <property name="totalPassedCount" value="TOTAL_PASSED_RULES"/>
+        </properties>
+    </testsuite>
+    <testsuite name="evaluationSummary" tests="1">
+        <properties>
+            <property name="configsCount" value="8"/>
+            <property name="filesCount" value="2"/>
+            <property name="passedYamlValidationCount" value="2"/>
+            <property name="k8sValidation" value="2/2"/>
+            <property name="passedPolicyValidationCount" value="0"/>
+        </properties>
+    </testsuite>
+    <testsuite name="FILE_NAME" tests="1">
+        <testcase name="RULE_NAME" classname="RULE_IDENTIFIER">
+            <failure message="MESSAGE_ON_FAILURE">
+                metadataName: static-web
+                kind: Pod
+                occurrences:1
+            </failure>
+            <!--            <failure message="MESSAGE_ON_FAILURE">-->
+            <!--                metadataName: hello-->
+            <!--                kind: CronJob-->
+            <!--                occurrences:1-->
+            <!--            </failure>-->
+        </testcase>
+        <testcase name="RULE_NAME" classname="RULE_IDENTIFIER">
+            <skipped message="SKIP_MESSAGE"/>
+        </testcase>
+    </testsuite>
+</testsuites>

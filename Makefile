@@ -30,3 +30,6 @@ set-token:
 
 publish:
 	go run -tags=staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go publish ./internal/fixtures/policyAsCode/valid-schema.yaml
+
+junit_report:
+	junit2html ./internal/fixtures/junit_support/junit_datree.xml ./internal/fixtures/junit_support/junit_report.html
