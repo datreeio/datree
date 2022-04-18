@@ -33,23 +33,20 @@ func TestDefaultRulesFileFitsJSONSchema(t *testing.T) {
 func TestDefaultRulesHasUniqueNamesInRules(t *testing.T) {
 	defaultRulesYamlPath := "./defaultRules.yaml"
 	defaultRulesFileContent, _ := getFileFromPath(defaultRulesYamlPath)
-	defaultRulesFileContentRawJSON, _ := yaml.YAMLToJSON([]byte(defaultRulesFileContent))
 
-	var defaultRulesFileContentJSON map[string][]interface{}
-	json.Unmarshal(defaultRulesFileContentRawJSON, &defaultRulesFileContentJSON)
+	defaultRulesFileContentJSON, jsonParseError := convertYamlFileContentToJSON(defaultRulesFileContent)
+	assert.Nil(t, jsonParseError)
 
-	err := validateUniqueStringPropertyValuesInArray("uniqueName", defaultRulesFileContentJSON["rules"])
-
-	assert.Nil(t, err)
+	validationError := validateUniqueStringPropertyValuesInArray("uniqueName", defaultRulesFileContentJSON["rules"])
+	assert.Nil(t, validationError)
 }
 
 func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
 	defaultRulesYamlPath := "./defaultRules.yaml"
 	defaultRulesFileContent, _ := getFileFromPath(defaultRulesYamlPath)
-	defaultRulesFileContentRawJSON, _ := yaml.YAMLToJSON([]byte(defaultRulesFileContent))
 
-	var defaultRulesFileContentJSON map[string][]interface{}
-	json.Unmarshal(defaultRulesFileContentRawJSON, &defaultRulesFileContentJSON)
+	defaultRulesFileContentJSON, jsonParseError := convertYamlFileContentToJSON(defaultRulesFileContent)
+	assert.Nil(t, jsonParseError)
 
 	err := validateUniqueFloat64PropertyValuesInArray("id", defaultRulesFileContentJSON["rules"])
 
@@ -87,6 +84,19 @@ func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
 	}
 
 	return nil
+}
+
+func convertYamlFileContentToJSON(yamlFileContent string) (map[string][]interface{}, error) {
+	yamlFileContentRawJSON, err := yaml.YAMLToJSON([]byte(yamlFileContent))
+
+	if err != nil {
+		return map[string][]interface{}{}, err
+	}
+
+	var yamlFileContentJSON map[string][]interface{}
+	json.Unmarshal(yamlFileContentRawJSON, &yamlFileContentJSON)
+
+	return yamlFileContentJSON, nil
 }
 
 func validateUniqueStringPropertyValuesInArray(propertyName string, array []interface{}) error {
