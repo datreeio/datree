@@ -5,15 +5,24 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/datreeio/datree/bl/files"
+
+	"github.com/datreeio/datree/pkg/deploymentConfig"
+
+	"github.com/datreeio/datree/pkg/executor"
+	"github.com/datreeio/datree/pkg/fileReader"
+	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/datreeio/datree/pkg/networkValidator"
 
-	"github.com/datreeio/datree/internal/deploymentConfig"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/datreeio/datree/pkg/utils"
 
 	"github.com/datreeio/datree/bl/errorReporter"
+	"github.com/datreeio/datree/bl/evaluation"
+	"github.com/datreeio/datree/bl/messager"
+	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/cmd"
 	"github.com/datreeio/datree/cmd/test"
 )
@@ -28,6 +37,23 @@ func main() {
 
 	reporter := errorReporter.NewErrorReporter(cliClient, localConfig)
 	globalPrinter := printer.CreateNewPrinter()
+
+	app := &cmd.App{
+		Context: &cmd.Context{
+			LocalConfig:         localConfig,
+			Evaluator:           evaluation.New(cliClient),
+			CliClient:           cliClient,
+			Messager:            messager.New(cliClient),
+			Printer:             globalPrinter,
+			Reader:              fileReader.CreateFileReader(nil),
+			K8sValidator:        validation.New(),
+			JSONSchemaValidator: jsonSchemaValidator.New(),
+			CommandRunner:       executor.CreateNewCommandRunner(),
+			FilesExtractor:      files.New(),
+		},
+	}
+
+	cmd := cmd.NewRootCommand(app)
 
 	defer func() {
 		if panicErr := recover(); panicErr != nil {

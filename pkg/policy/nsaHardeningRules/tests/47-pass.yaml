@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          securityContext:
+            allowPrivilegeEscalation: false

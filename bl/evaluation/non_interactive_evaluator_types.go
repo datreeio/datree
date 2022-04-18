@@ -41,5 +41,6 @@ type PolicySummary struct {
 	PolicyName         string `yaml:"policyName" json:"policyName" xml:"policyName"`
 	TotalRulesInPolicy int    `yaml:"totalRulesInPolicy" json:"totalRulesInPolicy" xml:"totalRulesInPolicy"`
 	TotalRulesFailed   int    `yaml:"totalRulesFailed"  json:"totalRulesFailed" xml:"totalRulesFailed"`
+	TotalSkippedRules  int    `yaml:"totalSkippedRules" json:"totalSkippedRules" xml:"totalSkippedRules"`
 	TotalPassedCount   int    `yaml:"totalPassedCount"  json:"totalPassedCount" xml:"totalPassedCount"`
 }

@@ -3,6 +3,8 @@ package kustomize
 import (
 	"testing"
 
+	"github.com/datreeio/datree/bl/files"
+
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
@@ -42,12 +44,13 @@ func test_kustomize_run_method_success() *somethingTestCase {
 		name: "should return nil when kustomize run method is successful",
 		args: []string{"./kustomization.yaml"},
 		testCtx: &test.TestCommandContext{
-			K8sValidator: &k8sValidatorMock{},
-			Evaluator:    &mockEvaluator{},
-			LocalConfig:  &LocalConfigMock{},
-			Messager:     &mockMessager{},
-			Printer:      &PrinterMock{},
-			Reader:       &ReaderMock{},
+			K8sValidator:   &k8sValidatorMock{},
+			Evaluator:      &mockEvaluator{},
+			LocalConfig:    &LocalConfigMock{},
+			Messager:       &mockMessager{},
+			Printer:        &PrinterMock{},
+			Reader:         &ReaderMock{},
+			FilesExtractor: &files.FilesExtractor{},
 		},
 		kustomizeCtx: &KustomizeContext{
 			CommandRunner: &mockKustomizeExecuter{},

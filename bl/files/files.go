@@ -11,7 +11,18 @@ import (
 
 type UnknownStruct map[string]interface{}
 
-func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile) {
+type FilesExtractor struct{}
+
+type FilesExtractorInterface interface {
+	ExtractFilesConfigurations(paths []string, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile)
+	ExtractYamlFileToUnknownStruct(path string) (UnknownStruct, error)
+}
+
+func New() *FilesExtractor {
+	return &FilesExtractor{}
+}
+
+func (f *FilesExtractor) ExtractFilesConfigurations(paths []string, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile) {
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
 	invalidFilesChan := make(chan *extractor.InvalidFile, concurrency)
 
@@ -37,7 +48,7 @@ func ExtractFilesConfigurations(paths []string, concurrency int) (chan *extracto
 	return filesConfigurationsChan, invalidFilesChan
 }
 
-func ExtractYamlFileToUnknownStruct(path string) (UnknownStruct, error) {
+func (f *FilesExtractor) ExtractYamlFileToUnknownStruct(path string) (UnknownStruct, error) {
 	absolutePath, err := extractor.ToAbsolutePath(path)
 	if err != nil {
 		return nil, err

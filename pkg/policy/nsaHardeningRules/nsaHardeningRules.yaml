@@ -298,7 +298,7 @@
                       const: true
                   required:
                     - runAsNonRoot
-    anyOf:
+    allOf:
       - $ref: "#/definitions/containerSecurityPattern"
       - $ref: "#/definitions/podSecurityContextPattern"
     additionalProperties:
