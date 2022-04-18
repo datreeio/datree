@@ -17,17 +17,17 @@ var defaultRulesSchemaContent string
 
 func TestDefaultRulesFileExists(t *testing.T) {
 	defaultRulesYamlPath := "./defaultRules.yaml"
-	_, err := getFileFromPath(defaultRulesYamlPath)
+	_, fileReadError := getFileFromPath(defaultRulesYamlPath)
 
-	assert.Nil(t, err)
+	assert.Nil(t, fileReadError)
 }
 
 func TestDefaultRulesFileFitsJSONSchema(t *testing.T) {
 	defaultRulesYamlPath := "./defaultRules.yaml"
 
-	err := validateYamlUsingJSONSchema(defaultRulesYamlPath, defaultRulesSchemaContent)
+	validationError := validateYamlUsingJSONSchema(defaultRulesYamlPath, defaultRulesSchemaContent)
 
-	assert.Nil(t, err)
+	assert.Nil(t, validationError)
 }
 
 func TestDefaultRulesHasUniqueNamesInRules(t *testing.T) {
@@ -48,9 +48,9 @@ func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
 	defaultRulesFileContentJSON, jsonParseError := convertYamlFileContentToJSON(defaultRulesFileContent)
 	assert.Nil(t, jsonParseError)
 
-	err := validateUniqueFloat64PropertyValuesInArray("id", defaultRulesFileContentJSON["rules"])
+	validationError := validateUniqueFloat64PropertyValuesInArray("id", defaultRulesFileContentJSON["rules"])
 
-	assert.Nil(t, err)
+	assert.Nil(t, validationError)
 }
 
 func getFileFromPath(path string) (string, error) {
