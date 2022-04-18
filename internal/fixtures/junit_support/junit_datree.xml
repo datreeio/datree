@@ -3,8 +3,22 @@
         name="POLICY_NAME"
         tests="TOTAL_RULES_IN_POLICY"
         failures="TOTAL_RULES_FAILED"
+        skipped="TOTAL_SKIPPED_RULES"
 >
-    <testsuite name="policySummary" tests="1">
+    <testsuite name="FILE_NAME">
+        <testcase name="RULE_NAME" classname="RULE_IDENTIFIER"/>
+        <testcase name="RULE_NAME" classname="MIN_REPLICA">
+            <failure message="MESSAGE_ON_FAILURE">
+                2 occurrences
+                — metadata.name: static-web (kind: Pod)
+                — metadata.name: hello (kind: CronJob)
+            </failure>
+        </testcase>
+        <testcase name="RULE_NAME" classname="MID_REPLICA">
+            <skipped message="SKIP_MESSAGE"/>
+        </testcase>
+    </testsuite>
+    <testsuite name="policySummary">
         <properties>
             <property name="policyName" value="POLICY_NAME"/>
             <property name="totalRulesInPolicy" value="TOTAL_RULES_IN_POLICY"/>
@@ -13,7 +27,7 @@
             <property name="totalPassedCount" value="TOTAL_PASSED_RULES"/>
         </properties>
     </testsuite>
-    <testsuite name="evaluationSummary" tests="1">
+    <testsuite name="evaluationSummary">
         <properties>
             <property name="configsCount" value="8"/>
             <property name="filesCount" value="2"/>
@@ -21,22 +35,5 @@
             <property name="k8sValidation" value="2/2"/>
             <property name="passedPolicyValidationCount" value="0"/>
         </properties>
-    </testsuite>
-    <testsuite name="FILE_NAME" tests="1">
-        <testcase name="RULE_NAME" classname="RULE_IDENTIFIER">
-            <failure message="MESSAGE_ON_FAILURE">
-                metadataName: static-web
-                kind: Pod
-                occurrences:1
-            </failure>
-            <!--            <failure message="MESSAGE_ON_FAILURE">-->
-            <!--                metadataName: hello-->
-            <!--                kind: CronJob-->
-            <!--                occurrences:1-->
-            <!--            </failure>-->
-        </testcase>
-        <testcase name="RULE_NAME" classname="RULE_IDENTIFIER">
-            <skipped message="SKIP_MESSAGE"/>
-        </testcase>
     </testsuite>
 </testsuites>

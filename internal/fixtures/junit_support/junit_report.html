@@ -193,19 +193,33 @@ h1 {
             <ul class="toc">
             
                 
-            
-                
-            
-                
                 <li>RULE_IDENTIFIER
                 <ul>
                     
-                    <li><a href="#712f6b4d-00db-4dfe-a7cc-479b0e48442a">RULE_NAME</a></li>
-                    
-                    <li><a href="#cb79a172-e679-4239-8fc6-08c9782f290f">RULE_NAME</a></li>
+                    <li><a href="#2ffffb57-e6e0-4ced-8440-c967737b0f35">RULE_NAME</a></li>
                     
                 </ul>
                 </li>
+                
+                <li>MIN_REPLICA
+                <ul>
+                    
+                    <li><a href="#064640f1-3335-461d-afb5-1b2e60037624">RULE_NAME</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>MID_REPLICA
+                <ul>
+                    
+                    <li><a href="#2c1b045e-a2fd-475f-b40b-f51ef0a5754e">RULE_NAME</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+            
                 
             
             </ul>
@@ -214,17 +228,23 @@ h1 {
             <ul class="toc">
             
                 
-            
+                    
+                    
+                    
+                
+                    
+                    
+                    <li><a href="#064640f1-3335-461d-afb5-1b2e60037624">[F] MIN_REPLICA : RULE_NAME</a></li>
+                    
+                    
+                
+                    
+                    
+                    
                 
             
                 
-                    
-                    
-                    <li><a href="#712f6b4d-00db-4dfe-a7cc-479b0e48442a">[F] RULE_IDENTIFIER : RULE_NAME</a></li>
-                    
-                    
-                    
-                    
+            
                 
             
             </ul>
@@ -234,8 +254,128 @@ h1 {
 
 
     <div class="testsuite">
+        <h2>Test Suite: FILE_NAME</h2>
+        <a id="f6b893f5-afe1-4c24-9620-9d36d27ea170"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.0 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>3</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>1</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>RULE_IDENTIFIER</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="2ffffb57-e6e0-4ced-8440-c967737b0f35"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>RULE_NAME</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>MIN_REPLICA</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-failed">
+                        <a id="064640f1-3335-461d-afb5-1b2e60037624"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>RULE_NAME</b></td></tr>
+                            <tr><th>Outcome:</th><td>Failed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>MESSAGE_ON_FAILURE</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>
+                2 occurrences
+                — metadata.name: static-web (kind: Pod)
+                — metadata.name: hello (kind: CronJob)
+            </pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>MID_REPLICA</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-skipped">
+                        <a id="2c1b045e-a2fd-475f-b40b-f51ef0a5754e"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>RULE_NAME</b></td></tr>
+                            <tr><th>Outcome:</th><td>Skipped</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                            <tr><th>Skipped</th><td>SKIP_MESSAGE</td></tr>
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+                        <pre>skipped</pre>
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
         <h2>Test Suite: policySummary</h2>
-        <a id="707a34c4-ad6c-48e1-b957-f59d7f3a9ab7"></a>
+        <a id="6c7eb6a1-abcb-4690-ad57-5c18b93013d7"></a>
         
         
         <h3>Suite Properties</h3>
@@ -285,7 +425,7 @@ h1 {
 
     <div class="testsuite">
         <h2>Test Suite: evaluationSummary</h2>
-        <a id="14474d99-190c-4f8d-a117-89b53ebee726"></a>
+        <a id="9dbe8ec4-b9b7-4ba1-a538-3f425df291fc"></a>
         
         
         <h3>Suite Properties</h3>
@@ -328,90 +468,6 @@ h1 {
 
         <div class="testclasses">
             <h3>Tests</h3>
-            
-        </div>
-    </div>
-    
-
-    <div class="testsuite">
-        <h2>Test Suite: FILE_NAME</h2>
-        <a id="0f6ae5de-e3d3-445f-bf58-7c4e7ab5fc7a"></a>
-        
-        
-        <h3>Results</h3>
-        <table class="proplist">
-            <tr>
-                <th>Duration</th><td>0.0 sec</td>
-            </tr>
-            <tr>
-                <th>Tests</th><td>2</td>
-            </tr>
-            <tr>
-                <th>Failures</th><td>1</td>
-            </tr>
-        </table>
-
-        <div class="testclasses">
-            <h3>Tests</h3>
-            
-            <div class="testclass">
-                <h4>RULE_IDENTIFIER</h4>
-                <div class="testcases">
-                
-                    <div class="test outcome outcome-failed">
-                        <a id="712f6b4d-00db-4dfe-a7cc-479b0e48442a"></a>
-                        <table class="proplist">
-                            <tr><th>Test case:</th><td><b>RULE_NAME</b></td></tr>
-                            <tr><th>Outcome:</th><td>Failed</td></tr>
-                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
-                        
-                            <tr><th>Failed</th><td>MESSAGE_ON_FAILURE</td></tr>
-                        
-                        
-                        </table>
-
-                        
-                        <pre>
-                metadataName: static-web
-                kind: Pod
-                occurrences:1
-            </pre>
-                        
-                        
-
-                        
-                        
-                        
-                    </div>
-                
-                    <div class="test outcome outcome-skipped">
-                        <a id="cb79a172-e679-4239-8fc6-08c9782f290f"></a>
-                        <table class="proplist">
-                            <tr><th>Test case:</th><td><b>RULE_NAME</b></td></tr>
-                            <tr><th>Outcome:</th><td>Skipped</td></tr>
-                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
-                        
-                            <tr><th>Failed</th><td>None</td></tr>
-                        
-                        
-                            <tr><th>Skipped</th><td>SKIP_MESSAGE</td></tr>
-                        
-                        </table>
-
-                        
-                        <pre>None</pre>
-                        
-                        
-                        <pre>skipped</pre>
-                        
-
-                        
-                        
-                        
-                    </div>
-                
-                </div>
-            </div>
             
         </div>
     </div>
