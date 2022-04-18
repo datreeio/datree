@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/fileReader"
@@ -32,22 +33,22 @@ func TestDefaultRulesFileFitsJSONSchema(t *testing.T) {
 func TestDefaultRulesHasUniqueNamesInRules(t *testing.T) {
 	defaultRulesFileContent, _ := getFileFromPath(defaultRulesYamlPath)
 
-	defaultRulesFileContentJSON, jsonParseError := convertYamlFileContentToJSON(defaultRulesFileContent)
-	assert.Nil(t, jsonParseError)
+	defaultRulesFileContentJSON, conversionToJSONError := convertYamlFileContentToJSON(defaultRulesFileContent)
+	assert.Nil(t, conversionToJSONError)
 
-	validationError := validateUniqueStringPropertyValuesInArray("uniqueName", defaultRulesFileContentJSON["rules"])
-	assert.Nil(t, validationError)
+	uniquenessValidationError := validateUniqueStringPropertyValuesInArray("uniqueName", defaultRulesFileContentJSON["rules"])
+	assert.Nil(t, uniquenessValidationError)
 }
 
 func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
 	defaultRulesFileContent, _ := getFileFromPath(defaultRulesYamlPath)
 
-	defaultRulesFileContentJSON, jsonParseError := convertYamlFileContentToJSON(defaultRulesFileContent)
-	assert.Nil(t, jsonParseError)
+	defaultRulesFileContentJSON, conversionToJSONError := convertYamlFileContentToJSON(defaultRulesFileContent)
+	assert.Nil(t, conversionToJSONError)
 
-	validationError := validateUniqueFloat64PropertyValuesInArray("id", defaultRulesFileContentJSON["rules"])
+	uniquenessValidationError := validateUniqueFloat64PropertyValuesInArray("id", defaultRulesFileContentJSON["rules"])
 
-	assert.Nil(t, validationError)
+	assert.Nil(t, uniquenessValidationError)
 }
 
 func getFileFromPath(path string) (string, error) {
@@ -84,14 +85,18 @@ func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
 }
 
 func convertYamlFileContentToJSON(yamlFileContent string) (map[string][]interface{}, error) {
-	yamlFileContentRawJSON, err := yaml.YAMLToJSON([]byte(yamlFileContent))
+	yamlFileContentRawJSON, yamlParseError := yaml.YAMLToJSON([]byte(yamlFileContent))
 
-	if err != nil {
-		return map[string][]interface{}{}, err
+	if yamlParseError != nil {
+		return map[string][]interface{}{}, yamlParseError
 	}
 
 	var yamlFileContentJSON map[string][]interface{}
-	json.Unmarshal(yamlFileContentRawJSON, &yamlFileContentJSON)
+	jsonMarshallingError := json.Unmarshal(yamlFileContentRawJSON, &yamlFileContentJSON)
+
+	if jsonMarshallingError != nil && reflect.TypeOf(yamlFileContentJSON) != reflect.TypeOf(map[string][]interface{}{}) {
+		return map[string][]interface{}{}, jsonMarshallingError
+	}
 
 	return yamlFileContentJSON, nil
 }
