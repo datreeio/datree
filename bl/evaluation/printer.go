@@ -3,6 +3,7 @@ package evaluation
 import (
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -50,7 +51,7 @@ type textOutputData struct {
 }
 
 func PrintResults(resultsData *PrintResultsData) error {
-	if resultsData.OutputFormat == "json" || resultsData.OutputFormat == "yaml" || resultsData.OutputFormat == "xml" {
+	if resultsData.OutputFormat == "json" || resultsData.OutputFormat == "yaml" || resultsData.OutputFormat == "xml" || resultsData.OutputFormat == "JUnit" {
 		nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
 		if nonInteractiveEvaluationResults == nil {
 			nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
@@ -73,8 +74,12 @@ func PrintResults(resultsData *PrintResultsData) error {
 			return jsonOutput(&formattedOutput)
 		} else if resultsData.OutputFormat == "yaml" {
 			return yamlOutput(&formattedOutput)
-		} else {
+		} else if resultsData.OutputFormat == "xml" {
 			return xmlOutput(&formattedOutput)
+		} else if resultsData.OutputFormat == "JUnit" {
+			return JUnitOutput(&formattedOutput)
+		} else {
+			panic(errors.New("invalid output format"))
 		}
 	} else {
 		return textOutput(textOutputData{
@@ -115,7 +120,17 @@ func yamlOutput(formattedOutput *FormattedOutput) error {
 }
 
 func xmlOutput(formattedOutput *FormattedOutput) error {
-	xmlOutput, err := xml.MarshalIndent(formattedOutput, "", "\t")
+	return printAsXml(formattedOutput)
+}
+
+func JUnitOutput(formattedOutput *FormattedOutput) error {
+	formattedOutput.EvaluationSummary.K8sValidation = "blabla"
+
+	return printAsXml(formattedOutput)
+}
+
+func printAsXml(output interface{}) error {
+	xmlOutput, err := xml.MarshalIndent(output, "", "\t")
 	xmlOutput = []byte(xml.Header + string(xmlOutput))
 	if err != nil {
 		fmt.Println(err)

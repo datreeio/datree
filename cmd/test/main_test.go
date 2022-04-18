@@ -814,7 +814,7 @@ func executeTestCommand(ctx *TestCommandContext, args []string) error {
 
 func test_testCommand_output_flags_validation(t *testing.T, ctx *TestCommandContext) {
 
-	validOutputValues := [4]string{"simple", "json", "yaml", "xml"}
+	validOutputValues := [5]string{"simple", "json", "yaml", "xml", "JUnit"}
 
 	for _, value := range validOutputValues {
 		flags := TestCommandFlags{Output: value}
@@ -822,12 +822,12 @@ func test_testCommand_output_flags_validation(t *testing.T, ctx *TestCommandCont
 		assert.NoError(t, err)
 	}
 
-	values := []string{"Simple", "Json", "Yaml", "Xml", "invalid", "113", "true"}
+	values := []string{"Simple", "Json", "Yaml", "Xml", "JUnit", "invalid", "113", "true"}
 
 	for _, value := range values {
 		err := executeTestCommand(ctx, []string{"8/*", "--output=" + value})
 		expectedErrorStr := "Invalid --output option - \"" + value + "\"\n" +
-			"Valid output values are - simple, yaml, json, xml\n"
+			"Valid output values are - simple, yaml, json, xml, JUnit\n"
 		assert.EqualError(t, err, expectedErrorStr)
 	}
 }
