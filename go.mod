@@ -12,6 +12,7 @@ require (
 	github.com/lithammer/shortuuid v3.0.0+incompatible
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
+	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
@@ -19,13 +20,18 @@ require (
 	github.com/yannh/kubeconform v0.4.8
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	k8s.io/apimachinery v0.23.5
 )
 
-require sigs.k8s.io/yaml v1.2.0 // indirect
+require (
+	github.com/gogo/protobuf v1.3.2 // indirect
+	gopkg.in/inf.v0 v0.9.1 // indirect
+	sigs.k8s.io/yaml v1.2.0 // indirect
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/fsnotify/fsnotify v1.4.7 // indirect
+	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

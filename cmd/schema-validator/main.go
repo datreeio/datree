@@ -2,6 +2,7 @@ package schema_validator
 
 import (
 	"fmt"
+	"github.com/santhosh-tekuri/jsonschema/v5"
 
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/spf13/cobra"
@@ -11,11 +12,11 @@ import (
 type Result = gojsonschema.Result
 
 type JSONSchemaValidator interface {
-	ValidateYamlSchema(yamlSchema string, yaml string) (*Result, error)
+	ValidateYamlSchemaNew(yamlSchema string, yaml string) ([]jsonschema.Detailed, error)
 }
 
 type JSONSchemaValidationPrinter interface {
-	PrintYamlSchemaResults(result *Result, error error)
+	PrintYamlSchemaResults(result []jsonschema.Detailed, error error)
 }
 
 type JSONSchemaValidatorCommandContext struct {
@@ -62,7 +63,7 @@ func New(ctx *JSONSchemaValidatorCommandContext) *cobra.Command {
 				ctx.Printer.PrintYamlSchemaResults(nil, err)
 				return err
 			}
-			result, err := ctx.JSONSchemaValidator.ValidateYamlSchema(schemaContent, yamlContent)
+			result, err := ctx.JSONSchemaValidator.ValidateYamlSchemaNew(schemaContent, yamlContent)
 			ctx.Printer.PrintYamlSchemaResults(result, err)
 			if err != nil {
 				return err
