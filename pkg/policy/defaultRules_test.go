@@ -53,10 +53,10 @@ func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
 
 func getFileFromPath(path string) (string, error) {
 	fileReader := fileReader.CreateFileReader(nil)
-	fileContent, err := fileReader.ReadFileContent(path)
+	fileContent, readFileError := fileReader.ReadFileContent(path)
 
-	if err != nil {
-		return "", err
+	if readFileError != nil {
+		return "", readFileError
 	}
 
 	return fileContent, nil
@@ -65,16 +65,16 @@ func getFileFromPath(path string) (string, error) {
 func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
 	fileContent, _ := getFileFromPath(yamlFilePath)
 	jsonSchemaValidator := jsonSchemaValidator.New()
-	result, err := jsonSchemaValidator.ValidateYamlSchema(schema, fileContent)
+	schemaValidationResult, schemaValidationError := jsonSchemaValidator.ValidateYamlSchema(schema, fileContent)
 
-	if err != nil {
-		return err
+	if schemaValidationError != nil {
+		return schemaValidationError
 	}
 
-	if !result.Valid() {
+	if !schemaValidationResult.Valid() {
 		validationErrors := fmt.Errorf("Received validation errors for %s:\n", yamlFilePath)
 
-		for _, validationError := range result.Errors() {
+		for _, validationError := range schemaValidationResult.Errors() {
 			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError)
 		}
 
