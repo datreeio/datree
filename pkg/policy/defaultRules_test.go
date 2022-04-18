@@ -15,23 +15,21 @@ import (
 //go:embed defaultRulesSchema.json
 var defaultRulesSchemaContent string
 
+const defaultRulesYamlPath = "./defaultRules.yaml"
+
 func TestDefaultRulesFileExists(t *testing.T) {
-	defaultRulesYamlPath := "./defaultRules.yaml"
 	_, fileReadError := getFileFromPath(defaultRulesYamlPath)
 
 	assert.Nil(t, fileReadError)
 }
 
 func TestDefaultRulesFileFitsJSONSchema(t *testing.T) {
-	defaultRulesYamlPath := "./defaultRules.yaml"
-
 	validationError := validateYamlUsingJSONSchema(defaultRulesYamlPath, defaultRulesSchemaContent)
 
 	assert.Nil(t, validationError)
 }
 
 func TestDefaultRulesHasUniqueNamesInRules(t *testing.T) {
-	defaultRulesYamlPath := "./defaultRules.yaml"
 	defaultRulesFileContent, _ := getFileFromPath(defaultRulesYamlPath)
 
 	defaultRulesFileContentJSON, jsonParseError := convertYamlFileContentToJSON(defaultRulesFileContent)
@@ -42,7 +40,6 @@ func TestDefaultRulesHasUniqueNamesInRules(t *testing.T) {
 }
 
 func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
-	defaultRulesYamlPath := "./defaultRules.yaml"
 	defaultRulesFileContent, _ := getFileFromPath(defaultRulesYamlPath)
 
 	defaultRulesFileContentJSON, jsonParseError := convertYamlFileContentToJSON(defaultRulesFileContent)
