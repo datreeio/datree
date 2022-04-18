@@ -184,13 +184,13 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 		return nil, err
 	}
 
-	validationResult, err := e.jsonSchemaValidator.ValidateYamlSchema(string(ruleSchemaJson), string(configurationJson))
+	validationResult, err := e.jsonSchemaValidator.ValidateYamlSchemaNew(string(ruleSchemaJson), string(configurationJson))
 
 	if err != nil {
 		return nil, err
 	}
 
-	occurrences := countOccurrences(validationResult)
+	occurrences := len(validationResult)
 	skipMessage, skipRuleExists := skipAnnotations[SKIP_RULE_PREFIX+rule.RuleIdentifier]
 
 	if occurrences < 1 && !skipRuleExists {
@@ -377,16 +377,6 @@ func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string
 	} else {
 		currentFailedRulesByFiles[fileName][ruleIdentifier] = failedRule
 	}
-}
-
-func countOccurrences(validationResult *Result) int {
-	count := 0
-	for _, err := range validationResult.Errors() {
-		if err.Type() != "condition_then" && err.Type() != "number_all_of" {
-			count = count + 1
-		}
-	}
-	return count
 }
 
 func extractSkipAnnotations(configuration extractor.Configuration) map[string]string {
