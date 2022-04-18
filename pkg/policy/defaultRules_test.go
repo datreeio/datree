@@ -104,7 +104,6 @@ func validateUniqueStringPropertyValuesInArray(propertyName string, array []inte
 
 	for _, item := range array {
 		itemObject := item.(map[string]interface{})
-
 		propertyValue := itemObject[propertyName].(string)
 
 		if propertyValuesExistenceMap[propertyValue] {
@@ -122,7 +121,6 @@ func validateUniqueFloat64PropertyValuesInArray(propertyName string, array []int
 
 	for _, item := range array {
 		itemObject := item.(map[string]interface{})
-
 		propertyValue := itemObject[propertyName].(float64)
 
 		if propertyValuesExistenceMap[propertyValue] {
