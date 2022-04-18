@@ -43,6 +43,19 @@ func TestDefaultRulesHasUniqueNamesInRules(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
+	defaultRulesYamlPath := "./defaultRules.yaml"
+	defaultRulesFileContent, _ := getFileFromPath(defaultRulesYamlPath)
+	defaultRulesFileContentRawJSON, _ := yaml.YAMLToJSON([]byte(defaultRulesFileContent))
+
+	var defaultRulesFileContentJSON map[string][]interface{}
+	json.Unmarshal(defaultRulesFileContentRawJSON, &defaultRulesFileContentJSON)
+
+	err := validateUniqueIntPropertyValuesInArray("id", defaultRulesFileContentJSON["rules"])
+
+	assert.Nil(t, err)
+}
+
 func getFileFromPath(path string) (string, error) {
 	fileReader := fileReader.CreateFileReader(nil)
 	fileContent, err := fileReader.ReadFileContent(path)
@@ -86,6 +99,24 @@ func validateUniqueStringPropertyValuesInArray(propertyName string, array []inte
 
 		if propertyValuesExistenceMap[propertyValue] {
 			return fmt.Errorf("Property %s has duplicate value %s", propertyName, propertyValue)
+		}
+
+		propertyValuesExistenceMap[propertyValue] = true
+	}
+
+	return nil
+}
+
+func validateUniqueIntPropertyValuesInArray(propertyName string, array []interface{}) error {
+	propertyValuesExistenceMap := make(map[int]bool)
+
+	for _, item := range array {
+		itemObject := item.(map[string]interface{})
+
+		propertyValue := itemObject[propertyName].(int)
+
+		if propertyValuesExistenceMap[propertyValue] {
+			return fmt.Errorf("Property %s has duplicate value %d", propertyName, propertyValue)
 		}
 
 		propertyValuesExistenceMap[propertyValue] = true
