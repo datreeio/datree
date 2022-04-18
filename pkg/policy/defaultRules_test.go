@@ -45,8 +45,6 @@ func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
 	result, err := jsonSchemaValidator.ValidateYamlSchema(schema, fileContent)
 
 	if err != nil {
-		fmt.Errorf("Failed to validate %s:\n", yamlFilePath)
-
 		return err
 	}
 
