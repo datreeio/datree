@@ -23,26 +23,12 @@ func New() *JSONSchemaValidator {
 
 type Result = gojsonschema.Result
 
-func (jsv *JSONSchemaValidator) ValidateYamlSchema(schemaContent string, yamlContent string) (*Result, error) {
+func (jsv *JSONSchemaValidator) ValidateYamlSchema(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
 	jsonSchema, _ := yaml.YAMLToJSON([]byte(schemaContent))
 	return jsv.Validate(string(jsonSchema), yamlContent)
 }
 
-func (jsv *JSONSchemaValidator) ValidateYamlSchemaNew(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
-	jsonSchema, _ := yaml.YAMLToJSON([]byte(schemaContent))
-	return jsv.NewValidate(string(jsonSchema), yamlContent)
-}
-
-func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent string) (*Result, error) {
-	jsonContent, _ := yaml.YAMLToJSON([]byte(yamlContent))
-
-	schemaLoader := gojsonschema.NewStringLoader(schemaContent)
-	documentLoader := gojsonschema.NewStringLoader(string(jsonContent))
-
-	return gojsonschema.Validate(schemaLoader, documentLoader)
-}
-
-func (jsv *JSONSchemaValidator) NewValidate(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
+func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
 	var m interface{}
 	err := yaml.Unmarshal([]byte(yamlContent), &m)
 	if err != nil {

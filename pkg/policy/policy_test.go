@@ -66,7 +66,7 @@ func validatePassing(t *testing.T, validator *jsonSchemaValidator.JSONSchemaVali
 			panic(err)
 		}
 
-		res, err := validator.ValidateYamlSchemaNew(string(schemaBytes), file.content)
+		res, err := validator.ValidateYamlSchema(string(schemaBytes), file.content)
 		if err != nil {
 			panic(errors.New(err.Error() + fmt.Sprintf("\nruleId: %d", ruleId)))
 		}

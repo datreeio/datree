@@ -13,7 +13,7 @@ import (
 type Result = gojsonschema.Result
 
 type JSONSchemaValidator interface {
-	ValidateYamlSchemaNew(yamlSchema string, yaml string) ([]jsonschema.Detailed, error)
+	ValidateYamlSchema(yamlSchema string, yaml string) ([]jsonschema.Detailed, error)
 }
 
 type JSONSchemaValidationPrinter interface {
@@ -64,7 +64,7 @@ func New(ctx *JSONSchemaValidatorCommandContext) *cobra.Command {
 				ctx.Printer.PrintYamlSchemaResults(nil, err)
 				return err
 			}
-			result, err := ctx.JSONSchemaValidator.ValidateYamlSchemaNew(schemaContent, yamlContent)
+			result, err := ctx.JSONSchemaValidator.ValidateYamlSchema(schemaContent, yamlContent)
 			ctx.Printer.PrintYamlSchemaResults(result, err)
 			if err != nil {
 				return err

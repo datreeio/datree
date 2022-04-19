@@ -184,7 +184,7 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 		return nil, err
 	}
 
-	validationResult, err := e.jsonSchemaValidator.ValidateYamlSchemaNew(string(ruleSchemaJson), string(configurationJson))
+	validationResult, err := e.jsonSchemaValidator.ValidateYamlSchema(string(ruleSchemaJson), string(configurationJson))
 
 	if err != nil {
 		return nil, err
