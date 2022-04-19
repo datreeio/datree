@@ -77,7 +77,7 @@ func PrintResults(resultsData *PrintResultsData) error {
 		} else if resultsData.OutputFormat == "xml" {
 			return xmlOutput(&formattedOutput)
 		} else if resultsData.OutputFormat == "JUnit" {
-			return JUnitOutput(&formattedOutput)
+			return jUnitOutput(&formattedOutput)
 		} else {
 			panic(errors.New("invalid output format"))
 		}
@@ -123,7 +123,7 @@ func xmlOutput(formattedOutput *FormattedOutput) error {
 	return printAsXml(formattedOutput)
 }
 
-func JUnitOutput(formattedOutput *FormattedOutput) error {
+func jUnitOutput(formattedOutput *FormattedOutput) error {
 	formattedOutput.EvaluationSummary.K8sValidation = "blabla"
 
 	return printAsXml(formattedOutput)
