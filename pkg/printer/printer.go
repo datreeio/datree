@@ -110,10 +110,6 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 }
 
 func (p *Printer) PrintYamlSchemaResults(result []jsonschema.Detailed, error error) {
-	if result == nil {
-		p.printInColor("INVALID FILE PATH\n", p.Theme.Colors.RedBold)
-		return
-	}
 	if result != nil {
 		p.printInColor("Input does NOT pass validation against schema\n", p.Theme.Colors.RedBold)
 		var errorsAsString = ""

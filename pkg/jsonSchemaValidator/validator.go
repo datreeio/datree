@@ -1,7 +1,6 @@
 package jsonSchemaValidator
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -99,6 +98,10 @@ func (jsv *JSONSchemaValidator) NewValidate(schemaContent string, yamlContent st
 	return nil, err
 }
 
+/*
+This package accepts only map[string]interface{}, so we need to manually convert them to
+map[string]interface{}
+*/
 func toStringKeys(val interface{}) (interface{}, error) {
 	var err error
 	switch val := val.(type) {
@@ -143,7 +146,7 @@ func (resourceMinimumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 	return nil, nil
 }
 func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
-	if resourceMinimum, ok := m["resourceMinimum"]; ok {
+	if resourceMinimum, ok := m["resourceMaximum"]; ok {
 		n := resourceMinimum.(string)
 		return resourceMaximumSchema(n), nil
 	}
@@ -157,39 +160,18 @@ type resourceMaximumSchema string
 
 func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, v interface{}) error {
 	switch v.(type) {
-	case json.Number, float64, int, int32, int64, string:
+	case string:
 		resourceMinimumStr := string(s)
 		rmDataValueParsedQ, err := resource.ParseQuantity(v.(string))
-		rmSchemaValueParsedQ, err := resource.ParseQuantity(resourceMinimumStr)
-
 		if err != nil {
-			fmt.Println(err.Error())
+			if err != nil {
+				return ctx.Error("resourceMinimum", "failed parsing value %v", v)
+			}
 		}
 
-		rmDecStr := rmDataValueParsedQ.AsDec().String()
-		rmRfDecStr := rmSchemaValueParsedQ.AsDec().String()
-
-		resourceMinimumSchemaVal, _ := strconv.ParseFloat(rmDecStr, 64)
-		resourceMinimumDataVal, _ := strconv.ParseFloat(rmRfDecStr, 64)
-
-		if resourceMinimumDataVal < resourceMinimumSchemaVal {
-			return ctx.Error("resourceMinimum", "%v is lower then resourceMinimum %v", resourceMinimumSchemaVal, resourceMinimumDataVal)
-		}
-		return nil
-	default:
-		return nil
-	}
-}
-
-func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, v interface{}) error {
-	switch v.(type) {
-	case json.Number, float64, int, int32, int64, string:
-		resourceMinimumStr := string(s)
-		rmDataValueParsedQ, err := resource.ParseQuantity(v.(string))
 		rmSchemaValueParsedQ, err := resource.ParseQuantity(resourceMinimumStr)
-
 		if err != nil {
-			fmt.Println(err.Error())
+			return ctx.Error("resourceMinimum", "failed parsing value %v", resourceMinimumStr)
 		}
 
 		rmDecStr := rmDataValueParsedQ.AsDec().String()
@@ -199,7 +181,7 @@ func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, v inte
 		resourceMinimumDataVal, _ := strconv.ParseFloat(rmRfDecStr, 64)
 
 		if resourceMinimumDataVal > resourceMinimumSchemaVal {
-			return ctx.Error("resourceMinimum", "%v is greater then resourceMinimum %v", resourceMinimumSchemaVal, resourceMinimumDataVal)
+			return ctx.Error("resourceMinimum", "%v is lower then resourceMinimum %v", v, resourceMinimumStr)
 		}
 		return nil
 	default:
@@ -207,17 +189,47 @@ func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, v inte
 	}
 }
 
-func getErrors(errorsRes []jsonschema.Detailed) []jsonschema.Detailed {
-	if len(errorsRes) > 0 {
-		for _, err := range errorsRes {
+func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, v interface{}) error {
+	switch v.(type) {
+	case string:
+		resourceMaximumStr := string(s)
+		rmDataValueParsedQ, err := resource.ParseQuantity(v.(string))
+		if err != nil {
+			fmt.Println(err.Error())
+			return ctx.Error("resourceMaximum", "failed parsing value %v", v)
+		}
+
+		rmSchemaValueParsedQ, err := resource.ParseQuantity(resourceMaximumStr)
+		if err != nil {
+			return ctx.Error("resourceMaximum", "failed parsing value %v", resourceMaximumStr)
+		}
+
+		rmDecStr := rmDataValueParsedQ.AsDec().String()
+		rmRfDecStr := rmSchemaValueParsedQ.AsDec().String()
+
+		resourceMaximumSchemaVal, _ := strconv.ParseFloat(rmDecStr, 64)
+		resourceMaximumDataVal, _ := strconv.ParseFloat(rmRfDecStr, 64)
+
+		if resourceMaximumDataVal < resourceMaximumSchemaVal {
+			return ctx.Error("resourceMaximum", "%v is greater then resourceMaximum %v", v, resourceMaximumStr)
+		}
+		return nil
+	default:
+		return nil
+	}
+}
+
+func getErrors(errors []jsonschema.Detailed) []jsonschema.Detailed {
+	if len(errors) > 0 {
+		for _, err := range errors {
 			if len(err.Errors) > 0 {
 				return getErrors(err.Errors)
 			} else {
-				return errorsRes
+				return errors
 			}
 		}
 	} else {
-		return errorsRes
+		return errors
 	}
 	return nil
 }
