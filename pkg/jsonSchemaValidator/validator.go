@@ -9,8 +9,6 @@ import (
 
 	"github.com/ghodss/yaml"
 	"github.com/santhosh-tekuri/jsonschema/v5"
-	"github.com/xeipuuv/gojsonschema"
-
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
@@ -21,7 +19,11 @@ func New() *JSONSchemaValidator {
 	return &JSONSchemaValidator{}
 }
 
-type Result = gojsonschema.Result
+type resourceMinimumCompiler struct{}
+type resourceMaximumCompiler struct{}
+
+type resourceMinimumSchema string
+type resourceMaximumSchema string
 
 func (jsv *JSONSchemaValidator) ValidateYamlSchema(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
 	jsonSchema, _ := yaml.YAMLToJSON([]byte(schemaContent))
@@ -121,10 +123,6 @@ func toStringKeys(val interface{}) (interface{}, error) {
 	}
 }
 
-type resourceMinimumCompiler struct{}
-
-type resourceMaximumCompiler struct{}
-
 func (resourceMinimumCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
 	if resourceMinimum, ok := m["resourceMinimum"]; ok {
 		resourceMinimumStr := resourceMinimum.(string)
@@ -132,6 +130,7 @@ func (resourceMinimumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 	}
 	return nil, nil
 }
+
 func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
 	if resourceMinimum, ok := m["resourceMaximum"]; ok {
 		resourceMinimumStr := resourceMinimum.(string)
@@ -139,9 +138,6 @@ func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 	}
 	return nil, nil
 }
-
-type resourceMinimumSchema string
-type resourceMaximumSchema string
 
 func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
 	ruleResourceMinimumStr := string(s)
