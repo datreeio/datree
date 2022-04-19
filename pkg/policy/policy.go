@@ -72,16 +72,16 @@ func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, 
 
 func validatePoliciesYaml(content string, policyYamlPath string) error {
 	jsonSchemaValidator := jsonSchemaValidator.New()
-	result, err := jsonSchemaValidator.Validate(policiesSchemaContent, content)
+	errorsResult, err := jsonSchemaValidator.Validate(policiesSchemaContent, content)
 
 	if err != nil {
 		return err
 	}
 
-	if result != nil {
+	if errorsResult != nil {
 		validationErrors := fmt.Errorf("Found errors in policies file %s:\n", policyYamlPath)
 
-		for _, validationError := range result {
+		for _, validationError := range errorsResult {
 			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError.Error)
 		}
 
