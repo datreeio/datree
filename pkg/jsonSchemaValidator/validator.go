@@ -54,6 +54,7 @@ func (jsv *JSONSchemaValidator) NewValidate(schemaContent string, yamlContent st
 	}
 
 	compiler := jsonschema.NewCompiler()
+	compiler.AssertFormat = true
 
 	if err := compiler.AddResource("schema.json", strings.NewReader(schemaContent)); err != nil {
 		panic(err)
