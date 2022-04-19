@@ -33,3 +33,6 @@ publish:
 
 junit_report:
 	junit2html ./internal/fixtures/junit_support/junit_datree.xml ./internal/fixtures/junit_support/junit_report.html
+
+datree_test_to_JUnit_report:
+	make build && ./datree test ./internal/fixtures/kube/k8s-demo.yaml -o JUnit > ./internal/fixtures/junit_support/datree_test_junit.xml || true && junit2html ./internal/fixtures/junit_support/datree_test_junit.xml ./internal/fixtures/junit_support/datree_test_junit_report.html

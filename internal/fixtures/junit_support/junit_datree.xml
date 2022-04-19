@@ -12,7 +12,10 @@
                 2 occurrences
                 — metadata.name: static-web (kind: Pod)
                 — metadata.name: hello (kind: CronJob)
+                1 skipped
+                — metadata.name: hello (kind: CronJob)
             </failure>
+            <skipped message="all failing configs"/>
         </testcase>
         <testcase name="RULE_NAME" classname="MID_REPLICA">
             <skipped message="SKIP_MESSAGE"/>

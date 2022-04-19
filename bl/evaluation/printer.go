@@ -124,9 +124,7 @@ func xmlOutput(formattedOutput *FormattedOutput) error {
 }
 
 func jUnitOutput(formattedOutput *FormattedOutput) error {
-	formattedOutput.EvaluationSummary.K8sValidation = "blabla"
-
-	return printAsXml(formattedOutput)
+	return printAsXml(FormattedOutputToJUnitOutput(*formattedOutput))
 }
 
 func printAsXml(output interface{}) error {
