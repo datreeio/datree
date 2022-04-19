@@ -140,17 +140,18 @@ func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 }
 
 func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
+	keywordPath := "resourceMinimum"
 	ruleResourceMinimumStr := string(s)
 	dataValueParsedQty, err := resource.ParseQuantity(dataValue.(string))
 	if err != nil {
 		if err != nil {
-			return ctx.Error("resourceMinimum", "failed parsing value %v", dataValue)
+			return ctx.Error(keywordPath, "failed parsing value %v", dataValue)
 		}
 	}
 
 	rmSchemaValueParsedQ, err := resource.ParseQuantity(ruleResourceMinimumStr)
 	if err != nil {
-		return ctx.Error("resourceMinimum", "failed parsing value %v", ruleResourceMinimumStr)
+		return ctx.Error(keywordPath, "failed parsing value %v", ruleResourceMinimumStr)
 	}
 
 	rmDecStr := dataValueParsedQty.AsDec().String()
@@ -158,30 +159,31 @@ func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, dataVa
 
 	resourceMinimumSchemaVal, err := strconv.ParseFloat(rmDecStr, 64)
 	if err != nil {
-		return ctx.Error("resourceMinimum", "failed float parsing value %v", resourceMinimumSchemaVal)
+		return ctx.Error(keywordPath, "failed float parsing value %v", resourceMinimumSchemaVal)
 	}
 
 	resourceMinimumDataVal, err := strconv.ParseFloat(rmRfDecStr, 64)
 	if err != nil {
-		return ctx.Error("resourceMinimum", "failed float parsing value %v", resourceMinimumDataVal)
+		return ctx.Error(keywordPath, "failed float parsing value %v", resourceMinimumDataVal)
 	}
 
 	if resourceMinimumDataVal > resourceMinimumSchemaVal {
-		return ctx.Error("resourceMinimum", "%v is lower then resourceMinimum %v", dataValue, ruleResourceMinimumStr)
+		return ctx.Error(keywordPath, "%v is lower then resourceMinimum %v", dataValue, ruleResourceMinimumStr)
 	}
 	return nil
 }
 
 func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
+	keywordPath := "resourceMaximum"
 	ruleResourceMaximumStr := string(s)
 	dataValueParsedQty, err := resource.ParseQuantity(dataValue.(string))
 	if err != nil {
-		return ctx.Error("resourceMaximum", "failed parsing value %v", dataValue)
+		return ctx.Error(keywordPath, "failed parsing value %v", dataValue)
 	}
 
 	rmSchemaValueParsedQ, err := resource.ParseQuantity(ruleResourceMaximumStr)
 	if err != nil {
-		return ctx.Error("resourceMaximum", "failed parsing value %v", ruleResourceMaximumStr)
+		return ctx.Error(keywordPath, "failed parsing value %v", ruleResourceMaximumStr)
 	}
 
 	rmDecStr := dataValueParsedQty.AsDec().String()
@@ -189,16 +191,16 @@ func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, dataVa
 
 	resourceMaximumSchemaVal, err := strconv.ParseFloat(rmDecStr, 64)
 	if err != nil {
-		return ctx.Error("resourceMaximum", "failed float parsing value %v", resourceMaximumSchemaVal)
+		return ctx.Error(keywordPath, "failed float parsing value %v", resourceMaximumSchemaVal)
 	}
 
 	resourceMaximumDataVal, err := strconv.ParseFloat(rmRfDecStr, 64)
 	if err != nil {
-		return ctx.Error("resourceMaximum", "failed float parsing value %v", resourceMaximumDataVal)
+		return ctx.Error(keywordPath, "failed float parsing value %v", resourceMaximumDataVal)
 	}
 
 	if resourceMaximumDataVal < resourceMaximumSchemaVal {
-		return ctx.Error("resourceMaximum", "%v is greater then resourceMaximum %v", dataValue, ruleResourceMaximumStr)
+		return ctx.Error(keywordPath, "%v is greater then resourceMaximum %v", dataValue, ruleResourceMaximumStr)
 	}
 	return nil
 }
