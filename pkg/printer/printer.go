@@ -2,8 +2,9 @@ package printer
 
 import (
 	"fmt"
-	"github.com/santhosh-tekuri/jsonschema/v5"
 	"io"
+
+	"github.com/santhosh-tekuri/jsonschema/v5"
 
 	"github.com/xeipuuv/gojsonschema"
 

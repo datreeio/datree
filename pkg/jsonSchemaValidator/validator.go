@@ -44,8 +44,6 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent strin
 }
 
 func (jsv *JSONSchemaValidator) NewValidate(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
-	//output := flag.String("output", "", "output format. valid values flag, basic, detailed")
-
 	var m interface{}
 	err := yaml.Unmarshal([]byte(yamlContent), &m)
 	if err != nil {
@@ -90,10 +88,8 @@ func (jsv *JSONSchemaValidator) NewValidate(schemaContent string, yamlContent st
 
 	if err != nil {
 		if ve, ok := err.(*jsonschema.ValidationError); ok {
-			var out interface{}
-			out = ve.DetailedOutput()
-
-			res := getErrors(out.(jsonschema.Detailed).Errors)
+			out := ve.DetailedOutput()
+			res := getErrors(out.Errors)
 			return res, nil
 		} else {
 			fmt.Fprintf(os.Stderr, "validation failed: %v\n", err)

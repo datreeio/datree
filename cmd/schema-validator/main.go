@@ -2,6 +2,7 @@ package schema_validator
 
 import (
 	"fmt"
+
 	"github.com/santhosh-tekuri/jsonschema/v5"
 
 	"github.com/datreeio/datree/pkg/extractor"
