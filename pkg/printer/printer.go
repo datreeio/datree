@@ -109,11 +109,11 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 	fmt.Fprintln(out)
 }
 
-func (p *Printer) PrintYamlSchemaResults(result []jsonschema.Detailed, error error) {
-	if result != nil {
+func (p *Printer) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, error error) {
+	if errorsResult != nil {
 		p.printInColor("Input does NOT pass validation against schema\n", p.Theme.Colors.RedBold)
 		var errorsAsString = ""
-		for _, desc := range result {
+		for _, desc := range errorsResult {
 			errorsAsString = errorsAsString + desc.InstanceLocation + " - " + desc.Error + "\n"
 		}
 		p.printInColor(errorsAsString, p.Theme.Colors.RedBold)

@@ -17,7 +17,7 @@ type JSONSchemaValidator interface {
 }
 
 type JSONSchemaValidationPrinter interface {
-	PrintYamlSchemaResults(result []jsonschema.Detailed, error error)
+	PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, error error)
 }
 
 type JSONSchemaValidatorCommandContext struct {
@@ -64,8 +64,8 @@ func New(ctx *JSONSchemaValidatorCommandContext) *cobra.Command {
 				ctx.Printer.PrintYamlSchemaResults(nil, err)
 				return err
 			}
-			result, err := ctx.JSONSchemaValidator.ValidateYamlSchema(schemaContent, yamlContent)
-			ctx.Printer.PrintYamlSchemaResults(result, err)
+			errorsResult, err := ctx.JSONSchemaValidator.ValidateYamlSchema(schemaContent, yamlContent)
+			ctx.Printer.PrintYamlSchemaResults(errorsResult, err)
 			if err != nil {
 				return err
 			}
