@@ -129,7 +129,7 @@ func readOutput(outputFormat string, formattedOutput FormattedOutput) string {
 	case outputFormat == "xml":
 		xmlOutput(&formattedOutput)
 	case outputFormat == "JUnit":
-		//jUnitOutput(&formattedOutput)
+		jUnitOutput(&formattedOutput)
 	}
 
 	writer.Close()
