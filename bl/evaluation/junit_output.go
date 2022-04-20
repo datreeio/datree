@@ -53,36 +53,39 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 	}
 
 	for _, policyValidationResult := range formattedOutput.PolicyValidationResults {
-		suite := testSuite{
-			Name:      policyValidationResult.FileName,
-			TestCases: []testCase{},
-		}
-
-		for _, ruleResult := range policyValidationResult.RuleResults {
-			testCase := testCase{
-				Name:      ruleResult.Name,
-				ClassName: ruleResult.Identifier,
-			}
-			testCase.Failure = &failure{
-				Message: ruleResult.MessageOnFailure,
-				Content: getContentFromOccurrencesDetails(ruleResult.OccurrencesDetails),
-			}
-			if areAllOccurrencesSkipped(ruleResult.OccurrencesDetails) {
-				testCase.Skipped = &skipped{Message: "All failing configs skipped"}
-			}
-			suite.TestCases = append(suite.TestCases, testCase)
-		}
-		jUnitOutput.Suites = append(jUnitOutput.Suites, suite)
+		jUnitOutput.Suites = append(jUnitOutput.Suites, getPolicyValidationResultTestSuite(policyValidationResult))
 	}
-
-	jUnitOutput.Suites = appendPolicySummary(formattedOutput, jUnitOutput)
-	jUnitOutput.Suites = appendEvaluationSummary(formattedOutput, jUnitOutput)
+	jUnitOutput.Suites = append(jUnitOutput.Suites, getPolicySummaryTestSuite(formattedOutput))
+	jUnitOutput.Suites = append(jUnitOutput.Suites, getEvaluationSummaryTestSuite(formattedOutput))
 
 	return jUnitOutput
 }
 
-func appendPolicySummary(formattedOutput FormattedOutput, jUnitOutput JUnitOutput) []testSuite {
-	return append(jUnitOutput.Suites, testSuite{
+func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults) testSuite {
+	suite := testSuite{
+		Name:      policyValidationResult.FileName,
+		TestCases: []testCase{},
+	}
+
+	for _, ruleResult := range policyValidationResult.RuleResults {
+		testCase := testCase{
+			Name:      ruleResult.Name,
+			ClassName: ruleResult.Identifier,
+		}
+		testCase.Failure = &failure{
+			Message: ruleResult.MessageOnFailure,
+			Content: getContentFromOccurrencesDetails(ruleResult.OccurrencesDetails),
+		}
+		if areAllOccurrencesSkipped(ruleResult.OccurrencesDetails) {
+			testCase.Skipped = &skipped{Message: "All failing configs skipped"}
+		}
+		suite.TestCases = append(suite.TestCases, testCase)
+	}
+	return suite
+}
+
+func getPolicySummaryTestSuite(formattedOutput FormattedOutput) testSuite {
+	return testSuite{
 		Name: "policySummary",
 		Properties: &[]property{{
 			Name:  "policyName",
@@ -100,11 +103,11 @@ func appendPolicySummary(formattedOutput FormattedOutput, jUnitOutput JUnitOutpu
 			Name:  "totalPassedCount",
 			Value: strconv.Itoa(formattedOutput.PolicySummary.TotalPassedCount),
 		}},
-	})
+	}
 }
 
-func appendEvaluationSummary(formattedOutput FormattedOutput, jUnitOutput JUnitOutput) []testSuite {
-	return append(jUnitOutput.Suites, testSuite{
+func getEvaluationSummaryTestSuite(formattedOutput FormattedOutput) testSuite {
+	return testSuite{
 		Name: "evaluationSummary",
 		Properties: &[]property{{
 			Name:  "configsCount",
@@ -122,7 +125,7 @@ func appendEvaluationSummary(formattedOutput FormattedOutput, jUnitOutput JUnitO
 			Name:  "passedPolicyValidationCount",
 			Value: strconv.Itoa(formattedOutput.EvaluationSummary.PassedPolicyValidationCount),
 		}},
-	})
+	}
 }
 
 func getContentFromOccurrencesDetails(occurrencesDetails []OccurrenceDetails) string {
