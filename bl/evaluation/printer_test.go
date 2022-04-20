@@ -130,7 +130,7 @@ func readOutput(t *testing.T, outputFormat string, formattedOutput FormattedOutp
 		xmlOutput(&formattedOutput)
 	case outputFormat == "JUnit":
 		err := jUnitOutput(&formattedOutput)
-		assert.Error(t, err, nil)
+		assert.Equal(t, err, nil)
 	}
 
 	writer.Close()
