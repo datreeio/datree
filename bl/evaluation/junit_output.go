@@ -98,11 +98,11 @@ func getPolicySummaryTestSuite(formattedOutput FormattedOutput) testSuite {
 			Name:  "totalRulesInPolicy",
 			Value: strconv.Itoa(formattedOutput.PolicySummary.TotalRulesInPolicy),
 		}, {
-			Name:  "totalRulesFailed",
-			Value: strconv.Itoa(formattedOutput.PolicySummary.TotalRulesFailed),
-		}, {
 			Name:  "totalSkippedRules",
 			Value: strconv.Itoa(formattedOutput.PolicySummary.TotalSkippedRules),
+		}, {
+			Name:  "totalRulesFailed",
+			Value: strconv.Itoa(formattedOutput.PolicySummary.TotalRulesFailed),
 		}, {
 			Name:  "totalPassedCount",
 			Value: strconv.Itoa(formattedOutput.PolicySummary.TotalPassedCount),
