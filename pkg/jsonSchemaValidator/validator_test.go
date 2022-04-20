@@ -13,20 +13,20 @@ const yamlFilesPath = "../../internal/fixtures/policyAsCode/custom-keys"
 func TestValidateCustomKeysFail(t *testing.T) {
 	fileReader := fileReader.CreateFileReader(nil)
 
-	resourceJson, err := fileReader.ReadFileContent(yamlFilesPath + "/fail-yaml-file.yaml")
+	failResourceYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/fail-yaml-file.yaml")
 	if err != nil {
 		panic(err)
 	}
 
-	customRuleSchemaJson, err := fileReader.ReadFileContent(yamlFilesPath + "/custom-rule.yaml")
+	customRuleSchemaYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/custom-rule.yaml")
 	if err != nil {
 		panic(err)
 	}
 
 	jsonSchemaValidator := New()
 
-	resourceYaml, _ := yaml.JSONToYAML([]byte(resourceJson))
-	customRuleYaml, _ := yaml.JSONToYAML([]byte(customRuleSchemaJson))
+	resourceYaml, _ := yaml.JSONToYAML([]byte(failResourceYamlFileContent))
+	customRuleYaml, _ := yaml.JSONToYAML([]byte(customRuleSchemaYamlFileContent))
 
 	errorsResult, _ := jsonSchemaValidator.ValidateYamlSchema(string(customRuleYaml), string(resourceYaml))
 
@@ -36,20 +36,20 @@ func TestValidateCustomKeysFail(t *testing.T) {
 func TestValidateCustomKeysPass(t *testing.T) {
 	fileReader := fileReader.CreateFileReader(nil)
 
-	resourceJson, err := fileReader.ReadFileContent(yamlFilesPath + "/pass-yaml-file.yaml")
+	passResourceYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/pass-yaml-file.yaml")
 	if err != nil {
 		panic(err)
 	}
 
-	customRuleSchemaJson, err := fileReader.ReadFileContent(yamlFilesPath + "/custom-rule.yaml")
+	customRuleSchemaYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/custom-rule.yaml")
 	if err != nil {
 		panic(err)
 	}
 
 	jsonSchemaValidator := New()
 
-	resourceYaml, _ := yaml.JSONToYAML([]byte(resourceJson))
-	customRuleYaml, _ := yaml.JSONToYAML([]byte(customRuleSchemaJson))
+	resourceYaml, _ := yaml.JSONToYAML([]byte(passResourceYamlFileContent))
+	customRuleYaml, _ := yaml.JSONToYAML([]byte(customRuleSchemaYamlFileContent))
 
 	errorsResult, _ := jsonSchemaValidator.ValidateYamlSchema(string(customRuleYaml), string(resourceYaml))
 
