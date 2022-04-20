@@ -92,16 +92,16 @@ func TestCustomOutputs(t *testing.T) {
 	formattedOutput := createFormattedOutput()
 	expectedOutputs := getExpectedOutputs()
 
-	jsonStdout := readOutput(t,"json", formattedOutput)
+	jsonStdout := readOutput(t, "json", formattedOutput)
 	assert.Equal(t, expectedOutputs.json, jsonStdout)
 
-	yamlStdout := readOutput(t,"yaml", formattedOutput)
+	yamlStdout := readOutput(t, "yaml", formattedOutput)
 	assert.Equal(t, expectedOutputs.yaml, yamlStdout)
 
-	xmlStdout := readOutput(t,"xml", formattedOutput)
+	xmlStdout := readOutput(t, "xml", formattedOutput)
 	assert.Equal(t, expectedOutputs.xml, xmlStdout)
 
-	JUnitStdout := readOutput(t,"JUnit", formattedOutput)
+	JUnitStdout := readOutput(t, "JUnit", formattedOutput)
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
