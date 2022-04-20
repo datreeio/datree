@@ -92,20 +92,20 @@ func TestCustomOutputs(t *testing.T) {
 	formattedOutput := createFormattedOutput()
 	expectedOutputs := getExpectedOutputs()
 
-	jsonStdout := readOutput("json", formattedOutput)
+	jsonStdout := readOutput(t,"json", formattedOutput)
 	assert.Equal(t, expectedOutputs.json, jsonStdout)
 
-	yamlStdout := readOutput("yaml", formattedOutput)
+	yamlStdout := readOutput(t,"yaml", formattedOutput)
 	assert.Equal(t, expectedOutputs.yaml, yamlStdout)
 
-	xmlStdout := readOutput("xml", formattedOutput)
+	xmlStdout := readOutput(t,"xml", formattedOutput)
 	assert.Equal(t, expectedOutputs.xml, xmlStdout)
 
-	JUnitStdout := readOutput("JUnit", formattedOutput)
+	JUnitStdout := readOutput(t,"JUnit", formattedOutput)
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
-func readOutput(outputFormat string, formattedOutput FormattedOutput) string {
+func readOutput(t *testing.T, outputFormat string, formattedOutput FormattedOutput) string {
 	reader, writer, err := os.Pipe()
 	if err != nil {
 		panic(err)
@@ -129,7 +129,8 @@ func readOutput(outputFormat string, formattedOutput FormattedOutput) string {
 	case outputFormat == "xml":
 		xmlOutput(&formattedOutput)
 	case outputFormat == "JUnit":
-		jUnitOutput(&formattedOutput)
+		err := jUnitOutput(&formattedOutput)
+		assert.Error(t, err, nil)
 	}
 
 	writer.Close()
