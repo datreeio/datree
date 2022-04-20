@@ -116,8 +116,6 @@ func yamlOutput(formattedOutput *FormattedOutput) error {
 	}
 
 	fmt.Println(string(yamlOutput))
-	//os.WriteFile("./printer_test_expected_outputs/yaml_output.yaml", yamlOutput, 0777)
-
 	return nil
 }
 
