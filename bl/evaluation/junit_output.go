@@ -15,9 +15,9 @@ type JUnitOutput struct {
 }
 
 type TestSuite struct {
-	Name       string     `xml:"name,attr"`
-	Properties []Property `xml:"properties>property,omitempty"`
-	TestCases  []TestCase `xml:"testcase"`
+	Name       string      `xml:"name,attr"`
+	Properties *[]Property `xml:"properties>property,omitempty"`
+	TestCases  []TestCase  `xml:"testcase"`
 }
 
 type Property struct {
@@ -26,19 +26,21 @@ type Property struct {
 }
 
 type TestCase struct {
-	Name      string          `xml:"name,attr"`
-	ClassName string          `xml:"classname,attr"`
-	Skipped   TestCaseSkipped `xml:"skipped,omitempty"`
-	Failure   TestCaseFailure `xml:"failure,omitempty"`
+	Name      string `xml:"name,attr"`
+	ClassName string `xml:"classname,attr"`
+	Skipped   *TestCaseSkipped
+	Failure   *TestCaseFailure
 }
 
 type TestCaseSkipped struct {
-	Message string `xml:"message,attr"`
+	XMLName xml.Name `xml:"skipped,omitempty"`
+	Message string   `xml:"message,attr"`
 }
 
 type TestCaseFailure struct {
-	Message string `xml:"message,attr"`
-	Content string `xml:",chardata"`
+	XMLName xml.Name `xml:"failure,omitempty"`
+	Message string   `xml:"message,attr"`
+	Content string   `xml:",chardata"`
 }
 
 func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
@@ -61,12 +63,12 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 				Name:      ruleResult.Name,
 				ClassName: ruleResult.Identifier,
 			}
-			testCase.Failure = TestCaseFailure{
+			testCase.Failure = &TestCaseFailure{
 				Message: ruleResult.MessageOnFailure,
 				Content: getContentFromOccurrencesDetails(ruleResult.OccurrencesDetails),
 			}
 			if areAllOccurrencesSkipped(ruleResult.OccurrencesDetails) {
-				testCase.Skipped = TestCaseSkipped{Message: "all failing configs"}
+				testCase.Skipped = &TestCaseSkipped{Message: "all failing configs"}
 			}
 			suite.TestCases = append(suite.TestCases, testCase)
 		}
@@ -75,7 +77,7 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 
 	jUnitOutput.Suites = append(jUnitOutput.Suites, TestSuite{
 		Name: "policySummary",
-		Properties: []Property{{
+		Properties: &[]Property{{
 			Name:  "policyName",
 			Value: formattedOutput.PolicySummary.PolicyName,
 		}, {
@@ -94,7 +96,7 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 	})
 	jUnitOutput.Suites = append(jUnitOutput.Suites, TestSuite{
 		Name: "evaluationSummary",
-		Properties: []Property{{
+		Properties: &[]Property{{
 			Name:  "configsCount",
 			Value: strconv.Itoa(formattedOutput.EvaluationSummary.ConfigsCount),
 		}, {
