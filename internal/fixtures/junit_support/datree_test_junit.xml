@@ -2,6 +2,10 @@
 <testsuites name="Default" tests="34" failures="6" skipped="0">
 	<testsuite name="/Users/royhadad/Desktop/datree-repos/datree/internal/fixtures/kube/k8s-demo.yaml">
 		<properties></properties>
+		<testcase name="Ensure Deployment has a configured `env` label" classname="DEPLOYMENT_MISSING_LABEL_ENV_VALUE">
+			<skipped message=""></skipped>
+			<failure message="Missing label object `env` - add a proper environment description (e.g. &#34;prod&#34;, &#34;testing&#34;, etc.) to the Deployment config">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+		</testcase>
 		<testcase name="Ensure each container image has a digest tag" classname="CONTAINERS_MISSING_IMAGE_VALUE_DIGEST">
 			<skipped message=""></skipped>
 			<failure message="Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
@@ -21,10 +25,6 @@
 		<testcase name="Ensure each container has a configured liveness probe" classname="CONTAINERS_MISSING_LIVENESSPROBE_KEY">
 			<skipped message=""></skipped>
 			<failure message="Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
-		</testcase>
-		<testcase name="Ensure Deployment has a configured `env` label" classname="DEPLOYMENT_MISSING_LABEL_ENV_VALUE">
-			<skipped message=""></skipped>
-			<failure message="Missing label object `env` - add a proper environment description (e.g. &#34;prod&#34;, &#34;testing&#34;, etc.) to the Deployment config">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
 		</testcase>
 	</testsuite>
 	<testsuite name="policySummary">

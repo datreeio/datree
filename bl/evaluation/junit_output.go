@@ -15,20 +15,17 @@ type JUnitOutput struct {
 }
 
 type TestSuite struct {
-	XMLName    xml.Name   `xml:"testsuite"`
 	Name       string     `xml:"name,attr"`
 	Properties []Property `xml:"properties>property,omitempty"`
 	TestCases  []TestCase `xml:"testcase"`
 }
 
 type Property struct {
-	XMLName xml.Name `xml:"property"`
-	Name    string   `xml:"name,attr"`
-	Value   string   `xml:"value,attr"`
+	Name  string `xml:"name,attr"`
+	Value string `xml:"value,attr"`
 }
 
 type TestCase struct {
-	XMLName   xml.Name        `xml:"testcase"`
 	Name      string          `xml:"name,attr"`
 	ClassName string          `xml:"classname,attr"`
 	Skipped   TestCaseSkipped `xml:"skipped,omitempty"`

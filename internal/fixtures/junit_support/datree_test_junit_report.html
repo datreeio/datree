@@ -193,10 +193,18 @@ h1 {
             <ul class="toc">
             
                 
+                <li>DEPLOYMENT_MISSING_LABEL_ENV_VALUE
+                <ul>
+                    
+                    <li><a href="#5a7b561b-824f-4631-81eb-1e9d098a696c">Ensure Deployment has a configured `env` label</a></li>
+                    
+                </ul>
+                </li>
+                
                 <li>CONTAINERS_MISSING_IMAGE_VALUE_DIGEST
                 <ul>
                     
-                    <li><a href="#e72eee21-1920-4e14-a888-c0eb71cfe279">Ensure each container image has a digest tag</a></li>
+                    <li><a href="#7da62c4f-8c82-4512-b771-102518cbedde">Ensure each container image has a digest tag</a></li>
                     
                 </ul>
                 </li>
@@ -204,7 +212,7 @@ h1 {
                 <li>CONTAINERS_MISSING_IMAGE_VALUE_VERSION
                 <ul>
                     
-                    <li><a href="#5fe0e97d-45c5-44c0-a0c9-94289f645a25">Ensure each container image has a pinned (tag) version</a></li>
+                    <li><a href="#5445f614-a00d-486b-9806-480da4cde651">Ensure each container image has a pinned (tag) version</a></li>
                     
                 </ul>
                 </li>
@@ -212,7 +220,7 @@ h1 {
                 <li>CONTAINERS_MISSING_MEMORY_LIMIT_KEY
                 <ul>
                     
-                    <li><a href="#cbf0d959-f886-4b46-9918-8e8fdc74ecaf">Ensure each container has a configured memory limit</a></li>
+                    <li><a href="#911f8c9f-0f29-41cf-b890-a54f14a48bac">Ensure each container has a configured memory limit</a></li>
                     
                 </ul>
                 </li>
@@ -220,7 +228,7 @@ h1 {
                 <li>WORKLOAD_INVALID_LABELS_VALUE
                 <ul>
                     
-                    <li><a href="#1d16a48d-c6d5-48fb-93e8-fe66c3ec56fd">Ensure workload has valid label values</a></li>
+                    <li><a href="#6449be13-8d80-411e-8bce-57f27afb88f7">Ensure workload has valid label values</a></li>
                     
                 </ul>
                 </li>
@@ -228,15 +236,7 @@ h1 {
                 <li>CONTAINERS_MISSING_LIVENESSPROBE_KEY
                 <ul>
                     
-                    <li><a href="#4f14f210-593f-4d9e-942d-346eafc58e13">Ensure each container has a configured liveness probe</a></li>
-                    
-                </ul>
-                </li>
-                
-                <li>DEPLOYMENT_MISSING_LABEL_ENV_VALUE
-                <ul>
-                    
-                    <li><a href="#03a49431-a637-4034-b665-baf5271b7b2d">Ensure Deployment has a configured `env` label</a></li>
+                    <li><a href="#d30b871f-6a25-4ba9-b471-573b751230d0">Ensure each container has a configured liveness probe</a></li>
                     
                 </ul>
                 </li>
@@ -254,37 +254,37 @@ h1 {
                 
                     
                     
-                    <li><a href="#e72eee21-1920-4e14-a888-c0eb71cfe279">[S] CONTAINERS_MISSING_IMAGE_VALUE_DIGEST : Ensure each container image has a digest tag</a></li>
+                    <li><a href="#5a7b561b-824f-4631-81eb-1e9d098a696c">[S] DEPLOYMENT_MISSING_LABEL_ENV_VALUE : Ensure Deployment has a configured `env` label</a></li>
                     
                     
                 
                     
                     
-                    <li><a href="#5fe0e97d-45c5-44c0-a0c9-94289f645a25">[S] CONTAINERS_MISSING_IMAGE_VALUE_VERSION : Ensure each container image has a pinned (tag) version</a></li>
+                    <li><a href="#7da62c4f-8c82-4512-b771-102518cbedde">[S] CONTAINERS_MISSING_IMAGE_VALUE_DIGEST : Ensure each container image has a digest tag</a></li>
                     
                     
                 
                     
                     
-                    <li><a href="#cbf0d959-f886-4b46-9918-8e8fdc74ecaf">[S] CONTAINERS_MISSING_MEMORY_LIMIT_KEY : Ensure each container has a configured memory limit</a></li>
+                    <li><a href="#5445f614-a00d-486b-9806-480da4cde651">[S] CONTAINERS_MISSING_IMAGE_VALUE_VERSION : Ensure each container image has a pinned (tag) version</a></li>
                     
                     
                 
                     
                     
-                    <li><a href="#1d16a48d-c6d5-48fb-93e8-fe66c3ec56fd">[S] WORKLOAD_INVALID_LABELS_VALUE : Ensure workload has valid label values</a></li>
+                    <li><a href="#911f8c9f-0f29-41cf-b890-a54f14a48bac">[S] CONTAINERS_MISSING_MEMORY_LIMIT_KEY : Ensure each container has a configured memory limit</a></li>
                     
                     
                 
                     
                     
-                    <li><a href="#4f14f210-593f-4d9e-942d-346eafc58e13">[S] CONTAINERS_MISSING_LIVENESSPROBE_KEY : Ensure each container has a configured liveness probe</a></li>
+                    <li><a href="#6449be13-8d80-411e-8bce-57f27afb88f7">[S] WORKLOAD_INVALID_LABELS_VALUE : Ensure workload has valid label values</a></li>
                     
                     
                 
                     
                     
-                    <li><a href="#03a49431-a637-4034-b665-baf5271b7b2d">[S] DEPLOYMENT_MISSING_LABEL_ENV_VALUE : Ensure Deployment has a configured `env` label</a></li>
+                    <li><a href="#d30b871f-6a25-4ba9-b471-573b751230d0">[S] CONTAINERS_MISSING_LIVENESSPROBE_KEY : Ensure each container has a configured liveness probe</a></li>
                     
                     
                 
@@ -301,7 +301,7 @@ h1 {
 
     <div class="testsuite">
         <h2>Test Suite: /Users/royhadad/Desktop/datree-repos/datree/internal/fixtures/kube/k8s-demo.yaml</h2>
-        <a id="ed8e9643-8eab-421d-8ef6-b1f027637ab7"></a>
+        <a id="8340074f-c89a-45d6-9313-d8191a7eb058"></a>
         
         
         <h3>Results</h3>
@@ -321,11 +321,47 @@ h1 {
             <h3>Tests</h3>
             
             <div class="testclass">
+                <h4>DEPLOYMENT_MISSING_LABEL_ENV_VALUE</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-skipped">
+                        <a id="5a7b561b-824f-4631-81eb-1e9d098a696c"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure Deployment has a configured `env` label</b></td></tr>
+                            <tr><th>Outcome:</th><td>Skipped</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>Missing label object `env` - add a proper environment description (e.g. &#34;prod&#34;, &#34;testing&#34;, etc.) to the Deployment config</td></tr>
+                        
+                        
+                            <tr><th>Skipped</th><td></td></tr>
+                        
+                        </table>
+
+                        
+                        <pre>1 occurrences
+— metadata.name: rss-site (kind: Deployment)
+0 skipped
+</pre>
+                        
+                        
+                        <pre>skipped</pre>
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
                 <h4>CONTAINERS_MISSING_IMAGE_VALUE_DIGEST</h4>
                 <div class="testcases">
                 
                     <div class="test outcome outcome-skipped">
-                        <a id="e72eee21-1920-4e14-a888-c0eb71cfe279"></a>
+                        <a id="7da62c4f-8c82-4512-b771-102518cbedde"></a>
                         <table class="proplist">
                             <tr><th>Test case:</th><td><b>Ensure each container image has a digest tag</b></td></tr>
                             <tr><th>Outcome:</th><td>Skipped</td></tr>
@@ -361,7 +397,7 @@ h1 {
                 <div class="testcases">
                 
                     <div class="test outcome outcome-skipped">
-                        <a id="5fe0e97d-45c5-44c0-a0c9-94289f645a25"></a>
+                        <a id="5445f614-a00d-486b-9806-480da4cde651"></a>
                         <table class="proplist">
                             <tr><th>Test case:</th><td><b>Ensure each container image has a pinned (tag) version</b></td></tr>
                             <tr><th>Outcome:</th><td>Skipped</td></tr>
@@ -397,7 +433,7 @@ h1 {
                 <div class="testcases">
                 
                     <div class="test outcome outcome-skipped">
-                        <a id="cbf0d959-f886-4b46-9918-8e8fdc74ecaf"></a>
+                        <a id="911f8c9f-0f29-41cf-b890-a54f14a48bac"></a>
                         <table class="proplist">
                             <tr><th>Test case:</th><td><b>Ensure each container has a configured memory limit</b></td></tr>
                             <tr><th>Outcome:</th><td>Skipped</td></tr>
@@ -433,7 +469,7 @@ h1 {
                 <div class="testcases">
                 
                     <div class="test outcome outcome-skipped">
-                        <a id="1d16a48d-c6d5-48fb-93e8-fe66c3ec56fd"></a>
+                        <a id="6449be13-8d80-411e-8bce-57f27afb88f7"></a>
                         <table class="proplist">
                             <tr><th>Test case:</th><td><b>Ensure workload has valid label values</b></td></tr>
                             <tr><th>Outcome:</th><td>Skipped</td></tr>
@@ -469,7 +505,7 @@ h1 {
                 <div class="testcases">
                 
                     <div class="test outcome outcome-skipped">
-                        <a id="4f14f210-593f-4d9e-942d-346eafc58e13"></a>
+                        <a id="d30b871f-6a25-4ba9-b471-573b751230d0"></a>
                         <table class="proplist">
                             <tr><th>Test case:</th><td><b>Ensure each container has a configured liveness probe</b></td></tr>
                             <tr><th>Outcome:</th><td>Skipped</td></tr>
@@ -500,49 +536,13 @@ h1 {
                 </div>
             </div>
             
-            <div class="testclass">
-                <h4>DEPLOYMENT_MISSING_LABEL_ENV_VALUE</h4>
-                <div class="testcases">
-                
-                    <div class="test outcome outcome-skipped">
-                        <a id="03a49431-a637-4034-b665-baf5271b7b2d"></a>
-                        <table class="proplist">
-                            <tr><th>Test case:</th><td><b>Ensure Deployment has a configured `env` label</b></td></tr>
-                            <tr><th>Outcome:</th><td>Skipped</td></tr>
-                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
-                        
-                            <tr><th>Failed</th><td>Missing label object `env` - add a proper environment description (e.g. &#34;prod&#34;, &#34;testing&#34;, etc.) to the Deployment config</td></tr>
-                        
-                        
-                            <tr><th>Skipped</th><td></td></tr>
-                        
-                        </table>
-
-                        
-                        <pre>1 occurrences
-— metadata.name: rss-site (kind: Deployment)
-0 skipped
-</pre>
-                        
-                        
-                        <pre>skipped</pre>
-                        
-
-                        
-                        
-                        
-                    </div>
-                
-                </div>
-            </div>
-            
         </div>
     </div>
     
 
     <div class="testsuite">
         <h2>Test Suite: policySummary</h2>
-        <a id="7c7f20c3-b5ec-42b0-8e38-173695c68c63"></a>
+        <a id="7bab430f-62d5-4aa7-81f8-4048eaaf377d"></a>
         
         
         <h3>Suite Properties</h3>
@@ -592,7 +592,7 @@ h1 {
 
     <div class="testsuite">
         <h2>Test Suite: evaluationSummary</h2>
-        <a id="073a7686-a8ad-4399-b6d1-3ea6a293bb5f"></a>
+        <a id="26598d18-9377-4d96-a558-13c21ea84f61"></a>
         
         
         <h3>Suite Properties</h3>
