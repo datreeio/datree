@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Default" tests="21" failures="4" skipped="0">
+	<testsuite name="File1">
+		<testcase name="Ensure each container image has a pinned (tag) version" classname="CONTAINERS_MISSING_IMAGE_VALUE_VERSION">
+			<failure message="Incorrect value for key `image` - specify an image version to avoid unpleasant &#34;version surprises&#34; in the future">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+		</testcase>
+		<testcase name="Ensure each container has a configured memory limit" classname="CONTAINERS_MISSING_MEMORY_LIMIT_KEY">
+			<failure message="Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+		</testcase>
+		<testcase name="Ensure workload has valid label values" classname="WORKLOAD_INVALID_LABELS_VALUE">
+			<failure message="Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+		</testcase>
+		<testcase name="Ensure each container has a configured liveness probe" classname="CONTAINERS_MISSING_LIVENESSPROBE_KEY">
+			<failure message="Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+		</testcase>
+	</testsuite>
+	<testsuite name="policySummary">
+		<properties>
+			<property name="policyName" value="Default"></property>
+			<property name="totalRulesInPolicy" value="21"></property>
+			<property name="totalRulesFailed" value="4"></property>
+			<property name="totalSkippedRules" value="0"></property>
+			<property name="totalPassedCount" value="0"></property>
+		</properties>
+	</testsuite>
+	<testsuite name="evaluationSummary">
+		<properties>
+			<property name="configsCount" value="1"></property>
+			<property name="filesCount" value="1"></property>
+			<property name="passedYamlValidationCount" value="1"></property>
+			<property name="k8sValidation" value="1/1"></property>
+			<property name="passedPolicyValidationCount" value="0"></property>
+		</properties>
+	</testsuite>
+</testsuites>

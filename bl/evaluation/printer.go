@@ -136,6 +136,7 @@ func printAsXml(output interface{}) error {
 	}
 
 	fmt.Println(string(xmlOutput))
+	os.WriteFile("./printer_test_expected_outputs/JUnit.xml", xmlOutput, 0777)
 	return nil
 }
 
