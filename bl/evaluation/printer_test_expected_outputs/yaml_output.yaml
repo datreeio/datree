@@ -44,8 +44,8 @@ policyValidationResults:
 policySummary:
   policyName: Default
   totalRulesInPolicy: 21
-  totalRulesFailed: 4
   totalSkippedRules: 0
+  totalRulesFailed: 4
   totalPassedCount: 0
 evaluationSummary:
   configsCount: 1

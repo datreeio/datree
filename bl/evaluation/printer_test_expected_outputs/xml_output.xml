@@ -54,8 +54,8 @@
 	<policySummary>
 		<policyName>Default</policyName>
 		<totalRulesInPolicy>21</totalRulesInPolicy>
-		<totalRulesFailed>4</totalRulesFailed>
 		<totalSkippedRules>0</totalSkippedRules>
+		<totalRulesFailed>4</totalRulesFailed>
 		<totalPassedCount>0</totalPassedCount>
 	</policySummary>
 	<evaluationSummary>
