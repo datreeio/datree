@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites name="Default" tests="34" failures="4" skipped="2">
 	<testsuite name="/Users/royhadad/Desktop/datree-repos/datree/internal/fixtures/kube/skipRule/k8s-demo-skip-two.yaml">
+		<testcase name="Ensure each container image has a pinned (tag) version" classname="CONTAINERS_MISSING_IMAGE_VALUE_VERSION">
+			<failure message="Incorrect value for key `image` - specify an image version to avoid unpleasant &#34;version surprises&#34; in the future">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+		</testcase>
+		<testcase name="Ensure each container has a configured memory limit" classname="CONTAINERS_MISSING_MEMORY_LIMIT_KEY">
+			<failure message="Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+		</testcase>
 		<testcase name="Ensure workload has valid label values" classname="WORKLOAD_INVALID_LABELS_VALUE">
 			<skipped message="All failing configs skipped"></skipped>
 			<failure message="Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;1 skipped&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;</failure>
@@ -14,12 +20,6 @@
 		</testcase>
 		<testcase name="Ensure each container image has a digest tag" classname="CONTAINERS_MISSING_IMAGE_VALUE_DIGEST">
 			<failure message="Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
-		</testcase>
-		<testcase name="Ensure each container image has a pinned (tag) version" classname="CONTAINERS_MISSING_IMAGE_VALUE_VERSION">
-			<failure message="Incorrect value for key `image` - specify an image version to avoid unpleasant &#34;version surprises&#34; in the future">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
-		</testcase>
-		<testcase name="Ensure each container has a configured memory limit" classname="CONTAINERS_MISSING_MEMORY_LIMIT_KEY">
-			<failure message="Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
 		</testcase>
 	</testsuite>
 	<testsuite name="policySummary">
