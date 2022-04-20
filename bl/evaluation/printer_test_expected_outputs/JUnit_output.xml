@@ -18,8 +18,8 @@
 		<properties>
 			<property name="policyName" value="Default"></property>
 			<property name="totalRulesInPolicy" value="21"></property>
-			<property name="totalRulesFailed" value="4"></property>
 			<property name="totalSkippedRules" value="0"></property>
+			<property name="totalRulesFailed" value="4"></property>
 			<property name="totalPassedCount" value="0"></property>
 		</properties>
 	</testsuite>
