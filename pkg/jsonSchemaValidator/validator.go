@@ -78,9 +78,7 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent strin
 
 	if err != nil {
 		if validationError, ok := err.(*jsonschema.ValidationError); ok {
-			out := validationError.DetailedOutput()
-			errorsResult := getErrors(out.Errors)
-			return errorsResult, nil
+			return getOnlyRelevantErrors(validationError.DetailedOutput()), nil
 		} else {
 			fmt.Fprintf(os.Stderr, "validation failed: %v\n", err)
 			return nil, err
@@ -205,17 +203,20 @@ func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, dataVa
 	return nil
 }
 
-func getErrors(errors []jsonschema.Detailed) []jsonschema.Detailed {
-	if len(errors) > 0 {
-		for _, err := range errors {
-			if len(err.Errors) > 0 {
-				return getErrors(err.Errors)
-			} else {
-				return errors
-			}
-		}
+func getOnlyRelevantErrors(rootError jsonschema.Detailed) []jsonschema.Detailed {
+	return getLeafErrors(rootError)
+}
+
+func getLeafErrors(error jsonschema.Detailed) []jsonschema.Detailed {
+	if error.Errors == nil {
+		// if no more child errors, I am a leaf, return me!
+		return []jsonschema.Detailed{error}
 	} else {
-		return errors
+		// if I'm not a leaf, return the errors from all my children!
+		var errorsFromChildren []jsonschema.Detailed
+		for _, childError := range error.Errors {
+			errorsFromChildren = append(errorsFromChildren, getLeafErrors(childError)...)
+		}
+		return errorsFromChildren
 	}
-	return nil
 }
