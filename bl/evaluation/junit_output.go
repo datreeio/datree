@@ -11,33 +11,33 @@ type JUnitOutput struct {
 	Tests    int         `xml:"tests,attr"`
 	Failures int         `xml:"failures,attr"`
 	Skipped  int         `xml:"skipped,attr"`
-	Suites   []TestSuite `xml:"testsuite"`
+	Suites   []testSuite `xml:"testsuite"`
 }
 
-type TestSuite struct {
+type testSuite struct {
 	Name       string      `xml:"name,attr"`
-	Properties *[]Property `xml:"properties>property,omitempty"`
-	TestCases  []TestCase  `xml:"testcase"`
+	Properties *[]property `xml:"properties>property,omitempty"`
+	TestCases  []testCase  `xml:"testcase"`
 }
 
-type Property struct {
+type property struct {
 	Name  string `xml:"name,attr"`
 	Value string `xml:"value,attr"`
 }
 
-type TestCase struct {
+type testCase struct {
 	Name      string `xml:"name,attr"`
 	ClassName string `xml:"classname,attr"`
-	Skipped   *TestCaseSkipped
-	Failure   *TestCaseFailure
+	Skipped   *skipped
+	Failure   *failure
 }
 
-type TestCaseSkipped struct {
+type skipped struct {
 	XMLName xml.Name `xml:"skipped,omitempty"`
 	Message string   `xml:"message,attr"`
 }
 
-type TestCaseFailure struct {
+type failure struct {
 	XMLName xml.Name `xml:"failure,omitempty"`
 	Message string   `xml:"message,attr"`
 	Content string   `xml:",chardata"`
@@ -49,35 +49,42 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 		Tests:    formattedOutput.PolicySummary.TotalRulesInPolicy,
 		Failures: formattedOutput.PolicySummary.TotalRulesFailed,
 		Skipped:  formattedOutput.PolicySummary.TotalSkippedRules,
-		Suites:   []TestSuite{},
+		Suites:   []testSuite{},
 	}
 
 	for _, policyValidationResult := range formattedOutput.PolicyValidationResults {
-		suite := TestSuite{
+		suite := testSuite{
 			Name:      policyValidationResult.FileName,
-			TestCases: []TestCase{},
+			TestCases: []testCase{},
 		}
 
 		for _, ruleResult := range policyValidationResult.RuleResults {
-			testCase := TestCase{
+			testCase := testCase{
 				Name:      ruleResult.Name,
 				ClassName: ruleResult.Identifier,
 			}
-			testCase.Failure = &TestCaseFailure{
+			testCase.Failure = &failure{
 				Message: ruleResult.MessageOnFailure,
 				Content: getContentFromOccurrencesDetails(ruleResult.OccurrencesDetails),
 			}
 			if areAllOccurrencesSkipped(ruleResult.OccurrencesDetails) {
-				testCase.Skipped = &TestCaseSkipped{Message: "All failing configs skipped"}
+				testCase.Skipped = &skipped{Message: "All failing configs skipped"}
 			}
 			suite.TestCases = append(suite.TestCases, testCase)
 		}
 		jUnitOutput.Suites = append(jUnitOutput.Suites, suite)
 	}
 
-	jUnitOutput.Suites = append(jUnitOutput.Suites, TestSuite{
+	jUnitOutput.Suites = appendPolicySummary(formattedOutput, jUnitOutput)
+	jUnitOutput.Suites = appendEvaluationSummary(formattedOutput, jUnitOutput)
+
+	return jUnitOutput
+}
+
+func appendPolicySummary(formattedOutput FormattedOutput, jUnitOutput JUnitOutput) []testSuite {
+	return append(jUnitOutput.Suites, testSuite{
 		Name: "policySummary",
-		Properties: &[]Property{{
+		Properties: &[]property{{
 			Name:  "policyName",
 			Value: formattedOutput.PolicySummary.PolicyName,
 		}, {
@@ -94,9 +101,12 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 			Value: strconv.Itoa(formattedOutput.PolicySummary.TotalPassedCount),
 		}},
 	})
-	jUnitOutput.Suites = append(jUnitOutput.Suites, TestSuite{
+}
+
+func appendEvaluationSummary(formattedOutput FormattedOutput, jUnitOutput JUnitOutput) []testSuite {
+	return append(jUnitOutput.Suites, testSuite{
 		Name: "evaluationSummary",
-		Properties: &[]Property{{
+		Properties: &[]property{{
 			Name:  "configsCount",
 			Value: strconv.Itoa(formattedOutput.EvaluationSummary.ConfigsCount),
 		}, {
@@ -113,8 +123,6 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 			Value: strconv.Itoa(formattedOutput.EvaluationSummary.PassedPolicyValidationCount),
 		}},
 	})
-
-	return jUnitOutput
 }
 
 func getContentFromOccurrencesDetails(occurrencesDetails []OccurrenceDetails) string {
