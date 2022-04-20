@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites name="Default" tests="34" failures="4" skipped="2">
 	<testsuite name="/Users/royhadad/Desktop/datree-repos/datree/internal/fixtures/kube/skipRule/k8s-demo-skip-two.yaml">
+		<testcase name="Ensure Deployment has a configured `env` label" classname="DEPLOYMENT_MISSING_LABEL_ENV_VALUE">
+			<failure message="Missing label object `env` - add a proper environment description (e.g. &#34;prod&#34;, &#34;testing&#34;, etc.) to the Deployment config">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+		</testcase>
+		<testcase name="Ensure each container image has a digest tag" classname="CONTAINERS_MISSING_IMAGE_VALUE_DIGEST">
+			<failure message="Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+		</testcase>
 		<testcase name="Ensure each container image has a pinned (tag) version" classname="CONTAINERS_MISSING_IMAGE_VALUE_VERSION">
 			<failure message="Incorrect value for key `image` - specify an image version to avoid unpleasant &#34;version surprises&#34; in the future">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
 		</testcase>
@@ -14,12 +20,6 @@
 		<testcase name="Ensure each container has a configured liveness probe" classname="CONTAINERS_MISSING_LIVENESSPROBE_KEY">
 			<skipped message="All failing configs skipped"></skipped>
 			<failure message="Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;1 skipped&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;</failure>
-		</testcase>
-		<testcase name="Ensure Deployment has a configured `env` label" classname="DEPLOYMENT_MISSING_LABEL_ENV_VALUE">
-			<failure message="Missing label object `env` - add a proper environment description (e.g. &#34;prod&#34;, &#34;testing&#34;, etc.) to the Deployment config">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
-		</testcase>
-		<testcase name="Ensure each container image has a digest tag" classname="CONTAINERS_MISSING_IMAGE_VALUE_DIGEST">
-			<failure message="Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image">1 occurrences&#xA;— metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
 		</testcase>
 	</testsuite>
 	<testsuite name="policySummary">
