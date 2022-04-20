@@ -207,10 +207,22 @@ func createFormattedOutput() FormattedOutput {
 }
 
 func getExpectedOutputs() expectedOutputs {
-	jsonOutput, _ := os.ReadFile("./printer_test_expected_outputs/json_output.json")
-	yamlOutput, _ := os.ReadFile("./printer_test_expected_outputs/yaml_output.yaml")
-	xmlOutput, _ := os.ReadFile("./printer_test_expected_outputs/xml_output.xml")
-	jUnitOutput, _ := os.ReadFile("./printer_test_expected_outputs/JUnit_output.xml")
+	jsonOutput, err := os.ReadFile("./printer_test_expected_outputs/json_output.json")
+	if err != nil {
+		panic(err)
+	}
+	yamlOutput, err := os.ReadFile("./printer_test_expected_outputs/yaml_output.yaml")
+	if err != nil {
+		panic(err)
+	}
+	xmlOutput, err := os.ReadFile("./printer_test_expected_outputs/xml_output.xml")
+	if err != nil {
+		panic(err)
+	}
+	jUnitOutput, err := os.ReadFile("./printer_test_expected_outputs/JUnit_output.xml")
+	if err != nil {
+		panic(err)
+	}
 	return expectedOutputs{
 		json:  string(jsonOutput),
 		yaml:  string(yamlOutput),
