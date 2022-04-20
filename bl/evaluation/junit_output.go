@@ -5,6 +5,10 @@ import (
 	"strconv"
 )
 
+// JUnit specifications:
+// https://llg.cubic.org/docs/junit/
+// https://www.ibm.com/docs/en/developer-for-zos/14.2.0?topic=formats-junit-xml-format
+
 type JUnitOutput struct {
 	XMLName  xml.Name    `xml:"testsuites"`
 	Name     string      `xml:"name,attr"`
