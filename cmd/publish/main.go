@@ -58,7 +58,7 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			outputFlag, _ := cmd.Flags().GetString("output")
-			if (outputFlag != "json") && (outputFlag != "yaml") && (outputFlag != "xml") {
+			if (outputFlag != "json") && (outputFlag != "yaml") && (outputFlag != "xml") && (outputFlag != "JUnit") {
 
 				messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
 				for msg := range messages {

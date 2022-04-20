@@ -30,3 +30,6 @@ set-token:
 
 publish:
 	go run -tags=staging -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=0.0.1" main.go publish ./internal/fixtures/policyAsCode/valid-schema.yaml
+
+datree_test_to_JUnit_report: # install junit2html first: https://github.com/inorton/junit2html
+	make build && ./datree test ./internal/fixtures/kube/skipRule/k8s-demo-skip-two.yaml -o JUnit > ./internal/fixtures/junit_support/datree_test_junit.xml || true && junit2html ./internal/fixtures/junit_support/datree_test_junit.xml ./internal/fixtures/junit_support/datree_test_junit_report.html

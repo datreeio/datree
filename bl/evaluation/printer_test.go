@@ -47,9 +47,10 @@ type printResultsTestCase struct {
 }
 
 type expectedOutputs struct {
-	json string
-	xml  string
-	yaml string
+	json  string
+	xml   string
+	yaml  string
+	JUnit string
 }
 
 // TODO: fill missing call assertions
@@ -59,6 +60,7 @@ func TestPrintResults(t *testing.T) {
 		print_resultst("json"),
 		print_resultst("yaml"),
 		print_resultst("xml"),
+		print_resultst("JUnit"),
 	}
 	for _, tt := range tests {
 		mockedPrinter := &mockPrinter{}
@@ -75,6 +77,8 @@ func TestPrintResults(t *testing.T) {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
 			} else if tt.args.outputFormat == "xml" {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+			} else if tt.args.outputFormat == "JUnit" {
+				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
 			} else {
 				pwd, _ := os.Getwd()
 				warnings, _ := parseToPrinterWarnings(tt.args.results.EvaluationResults, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0", validation.K8sValidationWarningPerValidFile{}, false)
@@ -88,17 +92,20 @@ func TestCustomOutputs(t *testing.T) {
 	formattedOutput := createFormattedOutput()
 	expectedOutputs := getExpectedOutputs()
 
-	jsonStdout := readOutput("json", formattedOutput)
+	jsonStdout := readOutput(t, "json", formattedOutput)
 	assert.Equal(t, expectedOutputs.json, jsonStdout)
 
-	yamlStdout := readOutput("yaml", formattedOutput)
+	yamlStdout := readOutput(t, "yaml", formattedOutput)
 	assert.Equal(t, expectedOutputs.yaml, yamlStdout)
 
-	xmlStdout := readOutput("xml", formattedOutput)
+	xmlStdout := readOutput(t, "xml", formattedOutput)
 	assert.Equal(t, expectedOutputs.xml, xmlStdout)
+
+	JUnitStdout := readOutput(t, "JUnit", formattedOutput)
+	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
-func readOutput(outputFormat string, formattedOutput FormattedOutput) string {
+func readOutput(t *testing.T, outputFormat string, formattedOutput FormattedOutput) string {
 	reader, writer, err := os.Pipe()
 	if err != nil {
 		panic(err)
@@ -121,6 +128,9 @@ func readOutput(outputFormat string, formattedOutput FormattedOutput) string {
 		yamlOutput(&formattedOutput)
 	case outputFormat == "xml":
 		xmlOutput(&formattedOutput)
+	case outputFormat == "JUnit":
+		err := jUnitOutput(&formattedOutput)
+		assert.Equal(t, err, nil)
 	}
 
 	writer.Close()
@@ -198,10 +208,15 @@ func createFormattedOutput() FormattedOutput {
 }
 
 func getExpectedOutputs() expectedOutputs {
+	jsonOutput, _ := os.ReadFile("./printer_test_expected_outputs/json_output.json")
+	yamlOutput, _ := os.ReadFile("./printer_test_expected_outputs/yaml_output.yaml")
+	xmlOutput, _ := os.ReadFile("./printer_test_expected_outputs/xml_output.xml")
+	jUnitOutput, _ := os.ReadFile("./printer_test_expected_outputs/JUnit_output.xml")
 	return expectedOutputs{
-		json: "{\"policyValidationResults\":[{\"fileName\":\"File1\",\"ruleResults\":[{\"identifier\":\"CONTAINERS_MISSING_IMAGE_VALUE_VERSION\",\"name\":\"Ensure each container image has a pinned (tag) version\",\"messageOnFailure\":\"Incorrect value for key `image` - specify an image version to avoid unpleasant \\\"version surprises\\\" in the future\",\"occurrencesDetails\":[{\"metadataName\":\"rss-site\",\"kind\":\"Deployment\",\"skipMessage\":\"\",\"occurrences\":1,\"isSkipped\":false}]},{\"identifier\":\"CONTAINERS_MISSING_MEMORY_LIMIT_KEY\",\"name\":\"Ensure each container has a configured memory limit\",\"messageOnFailure\":\"Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization\",\"occurrencesDetails\":[{\"metadataName\":\"rss-site\",\"kind\":\"Deployment\",\"skipMessage\":\"\",\"occurrences\":1,\"isSkipped\":false}]},{\"identifier\":\"WORKLOAD_INVALID_LABELS_VALUE\",\"name\":\"Ensure workload has valid label values\",\"messageOnFailure\":\"Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it\",\"occurrencesDetails\":[{\"metadataName\":\"rss-site\",\"kind\":\"Deployment\",\"skipMessage\":\"\",\"occurrences\":1,\"isSkipped\":false}]},{\"identifier\":\"CONTAINERS_MISSING_LIVENESSPROBE_KEY\",\"name\":\"Ensure each container has a configured liveness probe\",\"messageOnFailure\":\"Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks\",\"occurrencesDetails\":[{\"metadataName\":\"rss-site\",\"kind\":\"Deployment\",\"skipMessage\":\"\",\"occurrences\":1,\"isSkipped\":false}]}]}],\"policySummary\":{\"policyName\":\"Default\",\"totalRulesInPolicy\":21,\"totalRulesFailed\":4,\"totalSkippedRules\":0,\"totalPassedCount\":0},\"evaluationSummary\":{\"configsCount\":1,\"filesCount\":1,\"passedYamlValidationCount\":1,\"k8sValidation\":\"1/1\",\"passedPolicyValidationCount\":0},\"yamlValidationResults\":null,\"k8sValidationResults\":null}\n",
-		yaml: "policyValidationResults:\n- fileName: File1\n  ruleResults:\n  - identifier: CONTAINERS_MISSING_IMAGE_VALUE_VERSION\n    name: Ensure each container image has a pinned (tag) version\n    messageOnFailure: Incorrect value for key `image` - specify an image version to\n      avoid unpleasant \"version surprises\" in the future\n    occurrencesDetails:\n    - metadataName: rss-site\n      kind: Deployment\n      skipMessage: \"\"\n      occurrences: 1\n      isSkipped: false\n  - identifier: CONTAINERS_MISSING_MEMORY_LIMIT_KEY\n    name: Ensure each container has a configured memory limit\n    messageOnFailure: Missing property object `limits.memory` - value should be within\n      the accepted boundaries recommended by the organization\n    occurrencesDetails:\n    - metadataName: rss-site\n      kind: Deployment\n      skipMessage: \"\"\n      occurrences: 1\n      isSkipped: false\n  - identifier: WORKLOAD_INVALID_LABELS_VALUE\n    name: Ensure workload has valid label values\n    messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax\n      is not valid so the Kubernetes engine will not accept it\n    occurrencesDetails:\n    - metadataName: rss-site\n      kind: Deployment\n      skipMessage: \"\"\n      occurrences: 1\n      isSkipped: false\n  - identifier: CONTAINERS_MISSING_LIVENESSPROBE_KEY\n    name: Ensure each container has a configured liveness probe\n    messageOnFailure: Missing property object `livenessProbe` - add a properly configured\n      livenessProbe to catch possible deadlocks\n    occurrencesDetails:\n    - metadataName: rss-site\n      kind: Deployment\n      skipMessage: \"\"\n      occurrences: 1\n      isSkipped: false\npolicySummary:\n  policyName: Default\n  totalRulesInPolicy: 21\n  totalRulesFailed: 4\n  totalSkippedRules: 0\n  totalPassedCount: 0\nevaluationSummary:\n  configsCount: 1\n  filesCount: 1\n  passedYamlValidationCount: 1\n  k8sValidation: 1/1\n  passedPolicyValidationCount: 0\nyamlValidationResults: []\nk8sValidationResults: []\n\n",
-		xml:  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<FormattedOutput>\n\t<policyValidationResults>\n\t\t<fileName>File1</fileName>\n\t\t<ruleResults>\n\t\t\t<identifier>CONTAINERS_MISSING_IMAGE_VALUE_VERSION</identifier>\n\t\t\t<name>Ensure each container image has a pinned (tag) version</name>\n\t\t\t<messageOnFailure>Incorrect value for key `image` - specify an image version to avoid unpleasant &#34;version surprises&#34; in the future</messageOnFailure>\n\t\t\t<occurrencesDetails>\n\t\t\t\t<metadataName>rss-site</metadataName>\n\t\t\t\t<kind>Deployment</kind>\n\t\t\t\t<skipMessage></skipMessage>\n\t\t\t\t<occurrences>1</occurrences>\n\t\t\t\t<isSkipped>false</isSkipped>\n\t\t\t</occurrencesDetails>\n\t\t</ruleResults>\n\t\t<ruleResults>\n\t\t\t<identifier>CONTAINERS_MISSING_MEMORY_LIMIT_KEY</identifier>\n\t\t\t<name>Ensure each container has a configured memory limit</name>\n\t\t\t<messageOnFailure>Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization</messageOnFailure>\n\t\t\t<occurrencesDetails>\n\t\t\t\t<metadataName>rss-site</metadataName>\n\t\t\t\t<kind>Deployment</kind>\n\t\t\t\t<skipMessage></skipMessage>\n\t\t\t\t<occurrences>1</occurrences>\n\t\t\t\t<isSkipped>false</isSkipped>\n\t\t\t</occurrencesDetails>\n\t\t</ruleResults>\n\t\t<ruleResults>\n\t\t\t<identifier>WORKLOAD_INVALID_LABELS_VALUE</identifier>\n\t\t\t<name>Ensure workload has valid label values</name>\n\t\t\t<messageOnFailure>Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it</messageOnFailure>\n\t\t\t<occurrencesDetails>\n\t\t\t\t<metadataName>rss-site</metadataName>\n\t\t\t\t<kind>Deployment</kind>\n\t\t\t\t<skipMessage></skipMessage>\n\t\t\t\t<occurrences>1</occurrences>\n\t\t\t\t<isSkipped>false</isSkipped>\n\t\t\t</occurrencesDetails>\n\t\t</ruleResults>\n\t\t<ruleResults>\n\t\t\t<identifier>CONTAINERS_MISSING_LIVENESSPROBE_KEY</identifier>\n\t\t\t<name>Ensure each container has a configured liveness probe</name>\n\t\t\t<messageOnFailure>Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks</messageOnFailure>\n\t\t\t<occurrencesDetails>\n\t\t\t\t<metadataName>rss-site</metadataName>\n\t\t\t\t<kind>Deployment</kind>\n\t\t\t\t<skipMessage></skipMessage>\n\t\t\t\t<occurrences>1</occurrences>\n\t\t\t\t<isSkipped>false</isSkipped>\n\t\t\t</occurrencesDetails>\n\t\t</ruleResults>\n\t</policyValidationResults>\n\t<policySummary>\n\t\t<policyName>Default</policyName>\n\t\t<totalRulesInPolicy>21</totalRulesInPolicy>\n\t\t<totalRulesFailed>4</totalRulesFailed>\n\t\t<totalSkippedRules>0</totalSkippedRules>\n\t\t<totalPassedCount>0</totalPassedCount>\n\t</policySummary>\n\t<evaluationSummary>\n\t\t<configsCount>1</configsCount>\n\t\t<filesCount>1</filesCount>\n\t\t<passedYamlValidationCount>1</passedYamlValidationCount>\n\t\t<k8sValidation>1/1</k8sValidation>\n\t\t<passedPolicyValidationCount>0</passedPolicyValidationCount>\n\t</evaluationSummary>\n</FormattedOutput>\n",
+		json:  string(jsonOutput),
+		yaml:  string(yamlOutput),
+		xml:   string(xmlOutput),
+		JUnit: string(jUnitOutput),
 	}
 }
 

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FormattedOutput>
+	<policyValidationResults>
+		<fileName>File1</fileName>
+		<ruleResults>
+			<identifier>CONTAINERS_MISSING_IMAGE_VALUE_VERSION</identifier>
+			<name>Ensure each container image has a pinned (tag) version</name>
+			<messageOnFailure>Incorrect value for key `image` - specify an image version to avoid unpleasant &#34;version surprises&#34; in the future</messageOnFailure>
+			<occurrencesDetails>
+				<metadataName>rss-site</metadataName>
+				<kind>Deployment</kind>
+				<skipMessage></skipMessage>
+				<occurrences>1</occurrences>
+				<isSkipped>false</isSkipped>
+			</occurrencesDetails>
+		</ruleResults>
+		<ruleResults>
+			<identifier>CONTAINERS_MISSING_MEMORY_LIMIT_KEY</identifier>
+			<name>Ensure each container has a configured memory limit</name>
+			<messageOnFailure>Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization</messageOnFailure>
+			<occurrencesDetails>
+				<metadataName>rss-site</metadataName>
+				<kind>Deployment</kind>
+				<skipMessage></skipMessage>
+				<occurrences>1</occurrences>
+				<isSkipped>false</isSkipped>
+			</occurrencesDetails>
+		</ruleResults>
+		<ruleResults>
+			<identifier>WORKLOAD_INVALID_LABELS_VALUE</identifier>
+			<name>Ensure workload has valid label values</name>
+			<messageOnFailure>Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it</messageOnFailure>
+			<occurrencesDetails>
+				<metadataName>rss-site</metadataName>
+				<kind>Deployment</kind>
+				<skipMessage></skipMessage>
+				<occurrences>1</occurrences>
+				<isSkipped>false</isSkipped>
+			</occurrencesDetails>
+		</ruleResults>
+		<ruleResults>
+			<identifier>CONTAINERS_MISSING_LIVENESSPROBE_KEY</identifier>
+			<name>Ensure each container has a configured liveness probe</name>
+			<messageOnFailure>Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks</messageOnFailure>
+			<occurrencesDetails>
+				<metadataName>rss-site</metadataName>
+				<kind>Deployment</kind>
+				<skipMessage></skipMessage>
+				<occurrences>1</occurrences>
+				<isSkipped>false</isSkipped>
+			</occurrencesDetails>
+		</ruleResults>
+	</policyValidationResults>
+	<policySummary>
+		<policyName>Default</policyName>
+		<totalRulesInPolicy>21</totalRulesInPolicy>
+		<totalSkippedRules>0</totalSkippedRules>
+		<totalRulesFailed>4</totalRulesFailed>
+		<totalPassedCount>0</totalPassedCount>
+	</policySummary>
+	<evaluationSummary>
+		<configsCount>1</configsCount>
+		<filesCount>1</filesCount>
+		<passedYamlValidationCount>1</passedYamlValidationCount>
+		<k8sValidation>1/1</k8sValidation>
+		<passedPolicyValidationCount>0</passedPolicyValidationCount>
+	</evaluationSummary>
+</FormattedOutput>
