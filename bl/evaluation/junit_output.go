@@ -10,12 +10,12 @@ import (
 // https://www.ibm.com/docs/en/developer-for-zos/14.2.0?topic=formats-junit-xml-format
 
 type JUnitOutput struct {
-	XMLName  xml.Name    `xml:"testsuites"`
-	Name     string      `xml:"name,attr"`
-	Tests    int         `xml:"tests,attr"`
-	Failures int         `xml:"failures,attr"`
-	Skipped  int         `xml:"skipped,attr"`
-	Suites   []testSuite `xml:"testsuite"`
+	XMLName    xml.Name    `xml:"testsuites"`
+	Name       string      `xml:"name,attr"`
+	Tests      int         `xml:"tests,attr"`
+	Failures   int         `xml:"failures,attr"`
+	Skipped    int         `xml:"skipped,attr"`
+	TestSuites []testSuite `xml:"testsuite"`
 }
 
 type testSuite struct {
@@ -49,18 +49,18 @@ type failure struct {
 
 func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 	jUnitOutput := JUnitOutput{
-		Name:     formattedOutput.PolicySummary.PolicyName,
-		Tests:    formattedOutput.PolicySummary.TotalRulesInPolicy,
-		Failures: formattedOutput.PolicySummary.TotalRulesFailed,
-		Skipped:  formattedOutput.PolicySummary.TotalSkippedRules,
-		Suites:   []testSuite{},
+		Name:       formattedOutput.PolicySummary.PolicyName,
+		Tests:      formattedOutput.PolicySummary.TotalRulesInPolicy,
+		Failures:   formattedOutput.PolicySummary.TotalRulesFailed,
+		Skipped:    formattedOutput.PolicySummary.TotalSkippedRules,
+		TestSuites: []testSuite{},
 	}
 
 	for _, policyValidationResult := range formattedOutput.PolicyValidationResults {
-		jUnitOutput.Suites = append(jUnitOutput.Suites, getPolicyValidationResultTestSuite(policyValidationResult))
+		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult))
 	}
-	jUnitOutput.Suites = append(jUnitOutput.Suites, getPolicySummaryTestSuite(formattedOutput))
-	jUnitOutput.Suites = append(jUnitOutput.Suites, getEvaluationSummaryTestSuite(formattedOutput))
+	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicySummaryTestSuite(formattedOutput))
+	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getEvaluationSummaryTestSuite(formattedOutput))
 
 	return jUnitOutput
 }
