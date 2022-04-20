@@ -68,7 +68,7 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 				Content: getContentFromOccurrencesDetails(ruleResult.OccurrencesDetails),
 			}
 			if areAllOccurrencesSkipped(ruleResult.OccurrencesDetails) {
-				testCase.Skipped = &TestCaseSkipped{Message: "all failing configs"}
+				testCase.Skipped = &TestCaseSkipped{Message: "All failing configs skipped"}
 			}
 			suite.TestCases = append(suite.TestCases, testCase)
 		}
