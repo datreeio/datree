@@ -51,7 +51,7 @@ type textOutputData struct {
 }
 
 func PrintResults(resultsData *PrintResultsData) error {
-	if resultsData.OutputFormat == "json" || resultsData.OutputFormat == "yaml" || resultsData.OutputFormat == "xml" || resultsData.OutputFormat == "JUnit" {
+	if IsFormattedOutputOption(resultsData.OutputFormat) {
 		nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
 		if nonInteractiveEvaluationResults == nil {
 			nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
@@ -70,15 +70,16 @@ func PrintResults(resultsData *PrintResultsData) error {
 			K8sValidationResults:  resultsData.InvalidK8sFiles,
 		}
 
-		if resultsData.OutputFormat == "json" {
+		switch resultsData.OutputFormat {
+		case "json":
 			return jsonOutput(&formattedOutput)
-		} else if resultsData.OutputFormat == "yaml" {
+		case "yaml":
 			return yamlOutput(&formattedOutput)
-		} else if resultsData.OutputFormat == "xml" {
+		case "xml":
 			return xmlOutput(&formattedOutput)
-		} else if resultsData.OutputFormat == "JUnit" {
+		case "JUnit":
 			return jUnitOutput(&formattedOutput)
-		} else {
+		default:
 			panic(errors.New("invalid output format"))
 		}
 	} else {
