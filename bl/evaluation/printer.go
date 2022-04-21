@@ -70,15 +70,16 @@ func PrintResults(resultsData *PrintResultsData) error {
 			K8sValidationResults:  resultsData.InvalidK8sFiles,
 		}
 
-		if resultsData.OutputFormat == "json" {
+		switch resultsData.OutputFormat {
+		case "json":
 			return jsonOutput(&formattedOutput)
-		} else if resultsData.OutputFormat == "yaml" {
+		case "yaml":
 			return yamlOutput(&formattedOutput)
-		} else if resultsData.OutputFormat == "xml" {
+		case "xml":
 			return xmlOutput(&formattedOutput)
-		} else if resultsData.OutputFormat == "JUnit" {
+		case "JUnit":
 			return jUnitOutput(&formattedOutput)
-		} else {
+		default:
 			panic(errors.New("invalid output format"))
 		}
 	} else {
