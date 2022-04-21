@@ -51,7 +51,7 @@ type textOutputData struct {
 }
 
 func PrintResults(resultsData *PrintResultsData) error {
-	if resultsData.OutputFormat == "json" || resultsData.OutputFormat == "yaml" || resultsData.OutputFormat == "xml" || resultsData.OutputFormat == "JUnit" {
+	if IsFormattedOutputOption(resultsData.OutputFormat) {
 		nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
 		if nonInteractiveEvaluationResults == nil {
 			nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}

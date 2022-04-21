@@ -70,12 +70,9 @@ func NewTestCommandFlags() *TestCommandFlags {
 func (flags *TestCommandFlags) Validate() error {
 	outputValue := flags.Output
 
-	if outputValue != "" {
-		if (outputValue != "simple") && (outputValue != "json") && (outputValue != "yaml") && (outputValue != "xml") && (outputValue != "JUnit") {
-
-			return fmt.Errorf("Invalid --output option - %q\n"+
-				"Valid output values are - simple, yaml, json, xml, JUnit\n", outputValue)
-		}
+	if !evaluation.IsValidOutputOption(outputValue) {
+		return fmt.Errorf("Invalid --output option - %q\n"+
+			"Valid output values are - "+strings.Join(evaluation.ExplicitOptionOptions, ", ")+"\n", outputValue)
 	}
 
 	err := validateK8sVersionFormatIfProvided(flags.K8sVersion)
@@ -140,7 +137,7 @@ type TestCommandContext struct {
 
 func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
 	outputFlag, _ := cmd.Flags().GetString("output")
-	if (outputFlag != "json") && (outputFlag != "yaml") && (outputFlag != "xml") && (outputFlag != "JUnit") {
+	if !evaluation.IsFormattedOutputOption(outputFlag) {
 
 		messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
 		for msg := range messages {
@@ -401,7 +398,7 @@ type EvaluationResultData struct {
 }
 
 func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (EvaluationResultData, error) {
-	isInteractiveMode := (prerunData.Output != "json") && (prerunData.Output != "yaml") && (prerunData.Output != "xml") && (prerunData.Output != "JUnit")
+	isInteractiveMode := !evaluation.IsFormattedOutputOption(prerunData.Output)
 
 	var _spinner *spinner.Spinner
 	if isInteractiveMode && prerunData.Output != "simple" {

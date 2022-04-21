@@ -2,6 +2,7 @@ package publish
 
 import (
 	"fmt"
+	"github.com/datreeio/datree/bl/evaluation"
 
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
@@ -58,7 +59,7 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			outputFlag, _ := cmd.Flags().GetString("output")
-			if (outputFlag != "json") && (outputFlag != "yaml") && (outputFlag != "xml") && (outputFlag != "JUnit") {
+			if !evaluation.IsFormattedOutputOption(outputFlag) {
 
 				messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
 				for msg := range messages {
