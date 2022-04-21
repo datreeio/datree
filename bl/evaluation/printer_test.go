@@ -92,20 +92,20 @@ func TestCustomOutputs(t *testing.T) {
 	formattedOutput := createFormattedOutput()
 	expectedOutputs := getExpectedOutputs()
 
-	jsonStdout := readOutput(t, "json", formattedOutput)
+	jsonStdout := readOutput("json", formattedOutput)
 	assert.Equal(t, expectedOutputs.json, jsonStdout)
 
-	yamlStdout := readOutput(t, "yaml", formattedOutput)
+	yamlStdout := readOutput("yaml", formattedOutput)
 	assert.Equal(t, expectedOutputs.yaml, yamlStdout)
 
-	xmlStdout := readOutput(t, "xml", formattedOutput)
+	xmlStdout := readOutput("xml", formattedOutput)
 	assert.Equal(t, expectedOutputs.xml, xmlStdout)
 
-	JUnitStdout := readOutput(t, "JUnit", formattedOutput)
+	JUnitStdout := readOutput("JUnit", formattedOutput)
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
-func readOutput(t *testing.T, outputFormat string, formattedOutput FormattedOutput) string {
+func readOutput(outputFormat string, formattedOutput FormattedOutput) string {
 	reader, writer, err := os.Pipe()
 	if err != nil {
 		panic(err)
@@ -130,7 +130,9 @@ func readOutput(t *testing.T, outputFormat string, formattedOutput FormattedOutp
 		xmlOutput(&formattedOutput)
 	case outputFormat == "JUnit":
 		err := jUnitOutput(&formattedOutput)
-		assert.Equal(t, err, nil)
+		if err != nil {
+			panic("unexpected error in printer_test: " + err.Error())
+		}
 	}
 
 	writer.Close()
