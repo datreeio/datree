@@ -1,7 +1,7 @@
 package jsonSchemaValidator
 
 import (
-	"errors"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -27,23 +27,20 @@ type resourceMaximumSchema string
 
 func (jsv *JSONSchemaValidator) ValidateYamlSchema(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
 	jsonSchema, _ := yaml.YAMLToJSON([]byte(schemaContent))
-	return jsv.Validate(string(jsonSchema), yamlContent)
+	jsonYamlContent, _ := yaml.YAMLToJSON([]byte(yamlContent))
+	return jsv.Validate(string(jsonSchema), jsonYamlContent)
 }
 
-func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
-	var m interface{}
-	err := yaml.Unmarshal([]byte(yamlContent), &m)
-
-	if err != nil {
-		panic(err)
-	}
-
-	m, err = toStringKeys(m)
-	if err != nil {
+func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byte) ([]jsonschema.Detailed, error) {
+	var jsonYamlContent interface{}
+	//todo what happens if unmarshal fails?
+	if err := json.Unmarshal(yamlContent, &jsonYamlContent); err != nil {
 		panic(err)
 	}
 
 	compiler := jsonschema.NewCompiler()
+	//format is treated as annotation in draft-2019 onwards. it needs to be explicitly enabled by compiler.AssertFormat = true.
+	//see reference: https://github.com/santhosh-tekuri/jsonschema/issues/43
 	compiler.AssertFormat = true
 
 	if err := compiler.AddResource("schema.json", strings.NewReader(schemaContent)); err != nil {
@@ -74,7 +71,7 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent strin
 		panic(err)
 	}
 
-	err = schema.Validate(m)
+	err = schema.Validate(jsonYamlContent)
 
 	if err != nil {
 		if validationError, ok := err.(*jsonschema.ValidationError); ok {
@@ -84,41 +81,7 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent strin
 			return nil, err
 		}
 	}
-	return nil, err
-}
-
-/*
-This package accepts only map[string]interface{}, so we need to manually convert them to
-map[string]interface{}
-*/
-func toStringKeys(val interface{}) (interface{}, error) {
-	var err error
-	switch val := val.(type) {
-	case map[interface{}]interface{}:
-		m := make(map[string]interface{})
-		for k, v := range val {
-			k, ok := k.(string)
-			if !ok {
-				return nil, errors.New("found non-string key")
-			}
-			m[k], err = toStringKeys(v)
-			if err != nil {
-				return nil, err
-			}
-		}
-		return m, nil
-	case []interface{}:
-		var l = make([]interface{}, len(val))
-		for i, v := range val {
-			l[i], err = toStringKeys(v)
-			if err != nil {
-				return nil, err
-			}
-		}
-		return l, nil
-	default:
-		return val, nil
-	}
+	return nil, nil
 }
 
 func (resourceMinimumCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
@@ -130,28 +93,29 @@ func (resourceMinimumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 }
 
 func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
-	if resourceMinimum, ok := m["resourceMaximum"]; ok {
-		resourceMinimumStr := resourceMinimum.(string)
-		return resourceMaximumSchema(resourceMinimumStr), nil
+	if resourceMaximum, ok := m["resourceMaximum"]; ok {
+		resourceMaximumStr := resourceMaximum.(string)
+		return resourceMaximumSchema(resourceMaximumStr), nil
 	}
 	return nil, nil
 }
 
+//todo check type convertions and add error handling
 func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
 	keywordPath := "resourceMinimum"
 	ruleResourceMinimumStr := string(s)
 	dataValueParsedQty, err := resource.ParseQuantity(dataValue.(string))
 	if err != nil {
-		if err != nil {
-			return ctx.Error(keywordPath, "failed parsing value %v", dataValue)
-		}
+		//todo add on which type of shiteness it happened
+		return ctx.Error(keywordPath, "failed parsing value %v", dataValue)
 	}
-
+	//todo rename
 	rmSchemaValueParsedQ, err := resource.ParseQuantity(ruleResourceMinimumStr)
 	if err != nil {
 		return ctx.Error(keywordPath, "failed parsing value %v", ruleResourceMinimumStr)
 	}
 
+	//todo rename?
 	rmDecStr := dataValueParsedQty.AsDec().String()
 	rmRfDecStr := rmSchemaValueParsedQ.AsDec().String()
 
@@ -203,6 +167,7 @@ func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, dataVa
 	return nil
 }
 
+//todo think it we need 2 functions / just one
 func getOnlyRelevantErrors(rootError jsonschema.Detailed) []jsonschema.Detailed {
 	return getLeafErrors(rootError)
 }

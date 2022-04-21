@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/datreeio/datree/pkg/fileReader"
-	"github.com/ghodss/yaml"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,10 +24,10 @@ func TestValidateCustomKeysFail(t *testing.T) {
 
 	jsonSchemaValidator := New()
 
-	resourceYaml, _ := yaml.JSONToYAML([]byte(failResourceYamlFileContent))
-	customRuleYaml, _ := yaml.JSONToYAML([]byte(customRuleSchemaYamlFileContent))
+	//resourceYaml, _ := yaml.JSONToYAML([]byte(failResourceYamlFileContent))
+	//customRuleYaml, _ := yaml.JSONToYAML([]byte(customRuleSchemaYamlFileContent))
 
-	errorsResult, _ := jsonSchemaValidator.ValidateYamlSchema(string(customRuleYaml), string(resourceYaml))
+	errorsResult, _ := jsonSchemaValidator.ValidateYamlSchema(customRuleSchemaYamlFileContent, failResourceYamlFileContent)
 
 	assert.GreaterOrEqual(t, len(errorsResult), 1)
 }
@@ -48,10 +47,7 @@ func TestValidateCustomKeysPass(t *testing.T) {
 
 	jsonSchemaValidator := New()
 
-	resourceYaml, _ := yaml.JSONToYAML([]byte(passResourceYamlFileContent))
-	customRuleYaml, _ := yaml.JSONToYAML([]byte(customRuleSchemaYamlFileContent))
-
-	errorsResult, _ := jsonSchemaValidator.ValidateYamlSchema(string(customRuleYaml), string(resourceYaml))
+	errorsResult, _ := jsonSchemaValidator.ValidateYamlSchema(customRuleSchemaYamlFileContent, passResourceYamlFileContent)
 
 	assert.Empty(t, errorsResult)
 }
