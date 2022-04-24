@@ -24,12 +24,10 @@ func TestValidateCustomKeysFail(t *testing.T) {
 
 	jsonSchemaValidator := New()
 
-	//resourceYaml, _ := yaml.JSONToYAML([]byte(failResourceYamlFileContent))
-	//customRuleYaml, _ := yaml.JSONToYAML([]byte(customRuleSchemaYamlFileContent))
-
 	errorsResult, _ := jsonSchemaValidator.ValidateYamlSchema(customRuleSchemaYamlFileContent, failResourceYamlFileContent)
 
 	assert.GreaterOrEqual(t, len(errorsResult), 1)
+	assert.Equal(t, errorsResult[0].Error, "1G is greater then resourceMaximum 500m")
 }
 
 func TestValidateCustomKeysPass(t *testing.T) {

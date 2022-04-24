@@ -60,7 +60,7 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byt
 	compiler.AssertFormat = true
 
 	if err := compiler.AddResource("schema.json", strings.NewReader(schemaContent)); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	compiler.RegisterExtension("resourceMinimum", resourceMinimum, resourceMinimumCompiler{})
@@ -68,7 +68,7 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byt
 
 	schema, err := compiler.Compile("schema.json")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	err = schema.Validate(jsonYamlContent)
@@ -106,7 +106,6 @@ func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 	return nil, nil
 }
 
-//todo check type convertions and add error handling
 func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
 	keywordPath := "resourceMinimum"
 	schemaResourceMinStr := string(s)
