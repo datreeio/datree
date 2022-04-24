@@ -25,6 +25,22 @@ type resourceMaximumCompiler struct{}
 type resourceMinimumSchema string
 type resourceMaximumSchema string
 
+var resourceMinimum = jsonschema.MustCompileString("resourceMinimum.json", `{
+	"properties" : {
+		"resourceMinimum": {
+			"type": "string"
+		}
+	}
+}`)
+
+var resourceMaximum = jsonschema.MustCompileString("resourceMaximum.json", `{
+	"properties" : {
+		"resourceMaximum": {
+			"type": "string"
+		}
+	}
+}`)
+
 func (jsv *JSONSchemaValidator) ValidateYamlSchema(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
 	jsonSchema, _ := yaml.YAMLToJSON([]byte(schemaContent))
 	jsonYamlContent, _ := yaml.YAMLToJSON([]byte(yamlContent))
@@ -46,22 +62,6 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byt
 	if err := compiler.AddResource("schema.json", strings.NewReader(schemaContent)); err != nil {
 		panic(err)
 	}
-
-	var resourceMinimum = jsonschema.MustCompileString("resourceMinimum.json", `{
-	"properties" : {
-		"resourceMinimum": {
-			"type": "string"
-		}
-	}
-}`)
-
-	var resourceMaximum = jsonschema.MustCompileString("resourceMaximum.json", `{
-	"properties" : {
-		"resourceMaximum": {
-			"type": "string"
-		}
-	}
-}`)
 
 	compiler.RegisterExtension("resourceMinimum", resourceMinimum, resourceMinimumCompiler{})
 	compiler.RegisterExtension("resourceMaximum", resourceMaximum, resourceMaximumCompiler{})
@@ -86,7 +86,10 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byt
 
 func (resourceMinimumCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
 	if resourceMinimum, ok := m["resourceMinimum"]; ok {
-		resourceMinimumStr := resourceMinimum.(string)
+		resourceMinimumStr, validStr := resourceMinimum.(string)
+		if !validStr {
+			return nil, fmt.Errorf("resourceMinimum must be a string")
+		}
 		return resourceMinimumSchema(resourceMinimumStr), nil
 	}
 	return nil, nil
@@ -94,7 +97,10 @@ func (resourceMinimumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 
 func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
 	if resourceMaximum, ok := m["resourceMaximum"]; ok {
-		resourceMaximumStr := resourceMaximum.(string)
+		resourceMaximumStr, validStr := resourceMaximum.(string)
+		if !validStr {
+			return nil, fmt.Errorf("resourceMaximum must be a string")
+		}
 		return resourceMaximumSchema(resourceMaximumStr), nil
 	}
 	return nil, nil
@@ -103,66 +109,76 @@ func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 //todo check type convertions and add error handling
 func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
 	keywordPath := "resourceMinimum"
-	ruleResourceMinimumStr := string(s)
-	dataValueParsedQty, err := resource.ParseQuantity(dataValue.(string))
-	if err != nil {
-		//todo add on which type of shiteness it happened
-		return ctx.Error(keywordPath, "failed parsing value %v", dataValue)
-	}
-	//todo rename
-	rmSchemaValueParsedQ, err := resource.ParseQuantity(ruleResourceMinimumStr)
-	if err != nil {
-		return ctx.Error(keywordPath, "failed parsing value %v", ruleResourceMinimumStr)
+	schemaResourceMinStr := string(s)
+
+	dataValueStr, validStr := dataValue.(string)
+	if !validStr {
+		return fmt.Errorf("%s must be a string", dataValueStr)
 	}
 
-	//todo rename?
-	rmDecStr := dataValueParsedQty.AsDec().String()
-	rmRfDecStr := rmSchemaValueParsedQ.AsDec().String()
-
-	resourceMinimumSchemaVal, err := strconv.ParseFloat(rmDecStr, 64)
+	dataValueParsedQty, err := resource.ParseQuantity(dataValueStr)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed float parsing value %v", resourceMinimumSchemaVal)
+		return ctx.Error(keywordPath, "failed parsing data value %v", dataValue)
 	}
 
-	resourceMinimumDataVal, err := strconv.ParseFloat(rmRfDecStr, 64)
+	schemaResourceMinParsedQty, err := resource.ParseQuantity(schemaResourceMinStr)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed float parsing value %v", resourceMinimumDataVal)
+		return ctx.Error(keywordPath, "failed parsing schema value %v", schemaResourceMinStr)
 	}
 
-	if resourceMinimumDataVal > resourceMinimumSchemaVal {
-		return ctx.Error(keywordPath, "%v is lower then resourceMinimum %v", dataValue, ruleResourceMinimumStr)
+	dataValueParsedQtyDecimal := dataValueParsedQty.AsDec().String()
+	schemaResourceMinParsedQtyDecimal := schemaResourceMinParsedQty.AsDec().String()
+
+	dataValueFloat, err := strconv.ParseFloat(dataValueParsedQtyDecimal, 64)
+	if err != nil {
+		return ctx.Error(keywordPath, "failed float parsing value %v", dataValueFloat)
+	}
+
+	schemaMinValueFloat, err := strconv.ParseFloat(schemaResourceMinParsedQtyDecimal, 64)
+	if err != nil {
+		return ctx.Error(keywordPath, "failed float parsing value %v", schemaMinValueFloat)
+	}
+
+	if schemaMinValueFloat > dataValueFloat {
+		return ctx.Error(keywordPath, "%v is lower then resourceMinimum %v", dataValue, schemaResourceMinStr)
 	}
 	return nil
 }
 
 func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
 	keywordPath := "resourceMaximum"
-	ruleResourceMaximumStr := string(s)
+	schemaResourceMaxStr := string(s)
+
+	dataValueStr, validStr := dataValue.(string)
+	if !validStr {
+		return fmt.Errorf("%s must be a string", dataValueStr)
+	}
+
 	dataValueParsedQty, err := resource.ParseQuantity(dataValue.(string))
 	if err != nil {
-		return ctx.Error(keywordPath, "failed parsing value %v", dataValue)
+		return ctx.Error(keywordPath, "failed parsing data value %v", dataValue)
 	}
 
-	rmSchemaValueParsedQ, err := resource.ParseQuantity(ruleResourceMaximumStr)
+	schemaResourceMaxParsedQty, err := resource.ParseQuantity(schemaResourceMaxStr)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed parsing value %v", ruleResourceMaximumStr)
+		return ctx.Error(keywordPath, "failed parsing schema value %v", schemaResourceMaxStr)
 	}
 
-	rmDecStr := dataValueParsedQty.AsDec().String()
-	rmRfDecStr := rmSchemaValueParsedQ.AsDec().String()
+	dataValueParsedQtyDecimal := dataValueParsedQty.AsDec().String()
+	schemaResourceMaxParsedQtyDecimal := schemaResourceMaxParsedQty.AsDec().String()
 
-	resourceMaximumSchemaVal, err := strconv.ParseFloat(rmDecStr, 64)
+	dataValueFloat, err := strconv.ParseFloat(dataValueParsedQtyDecimal, 64)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed float parsing value %v", resourceMaximumSchemaVal)
+		return ctx.Error(keywordPath, "failed float parsing value %v", dataValueFloat)
 	}
 
-	resourceMaximumDataVal, err := strconv.ParseFloat(rmRfDecStr, 64)
+	schemaMaxValueFloat, err := strconv.ParseFloat(schemaResourceMaxParsedQtyDecimal, 64)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed float parsing value %v", resourceMaximumDataVal)
+		return ctx.Error(keywordPath, "failed float parsing value %v", schemaMaxValueFloat)
 	}
 
-	if resourceMaximumDataVal < resourceMaximumSchemaVal {
-		return ctx.Error(keywordPath, "%v is greater then resourceMaximum %v", dataValue, ruleResourceMaximumStr)
+	if schemaMaxValueFloat < dataValueFloat {
+		return ctx.Error(keywordPath, "%v is greater then resourceMaximum %v", dataValue, schemaResourceMaxStr)
 	}
 	return nil
 }
