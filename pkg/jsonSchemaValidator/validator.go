@@ -49,9 +49,8 @@ func (jsv *JSONSchemaValidator) ValidateYamlSchema(schemaContent string, yamlCon
 
 func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byte) ([]jsonschema.Detailed, error) {
 	var jsonYamlContent interface{}
-	//todo what happens if unmarshal fails?
 	if err := json.Unmarshal(yamlContent, &jsonYamlContent); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	compiler := jsonschema.NewCompiler()
@@ -182,7 +181,6 @@ func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, dataVa
 	return nil
 }
 
-//todo think it we need 2 functions / just one
 func getOnlyRelevantErrors(rootError jsonschema.Detailed) []jsonschema.Detailed {
 	return getLeafErrors(rootError)
 }
