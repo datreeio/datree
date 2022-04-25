@@ -55,8 +55,8 @@ type TestCommandFlags struct {
 }
 
 // TestCommandFlags constructor
-func NewTestCommandFlags() *TestCommandFlags {
-	return &TestCommandFlags{
+func NewTestCommandFlags(localConfig *localConfig.LocalConfig) *TestCommandFlags {
+	defaultCommandFlags := &TestCommandFlags{
 		Output:               "",
 		K8sVersion:           "",
 		IgnoreMissingSchemas: false,
@@ -65,6 +65,8 @@ func NewTestCommandFlags() *TestCommandFlags {
 		PolicyName:           "",
 		SchemaLocations:      make([]string, 0),
 	}
+
+	return defaultCommandFlags
 }
 
 func (flags *TestCommandFlags) Validate() error {
@@ -153,7 +155,13 @@ func SetSilentMode(cmd *cobra.Command) {
 }
 
 func New(ctx *TestCommandContext) *cobra.Command {
-	testCommandFlags := NewTestCommandFlags()
+	flagsFromConfig, err := ctx.LocalConfig.GetLocalConfiguration()
+
+	if err != nil {
+		panic(err)
+	}
+
+	testCommandFlags := NewTestCommandFlags(flagsFromConfig)
 	testCommand := &cobra.Command{
 		Use:   "test <pattern>",
 		Short: "Execute static analysis for given <pattern>",
