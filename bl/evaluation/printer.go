@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/datreeio/datree/pkg/cliClient"
 	"os"
 	"path/filepath"
 	"sort"
@@ -25,6 +26,7 @@ type Printer interface {
 
 type PrintResultsData struct {
 	Results               FormattedResults
+	RulesData             []cliClient.RuleData
 	InvalidYamlFiles      []*extractor.InvalidFile
 	InvalidK8sFiles       []*extractor.InvalidFile
 	EvaluationSummary     printer.EvaluationSummary
@@ -78,7 +80,7 @@ func PrintResults(resultsData *PrintResultsData) error {
 		case "xml":
 			return xmlOutput(&formattedOutput)
 		case "JUnit":
-			return jUnitOutput(&formattedOutput)
+			return jUnitOutput(&formattedOutput, resultsData.RulesData)
 		default:
 			panic(errors.New("invalid output format"))
 		}
@@ -124,8 +126,8 @@ func xmlOutput(formattedOutput *FormattedOutput) error {
 	return printAsXml(formattedOutput)
 }
 
-func jUnitOutput(formattedOutput *FormattedOutput) error {
-	return printAsXml(FormattedOutputToJUnitOutput(*formattedOutput))
+func jUnitOutput(formattedOutput *FormattedOutput, rulesData []cliClient.RuleData) error {
+	return printAsXml(FormattedOutputToJUnitOutput(*formattedOutput, rulesData))
 }
 
 func printAsXml(output interface{}) error {

@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"encoding/xml"
+	"github.com/datreeio/datree/pkg/cliClient"
 	"strconv"
 )
 
@@ -47,7 +48,7 @@ type failure struct {
 	Content string   `xml:",chardata"`
 }
 
-func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
+func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, rulesData []cliClient.RuleData) JUnitOutput {
 	jUnitOutput := JUnitOutput{
 		Name:       formattedOutput.PolicySummary.PolicyName,
 		Tests:      formattedOutput.PolicySummary.TotalRulesInPolicy,
@@ -57,7 +58,7 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 	}
 
 	for _, policyValidationResult := range formattedOutput.PolicyValidationResults {
-		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult))
+		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, rulesData))
 	}
 	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicySummaryTestSuite(formattedOutput))
 	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getEvaluationSummaryTestSuite(formattedOutput))
@@ -65,7 +66,7 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 	return jUnitOutput
 }
 
-func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults) testSuite {
+func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults, rulesData []cliClient.RuleData) testSuite {
 	suite := testSuite{
 		Name:      policyValidationResult.FileName,
 		TestCases: []testCase{},
