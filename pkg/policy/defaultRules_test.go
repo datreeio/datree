@@ -110,7 +110,7 @@ func validateUniqueStringPropertyValuesInArray(propertyName string, array []inte
 		propertyValue := itemObject[propertyName].(string)
 
 		if propertyValuesExistenceMap[propertyValue] {
-			return fmt.Errorf("Property %s has duplicate value %s", propertyName, propertyValue)
+			return fmt.Errorf("property %s has duplicate value %s", propertyName, propertyValue)
 		}
 
 		propertyValuesExistenceMap[propertyValue] = true
