@@ -222,6 +222,8 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 				rulesUniqueNames = append(rulesUniqueNames, rulesUniqueName)
 			}
 
+			sort.Strings(rulesUniqueNames)
+
 			for _, ruleUniqueName := range rulesUniqueNames {
 				rule := rules[ruleUniqueName]
 				var fixLink string
