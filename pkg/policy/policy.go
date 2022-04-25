@@ -37,17 +37,11 @@ type DefaultRuleDefinition struct {
 
 func GetDefaultRules() (*DefaultRulesDefinitions, error) {
 	configDefaultRulesYamlContent, err := getDefaultRulesFromFile()
-
-	var defaultRulesDefinitions *DefaultRulesDefinitions
 	if err == nil {
-		defaultRulesDefinitions, err = yamlToStruct(configDefaultRulesYamlContent)
-		fmt.Println("Using default rules from file")
-	} else {
-		defaultRulesDefinitions, err = yamlToStruct(embeddedDefaultRulesYamlContent)
-		fmt.Println("Using default rules from embedded file")
+		return yamlToStruct(configDefaultRulesYamlContent)
 	}
 
-	return defaultRulesDefinitions, err
+	return yamlToStruct(embeddedDefaultRulesYamlContent)
 }
 
 func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, error) {
