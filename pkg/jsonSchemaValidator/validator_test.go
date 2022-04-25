@@ -17,7 +17,7 @@ func TestValidateCustomKeysFail(t *testing.T) {
 		panic(err)
 	}
 
-	customRuleSchemaYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/custom-rule.yaml")
+	customRuleSchemaYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/schema-with-resource-quotas.yaml")
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +38,7 @@ func TestValidateCustomKeysPass(t *testing.T) {
 		panic(err)
 	}
 
-	customRuleSchemaYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/custom-rule.yaml")
+	customRuleSchemaYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/schema-with-resource-quotas.yaml")
 	if err != nil {
 		panic(err)
 	}
