@@ -3,6 +3,9 @@ package policy
 import (
 	_ "embed"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/fileReader"
@@ -11,7 +14,7 @@ import (
 )
 
 //go:embed defaultRules.yaml
-var defaultRulesYamlContent string
+var embeddedDefaultRulesYamlContent string
 
 //go:embed policiesSchema.json
 var policiesSchemaContent string
@@ -33,8 +36,12 @@ type DefaultRuleDefinition struct {
 }
 
 func GetDefaultRules() (*DefaultRulesDefinitions, error) {
-	defaultRulesDefinitions, err := yamlToStruct(defaultRulesYamlContent)
-	return defaultRulesDefinitions, err
+	configDefaultRulesYamlContent, err := getDefaultRulesFromFile()
+	if err == nil {
+		return yamlToStruct(configDefaultRulesYamlContent)
+	}
+
+	return yamlToStruct(embeddedDefaultRulesYamlContent)
 }
 
 func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, error) {
@@ -91,4 +98,13 @@ func yamlToStruct(content string) (*DefaultRulesDefinitions, error) {
 		return nil, err
 	}
 	return &defaultRulesDefinitions, err
+}
+
+func getDefaultRulesFromFile() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	defaultRulesFileContent, err := ioutil.ReadFile(filepath.Join(homeDir, ".datree", "defaultRules.yaml"))
+	return string(defaultRulesFileContent), err
 }

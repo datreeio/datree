@@ -3,7 +3,9 @@ package test
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -193,6 +195,8 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			}
 
 			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+			saveDefaultRulesAsFile(ctx, evaluationPrerunData.DefaultRulesYaml)
+
 			if err != nil {
 				return err
 			}
@@ -514,4 +518,20 @@ func wereViolationsFound(validationManager *ValidationManager, results *evaluati
 	} else {
 		return false
 	}
+}
+
+func saveDefaultRulesAsFile(ctx *TestCommandContext, preRunDefaultRulesYaml string) {
+	if preRunDefaultRulesYaml == "" {
+		return
+	}
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return
+	}
+
+	defaultRulesFilePath := filepath.Join(homeDir, ".datree", "defaultRules.yaml")
+
+	const fileReadPermission = 0644
+	_ = ioutil.WriteFile(defaultRulesFilePath, []byte(preRunDefaultRulesYaml), os.FileMode(fileReadPermission))
 }

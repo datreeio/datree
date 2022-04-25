@@ -98,6 +98,7 @@ type EvaluationPrerunDataResponse struct {
 	RegistrationURL       string                    `json:"registrationURL"`
 	PromptRegistrationURL string                    `json:"promptRegistrationURL"`
 	IsPolicyAsCodeMode    bool                      `json:"isPolicyAsCodeMode"`
+	DefaultRulesYaml      string                    `json:"defaultRulesYaml"`
 }
 
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
