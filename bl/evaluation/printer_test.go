@@ -2,12 +2,13 @@ package evaluation
 
 import (
 	"bytes"
-	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/policy"
 	"io"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/policy"
 
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
