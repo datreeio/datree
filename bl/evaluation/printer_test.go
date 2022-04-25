@@ -3,6 +3,7 @@ package evaluation
 import (
 	"bytes"
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/policy"
 	"io"
 	"log"
 	"os"
@@ -34,6 +35,7 @@ func (c *mockPrinter) PrintEvaluationSummary(summary printer.EvaluationSummary, 
 
 type printResultsTestCaseArgs struct {
 	results           FormattedResults
+	rulesData         []cliClient.RuleData
 	invalidYamlFiles  []*extractor.InvalidFile
 	invalidK8sFiles   []*extractor.InvalidFile
 	evaluationSummary printer.EvaluationSummary
@@ -70,7 +72,7 @@ func TestPrintResults(t *testing.T) {
 		mockedPrinter.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_ = PrintResults(&PrintResultsData{tt.args.results, []cliClient.RuleData{}, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0", false, "Default", validation.K8sValidationWarningPerValidFile{}})
+			_ = PrintResults(&PrintResultsData{tt.args.results, tt.args.rulesData, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0", false, "Default", validation.K8sValidationWarningPerValidFile{}})
 
 			if tt.args.outputFormat == "json" {
 				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
@@ -91,22 +93,23 @@ func TestPrintResults(t *testing.T) {
 
 func TestCustomOutputs(t *testing.T) {
 	formattedOutput := createFormattedOutput()
+	ruleData := createRulesData()
 	expectedOutputs := getExpectedOutputs()
 
-	jsonStdout := readOutput("json", formattedOutput)
+	jsonStdout := readOutput("json", formattedOutput, ruleData)
 	assert.Equal(t, expectedOutputs.json, jsonStdout)
 
-	yamlStdout := readOutput("yaml", formattedOutput)
+	yamlStdout := readOutput("yaml", formattedOutput, ruleData)
 	assert.Equal(t, expectedOutputs.yaml, yamlStdout)
 
-	xmlStdout := readOutput("xml", formattedOutput)
+	xmlStdout := readOutput("xml", formattedOutput, ruleData)
 	assert.Equal(t, expectedOutputs.xml, xmlStdout)
 
-	JUnitStdout := readOutput("JUnit", formattedOutput)
+	JUnitStdout := readOutput("JUnit", formattedOutput, ruleData)
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
-func readOutput(outputFormat string, formattedOutput FormattedOutput) string {
+func readOutput(outputFormat string, formattedOutput FormattedOutput, rulesData []cliClient.RuleData) string {
 	reader, writer, err := os.Pipe()
 	if err != nil {
 		panic(err)
@@ -130,7 +133,7 @@ func readOutput(outputFormat string, formattedOutput FormattedOutput) string {
 	case outputFormat == "xml":
 		xmlOutput(&formattedOutput)
 	case outputFormat == "JUnit":
-		err := jUnitOutput(&formattedOutput, []cliClient.RuleData{})
+		err := jUnitOutput(&formattedOutput, rulesData)
 		if err != nil {
 			panic("unexpected error in printer_test: " + err.Error())
 		}
@@ -138,6 +141,23 @@ func readOutput(outputFormat string, formattedOutput FormattedOutput) string {
 
 	writer.Close()
 	return <-out
+}
+
+func createRulesData() []cliClient.RuleData {
+	dr, err := policy.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+	var result []cliClient.RuleData
+	for _, r := range dr.Rules {
+		if r.EnabledByDefault {
+			result = append(result, cliClient.RuleData{
+				Identifier: r.UniqueName,
+				Name:       r.Name,
+			})
+		}
+	}
+	return result
 }
 
 func createFormattedOutput() FormattedOutput {
@@ -247,6 +267,7 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 					FormattedEvaluationResults: []*FormattedEvaluationResults{},
 				},
 			},
+			rulesData:         []cliClient.RuleData{},
 			invalidYamlFiles:  []*extractor.InvalidFile{},
 			invalidK8sFiles:   []*extractor.InvalidFile{},
 			evaluationSummary: printer.EvaluationSummary{},
