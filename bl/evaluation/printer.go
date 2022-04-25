@@ -5,11 +5,12 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/datreeio/datree/pkg/cliClient"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/datreeio/datree/pkg/cliClient"
 
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"

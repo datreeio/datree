@@ -2,8 +2,9 @@ package evaluation
 
 import (
 	"encoding/xml"
-	"github.com/datreeio/datree/pkg/cliClient"
 	"strconv"
+
+	"github.com/datreeio/datree/pkg/cliClient"
 )
 
 // JUnit specifications:
