@@ -72,21 +72,35 @@ func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluat
 		TestCases: []testCase{},
 	}
 
-	for _, ruleResult := range policyValidationResult.RuleResults {
+	for _, rule := range rulesData {
 		testCase := testCase{
-			Name:      ruleResult.Name,
-			ClassName: ruleResult.Identifier,
+			Name:      rule.Name,
+			ClassName: rule.Identifier,
 		}
-		testCase.Failure = &failure{
-			Message: ruleResult.MessageOnFailure,
-			Content: getContentFromOccurrencesDetails(ruleResult.OccurrencesDetails),
-		}
-		if areAllOccurrencesSkipped(ruleResult.OccurrencesDetails) {
-			testCase.Skipped = &skipped{Message: "All failing configs skipped"}
+		ruleResult := getRuleResultIfItExists(rule, policyValidationResult.RuleResults)
+
+		if ruleResult != nil {
+			testCase.Failure = &failure{
+				Message: ruleResult.MessageOnFailure,
+				Content: getContentFromOccurrencesDetails(ruleResult.OccurrencesDetails),
+			}
+			if areAllOccurrencesSkipped(ruleResult.OccurrencesDetails) {
+				testCase.Skipped = &skipped{Message: "All failing configs skipped"}
+			}
 		}
 		suite.TestCases = append(suite.TestCases, testCase)
 	}
+
 	return suite
+}
+
+func getRuleResultIfItExists(ruleData cliClient.RuleData, ruleResults []*RuleResult) *RuleResult {
+	for _, ruleResult := range ruleResults {
+		if ruleResult.Identifier == ruleData.Identifier {
+			return ruleResult
+		}
+	}
+	return nil
 }
 
 func getPolicySummaryTestSuite(formattedOutput FormattedOutput) testSuite {
