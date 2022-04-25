@@ -11,7 +11,9 @@
       "type": "array",
       "minItems": 44,
       "maxItems": 44,
-      "properties": {
+      "items": {
+        "type": "object",
+        "properties": {
         "id": {
           "type": "number",
           "minimum": 1,
@@ -24,7 +26,7 @@
         "uniqueName": {
           "type": "string",
           "minLength": 1,
-          "pattern": "^[a-zA-Z0-9_]*$"
+          "pattern": "^([A-Za-z0-9_])*([0-9]+\\.?[0-9]*|\\.[0-9]+)?([A-Za-z0-9_])*$"
         },
         "enabledByDefault": {
           "type": "boolean"
@@ -45,18 +47,19 @@
         "schema": {
           "type": "object"
         }
+        }
       },
-      "required": [
-        "id",
-        "name",
-        "uniqueName",
-        "enabledByDefault",
-        "documentationUrl",
-        "messageOnFailure",
-        "category",
-        "schema"
-      ]
-    }
+        "required": [
+          "id",
+          "name",
+          "uniqueName",
+          "enabledByDefault",
+          "documentationUrl",
+          "messageOnFailure",
+          "category",
+          "schema"
+        ]
+      }
   },
   "required": [
     "apiVersion",
