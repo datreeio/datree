@@ -3,6 +3,8 @@ package evaluation
 import (
 	"encoding/xml"
 	"strconv"
+
+	"github.com/datreeio/datree/pkg/cliClient"
 )
 
 // JUnit specifications:
@@ -47,7 +49,7 @@ type failure struct {
 	Content string   `xml:",chardata"`
 }
 
-func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
+func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, rulesData []cliClient.RuleData) JUnitOutput {
 	jUnitOutput := JUnitOutput{
 		Name:       formattedOutput.PolicySummary.PolicyName,
 		Tests:      formattedOutput.PolicySummary.TotalRulesInPolicy,
@@ -57,7 +59,7 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 	}
 
 	for _, policyValidationResult := range formattedOutput.PolicyValidationResults {
-		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult))
+		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, rulesData))
 	}
 	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicySummaryTestSuite(formattedOutput))
 	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getEvaluationSummaryTestSuite(formattedOutput))
@@ -65,27 +67,41 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput) JUnitOutput {
 	return jUnitOutput
 }
 
-func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults) testSuite {
+func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults, rulesData []cliClient.RuleData) testSuite {
 	suite := testSuite{
 		Name:      policyValidationResult.FileName,
 		TestCases: []testCase{},
 	}
 
-	for _, ruleResult := range policyValidationResult.RuleResults {
+	for _, rule := range rulesData {
 		testCase := testCase{
-			Name:      ruleResult.Name,
-			ClassName: ruleResult.Identifier,
+			Name:      rule.Name,
+			ClassName: rule.Identifier,
 		}
-		testCase.Failure = &failure{
-			Message: ruleResult.MessageOnFailure,
-			Content: getContentFromOccurrencesDetails(ruleResult.OccurrencesDetails),
-		}
-		if areAllOccurrencesSkipped(ruleResult.OccurrencesDetails) {
-			testCase.Skipped = &skipped{Message: "All failing configs skipped"}
+		ruleResult := findRuleResult(rule, policyValidationResult.RuleResults)
+
+		if ruleResult != nil {
+			testCase.Failure = &failure{
+				Message: ruleResult.MessageOnFailure,
+				Content: getContentFromOccurrencesDetails(ruleResult.OccurrencesDetails),
+			}
+			if areAllOccurrencesSkipped(ruleResult.OccurrencesDetails) {
+				testCase.Skipped = &skipped{Message: "All failing configs skipped"}
+			}
 		}
 		suite.TestCases = append(suite.TestCases, testCase)
 	}
+
 	return suite
+}
+
+func findRuleResult(ruleData cliClient.RuleData, ruleResults []*RuleResult) *RuleResult {
+	for _, ruleResult := range ruleResults {
+		if ruleResult.Identifier == ruleData.Identifier {
+			return ruleResult
+		}
+	}
+	return nil
 }
 
 func getPolicySummaryTestSuite(formattedOutput FormattedOutput) testSuite {

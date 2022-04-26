@@ -357,6 +357,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 
 	err = evaluation.PrintResults(&evaluation.PrintResultsData{
 		Results:               results,
+		RulesData:             evaluationResultData.RulesData,
 		InvalidYamlFiles:      validationManager.InvalidYamlFiles(),
 		InvalidK8sFiles:       validationManager.InvalidK8sFiles(),
 		EvaluationSummary:     evaluationSummary,
@@ -398,6 +399,7 @@ type EvaluationResultData struct {
 	ValidationManager *ValidationManager
 	RulesCount        int
 	FormattedResults  evaluation.FormattedResults
+	RulesData         []cliClient.RuleData
 	PromptMessage     string
 }
 
@@ -447,7 +449,13 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		Policy:              prerunData.Policy,
 	}
 
-	emptyEvaluationResultData := EvaluationResultData{nil, 0, evaluation.FormattedResults{}, ""}
+	emptyEvaluationResultData := EvaluationResultData{
+		ValidationManager: nil,
+		RulesCount:        0,
+		FormattedResults:  evaluation.FormattedResults{},
+		RulesData:         []cliClient.RuleData{},
+		PromptMessage:     "",
+	}
 
 	policyCheckResultData, err := ctx.Evaluator.Evaluate(policyCheckData)
 	if err != nil {
@@ -459,6 +467,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 			ValidationManager: validationManager,
 			RulesCount:        policyCheckResultData.RulesCount,
 			FormattedResults:  policyCheckResultData.FormattedResults,
+			RulesData:         policyCheckResultData.RulesData,
 			PromptMessage:     "",
 		}, nil
 	}
@@ -502,6 +511,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		ValidationManager: validationManager,
 		RulesCount:        policyCheckResultData.RulesCount,
 		FormattedResults:  policyCheckResultData.FormattedResults,
+		RulesData:         policyCheckResultData.RulesData,
 		PromptMessage:     sendEvaluationResultsResponse.PromptMessage,
 	}
 
