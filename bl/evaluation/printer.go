@@ -3,11 +3,14 @@ package evaluation
 import (
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/datreeio/datree/pkg/cliClient"
 
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -24,6 +27,7 @@ type Printer interface {
 
 type PrintResultsData struct {
 	Results               FormattedResults
+	RulesData             []cliClient.RuleData
 	InvalidYamlFiles      []*extractor.InvalidFile
 	InvalidK8sFiles       []*extractor.InvalidFile
 	EvaluationSummary     printer.EvaluationSummary
@@ -50,7 +54,7 @@ type textOutputData struct {
 }
 
 func PrintResults(resultsData *PrintResultsData) error {
-	if resultsData.OutputFormat == "json" || resultsData.OutputFormat == "yaml" || resultsData.OutputFormat == "xml" {
+	if IsFormattedOutputOption(resultsData.OutputFormat) {
 		nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
 		if nonInteractiveEvaluationResults == nil {
 			nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
@@ -69,12 +73,17 @@ func PrintResults(resultsData *PrintResultsData) error {
 			K8sValidationResults:  resultsData.InvalidK8sFiles,
 		}
 
-		if resultsData.OutputFormat == "json" {
+		switch resultsData.OutputFormat {
+		case "json":
 			return jsonOutput(&formattedOutput)
-		} else if resultsData.OutputFormat == "yaml" {
+		case "yaml":
 			return yamlOutput(&formattedOutput)
-		} else {
+		case "xml":
 			return xmlOutput(&formattedOutput)
+		case "JUnit":
+			return jUnitOutput(&formattedOutput, resultsData.RulesData)
+		default:
+			panic(errors.New("invalid output format"))
 		}
 	} else {
 		return textOutput(textOutputData{
@@ -115,7 +124,15 @@ func yamlOutput(formattedOutput *FormattedOutput) error {
 }
 
 func xmlOutput(formattedOutput *FormattedOutput) error {
-	xmlOutput, err := xml.MarshalIndent(formattedOutput, "", "\t")
+	return printAsXml(formattedOutput)
+}
+
+func jUnitOutput(formattedOutput *FormattedOutput, rulesData []cliClient.RuleData) error {
+	return printAsXml(FormattedOutputToJUnitOutput(*formattedOutput, rulesData))
+}
+
+func printAsXml(output interface{}) error {
+	xmlOutput, err := xml.MarshalIndent(output, "", "\t")
 	xmlOutput = []byte(xml.Header + string(xmlOutput))
 	if err != nil {
 		fmt.Println(err)
@@ -207,6 +224,8 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 			for rulesUniqueName := range rules {
 				rulesUniqueNames = append(rulesUniqueNames, rulesUniqueName)
 			}
+
+			sort.Strings(rulesUniqueNames)
 
 			for _, ruleUniqueName := range rulesUniqueNames {
 				rule := rules[ruleUniqueName]

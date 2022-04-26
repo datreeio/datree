@@ -3,6 +3,9 @@ package policy
 import (
 	_ "embed"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/fileReader"
@@ -11,7 +14,7 @@ import (
 )
 
 //go:embed defaultRules.yaml
-var defaultRulesYamlContent string
+var embeddedDefaultRulesYamlContent string
 
 //go:embed policiesSchema.json
 var policiesSchemaContent string
@@ -33,8 +36,12 @@ type DefaultRuleDefinition struct {
 }
 
 func GetDefaultRules() (*DefaultRulesDefinitions, error) {
-	defaultRulesDefinitions, err := yamlToStruct(defaultRulesYamlContent)
-	return defaultRulesDefinitions, err
+	configDefaultRulesYamlContent, err := getDefaultRulesFromFile()
+	if err == nil {
+		return yamlToStruct(configDefaultRulesYamlContent)
+	}
+
+	return yamlToStruct(embeddedDefaultRulesYamlContent)
 }
 
 func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, error) {
@@ -44,13 +51,15 @@ func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, 
 		return nil, err
 	}
 
-	err = validatePoliciesYaml(policiesStr, path)
+	policiesStrBytes := []byte(policiesStr)
+
+	err = validatePoliciesYaml(policiesStrBytes, path)
 	if err != nil {
 		return nil, err
 	}
 
 	var policies *cliClient.EvaluationPrerunPolicies
-	policiesBytes, err := yaml.YAMLToJSON([]byte(policiesStr))
+	policiesBytes, err := yaml.YAMLToJSON(policiesStrBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -63,19 +72,20 @@ func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, 
 	return policies, nil
 }
 
-func validatePoliciesYaml(content string, policyYamlPath string) error {
+func validatePoliciesYaml(content []byte, policyYamlPath string) error {
 	jsonSchemaValidator := jsonSchemaValidator.New()
-	result, err := jsonSchemaValidator.Validate(policiesSchemaContent, content)
+	jsonContent, _ := yaml.YAMLToJSON(content)
+	errorsResult, err := jsonSchemaValidator.Validate(policiesSchemaContent, jsonContent)
 
 	if err != nil {
 		return err
 	}
 
-	if !result.Valid() {
+	if errorsResult != nil {
 		validationErrors := fmt.Errorf("Found errors in policies file %s:\n", policyYamlPath)
 
-		for _, validationError := range result.Errors() {
-			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError)
+		for _, validationError := range errorsResult {
+			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError.Error)
 		}
 
 		return validationErrors
@@ -91,4 +101,13 @@ func yamlToStruct(content string) (*DefaultRulesDefinitions, error) {
 		return nil, err
 	}
 	return &defaultRulesDefinitions, err
+}
+
+func getDefaultRulesFromFile() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	defaultRulesFileContent, err := ioutil.ReadFile(filepath.Join(homeDir, ".datree", "defaultRules.yaml"))
+	return string(defaultRulesFileContent), err
 }

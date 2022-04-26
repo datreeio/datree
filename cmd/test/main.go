@@ -3,7 +3,9 @@ package test
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -70,12 +72,9 @@ func NewTestCommandFlags() *TestCommandFlags {
 func (flags *TestCommandFlags) Validate() error {
 	outputValue := flags.Output
 
-	if outputValue != "" {
-		if (outputValue != "simple") && (outputValue != "json") && (outputValue != "yaml") && (outputValue != "xml") {
-
-			return fmt.Errorf("Invalid --output option - %q\n"+
-				"Valid output values are - simple, yaml, json, xml\n", outputValue)
-		}
+	if !evaluation.IsValidOutputOption(outputValue) {
+		return fmt.Errorf("Invalid --output option - %q\n"+
+			"Valid output values are - "+strings.Join(evaluation.ExplicitOptionOptions, ", ")+"\n", outputValue)
 	}
 
 	err := validateK8sVersionFormatIfProvided(flags.K8sVersion)
@@ -140,7 +139,7 @@ type TestCommandContext struct {
 
 func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
 	outputFlag, _ := cmd.Flags().GetString("output")
-	if (outputFlag != "json") && (outputFlag != "yaml") && (outputFlag != "xml") {
+	if !evaluation.IsFormattedOutputOption(outputFlag) {
 
 		messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
 		for msg := range messages {
@@ -196,6 +195,8 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			}
 
 			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+			saveDefaultRulesAsFile(ctx, evaluationPrerunData.DefaultRulesYaml)
+
 			if err != nil {
 				return err
 			}
@@ -356,6 +357,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 
 	err = evaluation.PrintResults(&evaluation.PrintResultsData{
 		Results:               results,
+		RulesData:             evaluationResultData.RulesData,
 		InvalidYamlFiles:      validationManager.InvalidYamlFiles(),
 		InvalidK8sFiles:       validationManager.InvalidK8sFiles(),
 		EvaluationSummary:     evaluationSummary,
@@ -397,11 +399,12 @@ type EvaluationResultData struct {
 	ValidationManager *ValidationManager
 	RulesCount        int
 	FormattedResults  evaluation.FormattedResults
+	RulesData         []cliClient.RuleData
 	PromptMessage     string
 }
 
 func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (EvaluationResultData, error) {
-	isInteractiveMode := (prerunData.Output != "json") && (prerunData.Output != "yaml") && (prerunData.Output != "xml")
+	isInteractiveMode := !evaluation.IsFormattedOutputOption(prerunData.Output)
 
 	var _spinner *spinner.Spinner
 	if isInteractiveMode && prerunData.Output != "simple" {
@@ -446,7 +449,13 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		Policy:              prerunData.Policy,
 	}
 
-	emptyEvaluationResultData := EvaluationResultData{nil, 0, evaluation.FormattedResults{}, ""}
+	emptyEvaluationResultData := EvaluationResultData{
+		ValidationManager: nil,
+		RulesCount:        0,
+		FormattedResults:  evaluation.FormattedResults{},
+		RulesData:         []cliClient.RuleData{},
+		PromptMessage:     "",
+	}
 
 	policyCheckResultData, err := ctx.Evaluator.Evaluate(policyCheckData)
 	if err != nil {
@@ -458,6 +467,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 			ValidationManager: validationManager,
 			RulesCount:        policyCheckResultData.RulesCount,
 			FormattedResults:  policyCheckResultData.FormattedResults,
+			RulesData:         policyCheckResultData.RulesData,
 			PromptMessage:     "",
 		}, nil
 	}
@@ -501,6 +511,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		ValidationManager: validationManager,
 		RulesCount:        policyCheckResultData.RulesCount,
 		FormattedResults:  policyCheckResultData.FormattedResults,
+		RulesData:         policyCheckResultData.RulesData,
 		PromptMessage:     sendEvaluationResultsResponse.PromptMessage,
 	}
 
@@ -517,4 +528,20 @@ func wereViolationsFound(validationManager *ValidationManager, results *evaluati
 	} else {
 		return false
 	}
+}
+
+func saveDefaultRulesAsFile(ctx *TestCommandContext, preRunDefaultRulesYaml string) {
+	if preRunDefaultRulesYaml == "" {
+		return
+	}
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return
+	}
+
+	defaultRulesFilePath := filepath.Join(homeDir, ".datree", "defaultRules.yaml")
+
+	const fileReadPermission = 0644
+	_ = ioutil.WriteFile(defaultRulesFilePath, []byte(preRunDefaultRulesYaml), os.FileMode(fileReadPermission))
 }

@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>datree_test_junit.xml</title>
+    <style type="text/css">
+        body {
+    background-color: white;
+    padding-bottom: 20em;
+    margin: 0;
+    min-height: 15cm;
+}
+
+h1, h2, h3, h4, h5, h6, h7 {
+    font-family: sans-serif;
+}
+
+h1 {
+    background-color: #007acc;
+    color: white;
+    padding: 3mm;
+    margin-top: 0;
+    margin-bottom: 1mm;
+}
+
+.footer {
+    font-style: italic;
+    font-size: small;
+    text-align: right;
+    padding: 1em;
+}
+
+.testsuite {
+    padding-bottom: 2em;
+    margin-left: 1em;
+}
+
+.proplist {
+    width: 100%;
+    margin-bottom: 2em;
+    border-collapse: collapse;
+    border: 1px solid grey;
+}
+
+.proplist th {
+    background-color: silver;
+    width: 5em;
+    padding: 2px;
+    padding-right: 1em;
+    text-align: left;
+}
+
+.proplist td {
+    padding: 2px;
+}
+
+.index-table {
+    width: 90%;
+    margin-left: 1em;
+}
+
+.index-table td {
+    vertical-align: top;
+    width: 50%;
+}
+
+.failure-index {
+
+}
+
+.toc {
+    margin-bottom: 2em;
+    font-family: monospace;
+}
+
+.stdio, pre {
+    min-height: 1em;
+    background-color: #1e1e1e;
+    color: silver;
+    padding: 0.5em;
+}
+.tdpre {
+    background-color: #1e1e1e;
+}
+
+.test {
+    margin-left: 0.5cm;
+}
+
+.outcome {
+    border-left: 1em;
+    padding: 2px;
+}
+
+.outcome-failed {
+    border-left: 1em solid lightcoral;
+}
+
+.stats-table {
+}
+
+.stats-table td {
+    min-width: 4em;
+    text-align: right;
+}
+
+.stats-table .failed {
+    background-color: lightcoral;
+}
+
+.stats-table .passed {
+    background-color: lightgreen;
+}
+
+.matrix-table {
+    table-layout: fixed;
+    border-spacing: 0;
+    width: available;
+    margin-left: 1em;
+}
+
+.matrix-table td {
+    vertical-align: center;
+}
+
+.matrix-table td:last-child {
+    width: 0;
+}
+
+.matrix-axis-name {
+    white-space: nowrap;
+    padding-left: 0.5em;
+    border-left: 1px solid black;
+    border-top: 1px solid black;
+}
+
+.matrix-axis-line {
+    border-left: 1px solid black;
+    width: 0.5em;
+}
+
+.matrix-classname {
+    text-align: left;
+    width: 100%;
+    border-top: 2px solid grey;
+    border-bottom: 1px solid silver;
+}
+
+.matrix-casename {
+    text-align: left;
+    font-weight: normal;
+    font-style: italic;
+    padding-left: 1em;
+    border-bottom: 1px solid silver;
+}
+
+.matrix-result {
+    display: block;
+    width: 1em;
+    text-align: center;
+    padding: 1mm;
+    margin: 0;
+}
+
+.matrix-result-combined {
+    white-space: nowrap;
+    padding-right: 0.2em;
+    text-align: right;
+}
+
+.matrix-result-failed {
+    background-color: lightcoral;
+}
+
+.matrix-result-passed {
+    background-color: lightgreen;
+}
+
+.matrix-result-skipped {
+    background-color: lightyellow;
+}
+    </style>
+</head>
+<body>
+    
+<h1>
+    Test Report : datree_test_junit.xml
+</h1>
+<a id="toc"></a>
+<table class="index-table">
+    <tr>
+        <td>
+            <ul class="toc">
+            
+                
+                <li>PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION
+                <ul>
+                    
+                    <li><a href="#fec92873-0e82-45fa-8d2d-b4d662b28c04">Allows pods to undergo least voluntary disruption</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINER_CVE2021_25741_INCORRECT_SUBPATH_KEY
+                <ul>
+                    
+                    <li><a href="#923b7918-2511-4886-9327-1f53bff71c99">Prevent container security vulnerability (CVE-2021-25741)</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_MISSING_IMAGE_VALUE_VERSION
+                <ul>
+                    
+                    <li><a href="#296f839f-90da-4f55-bf94-dd063077f8f8">Ensure each container image has a pinned (tag) version</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_MISSING_MEMORY_REQUEST_KEY
+                <ul>
+                    
+                    <li><a href="#cc6a4a08-4374-467f-9df6-266cf44de77d">Ensure each container has a configured memory request</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_MISSING_CPU_REQUEST_KEY
+                <ul>
+                    
+                    <li><a href="#2f2079d1-7146-4713-aae4-ff838ef83cf3">Ensure each container has a configured CPU request</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_MISSING_MEMORY_LIMIT_KEY
+                <ul>
+                    
+                    <li><a href="#4ca968f7-45ad-4eab-8aa8-0d19d9ced1d0">Ensure each container has a configured memory limit</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_MISSING_CPU_LIMIT_KEY
+                <ul>
+                    
+                    <li><a href="#ae70a6d5-ba7b-44e2-945b-bb4a57a2eb5a">Ensure each container has a configured CPU limit</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE
+                <ul>
+                    
+                    <li><a href="#a2124e1f-fa3d-47ec-8286-08d623dee9b8">Prevent Ingress from forwarding all traffic to a single container</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>SERVICE_INCORRECT_TYPE_VALUE_NODEPORT
+                <ul>
+                    
+                    <li><a href="#189447b6-7a0a-48ec-be22-2f271d25bdad">Prevent Service from exposing node port</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CRONJOB_INVALID_SCHEDULE_VALUE
+                <ul>
+                    
+                    <li><a href="#a5c57e55-e0d0-43f8-a8f7-b8a844b23059">Ensure CronJob scheduler is valid</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>WORKLOAD_INVALID_LABELS_VALUE
+                <ul>
+                    
+                    <li><a href="#a089ae2f-3f9d-4476-a90c-0f156550a446">Ensure workload has valid label values</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS
+                <ul>
+                    
+                    <li><a href="#694de7c6-cd86-4896-85ff-5489f8f518a7">Ensure deployment-like resource is using a valid restart policy</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_MISSING_LIVENESSPROBE_KEY
+                <ul>
+                    
+                    <li><a href="#25dd3dca-3f95-40b8-af62-82c45322c9b2">Ensure each container has a configured liveness probe</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_MISSING_READINESSPROBE_KEY
+                <ul>
+                    
+                    <li><a href="#8cd5e8e5-960f-4432-9773-dd138d6e4dd2">Ensure each container has a configured readiness probe</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>HPA_MISSING_MINREPLICAS_KEY
+                <ul>
+                    
+                    <li><a href="#76c17c44-72c2-4f60-9c8f-204b11b47cb7">Ensure HPA has minimum replicas configured</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>HPA_MISSING_MAXREPLICAS_KEY
+                <ul>
+                    
+                    <li><a href="#b1b97657-4383-45ea-93e9-9084e6dea1c7">Ensure HPA has maximum replicas configured</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT
+                <ul>
+                    
+                    <li><a href="#008e851f-7cfc-45bf-8421-0d7474f05471">Prevent workload from using the default namespace</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>DEPLOYMENT_INCORRECT_REPLICAS_VALUE
+                <ul>
+                    
+                    <li><a href="#f2ce0199-7a20-4c07-903c-75adb88aaa15">Ensure Deployment has more than one replica configured</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CRONJOB_MISSING_STARTINGDEADLINESECOND_KEY
+                <ul>
+                    
+                    <li><a href="#6ff504ee-f139-4392-a2a0-c8100c3cb9ab">Ensure CronJob has a configured deadline</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>K8S_DEPRECATED_APIVERSION_1.16
+                <ul>
+                    
+                    <li><a href="#86cb899d-27b7-4144-825b-b409c72921fc">Prevent deprecated APIs in Kubernetes v1.16</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>K8S_DEPRECATED_APIVERSION_1.17
+                <ul>
+                    
+                    <li><a href="#703a84b2-4ad9-4c20-9604-b361f4167c77">Prevent deprecated APIs in Kubernetes v1.17</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE
+                <ul>
+                    
+                    <li><a href="#cc00d51f-201d-431f-bdd2-8d1503b43cc3">Prevent containers from having root access capabilities</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>WORKLOAD_MISSING_LABEL_OWNER_VALUE
+                <ul>
+                    
+                    <li><a href="#bb4d3654-216b-44e9-9d17-96cc9a3fedbd">Ensure workload has a configured `owner` label</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>DEPLOYMENT_MISSING_LABEL_ENV_VALUE
+                <ul>
+                    
+                    <li><a href="#ca7101ec-48c9-4aac-a86e-accfeeec374d">Ensure Deployment has a configured `env` label</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_MISSING_IMAGE_VALUE_DIGEST
+                <ul>
+                    
+                    <li><a href="#3e9dd640-c348-43b0-89b0-80182e585b62">Ensure each container image has a digest tag</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CRONJOB_MISSING_CONCURRENCYPOLICY_KEY
+                <ul>
+                    
+                    <li><a href="#7629bb50-6fcf-434d-b306-86416c96dafd">Prevent CronJob from executing jobs concurrently</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>K8S_INCORRECT_KIND_VALUE_POD
+                <ul>
+                    
+                    <li><a href="#51ee61c1-d488-49d2-9972-7c102bd5aa89">Prevent deploying naked pods</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_INCORRECT_HOSTPID_VALUE_TRUE
+                <ul>
+                    
+                    <li><a href="#84406aa5-dd9b-4128-9ea7-2284522f2669">Prevent containers from sharing the host&#39;s PID namespace</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_INCORRECT_HOSTIPC_VALUE_TRUE
+                <ul>
+                    
+                    <li><a href="#49f1606f-232d-4ba7-a0fb-6339b81c9f40">Prevent containers from sharing the host`s IPC namespace</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_INCORRECT_HOSTNETWORK_VALUE_TRUE
+                <ul>
+                    
+                    <li><a href="#db3b5654-a779-4fa9-a889-1da55761f7ee">Prevent containers from sharing the host&#39;s network namespace</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_INCORRECT_RUNASUSER_VALUE_LOWUID
+                <ul>
+                    
+                    <li><a href="#f889e5d5-7666-4c51-a199-ba1c20afe158">Prevent containers from accessing host files by using high UIDs</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>CONTAINERS_INCORRECT_PATH_VALUE_DOCKERSOCKET
+                <ul>
+                    
+                    <li><a href="#1619fd42-2dd3-4c6f-bb5f-e5f9225933b7">Prevent containers from mounting Docker socket</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>INGRESS_CVE2021_25742_INCORRECT_SERVER_SNIPPET_KEY
+                <ul>
+                    
+                    <li><a href="#669da393-81e2-4e8f-b271-c4151191ac5b">Prevent Ingress security vulnerability (CVE-2021-25742)</a></li>
+                    
+                </ul>
+                </li>
+                
+                <li>INGRESS_INCORRECT_DOMAIN_NAME
+                <ul>
+                    
+                    <li><a href="#bcebd71d-ae99-4169-8aad-6a44b37365f3">Deny invalid domain names in ingress hosts</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+            
+                
+            
+            </ul>
+        </td>
+        <td class="failure-index">
+            <ul class="toc">
+            
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    <li><a href="#296f839f-90da-4f55-bf94-dd063077f8f8">[F] CONTAINERS_MISSING_IMAGE_VALUE_VERSION : Ensure each container image has a pinned (tag) version</a></li>
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    <li><a href="#4ca968f7-45ad-4eab-8aa8-0d19d9ced1d0">[F] CONTAINERS_MISSING_MEMORY_LIMIT_KEY : Ensure each container has a configured memory limit</a></li>
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    <li><a href="#a089ae2f-3f9d-4476-a90c-0f156550a446">[S] WORKLOAD_INVALID_LABELS_VALUE : Ensure workload has valid label values</a></li>
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    <li><a href="#25dd3dca-3f95-40b8-af62-82c45322c9b2">[S] CONTAINERS_MISSING_LIVENESSPROBE_KEY : Ensure each container has a configured liveness probe</a></li>
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    <li><a href="#ca7101ec-48c9-4aac-a86e-accfeeec374d">[F] DEPLOYMENT_MISSING_LABEL_ENV_VALUE : Ensure Deployment has a configured `env` label</a></li>
+                    
+                    
+                
+                    
+                    
+                    <li><a href="#3e9dd640-c348-43b0-89b0-80182e585b62">[F] CONTAINERS_MISSING_IMAGE_VALUE_DIGEST : Ensure each container image has a digest tag</a></li>
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+                    
+                    
+                    
+                
+            
+                
+            
+                
+            
+            </ul>
+        </td>
+    </tr>
+</table>
+
+
+    <div class="testsuite">
+        <h2>Test Suite: /Users/royhadad/Desktop/datree-repos/datree/internal/fixtures/kube/skipRule/k8s-demo-skip-two.yaml</h2>
+        <a id="a10d958a-86a1-49da-a881-c59794f38803"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.0 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>34</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>6</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="fec92873-0e82-45fa-8d2d-b4d662b28c04"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Allows pods to undergo least voluntary disruption</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINER_CVE2021_25741_INCORRECT_SUBPATH_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="923b7918-2511-4886-9327-1f53bff71c99"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent container security vulnerability (CVE-2021-25741)</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_MISSING_IMAGE_VALUE_VERSION</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-failed">
+                        <a id="296f839f-90da-4f55-bf94-dd063077f8f8"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure each container image has a pinned (tag) version</b></td></tr>
+                            <tr><th>Outcome:</th><td>Failed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>Incorrect value for key `image` - specify an image version to avoid unpleasant &#34;version surprises&#34; in the future</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>1 occurrences
+— metadata.name: rss-site (kind: Deployment)
+0 skipped
+</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_MISSING_MEMORY_REQUEST_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="cc6a4a08-4374-467f-9df6-266cf44de77d"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure each container has a configured memory request</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_MISSING_CPU_REQUEST_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="2f2079d1-7146-4713-aae4-ff838ef83cf3"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure each container has a configured CPU request</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_MISSING_MEMORY_LIMIT_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-failed">
+                        <a id="4ca968f7-45ad-4eab-8aa8-0d19d9ced1d0"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure each container has a configured memory limit</b></td></tr>
+                            <tr><th>Outcome:</th><td>Failed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>1 occurrences
+— metadata.name: rss-site (kind: Deployment)
+0 skipped
+</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_MISSING_CPU_LIMIT_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="ae70a6d5-ba7b-44e2-945b-bb4a57a2eb5a"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure each container has a configured CPU limit</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="a2124e1f-fa3d-47ec-8286-08d623dee9b8"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent Ingress from forwarding all traffic to a single container</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>SERVICE_INCORRECT_TYPE_VALUE_NODEPORT</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="189447b6-7a0a-48ec-be22-2f271d25bdad"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent Service from exposing node port</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CRONJOB_INVALID_SCHEDULE_VALUE</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="a5c57e55-e0d0-43f8-a8f7-b8a844b23059"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure CronJob scheduler is valid</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>WORKLOAD_INVALID_LABELS_VALUE</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-skipped">
+                        <a id="a089ae2f-3f9d-4476-a90c-0f156550a446"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure workload has valid label values</b></td></tr>
+                            <tr><th>Outcome:</th><td>Skipped</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it</td></tr>
+                        
+                        
+                            <tr><th>Skipped</th><td>All failing configs skipped</td></tr>
+                        
+                        </table>
+
+                        
+                        <pre>1 occurrences
+— metadata.name: rss-site (kind: Deployment)
+1 skipped
+— metadata.name: rss-site (kind: Deployment)
+</pre>
+                        
+                        
+                        <pre>skipped</pre>
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="694de7c6-cd86-4896-85ff-5489f8f518a7"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure deployment-like resource is using a valid restart policy</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_MISSING_LIVENESSPROBE_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-skipped">
+                        <a id="25dd3dca-3f95-40b8-af62-82c45322c9b2"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure each container has a configured liveness probe</b></td></tr>
+                            <tr><th>Outcome:</th><td>Skipped</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks</td></tr>
+                        
+                        
+                            <tr><th>Skipped</th><td>All failing configs skipped</td></tr>
+                        
+                        </table>
+
+                        
+                        <pre>1 occurrences
+— metadata.name: rss-site (kind: Deployment)
+1 skipped
+— metadata.name: rss-site (kind: Deployment)
+</pre>
+                        
+                        
+                        <pre>skipped</pre>
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_MISSING_READINESSPROBE_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="8cd5e8e5-960f-4432-9773-dd138d6e4dd2"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure each container has a configured readiness probe</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>HPA_MISSING_MINREPLICAS_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="76c17c44-72c2-4f60-9c8f-204b11b47cb7"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure HPA has minimum replicas configured</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>HPA_MISSING_MAXREPLICAS_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="b1b97657-4383-45ea-93e9-9084e6dea1c7"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure HPA has maximum replicas configured</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="008e851f-7cfc-45bf-8421-0d7474f05471"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent workload from using the default namespace</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>DEPLOYMENT_INCORRECT_REPLICAS_VALUE</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="f2ce0199-7a20-4c07-903c-75adb88aaa15"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure Deployment has more than one replica configured</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CRONJOB_MISSING_STARTINGDEADLINESECOND_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="6ff504ee-f139-4392-a2a0-c8100c3cb9ab"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure CronJob has a configured deadline</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>K8S_DEPRECATED_APIVERSION_1.16</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="86cb899d-27b7-4144-825b-b409c72921fc"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent deprecated APIs in Kubernetes v1.16</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>K8S_DEPRECATED_APIVERSION_1.17</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="703a84b2-4ad9-4c20-9604-b361f4167c77"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent deprecated APIs in Kubernetes v1.17</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="cc00d51f-201d-431f-bdd2-8d1503b43cc3"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent containers from having root access capabilities</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>WORKLOAD_MISSING_LABEL_OWNER_VALUE</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="bb4d3654-216b-44e9-9d17-96cc9a3fedbd"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure workload has a configured `owner` label</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>DEPLOYMENT_MISSING_LABEL_ENV_VALUE</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-failed">
+                        <a id="ca7101ec-48c9-4aac-a86e-accfeeec374d"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure Deployment has a configured `env` label</b></td></tr>
+                            <tr><th>Outcome:</th><td>Failed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>Missing label object `env` - add a proper environment description (e.g. &#34;prod&#34;, &#34;testing&#34;, etc.) to the Deployment config</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>1 occurrences
+— metadata.name: rss-site (kind: Deployment)
+0 skipped
+</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_MISSING_IMAGE_VALUE_DIGEST</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-failed">
+                        <a id="3e9dd640-c348-43b0-89b0-80182e585b62"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Ensure each container image has a digest tag</b></td></tr>
+                            <tr><th>Outcome:</th><td>Failed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>1 occurrences
+— metadata.name: rss-site (kind: Deployment)
+0 skipped
+</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CRONJOB_MISSING_CONCURRENCYPOLICY_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="7629bb50-6fcf-434d-b306-86416c96dafd"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent CronJob from executing jobs concurrently</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>K8S_INCORRECT_KIND_VALUE_POD</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="51ee61c1-d488-49d2-9972-7c102bd5aa89"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent deploying naked pods</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_INCORRECT_HOSTPID_VALUE_TRUE</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="84406aa5-dd9b-4128-9ea7-2284522f2669"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent containers from sharing the host&#39;s PID namespace</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_INCORRECT_HOSTIPC_VALUE_TRUE</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="49f1606f-232d-4ba7-a0fb-6339b81c9f40"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent containers from sharing the host`s IPC namespace</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_INCORRECT_HOSTNETWORK_VALUE_TRUE</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="db3b5654-a779-4fa9-a889-1da55761f7ee"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent containers from sharing the host&#39;s network namespace</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_INCORRECT_RUNASUSER_VALUE_LOWUID</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="f889e5d5-7666-4c51-a199-ba1c20afe158"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent containers from accessing host files by using high UIDs</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>CONTAINERS_INCORRECT_PATH_VALUE_DOCKERSOCKET</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="1619fd42-2dd3-4c6f-bb5f-e5f9225933b7"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent containers from mounting Docker socket</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>INGRESS_CVE2021_25742_INCORRECT_SERVER_SNIPPET_KEY</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="669da393-81e2-4e8f-b271-c4151191ac5b"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Prevent Ingress security vulnerability (CVE-2021-25742)</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="testclass">
+                <h4>INGRESS_INCORRECT_DOMAIN_NAME</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="bcebd71d-ae99-4169-8aad-6a44b37365f3"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Deny invalid domain names in ingress hosts</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                            <tr><th>Failed</th><td>None</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        <pre>None</pre>
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: policySummary</h2>
+        <a id="21aad56b-8e9b-44a6-b317-50ea7c8f1948"></a>
+        
+        
+        <h3>Suite Properties</h3>
+        <table class="proplist">
+            
+            <tr>
+                <th>policyName</th><td>Default</td>
+            </tr>
+            
+            <tr>
+                <th>totalRulesInPolicy</th><td>34</td>
+            </tr>
+            
+            <tr>
+                <th>totalSkippedRules</th><td>2</td>
+            </tr>
+            
+            <tr>
+                <th>totalRulesFailed</th><td>4</td>
+            </tr>
+            
+            <tr>
+                <th>totalPassedCount</th><td>28</td>
+            </tr>
+            
+        </table>
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.0 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>0</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: evaluationSummary</h2>
+        <a id="cfc3cc6c-af15-47b1-b4c6-a522a85621c7"></a>
+        
+        
+        <h3>Suite Properties</h3>
+        <table class="proplist">
+            
+            <tr>
+                <th>configsCount</th><td>1</td>
+            </tr>
+            
+            <tr>
+                <th>filesCount</th><td>1</td>
+            </tr>
+            
+            <tr>
+                <th>passedYamlValidationCount</th><td>1</td>
+            </tr>
+            
+            <tr>
+                <th>k8sValidation</th><td>1/1</td>
+            </tr>
+            
+            <tr>
+                <th>passedPolicyValidationCount</th><td>0</td>
+            </tr>
+            
+        </table>
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.0 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>0</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+        </div>
+    </div>
+    
+
+
+
+<p class="footer">
+    Generated by junit2html
+</p>
+</body>
+</html>

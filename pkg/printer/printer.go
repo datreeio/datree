@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/santhosh-tekuri/jsonschema/v5"
+
 	"github.com/xeipuuv/gojsonschema"
 
 	"github.com/fatih/color"
@@ -107,17 +109,12 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 	fmt.Fprintln(out)
 }
 
-func (p *Printer) PrintYamlSchemaResults(result *JSONSchemaValidatorResults, error error) {
-	if result == nil {
-		p.printInColor("INVALID FILE PATH\n", p.Theme.Colors.RedBold)
-		return
-	}
-	if result.Errors() != nil {
+func (p *Printer) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, error error) {
+	if errorsResult != nil {
 		p.printInColor("Input does NOT pass validation against schema\n", p.Theme.Colors.RedBold)
 		var errorsAsString = ""
-		for _, desc := range result.Errors() {
-			fmt.Printf("- %s\n", desc)
-			errorsAsString = errorsAsString + desc.String() + "\n"
+		for _, desc := range errorsResult {
+			errorsAsString = errorsAsString + desc.InstanceLocation + " - " + desc.Error + "\n"
 		}
 		p.printInColor(errorsAsString, p.Theme.Colors.RedBold)
 		return
