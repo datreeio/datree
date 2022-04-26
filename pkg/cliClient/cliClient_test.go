@@ -155,7 +155,7 @@ func TestRequestEvaluationPrerunDataSuccess(t *testing.T) {
 				networkValidator: networkValidator,
 			}
 
-			policyCheckData, _ := client.RequestEvaluationPrerunData(tt.args.token)
+			policyCheckData, _ := client.RequestEvaluationPrerunData(tt.args.token, false)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.response, policyCheckData)
@@ -186,7 +186,7 @@ func TestRequestEvaluationPrerunDataFail(t *testing.T) {
 				networkValidator: validator,
 			}
 
-			preRunDataResp, err := client.RequestEvaluationPrerunData(tt.args.token)
+			preRunDataResp, err := client.RequestEvaluationPrerunData(tt.args.token, false)
 
 			httpClientMock.AssertCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
 			assert.Equal(t, tt.expected.response, preRunDataResp)
@@ -455,7 +455,7 @@ func test_requestEvaluationPrerunData_success() *RequestEvaluationPrerunDataTest
 				headers map[string]string
 			}{
 				method:  http.MethodGet,
-				uri:     "/cli/evaluation/tokens/internal_test_token/prerun",
+				uri:     "/cli/evaluation/tokens/internal_test_token/prerun?isCi=false",
 				body:    nil,
 				headers: nil,
 			},
@@ -507,7 +507,7 @@ func test_requestEvaluationPrerunData_error() *RequestEvaluationPrerunDataTestCa
 				headers map[string]string
 			}{
 				method:  http.MethodGet,
-				uri:     "/cli/evaluation/tokens/internal_test_token/prerun",
+				uri:     "/cli/evaluation/tokens/internal_test_token/prerun?isCi=false",
 				body:    nil,
 				headers: nil,
 			},
@@ -566,7 +566,7 @@ func test_requestEvaluationPrerunData_network_error(offlineMode string, expected
 				headers map[string]string
 			}{
 				method:  http.MethodGet,
-				uri:     "/cli/evaluation/tokens/internal_test_token/prerun",
+				uri:     "/cli/evaluation/tokens/internal_test_token/prerun?isCi=false",
 				body:    nil,
 				headers: nil,
 			},

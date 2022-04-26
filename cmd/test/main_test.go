@@ -10,6 +10,7 @@ import (
 	"github.com/datreeio/datree/bl/messager"
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/bl/validation"
+	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/fileReader"
 
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -168,7 +169,7 @@ type CliClientMock struct {
 	mock.Mock
 }
 
-func (c *CliClientMock) RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error) {
+func (c *CliClientMock) RequestEvaluationPrerunData(token string, isCi bool) (*cliClient.EvaluationPrerunDataResponse, error) {
 	args := c.Called(token)
 	return args.Get(0).(*cliClient.EvaluationPrerunDataResponse), nil
 }
@@ -242,6 +243,11 @@ func TestTestFlow(t *testing.T) {
 			printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 			printerMock.On("PrintPromptMessage", mock.Anything)
 			printerMock.On("SetTheme", mock.Anything)
+
+			ciContext := &ciContext.CIContext{
+				IsCI: false,
+			}
+
 			ctx := &TestCommandContext{
 				K8sValidator:   k8sValidatorMock,
 				Evaluator:      evaluatorMock,
@@ -250,6 +256,7 @@ func TestTestFlow(t *testing.T) {
 				Printer:        printerMock,
 				Reader:         readerMock,
 				FilesExtractor: filesExtractorMock,
+				CiContext:      ciContext,
 			}
 
 			err := Test(ctx, tt.args.path, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: tt.expected.Evaluate.evaluationData.Policy, Token: "134kh"})
@@ -684,6 +691,10 @@ func setup() {
 	mockedCliClient = &CliClientMock{}
 	mockedCliClient.On("RequestEvaluationPrerunData", mock.Anything).Return(prerunData, nil)
 
+	ciContext := &ciContext.CIContext{
+		IsCI: false,
+	}
+
 	ctx = &TestCommandContext{
 		K8sValidator:   k8sValidatorMock,
 		Evaluator:      mockedEvaluator,
@@ -693,6 +704,7 @@ func setup() {
 		Reader:         readerMock,
 		FilesExtractor: filesExtractorMock,
 		CliClient:      mockedCliClient,
+		CiContext:      ciContext,
 	}
 
 	testingPolicy, _ = policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL)

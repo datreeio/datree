@@ -3,6 +3,7 @@ package cliClient
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -101,12 +102,13 @@ type EvaluationPrerunDataResponse struct {
 	DefaultRulesYaml      string                    `json:"defaultRulesYaml"`
 }
 
-func (c *CliClient) RequestEvaluationPrerunData(tokenId string) (*EvaluationPrerunDataResponse, error) {
+func (c *CliClient) RequestEvaluationPrerunData(tokenId string, isCi bool) (*EvaluationPrerunDataResponse, error) {
 	if c.networkValidator.IsLocalMode() {
 		return &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true}, nil
 	}
 
-	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun", nil, nil)
+	isCiQueryParam := "isCi=" + strconv.FormatBool(isCi)
+	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun?"+isCiQueryParam, nil, nil)
 
 	if err != nil {
 		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
