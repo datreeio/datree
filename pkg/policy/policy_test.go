@@ -66,15 +66,15 @@ func validatePassing(t *testing.T, validator *jsonSchemaValidator.JSONSchemaVali
 			panic(err)
 		}
 
-		res, err := validator.ValidateYamlSchema(string(schemaBytes), file.content)
+		errorsResult, err := validator.ValidateYamlSchema(string(schemaBytes), file.content)
 		if err != nil {
 			panic(errors.New(err.Error() + fmt.Sprintf("\nruleId: %d", ruleId)))
 		}
 
-		if len(res.Errors()) > 0 && expectPass {
+		if len(errorsResult) > 0 && expectPass {
 			t.Errorf("Expected validation for rule with id %d to pass, but it failed for file %s\n", ruleId, file.name)
 		}
-		if len(res.Errors()) == 0 && !expectPass {
+		if len(errorsResult) == 0 && !expectPass {
 			t.Errorf("Expected validation for rule with id %d to fail, but it passed for file %s\n", ruleId, file.name)
 		}
 	}

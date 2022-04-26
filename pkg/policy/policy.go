@@ -51,13 +51,15 @@ func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, 
 		return nil, err
 	}
 
-	err = validatePoliciesYaml(policiesStr, path)
+	policiesStrBytes := []byte(policiesStr)
+
+	err = validatePoliciesYaml(policiesStrBytes, path)
 	if err != nil {
 		return nil, err
 	}
 
 	var policies *cliClient.EvaluationPrerunPolicies
-	policiesBytes, err := yaml.YAMLToJSON([]byte(policiesStr))
+	policiesBytes, err := yaml.YAMLToJSON(policiesStrBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -70,19 +72,20 @@ func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, 
 	return policies, nil
 }
 
-func validatePoliciesYaml(content string, policyYamlPath string) error {
+func validatePoliciesYaml(content []byte, policyYamlPath string) error {
 	jsonSchemaValidator := jsonSchemaValidator.New()
-	result, err := jsonSchemaValidator.Validate(policiesSchemaContent, content)
+	jsonContent, _ := yaml.YAMLToJSON(content)
+	errorsResult, err := jsonSchemaValidator.Validate(policiesSchemaContent, jsonContent)
 
 	if err != nil {
 		return err
 	}
 
-	if !result.Valid() {
+	if errorsResult != nil {
 		validationErrors := fmt.Errorf("Found errors in policies file %s:\n", policyYamlPath)
 
-		for _, validationError := range result.Errors() {
-			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError)
+		for _, validationError := range errorsResult {
+			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError.Error)
 		}
 
 		return validationErrors
