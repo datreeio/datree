@@ -111,7 +111,7 @@ func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, dataVa
 
 	dataValueStr, validStr := dataValue.(string)
 	if !validStr {
-		return fmt.Errorf("%s must be a string", dataValueStr)
+		return ctx.Error(keywordPath, "%s must be a string", dataValueStr)
 	}
 
 	dataValueParsedQty, err := resource.ParseQuantity(dataValueStr)
@@ -149,7 +149,7 @@ func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, dataVa
 
 	dataValueStr, validStr := dataValue.(string)
 	if !validStr {
-		return fmt.Errorf("%s must be a string", dataValueStr)
+		return ctx.Error(keywordPath, "%s must be a string", dataValueStr)
 	}
 
 	dataValueParsedQty, err := resource.ParseQuantity(dataValue.(string))
