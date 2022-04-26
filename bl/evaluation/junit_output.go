@@ -78,7 +78,7 @@ func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluat
 			Name:      rule.Name,
 			ClassName: rule.Identifier,
 		}
-		ruleResult := getRuleResultIfItExists(rule, policyValidationResult.RuleResults)
+		ruleResult := findRuleResult(rule, policyValidationResult.RuleResults)
 
 		if ruleResult != nil {
 			testCase.Failure = &failure{
@@ -95,7 +95,7 @@ func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluat
 	return suite
 }
 
-func getRuleResultIfItExists(ruleData cliClient.RuleData, ruleResults []*RuleResult) *RuleResult {
+func findRuleResult(ruleData cliClient.RuleData, ruleResults []*RuleResult) *RuleResult {
 	for _, ruleResult := range ruleResults {
 		if ruleResult.Identifier == ruleData.Identifier {
 			return ruleResult
