@@ -64,21 +64,30 @@ func (v *ValidationManager) ValidK8sFilesConfigurations() []*extractor.FileConfi
 }
 
 func (v *ValidationManager) GetK8sValidationSummaryStr(filesCount int) string {
-	if v.hasFilesWithWarnings() {
+	if v.hasFilesWithWarningsOfKind(validation.NetworkError) {
 		return "skipped since there is no internet connection"
 	}
 
-	return fmt.Sprintf("%v/%v", v.ValidK8sFilesConfigurationsCount(), filesCount)
+	return fmt.Sprintf("%v/%v", v.ValidK8sFilesConfigurationsCount() - v.countWarningsOfKind(validation.Skipped), filesCount)
 }
 
-func (v *ValidationManager) hasFilesWithWarnings() bool {
+func (v *ValidationManager) hasFilesWithWarningsOfKind(warningKind validation.WarningKind) bool {
 	for _, value := range v.k8sValidationWarningPerValidFile {
-		if value != "" {
+		if value.WarningKind == warningKind {
 			return true
 		}
 	}
-
 	return false
+}
+
+func (v *ValidationManager) countWarningsOfKind(warningKind validation.WarningKind) int {
+	count := 0
+	for _, value := range v.k8sValidationWarningPerValidFile {
+		if value.WarningKind == warningKind {
+			count++
+		}
+	}
+	return count
 }
 
 func (v *ValidationManager) ValidK8sFilesConfigurationsCount() int {
@@ -97,7 +106,7 @@ func (v *ValidationManager) ValidK8sConfigurationsCount() int {
 
 func (v *ValidationManager) AggregateK8sValidationWarningsPerValidFile(filesWithWarningsChan chan *validation.FileWithWarning, wg *sync.WaitGroup) {
 	for fileWithWarning := range filesWithWarningsChan {
-		v.k8sValidationWarningPerValidFile[fileWithWarning.Filename] = fileWithWarning.Warning
+		v.k8sValidationWarningPerValidFile[fileWithWarning.Filename] = *fileWithWarning
 	}
 	wg.Done()
 }
