@@ -3,6 +3,7 @@ package files
 import (
 	"bytes"
 	"os"
+	"sync"
 
 	"gopkg.in/yaml.v3"
 
@@ -26,26 +27,49 @@ func (f *FilesExtractor) ExtractFilesConfigurations(paths []string, concurrency 
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
 	invalidFilesChan := make(chan *extractor.InvalidFile, concurrency)
 
+	pathsChan := parsePathsArrayToChan(paths, concurrency)
+
 	go func() {
-		defer func() {
-			close(filesConfigurationsChan)
-			close(invalidFilesChan)
-		}()
+		var wg sync.WaitGroup
+		wg.Add(concurrency)
+		for i := 0; i < concurrency; i++ {
+			go func() {
+				defer wg.Done()
+				for {
+					path, ok := <-pathsChan
+					if !ok {
+						break
+					}
+					configurations, absolutePath, invalidYamlFile := extractor.ExtractConfigurationsFromYamlFile(path)
 
-		for _, path := range paths {
+					if invalidYamlFile != nil {
+						invalidFilesChan <- invalidYamlFile
+						continue
+					}
 
-			configurations, absolutePath, invalidYamlFile := extractor.ExtractConfigurationsFromYamlFile(path)
-
-			if invalidYamlFile != nil {
-				invalidFilesChan <- invalidYamlFile
-				continue
-			}
-
-			filesConfigurationsChan <- &extractor.FileConfigurations{FileName: absolutePath, Configurations: *configurations}
+					filesConfigurationsChan <- &extractor.FileConfigurations{FileName: absolutePath, Configurations: *configurations}
+				}
+			}()
 		}
+		wg.Wait()
+		close(filesConfigurationsChan)
+		close(invalidFilesChan)
 	}()
 
 	return filesConfigurationsChan, invalidFilesChan
+}
+
+func parsePathsArrayToChan(paths []string, concurrency int) chan string {
+	pathsChan := make(chan string, concurrency)
+
+	go func() {
+		for _, path := range paths {
+			pathsChan <- path
+		}
+		close(pathsChan)
+	}()
+
+	return pathsChan
 }
 
 func (f *FilesExtractor) ExtractYamlFileToUnknownStruct(path string) (UnknownStruct, error) {
