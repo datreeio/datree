@@ -4,6 +4,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 
 	"github.com/datreeio/datree/cmd/test"
@@ -13,7 +14,7 @@ import (
 )
 
 type CliClient interface {
-	RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error)
+	RequestEvaluationPrerunData(token string, isCi bool) (*cliClient.EvaluationPrerunDataResponse, error)
 }
 
 type KustomizeCommandRunner interface {
@@ -68,7 +69,8 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				return err
 			}
 
-			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+			ciContext := ciContext.Extract()
+			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ciContext.IsCI)
 			if err != nil {
 				return err
 			}

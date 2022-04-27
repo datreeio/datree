@@ -27,10 +27,10 @@ type Evaluator struct {
 	jsonSchemaValidator *jsonSchemaValidator.JSONSchemaValidator
 }
 
-func New(c CLIClient) *Evaluator {
+func New(c CLIClient, ciContext *ciContext.CIContext) *Evaluator {
 	return &Evaluator{
 		cliClient:           c,
-		ciContext:           ciContext.Extract(),
+		ciContext:           ciContext,
 		jsonSchemaValidator: jsonSchemaValidator.New(),
 	}
 }

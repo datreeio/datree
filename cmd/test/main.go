@@ -108,7 +108,7 @@ type LocalConfig interface {
 var ViolationsFoundError = errors.New("")
 
 type CliClient interface {
-	RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error)
+	RequestEvaluationPrerunData(token string, isCi bool) (*cliClient.EvaluationPrerunDataResponse, error)
 }
 
 type TestCommandData struct {
@@ -128,6 +128,7 @@ type TestCommandData struct {
 
 type TestCommandContext struct {
 	CliVersion     string
+	CiContext      *ciContext.CIContext
 	LocalConfig    LocalConfig
 	Evaluator      Evaluator
 	Messager       Messager
@@ -195,7 +196,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ctx.CiContext.IsCI)
 			saveDefaultRulesAsFile(ctx, evaluationPrerunData.DefaultRulesYaml)
 
 			if err != nil {

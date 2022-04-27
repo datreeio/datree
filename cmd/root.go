@@ -12,6 +12,7 @@ import (
 	schema_validator "github.com/datreeio/datree/cmd/schema-validator"
 	"github.com/datreeio/datree/cmd/test"
 	"github.com/datreeio/datree/cmd/version"
+	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/executor"
 	"github.com/datreeio/datree/pkg/fileReader"
@@ -41,6 +42,7 @@ func NewRootCommand(app *App) *cobra.Command {
 		K8sValidator:   app.Context.K8sValidator,
 		CliClient:      app.Context.CliClient,
 		FilesExtractor: app.Context.FilesExtractor,
+		CiContext:      app.Context.CiContext,
 	}))
 
 	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
@@ -90,6 +92,7 @@ func NewRootCommand(app *App) *cobra.Command {
 type Context struct {
 	LocalConfig         *localConfig.LocalConfigClient
 	Evaluator           *evaluation.Evaluator
+	CiContext           *ciContext.CIContext
 	CliClient           *cliClient.CliClient
 	Messager            *messager.Messager
 	Printer             *printer.Printer
