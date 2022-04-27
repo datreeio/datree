@@ -68,7 +68,7 @@ func (v *ValidationManager) GetK8sValidationSummaryStr(filesCount int) string {
 		return "skipped since there is no internet connection"
 	}
 
-	return fmt.Sprintf("%v/%v", v.ValidK8sFilesConfigurationsCount() - v.countFilesWithWarningsOfKind(validation.Skipped), filesCount)
+	return fmt.Sprintf("%v/%v", v.ValidK8sFilesConfigurationsCount()-v.countFilesWithWarningsOfKind(validation.Skipped), filesCount)
 }
 
 func (v *ValidationManager) hasFilesWithWarningsOfKind(warningKind validation.WarningKind) bool {
