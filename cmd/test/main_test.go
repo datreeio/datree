@@ -809,7 +809,11 @@ func TestTestCommandNoInternetConnection(t *testing.T) {
 	path := "valid/path"
 	filesConfigurationsChan := newFilesConfigurationsChan(path)
 	invalidK8sFilesChan := newInvalidK8sFilesChan()
-	K8sValidationWarnings := validation.K8sValidationWarningPerValidFile{"valid/path": "Validation warning message - no internet"}
+	K8sValidationWarnings := validation.K8sValidationWarningPerValidFile{"valid/path": validation.FileWithWarning{
+		Filename:    "valid/path",
+		Warning:     "Validation warning message - no internet",
+		WarningKind: validation.NetworkError,
+	}}
 
 	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidK8sFilesChan, K8sValidationWarnings, newErrorsChan())
 
