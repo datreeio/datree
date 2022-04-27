@@ -14,39 +14,49 @@
       "items": {
         "type": "object",
         "properties": {
-        "id": {
-          "type": "number",
-          "minimum": 1,
-          "maximum": 44
-        },
-        "name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "uniqueName": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "^([A-Za-z0-9_])*([0-9]+\\.?[0-9]*|\\.[0-9]+)?([A-Za-z0-9_])*$"
-        },
-        "enabledByDefault": {
-          "type": "boolean"
-        },
-        "documentationUrl": {
-          "type": "string",
-          "minLength": 1
-        },
-        "messageOnFailure": {
-          "type": "string",
-          "minLength": 1
-        },
-        "category": {
-          "type": "string",
-          "minLength": 1,
-          "enum": ["Containers", "Workload", "CronJob", "Networking", "Deprecation", "Security", "Other", "Custom", "Argo"]
-        },
-        "schema": {
-          "type": "object"
-        }
+          "id": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 44
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueName": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^([A-Za-z0-9_])*([0-9]+\\.?[0-9]*|\\.[0-9]+)?([A-Za-z0-9_])*$"
+          },
+          "enabledByDefault": {
+            "type": "boolean"
+          },
+          "documentationUrl": {
+            "type": "string",
+            "minLength": 1
+          },
+          "messageOnFailure": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "Containers",
+              "Workload",
+              "CronJob",
+              "Networking",
+              "Deprecation",
+              "Security",
+              "Other",
+              "Custom",
+              "Argo"
+            ]
+          },
+          "schema": {
+            "type": "object"
+          }
         }
       },
         "required": [

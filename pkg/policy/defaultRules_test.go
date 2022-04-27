@@ -3,6 +3,7 @@ package policy
 import (
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -68,14 +69,14 @@ func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
 	schemaValidationResult, schemaValidationError := jsonSchemaValidator.ValidateYamlSchema(schema, fileContent)
 
 	if schemaValidationError != nil {
-		return schemaValidationError
+		panic(errors.New("can't validate yaml file using json schema"))
 	}
 
-	if !schemaValidationResult.Valid() {
+	if schemaValidationResult != nil {
 		validationErrors := fmt.Errorf("Received validation errors for %s:\n", yamlFilePath)
 
-		for _, validationError := range schemaValidationResult.Errors() {
-			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError)
+		for _, validationError := range schemaValidationResult {
+			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError.Error)
 		}
 
 		return validationErrors
