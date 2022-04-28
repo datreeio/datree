@@ -172,7 +172,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 		}
 	}
 	var warning *validationWarning = nil
-	if isAtLeastOneConfigSkipped {
+	if isAtLeastOneConfigSkipped && isValid {
 		warning = &validationWarning{
 			WarningKind:    Skipped,
 			WarningMessage: "I skipped k8s cause missing resource definition",
