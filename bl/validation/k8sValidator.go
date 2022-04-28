@@ -175,7 +175,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 	if isAtLeastOneConfigSkipped && isValid {
 		warning = &validationWarning{
 			WarningKind:    Skipped,
-			WarningMessage: "I skipped k8s cause missing resource definition",
+			WarningMessage: "k8s schema validation skipped: --ignore-missing-schemas flag was used",
 		}
 	}
 	return isValid, validationErrors, warning, nil

@@ -17,7 +17,7 @@ spec:
 ---
 # skipped K8s schema validation
 apiVersion: v1
-kind: CustomResourceDefinition
+kind: CustomResourceDefinitiona
 metadata:
   name: my-service
 spec:
@@ -29,18 +29,18 @@ spec:
       targetPort: 9376
 ---
 #invalidK8sSchema
-apiversion: v1
-kind: Service
-metadata:
-  name: my-service
-spec:
-  selector:
-    app: MyApp
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 9376
----
+#apiversion: v1
+#kind: Service
+#metadata:
+#  name: my-service
+#spec:
+#  selector:
+#    app: MyApp
+#  ports:
+#    - protocol: TCP
+#      port: 80
+#      targetPort: 9376
+#---
 # FAIL POLICY CHECK
 apiVersion: apps/v1
 kind: Deployment
