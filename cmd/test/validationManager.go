@@ -106,7 +106,9 @@ func (v *ValidationManager) ValidK8sConfigurationsCount() int {
 
 func (v *ValidationManager) AggregateK8sValidationWarningsPerValidFile(filesWithWarningsChan chan *validation.FileWithWarning, wg *sync.WaitGroup) {
 	for fileWithWarning := range filesWithWarningsChan {
-		v.k8sValidationWarningPerValidFile[fileWithWarning.Filename] = *fileWithWarning
+		if fileWithWarning != nil {
+			v.k8sValidationWarningPerValidFile[fileWithWarning.Filename] = *fileWithWarning
+		}
 	}
 	wg.Done()
 }
