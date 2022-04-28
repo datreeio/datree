@@ -104,7 +104,6 @@ func (p *Printer) printK8sValidationError(warning Warning) {
 func (p *Printer) printK8sValidationWarning(warning Warning) {
 	fmt.Fprintln(out)
 	fmt.Println("[?] Kubernetes schema validation")
-
 	fmt.Println(warning.InvalidK8sInfo.ValidationWarning)
 }
 
