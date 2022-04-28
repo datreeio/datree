@@ -15,7 +15,7 @@ spec:
               serviceName: myservicea
               servicePort: 80
 ---
-# skipped K8s schema validation
+# Skipped K8s schema validation
 apiVersion: v1
 kind: CustomResourceDefinitiona
 metadata:
@@ -28,7 +28,7 @@ spec:
       port: 80
       targetPort: 9376
 ---
-#invalidK8sSchema
+# Invalid k8s schema
 apiversion: v1
 kind: Service
 metadata:
@@ -41,7 +41,7 @@ spec:
       port: 80
       targetPort: 9376
 ---
-# FAIL POLICY CHECK
+# Fail policy check
 apiVersion: apps/v1
 kind: Deployment
 metadata:
