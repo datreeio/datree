@@ -282,7 +282,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 				SkippedRules:    skippedRules,
 				InvalidYamlInfo: printer.InvalidYamlInfo{},
 				InvalidK8sInfo: printer.InvalidK8sInfo{
-					ValidationWarning: k8sValidationWarnings[filename],
+					ValidationWarning: k8sValidationWarnings[filename].Warning,
 				},
 			})
 		}
