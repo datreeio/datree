@@ -177,7 +177,7 @@ func test_missing_schema_skipped(t *testing.T) {
 		validationClient: validationClient,
 	}
 
-	path := "../../internal/fixtures/kube/missing-schema-for-kind.yaml"
+	path := "../../internal/fixtures/kube/invalid-kind.yaml"
 
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
 	filesConfigurationsChan <- &extractor.FileConfigurations{
