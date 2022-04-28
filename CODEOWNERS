@@ -2,12 +2,12 @@
 @datreeio/developers
 
 # specific files
-README.md  @eyarz
+README.md  @datreeio/product
 LICENSE.md  @eyarz
-CONTRIBUTING.md  @eyarz
-DEVELOPER_GUIDE.md  @eyarz
+CONTRIBUTING.md  @datreeio/product
+DEVELOPER_GUIDE.md  @datreeio/product
 
 # specific directories
-images/  @eyarz
-examples/  @eyarz
-.github/ISSUE_TEMPLATE/  @eyarz
+images/  @datreeio/product
+examples/  @datreeio/product
+.github/ISSUE_TEMPLATE/  @datreeio/product
