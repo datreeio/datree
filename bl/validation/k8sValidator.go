@@ -33,7 +33,7 @@ type WarningKind int
 const (
 	_            WarningKind = iota
 	NetworkError             // a network error while validating the resource
-	Skipped                  // resource has been skipped, for example if its Kind was not found and the user added the --ignore-missing-schemas flag
+	Skipped                  // resource has been skipped, for example if its kind was not found and the user added the --ignore-missing-schemas flag
 )
 
 type FileWithWarning struct {
