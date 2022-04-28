@@ -52,7 +52,7 @@ func New(ctx *PublishCommandContext) *cobra.Command {
 		`),
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 1 {
-				errMessage := "Requires 1 arg\n"
+				errMessage := "requires 1 arg"
 				return fmt.Errorf(errMessage)
 			}
 			return nil
