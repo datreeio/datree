@@ -34,7 +34,7 @@ func TestDefaultRulesFileFitsJSONSchema(t *testing.T) {
 func TestDefaultRulesHasUniqueNamesInRules(t *testing.T) {
 	defaultRulesFileContent, _ := getFileFromPath(defaultRulesYamlPath)
 
-	defaultRulesFileContentJSON, conversionToJSONError := convertYamlFileContentToJSON(defaultRulesFileContent)
+	defaultRulesFileContentJSON, conversionToJSONError := convertYamlFileToMap(defaultRulesFileContent)
 	assert.Nil(t, conversionToJSONError)
 
 	uniquenessValidationError := validateUniqueStringPropertyValuesInArray("uniqueName", defaultRulesFileContentJSON["rules"])
@@ -44,7 +44,7 @@ func TestDefaultRulesHasUniqueNamesInRules(t *testing.T) {
 func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
 	defaultRulesFileContent, _ := getFileFromPath(defaultRulesYamlPath)
 
-	defaultRulesFileContentJSON, conversionToJSONError := convertYamlFileContentToJSON(defaultRulesFileContent)
+	defaultRulesFileContentJSON, conversionToJSONError := convertYamlFileToMap(defaultRulesFileContent)
 	assert.Nil(t, conversionToJSONError)
 
 	uniquenessValidationError := validateUniqueFloat64PropertyValuesInArray("id", defaultRulesFileContentJSON["rules"])
@@ -85,7 +85,7 @@ func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
 	return nil
 }
 
-func convertYamlFileContentToJSON(yamlFileContent string) (map[string][]interface{}, error) {
+func convertYamlFileToMap(yamlFileContent string) (map[string][]interface{}, error) {
 	yamlFileContentRawJSON, yamlParseError := yaml.YAMLToJSON([]byte(yamlFileContent))
 
 	if yamlParseError != nil {
