@@ -5,19 +5,23 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"reflect"
-	"testing"
-
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/ghodss/yaml"
 	"github.com/stretchr/testify/assert"
+	"reflect"
+	"testing"
 )
 
 //go:embed defaultRulesSchema.json
 var defaultRulesSchemaContent string
 
 const defaultRulesYamlPath = "./defaultRules.yaml"
+
+type DefaultRules struct {
+	ApiVersion string                  `json:"apiVersion"`
+	Rules      []DefaultRuleDefinition `json:"rules"`
+}
 
 func TestDefaultRulesFileExists(t *testing.T) {
 	_, fileReadError := getFileFromPath(defaultRulesYamlPath)
@@ -37,7 +41,7 @@ func TestDefaultRulesHasUniqueNamesInRules(t *testing.T) {
 	defaultRulesFileContentJSON, conversionToJSONError := convertYamlFileToMap(defaultRulesFileContent)
 	assert.Nil(t, conversionToJSONError)
 
-	uniquenessValidationError := validateUniqueStringPropertyValuesInArray("uniqueName", defaultRulesFileContentJSON["rules"])
+	uniquenessValidationError := validateUniqueStringValuesInRulesForProperty("UniqueName", defaultRulesFileContentJSON.Rules)
 	assert.Nil(t, uniquenessValidationError)
 }
 
@@ -47,7 +51,7 @@ func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
 	defaultRulesFileContentJSON, conversionToJSONError := convertYamlFileToMap(defaultRulesFileContent)
 	assert.Nil(t, conversionToJSONError)
 
-	uniquenessValidationError := validateUniqueFloat64PropertyValuesInArray("id", defaultRulesFileContentJSON["rules"])
+	uniquenessValidationError := validateUniqueFloatValuesInRulesForProperty("ID", defaultRulesFileContentJSON.Rules)
 
 	assert.Nil(t, uniquenessValidationError)
 }
@@ -85,30 +89,29 @@ func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
 	return nil
 }
 
-func convertYamlFileToMap(yamlFileContent string) (map[string][]interface{}, error) {
+func convertYamlFileToMap(yamlFileContent string) (DefaultRules, error) {
 	yamlFileContentRawJSON, yamlParseError := yaml.YAMLToJSON([]byte(yamlFileContent))
 
 	if yamlParseError != nil {
-		return nil, yamlParseError
+		return DefaultRules{}, yamlParseError
 	}
 
-	var yamlFileContentJSON map[string][]interface{}
+	var yamlFileContentJSON DefaultRules
 	jsonUnmarshallingError := json.Unmarshal(yamlFileContentRawJSON, &yamlFileContentJSON)
 
-	var jsonUnmarshallingFailed = jsonUnmarshallingError != nil && reflect.TypeOf(yamlFileContentJSON) != reflect.TypeOf(map[string][]interface{}{})
-	if jsonUnmarshallingFailed {
-		return nil, jsonUnmarshallingError
+	if jsonUnmarshallingError != nil {
+		return DefaultRules{}, jsonUnmarshallingError
 	}
 
 	return yamlFileContentJSON, nil
 }
 
-func validateUniqueStringPropertyValuesInArray(propertyName string, array []interface{}) error {
+func validateUniqueStringValuesInRulesForProperty(propertyName string, rules []DefaultRuleDefinition) error {
 	propertyValuesExistenceMap := make(map[string]bool)
 
-	for _, item := range array {
-		itemObject := item.(map[string]interface{})
-		propertyValue := itemObject[propertyName].(string)
+	for _, item := range rules {
+		r := reflect.ValueOf(item)
+		propertyValue := reflect.Indirect(r).FieldByName(propertyName).String()
 
 		if propertyValuesExistenceMap[propertyValue] {
 			return fmt.Errorf("property %s has duplicate value %s", propertyName, propertyValue)
@@ -120,15 +123,15 @@ func validateUniqueStringPropertyValuesInArray(propertyName string, array []inte
 	return nil
 }
 
-func validateUniqueFloat64PropertyValuesInArray(propertyName string, array []interface{}) error {
-	propertyValuesExistenceMap := make(map[float64]bool)
+func validateUniqueFloatValuesInRulesForProperty(propertyName string, rules []DefaultRuleDefinition) error {
+	propertyValuesExistenceMap := make(map[int64]bool)
 
-	for _, item := range array {
-		itemObject := item.(map[string]interface{})
-		propertyValue := itemObject[propertyName].(float64)
+	for _, item := range rules {
+		r := reflect.ValueOf(item)
+		propertyValue := reflect.Indirect(r).FieldByName(propertyName).Int()
 
 		if propertyValuesExistenceMap[propertyValue] {
-			return fmt.Errorf("Property %s has duplicate value %f", propertyName, propertyValue)
+			return fmt.Errorf("property %s has duplicate value %d", propertyName, propertyValue)
 		}
 
 		propertyValuesExistenceMap[propertyValue] = true
