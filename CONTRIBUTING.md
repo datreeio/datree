@@ -19,7 +19,7 @@ Help us keep this community open and inclusive.
 
 Do not open issues for general support questions as we want to keep GitHub issues for bug reports and feature requests.  
 Instead, we recommend using "[Discussions](https://github.com/datreeio/datree/discussions)" to ask support-related questions.  
-You can also email is at oss+support@datree.io.
+You can also email us at oss+support@datree.io.
 
 ## <a name="issue"></a> Found a Bug?
 

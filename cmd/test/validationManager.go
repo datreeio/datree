@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -21,10 +22,11 @@ func NewValidationManager() *ValidationManager {
 	}
 }
 
-func (v *ValidationManager) AggregateInvalidYamlFiles(invalidFilesChan chan *extractor.InvalidFile) {
+func (v *ValidationManager) AggregateInvalidYamlFiles(invalidFilesChan chan *extractor.InvalidFile, wg *sync.WaitGroup) {
 	for invalidFile := range invalidFilesChan {
 		v.invalidYamlFiles = append(v.invalidYamlFiles, invalidFile)
 	}
+	wg.Done()
 }
 
 func (v *ValidationManager) InvalidYamlFiles() []*extractor.InvalidFile {
@@ -35,10 +37,11 @@ func (v *ValidationManager) InvalidYamlFilesCount() int {
 	return len(v.invalidYamlFiles)
 }
 
-func (v *ValidationManager) AggregateInvalidK8sFiles(invalidFilesChan chan *extractor.InvalidFile) {
+func (v *ValidationManager) AggregateInvalidK8sFiles(invalidFilesChan chan *extractor.InvalidFile, wg *sync.WaitGroup) {
 	for invalidFile := range invalidFilesChan {
 		v.invalidK8sFiles = append(v.invalidK8sFiles, invalidFile)
 	}
+	wg.Done()
 }
 
 func (v *ValidationManager) InvalidK8sFiles() []*extractor.InvalidFile {
@@ -49,10 +52,11 @@ func (v *ValidationManager) InvalidK8sFilesCount() int {
 	return len(v.invalidK8sFiles)
 }
 
-func (v *ValidationManager) AggregateValidK8sFiles(validK8sFilesConfigurationsChan chan *extractor.FileConfigurations) {
+func (v *ValidationManager) AggregateValidK8sFiles(validK8sFilesConfigurationsChan chan *extractor.FileConfigurations, wg *sync.WaitGroup) {
 	for fileConfigurations := range validK8sFilesConfigurationsChan {
 		v.validK8sFilesConfigurations = append(v.validK8sFilesConfigurations, fileConfigurations)
 	}
+	wg.Done()
 }
 
 func (v *ValidationManager) ValidK8sFilesConfigurations() []*extractor.FileConfigurations {
@@ -60,21 +64,30 @@ func (v *ValidationManager) ValidK8sFilesConfigurations() []*extractor.FileConfi
 }
 
 func (v *ValidationManager) GetK8sValidationSummaryStr(filesCount int) string {
-	if v.hasFilesWithWarnings() {
+	if v.hasFilesWithWarningsOfKind(validation.NetworkError) {
 		return "skipped since there is no internet connection"
 	}
 
-	return fmt.Sprintf("%v/%v", v.ValidK8sFilesConfigurationsCount(), filesCount)
+	return fmt.Sprintf("%v/%v", v.ValidK8sFilesConfigurationsCount()-v.countFilesWithWarningsOfKind(validation.Skipped), filesCount)
 }
 
-func (v *ValidationManager) hasFilesWithWarnings() bool {
+func (v *ValidationManager) hasFilesWithWarningsOfKind(warningKind validation.WarningKind) bool {
 	for _, value := range v.k8sValidationWarningPerValidFile {
-		if value != "" {
+		if value.WarningKind == warningKind {
 			return true
 		}
 	}
-
 	return false
+}
+
+func (v *ValidationManager) countFilesWithWarningsOfKind(warningKind validation.WarningKind) int {
+	count := 0
+	for _, value := range v.k8sValidationWarningPerValidFile {
+		if value.WarningKind == warningKind {
+			count++
+		}
+	}
+	return count
 }
 
 func (v *ValidationManager) ValidK8sFilesConfigurationsCount() int {
@@ -91,20 +104,24 @@ func (v *ValidationManager) ValidK8sConfigurationsCount() int {
 	return totalConfigs
 }
 
-func (v *ValidationManager) AggregateK8sValidationWarningsPerValidFile(filesWithWarningsChan chan *validation.FileWithWarning) {
+func (v *ValidationManager) AggregateK8sValidationWarningsPerValidFile(filesWithWarningsChan chan *validation.FileWithWarning, wg *sync.WaitGroup) {
 	for fileWithWarning := range filesWithWarningsChan {
-		v.k8sValidationWarningPerValidFile[fileWithWarning.Filename] = fileWithWarning.Warning
+		if fileWithWarning != nil {
+			v.k8sValidationWarningPerValidFile[fileWithWarning.Filename] = *fileWithWarning
+		}
 	}
+	wg.Done()
 }
 
 func (v *ValidationManager) GetK8sValidationWarningPerValidFile() validation.K8sValidationWarningPerValidFile {
 	return v.k8sValidationWarningPerValidFile
 }
 
-func (v *ValidationManager) AggregateIgnoredYamlFiles(ignoredFilesChan chan *extractor.FileConfigurations) {
+func (v *ValidationManager) AggregateIgnoredYamlFiles(ignoredFilesChan chan *extractor.FileConfigurations, wg *sync.WaitGroup) {
 	for ignoredFile := range ignoredFilesChan {
 		v.ignoredFiles = append(v.ignoredFiles, *ignoredFile)
 	}
+	wg.Done()
 }
 
 func (v *ValidationManager) IgnoredFiles() []*extractor.FileConfigurations {

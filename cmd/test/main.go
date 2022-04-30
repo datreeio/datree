@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
@@ -107,7 +108,7 @@ type LocalConfig interface {
 var ViolationsFoundError = errors.New("")
 
 type CliClient interface {
-	RequestEvaluationPrerunData(token string) (*cliClient.EvaluationPrerunDataResponse, error)
+	RequestEvaluationPrerunData(token string, isCi bool) (*cliClient.EvaluationPrerunDataResponse, error)
 }
 
 type TestCommandData struct {
@@ -127,6 +128,7 @@ type TestCommandData struct {
 
 type TestCommandContext struct {
 	CliVersion     string
+	CiContext      *ciContext.CIContext
 	LocalConfig    LocalConfig
 	Evaluator      Evaluator
 	Messager       Messager
@@ -194,7 +196,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
-			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token)
+			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ctx.CiContext.IsCI)
 			saveDefaultRulesAsFile(ctx, evaluationPrerunData.DefaultRulesYaml)
 
 			if err != nil {
@@ -423,22 +425,28 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	ctx.K8sValidator.InitClient(prerunData.K8sVersion, prerunData.IgnoreMissingSchemas, prerunData.SchemaLocations)
 
 	concurrency := 100
+	var wg sync.WaitGroup
 
 	validYamlConfigurationsChan, invalidYamlFilesChan := ctx.FilesExtractor.ExtractFilesConfigurations(filesPaths, concurrency)
 
-	validationManager.AggregateInvalidYamlFiles(invalidYamlFilesChan)
+	wg.Add(1)
+	go validationManager.AggregateInvalidYamlFiles(invalidYamlFilesChan, &wg)
 
 	if prerunData.OnlyK8sFiles {
 		var ignoredYamlFilesChan chan *extractor.FileConfigurations
 		validYamlConfigurationsChan, ignoredYamlFilesChan = ctx.K8sValidator.GetK8sFiles(validYamlConfigurationsChan, concurrency)
-		validationManager.AggregateIgnoredYamlFiles(ignoredYamlFilesChan)
+		wg.Add(1)
+		go validationManager.AggregateIgnoredYamlFiles(ignoredYamlFilesChan, &wg)
 	}
 
 	validK8sFilesConfigurationsChan, invalidK8sFilesChan, filesWithWarningsChan := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)
 
-	validationManager.AggregateInvalidK8sFiles(invalidK8sFilesChan)
-	validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan)
-	validationManager.AggregateK8sValidationWarningsPerValidFile(filesWithWarningsChan)
+	wg.Add(3)
+	go validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan, &wg)
+	go validationManager.AggregateInvalidK8sFiles(invalidK8sFilesChan, &wg)
+	go validationManager.AggregateK8sValidationWarningsPerValidFile(filesWithWarningsChan, &wg)
+
+	wg.Wait()
 
 	policyName := prerunData.Policy.Name
 
