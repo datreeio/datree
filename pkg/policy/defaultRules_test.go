@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"reflect"
 	"testing"
 
@@ -39,7 +40,8 @@ func TestMain(m *testing.M) {
 
 	defaultRulesSchemaFileContent = defaultRulesSchemaFile
 
-	m.Run()
+	testsRunResult := m.Run()
+	os.Exit(testsRunResult)
 }
 
 func TestDefaultRulesFileExists(t *testing.T) {
