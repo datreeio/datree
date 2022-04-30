@@ -68,7 +68,7 @@ func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
 	defaultRulesMap, conversionToMapError := convertYamlFileToMap(defaultRulesFileContent)
 	assert.Nil(t, conversionToMapError)
 
-	uniquenessValidationError := validateUniqueFloatValuesInRulesForProperty("ID", defaultRulesMap.Rules)
+	uniquenessValidationError := validateUniqueIntValuesInRulesForProperty("ID", defaultRulesMap.Rules)
 
 	assert.Nil(t, uniquenessValidationError)
 }
@@ -127,8 +127,7 @@ func validateUniqueStringValuesInRulesForProperty(propertyName string, rules []D
 	propertyValuesExistenceMap := make(map[string]bool)
 
 	for _, item := range rules {
-		itemValue := reflect.ValueOf(item)
-		propertyValue := reflect.Indirect(itemValue).FieldByName(propertyName).String()
+		propertyValue := getStringValueOfRuleProperty(item, propertyName)
 
 		if propertyValuesExistenceMap[propertyValue] {
 			return fmt.Errorf("property %s has duplicate value %s", propertyName, propertyValue)
@@ -140,12 +139,18 @@ func validateUniqueStringValuesInRulesForProperty(propertyName string, rules []D
 	return nil
 }
 
-func validateUniqueFloatValuesInRulesForProperty(propertyName string, rules []DefaultRuleDefinition) error {
+func getStringValueOfRuleProperty(rule DefaultRuleDefinition, propertyName string) string {
+	itemValue := reflect.ValueOf(rule)
+	propertyValue := reflect.Indirect(itemValue).FieldByName(propertyName).String()
+
+	return propertyValue
+}
+
+func validateUniqueIntValuesInRulesForProperty(propertyName string, rules []DefaultRuleDefinition) error {
 	propertyValuesExistenceMap := make(map[int64]bool)
 
 	for _, item := range rules {
-		itemValue := reflect.ValueOf(item)
-		propertyValue := reflect.Indirect(itemValue).FieldByName(propertyName).Int()
+		propertyValue := getIntValueOfRuleProperty(item, propertyName)
 
 		if propertyValuesExistenceMap[propertyValue] {
 			return fmt.Errorf("property %s has duplicate value %d", propertyName, propertyValue)
@@ -155,4 +160,11 @@ func validateUniqueFloatValuesInRulesForProperty(propertyName string, rules []De
 	}
 
 	return nil
+}
+
+func getIntValueOfRuleProperty(rule DefaultRuleDefinition, propertyName string) int64 {
+	itemValue := reflect.ValueOf(rule)
+	propertyValue := reflect.Indirect(itemValue).FieldByName(propertyName).Int()
+
+	return propertyValue
 }
