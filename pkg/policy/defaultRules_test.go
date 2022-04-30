@@ -1,26 +1,45 @@
 package policy
 
 import (
-	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
+	"testing"
+
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/ghodss/yaml"
 	"github.com/stretchr/testify/assert"
-	"reflect"
-	"testing"
 )
 
-//go:embed defaultRulesSchema.json
-var defaultRulesSchemaContent string
+var defaultRulesFileContent string
+var defaultRulesSchemaFileContent string
 
 const defaultRulesYamlPath = "./defaultRules.yaml"
+const defaultRulesJSONSchemaPath = "./defaultRulesSchema.json"
 
 type DefaultRules struct {
 	ApiVersion string                  `json:"apiVersion"`
 	Rules      []DefaultRuleDefinition `json:"rules"`
+}
+
+func TestMain(m *testing.M) {
+	defaultRulesFile, err := getFileFromPath(defaultRulesYamlPath)
+	if err != nil {
+		panic(err)
+	}
+
+	defaultRulesFileContent = defaultRulesFile
+
+	defaultRulesSchemaFile, err := getFileFromPath(defaultRulesJSONSchemaPath)
+	if err != nil {
+		panic(err)
+	}
+
+	defaultRulesSchemaFileContent = defaultRulesSchemaFile
+
+	m.Run()
 }
 
 func TestDefaultRulesFileExists(t *testing.T) {
@@ -30,28 +49,24 @@ func TestDefaultRulesFileExists(t *testing.T) {
 }
 
 func TestDefaultRulesFileFitsJSONSchema(t *testing.T) {
-	validationError := validateYamlUsingJSONSchema(defaultRulesYamlPath, defaultRulesSchemaContent)
+	validationError := validateYamlUsingJSONSchema(defaultRulesYamlPath, defaultRulesSchemaFileContent)
 
 	assert.Nil(t, validationError)
 }
 
 func TestDefaultRulesHasUniqueNamesInRules(t *testing.T) {
-	defaultRulesFileContent, _ := getFileFromPath(defaultRulesYamlPath)
+	defaultRulesMap, conversionToMapError := convertYamlFileToMap(defaultRulesFileContent)
+	assert.Nil(t, conversionToMapError)
 
-	defaultRulesFileContentJSON, conversionToJSONError := convertYamlFileToMap(defaultRulesFileContent)
-	assert.Nil(t, conversionToJSONError)
-
-	uniquenessValidationError := validateUniqueStringValuesInRulesForProperty("UniqueName", defaultRulesFileContentJSON.Rules)
+	uniquenessValidationError := validateUniqueStringValuesInRulesForProperty("UniqueName", defaultRulesMap.Rules)
 	assert.Nil(t, uniquenessValidationError)
 }
 
 func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
-	defaultRulesFileContent, _ := getFileFromPath(defaultRulesYamlPath)
+	defaultRulesMap, conversionToMapError := convertYamlFileToMap(defaultRulesFileContent)
+	assert.Nil(t, conversionToMapError)
 
-	defaultRulesFileContentJSON, conversionToJSONError := convertYamlFileToMap(defaultRulesFileContent)
-	assert.Nil(t, conversionToJSONError)
-
-	uniquenessValidationError := validateUniqueFloatValuesInRulesForProperty("ID", defaultRulesFileContentJSON.Rules)
+	uniquenessValidationError := validateUniqueFloatValuesInRulesForProperty("ID", defaultRulesMap.Rules)
 
 	assert.Nil(t, uniquenessValidationError)
 }
@@ -73,7 +88,7 @@ func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
 	schemaValidationResult, schemaValidationError := jsonSchemaValidator.ValidateYamlSchema(schema, fileContent)
 
 	if schemaValidationError != nil {
-		panic(errors.New("can't validate yaml file using json schema"))
+		panic(errors.New("error occurred while validating yaml file against schema"))
 	}
 
 	if schemaValidationResult != nil {
