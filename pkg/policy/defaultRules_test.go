@@ -127,8 +127,8 @@ func validateUniqueStringValuesInRulesForProperty(propertyName string, rules []D
 	propertyValuesExistenceMap := make(map[string]bool)
 
 	for _, item := range rules {
-		r := reflect.ValueOf(item)
-		propertyValue := reflect.Indirect(r).FieldByName(propertyName).String()
+		itemValue := reflect.ValueOf(item)
+		propertyValue := reflect.Indirect(itemValue).FieldByName(propertyName).String()
 
 		if propertyValuesExistenceMap[propertyValue] {
 			return fmt.Errorf("property %s has duplicate value %s", propertyName, propertyValue)
@@ -144,8 +144,8 @@ func validateUniqueFloatValuesInRulesForProperty(propertyName string, rules []De
 	propertyValuesExistenceMap := make(map[int64]bool)
 
 	for _, item := range rules {
-		r := reflect.ValueOf(item)
-		propertyValue := reflect.Indirect(r).FieldByName(propertyName).Int()
+		itemValue := reflect.ValueOf(item)
+		propertyValue := reflect.Indirect(itemValue).FieldByName(propertyName).Int()
 
 		if propertyValuesExistenceMap[propertyValue] {
 			return fmt.Errorf("property %s has duplicate value %d", propertyName, propertyValue)
