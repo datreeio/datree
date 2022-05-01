@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
@@ -406,6 +407,7 @@ type EvaluationResultData struct {
 }
 
 func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (EvaluationResultData, error) {
+	startEvaluationTime := time.Now()
 	isInteractiveMode := !evaluation.IsFormattedOutputOption(prerunData.Output)
 
 	var _spinner *spinner.Spinner
@@ -495,7 +497,8 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}
 
 	ciContext := ciContext.Extract()
-
+	endEvaluationTime := time.Now()
+	evaluationDuration := endEvaluationTime.Sub(startEvaluationTime).Seconds()
 	evaluationRequestData := evaluation.EvaluationRequestData{
 		Token:              prerunData.Token,
 		ClientId:           prerunData.ClientId,
@@ -508,7 +511,9 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		FailedYamlFiles:    failedYamlFiles,
 		FailedK8sFiles:     failedK8sFiles,
 		PolicyCheckResults: policyCheckResultData.RawResults,
+		EvaluationDuration: evaluationDuration,
 	}
+
 	sendEvaluationResultsResponse, err := ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
 
 	if err != nil {

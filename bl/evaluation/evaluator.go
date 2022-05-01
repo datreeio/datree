@@ -67,6 +67,7 @@ type EvaluationRequestData struct {
 	FailedYamlFiles    []string
 	FailedK8sFiles     []string
 	PolicyCheckResults FailedRulesByFiles
+	EvaluationDuration float64
 }
 
 var OSInfoFn = NewOSInfo
@@ -79,11 +80,12 @@ func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequest
 		Token:      evaluationRequestData.Token,
 		PolicyName: evaluationRequestData.PolicyName,
 		Metadata: &cliClient.Metadata{
-			CliVersion:      evaluationRequestData.CliVersion,
-			Os:              osInfo.OS,
-			PlatformVersion: osInfo.PlatformVersion,
-			KernelVersion:   osInfo.KernelVersion,
-			CIContext:       evaluationRequestData.CiContext,
+			CliVersion:         evaluationRequestData.CliVersion,
+			Os:                 osInfo.OS,
+			PlatformVersion:    osInfo.PlatformVersion,
+			KernelVersion:      osInfo.KernelVersion,
+			CIContext:          evaluationRequestData.CiContext,
+			EvaluationDuration: evaluationRequestData.EvaluationDuration,
 		},
 		FailedYamlFiles:    evaluationRequestData.FailedYamlFiles,
 		FailedK8sFiles:     evaluationRequestData.FailedK8sFiles,

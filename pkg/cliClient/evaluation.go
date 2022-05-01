@@ -10,11 +10,12 @@ import (
 )
 
 type Metadata struct {
-	CliVersion      string               `json:"cliVersion"`
-	Os              string               `json:"os"`
-	PlatformVersion string               `json:"platformVersion"`
-	KernelVersion   string               `json:"kernelVersion"`
-	CIContext       *ciContext.CIContext `json:"ciContext"`
+	CliVersion         string               `json:"cliVersion"`
+	Os                 string               `json:"os"`
+	PlatformVersion    string               `json:"platformVersion"`
+	KernelVersion      string               `json:"kernelVersion"`
+	CIContext          *ciContext.CIContext `json:"ciContext"`
+	EvaluationDuration float64              `json:"evaluationDuration"`
 }
 
 type SendEvaluationResultsResponse struct {

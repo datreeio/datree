@@ -86,6 +86,7 @@ func TestSendEvaluationResult(t *testing.T) {
 			FailedYamlFiles:    []string{},
 			FailedK8sFiles:     []string{},
 			PolicyCheckResults: nil,
+			EvaluationDuration: 0,
 		}
 
 		sendEvaluationResultsResponse, _ := evaluator.SendEvaluationResult(evaluationRequestData)
@@ -96,11 +97,12 @@ func TestSendEvaluationResult(t *testing.T) {
 			Token:      evaluationRequestData.Token,
 			PolicyName: evaluationRequestData.PolicyName,
 			Metadata: &cliClient.Metadata{
-				CliVersion:      evaluationRequestData.CliVersion,
-				Os:              osInfo.OS,
-				PlatformVersion: osInfo.PlatformVersion,
-				KernelVersion:   osInfo.KernelVersion,
-				CIContext:       evaluationRequestData.CiContext,
+				CliVersion:         evaluationRequestData.CliVersion,
+				Os:                 osInfo.OS,
+				PlatformVersion:    osInfo.PlatformVersion,
+				KernelVersion:      osInfo.KernelVersion,
+				CIContext:          evaluationRequestData.CiContext,
+				EvaluationDuration: evaluationRequestData.EvaluationDuration,
 			},
 			FailedYamlFiles:    evaluationRequestData.FailedYamlFiles,
 			FailedK8sFiles:     evaluationRequestData.FailedK8sFiles,
