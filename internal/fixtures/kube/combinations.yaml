@@ -16,7 +16,7 @@ spec:
               servicePort: 80
 ---
 # Skipped K8s schema validation
-apiversion: apiextensions.k8s.io/v1
+apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinitiona # Not a real kind (extra "a" suffix)
 metadata:
   name: my-service
