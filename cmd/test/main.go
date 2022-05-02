@@ -96,6 +96,7 @@ type EvaluationPrinter interface {
 	PrintPromptMessage(promptMessage string)
 	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
 	SetTheme(theme *printer.Theme)
+	SetPrintMode(printMode string)
 }
 
 type Reader interface {
@@ -338,6 +339,10 @@ func Test(ctx *TestCommandContext, paths []string, testCommandOptions *TestComma
 		ctx.Printer.SetTheme(printer.CreateSimpleTheme())
 	}
 
+	if testCommandOptions.ValidateYaml {
+		ctx.Printer.SetPrintMode(printer.MODE_YAML_ONLY)
+	}
+
 	evaluationResultData, err := evaluate(ctx, filesPaths, testCommandOptions)
 	if err != nil {
 		return err
@@ -374,6 +379,7 @@ func Test(ctx *TestCommandContext, paths []string, testCommandOptions *TestComma
 		K8sVersion:            testCommandOptions.K8sVersion,
 		Verbose:               testCommandOptions.Verbose,
 		PolicyName:            testCommandOptions.Policy.Name,
+		ValidateYaml:          testCommandOptions.ValidateYaml,
 		K8sValidationWarnings: validationManager.k8sValidationWarningPerValidFile,
 	})
 

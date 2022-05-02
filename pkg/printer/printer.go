@@ -14,14 +14,21 @@ import (
 
 var out io.Writer = color.Output
 
+const (
+	MODE_DEFAULT   string = "default"
+	MODE_YAML_ONLY string = "yaml-only"
+)
+
 type Printer struct {
 	Theme *Theme
+	Mode  string
 }
 
 func CreateNewPrinter() *Printer {
 	theme := createDefaultTheme()
 	return &Printer{
 		Theme: theme,
+		Mode:  MODE_DEFAULT,
 	}
 }
 
@@ -67,6 +74,10 @@ func (p *Printer) SetTheme(theme *Theme) {
 	p.Theme = theme
 }
 
+func (p *Printer) SetPrintMode(mode string) {
+	p.Mode = mode
+}
+
 func (p *Printer) printYamlValidationWarning(warning Warning) {
 	p.printInColor("[X] YAML validation\n", p.Theme.Colors.White)
 	fmt.Fprintln(out)
@@ -76,8 +87,10 @@ func (p *Printer) printYamlValidationWarning(warning Warning) {
 	}
 	fmt.Fprintln(out)
 
-	p.printInColor("[?] Kubernetes schema validation didn't run for this file\n", p.Theme.Colors.White)
-	p.printSkippedPolicyCheck()
+	if p.Mode != MODE_YAML_ONLY {
+		p.printInColor("[?] Kubernetes schema validation didn't run for this file\n", p.Theme.Colors.White)
+		p.printSkippedPolicyCheck()
+	}
 	fmt.Fprintln(out)
 }
 
@@ -225,6 +238,11 @@ type EvaluationSummary struct {
 }
 
 func (p *Printer) PrintEvaluationSummary(summary EvaluationSummary, k8sVersion string) {
+	if p.Mode == MODE_YAML_ONLY {
+		fmt.Fprintf(out, "- Passing YAML validation: %v/%v\n", summary.PassedYamlValidationCount, summary.FilesCount)
+		return
+	}
+
 	p.printInColor("(Summary)\n", p.Theme.Colors.White)
 	fmt.Fprintln(out)
 

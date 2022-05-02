@@ -37,6 +37,7 @@ type PrintResultsData struct {
 	K8sVersion            string
 	Verbose               bool
 	PolicyName            string
+	ValidateYaml          bool
 	K8sValidationWarnings validation.K8sValidationWarningPerValidFile
 }
 
@@ -50,6 +51,7 @@ type textOutputData struct {
 	k8sVersion            string
 	Verbose               bool
 	policyName            string
+	ValidateYaml          bool
 	k8sValidationWarnings validation.K8sValidationWarningPerValidFile
 }
 
@@ -97,6 +99,7 @@ func PrintResults(resultsData *PrintResultsData) error {
 			policyName:            resultsData.PolicyName,
 			Verbose:               resultsData.Verbose,
 			k8sValidationWarnings: resultsData.K8sValidationWarnings,
+			ValidateYaml:          resultsData.ValidateYaml,
 		})
 	}
 }
@@ -155,11 +158,15 @@ func textOutput(outputData textOutputData) error {
 		return err
 	}
 
-	outputData.printer.PrintWarnings(warnings)
-
 	summary := parseEvaluationResultsToSummary(outputData.results, outputData.evaluationSummary, outputData.url, outputData.policyName)
 
+	outputData.printer.PrintWarnings(warnings)
+
 	outputData.printer.PrintEvaluationSummary(outputData.evaluationSummary, outputData.k8sVersion)
+
+	if outputData.ValidateYaml {
+		return nil
+	}
 
 	outputData.printer.PrintSummaryTable(summary)
 
