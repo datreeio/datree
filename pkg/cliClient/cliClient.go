@@ -18,6 +18,7 @@ type CliClient struct {
 	timeoutClient    HTTPClient
 	httpErrors       []string
 	networkValidator NetworkValidator
+	flagsHeaders     map[string]string
 }
 
 func NewCliClient(url string, networkValidator NetworkValidator) *CliClient {
@@ -28,5 +29,6 @@ func NewCliClient(url string, networkValidator NetworkValidator) *CliClient {
 		timeoutClient:    nil,
 		httpErrors:       []string{},
 		networkValidator: networkValidator,
+		flagsHeaders:     make(map[string]string),
 	}
 }
