@@ -165,6 +165,10 @@ func (p *PrinterMock) SetTheme(theme *printer.Theme) {
 	p.Called(theme)
 }
 
+func (p *PrinterMock) SetPrintMode(mode string) {
+	p.Called(mode)
+}
+
 type CliClientMock struct {
 	mock.Mock
 }
