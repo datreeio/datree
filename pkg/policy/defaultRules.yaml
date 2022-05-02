@@ -1231,14 +1231,14 @@ rules:
       definitions:
         specVolumePattern:
           properties:
-          spec:
-            properties:
-            volumes:
-              type: array
-              items:
-              not:
-                required:
-                  - hostPath
+            spec:
+              properties:
+                volumes:
+                  type: array
+                  items:
+                  not:
+                    required:
+                      - hostPath
 
       allOf:
         - $ref: "#/definitions/specVolumePattern"
