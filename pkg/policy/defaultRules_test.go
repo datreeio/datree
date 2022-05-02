@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"reflect"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/fileReader"
@@ -60,7 +59,7 @@ func TestDefaultRulesHasUniqueNamesInRules(t *testing.T) {
 	defaultRulesMap, conversionToMapError := convertYamlFileToMap(defaultRulesFileContent)
 	assert.Nil(t, conversionToMapError)
 
-	uniquenessValidationError := validateUniqueStringValuesInRulesForProperty("UniqueName", defaultRulesMap.Rules)
+	uniquenessValidationError := validateUniqueNameUniquenessInRules(defaultRulesMap.Rules)
 	assert.Nil(t, uniquenessValidationError)
 }
 
@@ -68,7 +67,7 @@ func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
 	defaultRulesMap, conversionToMapError := convertYamlFileToMap(defaultRulesFileContent)
 	assert.Nil(t, conversionToMapError)
 
-	uniquenessValidationError := validateUniqueIntValuesInRulesForProperty("ID", defaultRulesMap.Rules)
+	uniquenessValidationError := validateIDUniquenessInRules(defaultRulesMap.Rules)
 
 	assert.Nil(t, uniquenessValidationError)
 }
@@ -123,14 +122,14 @@ func convertYamlFileToMap(yamlFileContent string) (DefaultRules, error) {
 	return yamlFileContentJSON, nil
 }
 
-func validateUniqueStringValuesInRulesForProperty(propertyName string, rules []DefaultRuleDefinition) error {
+func validateUniqueNameUniquenessInRules(rules []DefaultRuleDefinition) error {
 	propertyValuesExistenceMap := make(map[string]bool)
 
 	for _, item := range rules {
-		propertyValue := getStringValueOfRuleProperty(item, propertyName)
+		propertyValue := item.UniqueName
 
 		if propertyValuesExistenceMap[propertyValue] {
-			return fmt.Errorf("property %s has duplicate value %s", propertyName, propertyValue)
+			return fmt.Errorf("duplicate unique name found: %s", propertyValue)
 		}
 
 		propertyValuesExistenceMap[propertyValue] = true
@@ -139,32 +138,16 @@ func validateUniqueStringValuesInRulesForProperty(propertyName string, rules []D
 	return nil
 }
 
-func getStringValueOfRuleProperty(rule DefaultRuleDefinition, propertyName string) string {
-	itemValue := reflect.ValueOf(rule)
-	propertyValue := reflect.Indirect(itemValue).FieldByName(propertyName).String()
-
-	return propertyValue
-}
-
-func validateUniqueIntValuesInRulesForProperty(propertyName string, rules []DefaultRuleDefinition) error {
-	propertyValuesExistenceMap := make(map[int64]bool)
+func validateIDUniquenessInRules(rules []DefaultRuleDefinition) error {
+	propertyValuesExistenceMap := make(map[int]bool)
 
 	for _, item := range rules {
-		propertyValue := getIntValueOfRuleProperty(item, propertyName)
-
-		if propertyValuesExistenceMap[propertyValue] {
-			return fmt.Errorf("property %s has duplicate value %d", propertyName, propertyValue)
+		if propertyValuesExistenceMap[item.ID] {
+			return fmt.Errorf("duplicate id found: %d", item.ID)
 		}
 
-		propertyValuesExistenceMap[propertyValue] = true
+		propertyValuesExistenceMap[item.ID] = true
 	}
 
 	return nil
-}
-
-func getIntValueOfRuleProperty(rule DefaultRuleDefinition, propertyName string) int64 {
-	itemValue := reflect.ValueOf(rule)
-	propertyValue := reflect.Indirect(itemValue).FieldByName(propertyName).Int()
-
-	return propertyValue
 }
