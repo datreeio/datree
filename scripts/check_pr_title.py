@@ -2,7 +2,7 @@ import json
 import os
 import sys
 
-COMMIT_TYPES = set(["build", "ci", "docs", "feat", "fix", "perf", "refactor", "test"])
+COMMIT_TYPES = set(["build", "ci", "docs", "feat", "fix", "perf", "refactor", "test", "style"])
 MAX_COMMIT_MSG_LEN = 72
 
 def commit_msg_len(msg):
