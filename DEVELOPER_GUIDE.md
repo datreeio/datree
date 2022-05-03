@@ -5,7 +5,7 @@ This guide was written for macOS and Linux machines.
 
 ## Prerequisites
 
-- Go version 1.17
+- Go version 1.18
 - Git
 
 ## Building Datree
