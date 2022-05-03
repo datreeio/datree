@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
@@ -139,6 +140,7 @@ type TestCommandContext struct {
 	Reader         Reader
 	CliClient      CliClient
 	FilesExtractor files.FilesExtractorInterface
+	StartTime      time.Time
 }
 
 func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
@@ -511,20 +513,23 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}
 
 	ciContext := ciContext.Extract()
-
+	endEvaluationTime := time.Now()
+	EvaluationDurationSeconds := endEvaluationTime.Sub(ctx.StartTime).Seconds()
 	evaluationRequestData := evaluation.EvaluationRequestData{
-		Token:              prerunData.Token,
-		ClientId:           prerunData.ClientId,
-		CliVersion:         ctx.CliVersion,
-		K8sVersion:         prerunData.K8sVersion,
-		PolicyName:         policyName,
-		CiContext:          ciContext,
-		RulesData:          policyCheckResultData.RulesData,
-		FilesData:          policyCheckResultData.FilesData,
-		FailedYamlFiles:    failedYamlFiles,
-		FailedK8sFiles:     failedK8sFiles,
-		PolicyCheckResults: policyCheckResultData.RawResults,
+		Token:                     prerunData.Token,
+		ClientId:                  prerunData.ClientId,
+		CliVersion:                ctx.CliVersion,
+		K8sVersion:                prerunData.K8sVersion,
+		PolicyName:                policyName,
+		CiContext:                 ciContext,
+		RulesData:                 policyCheckResultData.RulesData,
+		FilesData:                 policyCheckResultData.FilesData,
+		FailedYamlFiles:           failedYamlFiles,
+		FailedK8sFiles:            failedK8sFiles,
+		PolicyCheckResults:        policyCheckResultData.RawResults,
+		EvaluationDurationSeconds: EvaluationDurationSeconds,
 	}
+
 	sendEvaluationResultsResponse, err := ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
 
 	if err != nil {

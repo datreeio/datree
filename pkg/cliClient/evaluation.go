@@ -23,11 +23,12 @@ type TestCommandFlags struct {
 }
 
 type Metadata struct {
-	CliVersion      string               `json:"cliVersion"`
-	Os              string               `json:"os"`
-	PlatformVersion string               `json:"platformVersion"`
-	KernelVersion   string               `json:"kernelVersion"`
-	CIContext       *ciContext.CIContext `json:"ciContext"`
+	CliVersion                string               `json:"cliVersion"`
+	Os                        string               `json:"os"`
+	PlatformVersion           string               `json:"platformVersion"`
+	KernelVersion             string               `json:"kernelVersion"`
+	CIContext                 *ciContext.CIContext `json:"ciContext"`
+	EvaluationDurationSeconds float64              `json:"evaluationDurationSeconds"`
 }
 
 type SendEvaluationResultsResponse struct {

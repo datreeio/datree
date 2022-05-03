@@ -56,17 +56,18 @@ type FormattedResults struct {
 }
 
 type EvaluationRequestData struct {
-	Token              string
-	ClientId           string
-	CliVersion         string
-	K8sVersion         string
-	PolicyName         string
-	CiContext          *ciContext.CIContext
-	RulesData          []cliClient.RuleData
-	FilesData          []cliClient.FileData
-	FailedYamlFiles    []string
-	FailedK8sFiles     []string
-	PolicyCheckResults FailedRulesByFiles
+	Token                     string
+	ClientId                  string
+	CliVersion                string
+	K8sVersion                string
+	PolicyName                string
+	CiContext                 *ciContext.CIContext
+	RulesData                 []cliClient.RuleData
+	FilesData                 []cliClient.FileData
+	FailedYamlFiles           []string
+	FailedK8sFiles            []string
+	PolicyCheckResults        FailedRulesByFiles
+	EvaluationDurationSeconds float64
 }
 
 var OSInfoFn = NewOSInfo
@@ -79,11 +80,12 @@ func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequest
 		Token:      evaluationRequestData.Token,
 		PolicyName: evaluationRequestData.PolicyName,
 		Metadata: &cliClient.Metadata{
-			CliVersion:      evaluationRequestData.CliVersion,
-			Os:              osInfo.OS,
-			PlatformVersion: osInfo.PlatformVersion,
-			KernelVersion:   osInfo.KernelVersion,
-			CIContext:       evaluationRequestData.CiContext,
+			CliVersion:                evaluationRequestData.CliVersion,
+			Os:                        osInfo.OS,
+			PlatformVersion:           osInfo.PlatformVersion,
+			KernelVersion:             osInfo.KernelVersion,
+			CIContext:                 evaluationRequestData.CiContext,
+			EvaluationDurationSeconds: evaluationRequestData.EvaluationDurationSeconds,
 		},
 		FailedYamlFiles:    evaluationRequestData.FailedYamlFiles,
 		FailedK8sFiles:     evaluationRequestData.FailedK8sFiles,
