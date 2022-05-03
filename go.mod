@@ -10,7 +10,6 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/lithammer/shortuuid v3.0.0+incompatible
-	github.com/oleiade/reflections v1.0.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
