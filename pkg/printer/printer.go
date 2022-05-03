@@ -68,16 +68,20 @@ func (p *Printer) SetTheme(theme *Theme) {
 }
 
 func (p *Printer) printYamlValidationWarning(warning Warning) {
-	p.printInColor("[X] YAML validation\n", p.Theme.Colors.White)
-	fmt.Fprintln(out)
-	for _, validationError := range warning.InvalidYamlInfo.ValidationErrors {
-		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
-		fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Error, validationError)
-	}
-	fmt.Fprintln(out)
+	p.PrintYamlValidationErrors(warning.InvalidYamlInfo.ValidationErrors)
 
 	p.printInColor("[?] Kubernetes schema validation didn't run for this file\n", p.Theme.Colors.White)
 	p.printSkippedPolicyCheck()
+	fmt.Fprintln(out)
+}
+
+func (p *Printer) PrintYamlValidationErrors(yamlValidationErrors []error) {
+	p.printInColor("[X] YAML validation\n", p.Theme.Colors.White)
+	fmt.Fprintln(out)
+	for _, validationError := range yamlValidationErrors {
+		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
+		fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Error, validationError)
+	}
 	fmt.Fprintln(out)
 }
 
@@ -126,8 +130,7 @@ func (p *Printer) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, err
 
 func (p *Printer) PrintWarnings(warnings []Warning) {
 	for _, warning := range warnings {
-		p.printInColor(warning.Title, p.Theme.Colors.Yellow)
-		fmt.Fprintln(out)
+		p.PrintTitle(warning.Title)
 
 		if len(warning.InvalidYamlInfo.ValidationErrors) > 0 {
 			p.printYamlValidationWarning(warning)
@@ -224,15 +227,25 @@ type EvaluationSummary struct {
 	PassedPolicyCheckCount    int
 }
 
+func (p *Printer) PrintTitle(title string) {
+	p.printInColor(title, p.Theme.Colors.Yellow)
+	fmt.Fprintln(out)
+}
+
 func (p *Printer) PrintEvaluationSummary(summary EvaluationSummary, k8sVersion string) {
 	p.printInColor("(Summary)\n", p.Theme.Colors.White)
 	fmt.Fprintln(out)
 
-	fmt.Fprintf(out, "- Passing YAML validation: %v/%v\n", summary.PassedYamlValidationCount, summary.FilesCount)
-	fmt.Fprintln(out)
+	p.PrintYamlValidationSummary(summary.PassedYamlValidationCount, summary.FilesCount)
+
 	fmt.Fprintf(out, "- Passing Kubernetes (%s) schema validation: %s\n", k8sVersion, summary.K8sValidation)
 	fmt.Fprintln(out)
 	fmt.Fprintf(out, "- Passing policy check: %v/%v\n", summary.PassedPolicyCheckCount, summary.FilesCount)
+	fmt.Fprintln(out)
+}
+
+func (p *Printer) PrintYamlValidationSummary(passedFiles int, allFiles int) {
+	fmt.Fprintf(out, "- Passing YAML validation: %v/%v\n", passedFiles, allFiles)
 	fmt.Fprintln(out)
 }
 
