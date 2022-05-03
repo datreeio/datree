@@ -4,10 +4,23 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/extractor"
 )
+
+type TestCommandFlags struct {
+	Output               string
+	K8sVersion           string
+	IgnoreMissingSchemas bool
+	OnlyK8sFiles         bool
+	Verbose              bool
+	PolicyName           string
+	SchemaLocations      []string
+	PolicyConfig         string
+	NoRecord             bool
+}
 
 type Metadata struct {
 	CliVersion                string               `json:"cliVersion"`
@@ -109,7 +122,7 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string, isCi bool) (*Eva
 	}
 
 	isCiQueryParam := "isCi=" + strconv.FormatBool(isCi)
-	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun?"+isCiQueryParam, nil, nil)
+	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun?"+isCiQueryParam, nil, c.flagsHeaders)
 
 	if err != nil {
 		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
@@ -171,12 +184,32 @@ type EvaluationResultRequest struct {
 	PolicyCheckResults map[string]map[string]*FailedRule `json:"policyCheckResults"`
 }
 
+func (c *CliClient) AddFlags(flags map[string]interface{}) {
+	headers := make(map[string]string)
+
+	for key, value := range flags {
+		headerKey := "x-cli-flags-" + key
+		switch value.(type) {
+		case string:
+			headers[headerKey] = value.(string)
+		case bool:
+			headers[headerKey] = strconv.FormatBool(value.(bool))
+		case []string:
+			headers[headerKey] = strings.Join(value.([]string), ",")
+		case int:
+			headers[headerKey] = strconv.Itoa(value.(int))
+		}
+	}
+
+	c.flagsHeaders = headers
+}
+
 func (c *CliClient) SendEvaluationResult(request *EvaluationResultRequest) (*SendEvaluationResultsResponse, error) {
 	if c.networkValidator.IsLocalMode() {
 		return &SendEvaluationResultsResponse{}, nil
 	}
 
-	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/result", request, nil)
+	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/result", request, c.flagsHeaders)
 	if err != nil {
 		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
 		if networkErr != nil {

@@ -307,6 +307,21 @@ func TestPublishPolicies(t *testing.T) {
 	}
 }
 
+func TestAddFlags(t *testing.T) {
+	httpClientMock := mockHTTPClient{}
+	flagsToAdd := map[string]interface{}{"flag-key": "flag-value", "flag-key-bool": true, "bad-flag-key": []int{1, 3}}
+	cliClient := &CliClient{
+		baseUrl:      "http://cli-service.test.io",
+		httpClient:   &httpClientMock,
+		flagsHeaders: make(map[string]string),
+	}
+
+	cliClient.AddFlags(flagsToAdd)
+	assert.Equal(t, "flag-value", cliClient.flagsHeaders["x-cli-flags-flag-key"])
+	assert.Equal(t, "true", cliClient.flagsHeaders["x-cli-flags-flag-key-bool"])
+	assert.Equal(t, "", cliClient.flagsHeaders["x-cli-flags-bad-flag-key"])
+}
+
 func readMock(path string) ([]extractor.Configuration, error) {
 	var configurations []extractor.Configuration
 
