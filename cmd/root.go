@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"time"
+
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
@@ -31,6 +33,7 @@ var rootCmd = &cobra.Command{
 var CliVersion string
 
 func NewRootCommand(app *App) *cobra.Command {
+	startEvaluationTime := time.Now()
 
 	rootCmd.AddCommand(test.New(&test.TestCommandContext{
 		CliVersion:     CliVersion,
@@ -43,6 +46,7 @@ func NewRootCommand(app *App) *cobra.Command {
 		CliClient:      app.Context.CliClient,
 		FilesExtractor: app.Context.FilesExtractor,
 		CiContext:      app.Context.CiContext,
+		StartTime:      startEvaluationTime,
 	}))
 
 	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
@@ -55,6 +59,7 @@ func NewRootCommand(app *App) *cobra.Command {
 		K8sValidator:   app.Context.K8sValidator,
 		CliClient:      app.Context.CliClient,
 		FilesExtractor: app.Context.FilesExtractor,
+		StartTime:      startEvaluationTime,
 	}, &kustomize.KustomizeContext{CommandRunner: app.Context.CommandRunner}))
 
 	rootCmd.AddCommand(version.New(&version.VersionCommandContext{

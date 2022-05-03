@@ -138,6 +138,7 @@ type TestCommandContext struct {
 	Reader         Reader
 	CliClient      CliClient
 	FilesExtractor files.FilesExtractorInterface
+	StartTime      time.Time
 }
 
 func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
@@ -407,7 +408,6 @@ type EvaluationResultData struct {
 }
 
 func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (EvaluationResultData, error) {
-	startEvaluationTime := time.Now()
 	isInteractiveMode := !evaluation.IsFormattedOutputOption(prerunData.Output)
 
 	var _spinner *spinner.Spinner
@@ -498,7 +498,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	ciContext := ciContext.Extract()
 	endEvaluationTime := time.Now()
-	EvaluationDurationSeconds := endEvaluationTime.Sub(startEvaluationTime).Seconds()
+	EvaluationDurationSeconds := endEvaluationTime.Sub(ctx.StartTime).Seconds()
 	evaluationRequestData := evaluation.EvaluationRequestData{
 		Token:                     prerunData.Token,
 		ClientId:                  prerunData.ClientId,
