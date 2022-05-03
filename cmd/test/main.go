@@ -498,20 +498,20 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	ciContext := ciContext.Extract()
 	endEvaluationTime := time.Now()
-	evaluationDuration := endEvaluationTime.Sub(startEvaluationTime).Seconds()
+	EvaluationDurationSeconds := endEvaluationTime.Sub(startEvaluationTime).Seconds()
 	evaluationRequestData := evaluation.EvaluationRequestData{
-		Token:              prerunData.Token,
-		ClientId:           prerunData.ClientId,
-		CliVersion:         ctx.CliVersion,
-		K8sVersion:         prerunData.K8sVersion,
-		PolicyName:         policyName,
-		CiContext:          ciContext,
-		RulesData:          policyCheckResultData.RulesData,
-		FilesData:          policyCheckResultData.FilesData,
-		FailedYamlFiles:    failedYamlFiles,
-		FailedK8sFiles:     failedK8sFiles,
-		PolicyCheckResults: policyCheckResultData.RawResults,
-		EvaluationDuration: evaluationDuration,
+		Token:                     prerunData.Token,
+		ClientId:                  prerunData.ClientId,
+		CliVersion:                ctx.CliVersion,
+		K8sVersion:                prerunData.K8sVersion,
+		PolicyName:                policyName,
+		CiContext:                 ciContext,
+		RulesData:                 policyCheckResultData.RulesData,
+		FilesData:                 policyCheckResultData.FilesData,
+		FailedYamlFiles:           failedYamlFiles,
+		FailedK8sFiles:            failedK8sFiles,
+		PolicyCheckResults:        policyCheckResultData.RawResults,
+		EvaluationDurationSeconds: EvaluationDurationSeconds,
 	}
 
 	sendEvaluationResultsResponse, err := ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
