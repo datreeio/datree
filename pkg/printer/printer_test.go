@@ -23,16 +23,6 @@ func TestPrintWarnings(t *testing.T) {
 		},
 	},
 		{
-			Title:           "Failed with yaml validation",
-			FailedRules:     []FailedRule{},
-			InvalidYamlInfo: InvalidYamlInfo{ValidationErrors: []error{fmt.Errorf("yaml validation error")}},
-		},
-		{
-			Title:          "Failed with k8s validation",
-			FailedRules:    []FailedRule{},
-			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
-		},
-		{
 			Title:          ">>  File: /datree/datree/internal/fixtures/kube/Chart.yaml\n",
 			FailedRules:    []FailedRule{},
 			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
@@ -59,22 +49,6 @@ func TestPrintWarnings(t *testing.T) {
 ❌  Caption  [1 occurrence]
     — metadata.name: yishay (kind: Pod)
 💡  Suggestion
-
-Failed with yaml validation
-[X] YAML validation
-
-❌  yaml validation error
-
-[?] Kubernetes schema validation didn't run for this file
-[?] Policy check didn't run for this file
-
-Failed with k8s validation
-[V] YAML validation
-[X] Kubernetes schema validation
-
-❌  K8S validation error
-
-[?] Policy check didn't run for this file
 
 >>  File: /datree/datree/internal/fixtures/kube/Chart.yaml
 
@@ -111,22 +85,6 @@ https://github.com/datreeio/helm-datree
 [X]  Caption  [1 occurrence]
     — metadata.name: yishay (kind: Pod)
 [*]  Suggestion
-
-Failed with yaml validation
-[X] YAML validation
-
-[X]  yaml validation error
-
-[?] Kubernetes schema validation didn't run for this file
-[?] Policy check didn't run for this file
-
-Failed with k8s validation
-[V] YAML validation
-[X] Kubernetes schema validation
-
-[X]  K8S validation error
-
-[?] Policy check didn't run for this file
 
 >>  File: /datree/datree/internal/fixtures/kube/Chart.yaml
 
