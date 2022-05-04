@@ -1174,7 +1174,7 @@ rules:
     name: Ensure each container has a read-only root filesystem
     uniqueName: CONTAINERS_INCORRECT_READONLYROOTFILESYSTEM_VALUE
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-read-only-filesystem"
     messageOnFailure: Incorrect value for key `readOnlyRootFilesystem` - set to 'true' to protect filesystem from potential attacks
     category: NSA
     schema:
@@ -1224,7 +1224,7 @@ rules:
     name: Prevent containers from accessing underlying host
     uniqueName: CONTAINERS_INCORRECT_KEY_HOSTPATH
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-accessing-underlying-host"
     messageOnFailure: Invalid key `hostPath` - refrain from using this mount to prevent an attack on the underlying host
     category: NSA
     schema:
@@ -1249,7 +1249,7 @@ rules:
     name: Prevent containers from escalating privileges
     uniqueName: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-escalating-privileges"
     messageOnFailure: Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges
     category: NSA
     schema:
@@ -1280,7 +1280,7 @@ rules:
     name: Prevent containers from allowing command execution
     uniqueName: CONTAINERS_INCORRECT_RESOURCES_VERBS_VALUE
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/"
+    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-allowing-command-execution'
     messageOnFailure: "Incorrect value for key `resources` and/or `verbs` - allowing containers to run the exec command can be exploited by attackers"
     category: NSA
     schema:
@@ -1314,7 +1314,7 @@ rules:
     name: Prevent containers from having insecure capabilities
     uniqueName: CONTAINERS_INVALID_CAPABILITIES_VALUE
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/"
+    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-insecure-capabilities'
     messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
     category: NSA
     schema:
@@ -1359,7 +1359,7 @@ rules:
     name: Prevent containers from insecurely exposing workload
     uniqueName: CONTAINERS_INCORRECT_KEY_HOSTPORT
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/"
+    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-insecurely-exposing-workload'
     messageOnFailure: "Incorrect key `hostPort` - refrain from using this key to prevent insecurely exposing your workload"
     category: NSA
     schema:
@@ -1389,7 +1389,7 @@ rules:
     name: Prevent containers from accessing host files by using high GIDs
     uniqueName: CONTAINERS_INCORRECT_RUNASGROUP_VALUE_LOWGID
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/"
+    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-accessing-host-files-by-using-high-gids'
     messageOnFailure: "Invalid value for key `runAsGroup` - must be greater than 999 to ensure container is running with non-root group membership"
     category: NSA
     schema:
@@ -1432,7 +1432,7 @@ rules:
     name: Prevent container from running with root privileges
     uniqueName: CONTAINERS_INCORRECT_RUNASNONROOT_VALUE
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/"
+    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-running-with-root-privileges'
     messageOnFailure: "Invalid value for key `runAsNonRoot` - must be set to `true` to prevent unnecessary privileges"
     category: NSA
     schema:
@@ -1480,7 +1480,7 @@ rules:
     name: Prevent service account token auto-mounting on pods
     uniqueName: SRVACC_INCORRECT_AUTOMOUNTSERVICEACCOUNTTOKEN_VALUE
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/"
+    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-service-account-token-auto-mount'
     messageOnFailure: "Invalid value for key `automountServiceAccountToken` - must be set to `false` to prevent granting unnecessary access to the service account"
     category: NSA
     schema:
