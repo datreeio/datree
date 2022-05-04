@@ -33,7 +33,7 @@ type K8sValidator interface {
 }
 
 type IPrinter interface {
-	PrintTitle(title string)
+	PrintFilename(title string)
 	PrintYamlValidationErrors(validationErrors []error)
 	PrintYamlValidationSummary(passedFiles int, allFiles int)
 	PrintMessage(messageText string, messageColor string)
@@ -122,7 +122,7 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 
 			// print files with errors
 			for _, invalidYamlFile := range invalidYamlFiles {
-				ctx.Printer.PrintTitle(invalidYamlFile.Path)
+				ctx.Printer.PrintFilename(invalidYamlFile.Path)
 				ctx.Printer.PrintYamlValidationErrors(invalidYamlFile.ValidationErrors)
 			}
 

@@ -130,7 +130,7 @@ func (p *Printer) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, err
 
 func (p *Printer) PrintWarnings(warnings []Warning) {
 	for _, warning := range warnings {
-		p.PrintTitle(warning.Title)
+		p.PrintFilename(warning.Title)
 
 		if len(warning.InvalidYamlInfo.ValidationErrors) > 0 {
 			p.printYamlValidationWarning(warning)
@@ -227,8 +227,8 @@ type EvaluationSummary struct {
 	PassedPolicyCheckCount    int
 }
 
-func (p *Printer) PrintTitle(title string) {
-	p.printInColor(title, p.Theme.Colors.Yellow)
+func (p *Printer) PrintFilename(title string) {
+	p.printInColor(fmt.Sprintf(">>  File: %s\n", title), p.Theme.Colors.Yellow)
 	fmt.Fprintln(out)
 }
 

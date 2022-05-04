@@ -12,7 +12,7 @@ func TestPrintWarnings(t *testing.T) {
 	printer := CreateNewPrinter()
 
 	warnings := []Warning{{
-		Title: "Failed with Occurrences",
+		Title: "~/.datree/k8-demo.yaml",
 		FailedRules: []FailedRule{
 			{
 				Name:               "Caption",
@@ -23,7 +23,7 @@ func TestPrintWarnings(t *testing.T) {
 		},
 	},
 		{
-			Title:          ">>  File: /datree/datree/internal/fixtures/kube/Chart.yaml\n",
+			Title:          "/datree/datree/internal/fixtures/kube/Chart.yaml\n",
 			FailedRules:    []FailedRule{},
 			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
 			ExtraMessages: []ExtraMessage{{Text: "Are you trying to test a raw helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree",
@@ -40,7 +40,8 @@ func TestPrintWarnings(t *testing.T) {
 		got := out.(*bytes.Buffer).Bytes()
 
 		expected := []byte(
-			`Failed with Occurrences
+			`>>  File: ~/.datree/k8-demo.yaml
+
 [V] YAML validation
 [V] Kubernetes schema validation
 
@@ -51,6 +52,7 @@ func TestPrintWarnings(t *testing.T) {
 💡  Suggestion
 
 >>  File: /datree/datree/internal/fixtures/kube/Chart.yaml
+
 
 [V] YAML validation
 [X] Kubernetes schema validation
@@ -76,7 +78,8 @@ https://github.com/datreeio/helm-datree
 		got := out.(*bytes.Buffer).Bytes()
 
 		expected := []byte(
-			`Failed with Occurrences
+			`>>  File: ~/.datree/k8-demo.yaml
+
 [V] YAML validation
 [V] Kubernetes schema validation
 
@@ -87,6 +90,7 @@ https://github.com/datreeio/helm-datree
 [*]  Suggestion
 
 >>  File: /datree/datree/internal/fixtures/kube/Chart.yaml
+
 
 [V] YAML validation
 [X] Kubernetes schema validation
