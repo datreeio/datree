@@ -72,6 +72,15 @@ func TestDefaultRulesHasUniqueIDsInRules(t *testing.T) {
 	assert.Nil(t, uniquenessValidationError)
 }
 
+func TestDefaultRulesHasUniqueDocumentationUrlsInRules(t *testing.T) {
+	defaultRulesMap, conversionToMapError := convertYamlFileToMap(defaultRulesFileContent)
+	assert.Nil(t, conversionToMapError)
+
+	uniquenessValidationError := validateDocumentationUrlUniquenessInRules(defaultRulesMap.Rules)
+
+	assert.Nil(t, uniquenessValidationError)
+}
+
 func getFileFromPath(path string) (string, error) {
 	fileReader := fileReader.CreateFileReader(nil)
 	fileContent, readFileError := fileReader.ReadFileContent(path)
@@ -147,6 +156,20 @@ func validateIDUniquenessInRules(rules []DefaultRuleDefinition) error {
 		}
 
 		propertyValuesExistenceMap[item.ID] = true
+	}
+
+	return nil
+}
+
+func validateDocumentationUrlUniquenessInRules(rules []DefaultRuleDefinition) error {
+	propertyValuesExistenceMap := make(map[string]bool)
+
+	for _, item := range rules {
+		if propertyValuesExistenceMap[item.DocumentationUrl] {
+			return fmt.Errorf("duplicate id found: %d", item.ID)
+		}
+
+		propertyValuesExistenceMap[item.DocumentationUrl] = true
 	}
 
 	return nil

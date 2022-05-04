@@ -9,15 +9,15 @@
     },
     "rules": {
       "type": "array",
-      "minItems": 44,
-      "maxItems": 44,
+      "minItems": 53,
+      "maxItems": 53,
       "items": {
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
             "minimum": 1,
-            "maximum": 44
+            "maximum": 53
           },
           "name": {
             "type": "string",
@@ -51,7 +51,8 @@
               "Security",
               "Other",
               "Custom",
-              "Argo"
+              "Argo",
+              "NSA"
             ]
           },
           "schema": {
