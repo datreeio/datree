@@ -6,9 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
@@ -109,6 +111,7 @@ var ViolationsFoundError = errors.New("")
 
 type CliClient interface {
 	RequestEvaluationPrerunData(token string, isCi bool) (*cliClient.EvaluationPrerunDataResponse, error)
+	AddFlags(flags map[string]interface{})
 }
 
 type TestCommandData struct {
@@ -137,6 +140,7 @@ type TestCommandContext struct {
 	Reader         Reader
 	CliClient      CliClient
 	FilesExtractor files.FilesExtractorInterface
+	StartTime      time.Time
 }
 
 func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
@@ -196,6 +200,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				return err
 			}
 
+			ctx.CliClient.AddFlags(testCommandFlags.ToMapping())
 			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ctx.CiContext.IsCI)
 			saveDefaultRulesAsFile(ctx, evaluationPrerunData.DefaultRulesYaml)
 
@@ -217,6 +222,19 @@ func New(ctx *TestCommandContext) *cobra.Command {
 	}
 	testCommandFlags.AddFlags(testCommand)
 	return testCommand
+}
+
+func (flags *TestCommandFlags) ToMapping() map[string]interface{} {
+	val := reflect.Indirect(reflect.ValueOf(flags))
+	fieldsAmount := val.Type().NumField()
+	flagsByString := make(map[string]interface{})
+
+	for i := 0; i < fieldsAmount; i++ {
+		field := val.Type().Field(i)
+		flagsByString[field.Name] = val.Field(i).Interface()
+	}
+
+	return flagsByString
 }
 
 // AddFlags registers flags for a cli
@@ -495,20 +513,23 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}
 
 	ciContext := ciContext.Extract()
-
+	endEvaluationTime := time.Now()
+	EvaluationDurationSeconds := endEvaluationTime.Sub(ctx.StartTime).Seconds()
 	evaluationRequestData := evaluation.EvaluationRequestData{
-		Token:              prerunData.Token,
-		ClientId:           prerunData.ClientId,
-		CliVersion:         ctx.CliVersion,
-		K8sVersion:         prerunData.K8sVersion,
-		PolicyName:         policyName,
-		CiContext:          ciContext,
-		RulesData:          policyCheckResultData.RulesData,
-		FilesData:          policyCheckResultData.FilesData,
-		FailedYamlFiles:    failedYamlFiles,
-		FailedK8sFiles:     failedK8sFiles,
-		PolicyCheckResults: policyCheckResultData.RawResults,
+		Token:                     prerunData.Token,
+		ClientId:                  prerunData.ClientId,
+		CliVersion:                ctx.CliVersion,
+		K8sVersion:                prerunData.K8sVersion,
+		PolicyName:                policyName,
+		CiContext:                 ciContext,
+		RulesData:                 policyCheckResultData.RulesData,
+		FilesData:                 policyCheckResultData.FilesData,
+		FailedYamlFiles:           failedYamlFiles,
+		FailedK8sFiles:            failedK8sFiles,
+		PolicyCheckResults:        policyCheckResultData.RawResults,
+		EvaluationDurationSeconds: EvaluationDurationSeconds,
 	}
+
 	sendEvaluationResultsResponse, err := ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
 
 	if err != nil {

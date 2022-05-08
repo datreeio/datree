@@ -75,17 +75,18 @@ func TestSendEvaluationResult(t *testing.T) {
 		expectedSendEvaluationResultsResponse := &cliClient.SendEvaluationResultsResponse{EvaluationId: 1, PromptMessage: promptMessage}
 
 		evaluationRequestData := EvaluationRequestData{
-			Token:              token,
-			ClientId:           clientId,
-			CliVersion:         cliVersion,
-			K8sVersion:         k8sVersion,
-			PolicyName:         policyName,
-			CiContext:          ciContext,
-			RulesData:          []cliClient.RuleData{},
-			FilesData:          []cliClient.FileData{},
-			FailedYamlFiles:    []string{},
-			FailedK8sFiles:     []string{},
-			PolicyCheckResults: nil,
+			Token:                     token,
+			ClientId:                  clientId,
+			CliVersion:                cliVersion,
+			K8sVersion:                k8sVersion,
+			PolicyName:                policyName,
+			CiContext:                 ciContext,
+			RulesData:                 []cliClient.RuleData{},
+			FilesData:                 []cliClient.FileData{},
+			FailedYamlFiles:           []string{},
+			FailedK8sFiles:            []string{},
+			PolicyCheckResults:        nil,
+			EvaluationDurationSeconds: 0,
 		}
 
 		sendEvaluationResultsResponse, _ := evaluator.SendEvaluationResult(evaluationRequestData)
@@ -96,11 +97,12 @@ func TestSendEvaluationResult(t *testing.T) {
 			Token:      evaluationRequestData.Token,
 			PolicyName: evaluationRequestData.PolicyName,
 			Metadata: &cliClient.Metadata{
-				CliVersion:      evaluationRequestData.CliVersion,
-				Os:              osInfo.OS,
-				PlatformVersion: osInfo.PlatformVersion,
-				KernelVersion:   osInfo.KernelVersion,
-				CIContext:       evaluationRequestData.CiContext,
+				CliVersion:                evaluationRequestData.CliVersion,
+				Os:                        osInfo.OS,
+				PlatformVersion:           osInfo.PlatformVersion,
+				KernelVersion:             osInfo.KernelVersion,
+				CIContext:                 evaluationRequestData.CiContext,
+				EvaluationDurationSeconds: evaluationRequestData.EvaluationDurationSeconds,
 			},
 			FailedYamlFiles:    evaluationRequestData.FailedYamlFiles,
 			FailedK8sFiles:     evaluationRequestData.FailedK8sFiles,

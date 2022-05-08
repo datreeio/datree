@@ -174,6 +174,9 @@ func (c *CliClientMock) RequestEvaluationPrerunData(token string, isCi bool) (*c
 	return args.Get(0).(*cliClient.EvaluationPrerunDataResponse), nil
 }
 
+func (c *CliClientMock) AddFlags(flags map[string]interface{}) {
+}
+
 type ReaderMock struct {
 	mock.Mock
 }
@@ -690,6 +693,7 @@ func setup() {
 
 	mockedCliClient = &CliClientMock{}
 	mockedCliClient.On("RequestEvaluationPrerunData", mock.Anything).Return(prerunData, nil)
+	mockedCliClient.On("AddFlags", mock.Anything).Return()
 
 	ciContext := &ciContext.CIContext{
 		IsCI: false,
