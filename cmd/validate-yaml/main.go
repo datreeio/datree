@@ -5,32 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/datreeio/datree/bl/evaluation"
-	"github.com/datreeio/datree/bl/files"
-	"github.com/datreeio/datree/bl/messager"
-	"github.com/datreeio/datree/bl/validation"
-	"github.com/datreeio/datree/pkg/ciContext"
-	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/extractor"
-	"github.com/datreeio/datree/pkg/localConfig"
+	pkgExtractor "github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/spf13/cobra"
 )
-
-type Evaluator interface {
-	Evaluate(policyCheckData evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error)
-	SendEvaluationResult(evaluationRequestData evaluation.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error)
-}
-
-type Messager interface {
-	LoadVersionMessages(cliVersion string) chan *messager.VersionMessage
-}
-
-type K8sValidator interface {
-	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *validation.FileWithWarning)
-	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
-	GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations)
-}
 
 type IPrinter interface {
 	PrintFilename(title string)
@@ -39,30 +17,18 @@ type IPrinter interface {
 	PrintMessage(messageText string, messageColor string)
 }
 
-type Reader interface {
+type IReader interface {
 	FilterFiles(paths []string) ([]string, error)
 }
 
-type LocalConfig interface {
-	GetLocalConfiguration() (*localConfig.LocalConfig, error)
-}
-
-type CliClient interface {
-	RequestEvaluationPrerunData(token string, isCi bool) (*cliClient.EvaluationPrerunDataResponse, error)
-	AddFlags(flags map[string]interface{})
+type IExtractor interface {
+	ExtractConfigurationsFromYamlFile(path string) (*[]pkgExtractor.Configuration, string, *pkgExtractor.InvalidFile)
 }
 
 type ValidateYamlCommandContext struct {
-	CliVersion     string
-	CiContext      *ciContext.CIContext
-	LocalConfig    LocalConfig
-	Evaluator      Evaluator
-	Messager       Messager
-	K8sValidator   K8sValidator
-	Printer        IPrinter
-	Reader         Reader
-	CliClient      CliClient
-	FilesExtractor files.FilesExtractorInterface
+	Printer   IPrinter
+	Reader    IReader
+	Extractor IExtractor
 }
 
 var YamlNotValidError = errors.New("")
@@ -99,7 +65,6 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 					ctx.Printer.PrintMessage(strings.Join([]string{"\n", err.Error(), "\n"}, ""), "error")
 				}
 			}()
-			var invalidYamlFiles []*extractor.InvalidFile
 
 			filesPaths, err := ctx.Reader.FilterFiles(args)
 			if err != nil {
@@ -112,23 +77,8 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 				return err
 			}
 
-			// validate files
-			for _, filePath := range filesPaths {
-				_, _, invalidYamlFile := extractor.ExtractConfigurationsFromYamlFile(filePath)
-				if invalidYamlFile != nil {
-					invalidYamlFiles = append(invalidYamlFiles, invalidYamlFile)
-				}
-			}
-
-			// print files with errors
-			for _, invalidYamlFile := range invalidYamlFiles {
-				ctx.Printer.PrintFilename(invalidYamlFile.Path)
-				ctx.Printer.PrintYamlValidationErrors(invalidYamlFile.ValidationErrors)
-			}
-
-			// print summary
-			validFilesCount := filesCount - len(invalidYamlFiles)
-			ctx.Printer.PrintYamlValidationSummary(validFilesCount, filesCount)
+			invalidYamlFiles := ValidateFiles(ctx.Extractor, filesPaths)
+			PrintValidationResults(ctx.Printer, invalidYamlFiles, filesCount)
 
 			if len(invalidYamlFiles) > 0 {
 				return YamlNotValidError
@@ -137,4 +87,27 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+func ValidateFiles(extractor IExtractor, filesPaths []string) []*pkgExtractor.InvalidFile {
+	var invalidYamlFiles []*pkgExtractor.InvalidFile
+	for _, filePath := range filesPaths {
+		_, _, invalidYamlFile := extractor.ExtractConfigurationsFromYamlFile(filePath)
+		if invalidYamlFile != nil {
+			invalidYamlFiles = append(invalidYamlFiles, invalidYamlFile)
+		}
+	}
+
+	return invalidYamlFiles
+}
+
+func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.InvalidFile, filesCount int) {
+	for _, invalidFile := range invalidFiles {
+		printer.PrintFilename(invalidFile.Path)
+		printer.PrintYamlValidationErrors(invalidFile.ValidationErrors)
+	}
+
+	// print summary
+	validFilesCount := filesCount - len(invalidFiles)
+	printer.PrintYamlValidationSummary(validFilesCount, filesCount)
 }
