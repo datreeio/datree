@@ -50,7 +50,7 @@ func New(ctx *JSONSchemaValidatorCommandContext) *cobra.Command {
 		Hidden: true,
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 2 {
-				errMessage := "Requires 2 args\n"
+				errMessage := "requires 2 args"
 				return fmt.Errorf(errMessage)
 			}
 			return nil

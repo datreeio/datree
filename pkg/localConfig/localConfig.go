@@ -220,8 +220,8 @@ func setViperVariable(key string, value string) error {
 
 func validateKeyValueConfig(key string, value string) error {
 	if key == "offline" && value != "fail" && value != "local" {
-		return fmt.Errorf("Invalid offline configuration value- %q\n"+
-			"Valid offline values are - fail, local\n", value)
+		return fmt.Errorf("invalid offline configuration value- %q\n"+
+			"Valid offline values are - fail, local", value)
 	}
 	return nil
 }
