@@ -53,6 +53,7 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 		# Validate yaml files by sending manifests through stdin
 		cat kube-prod/deployment.yaml | datree validate-yaml -
 		`),
+		Hidden: true,
 		Args: func(cmd *cobra.Command, args []string) error {
 			return nil
 		},
