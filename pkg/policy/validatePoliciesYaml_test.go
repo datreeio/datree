@@ -14,11 +14,27 @@ func Test_customRulesNull(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+//go:embed validatePoliciesYamlFixtures/policyRulesNull.yaml
+var policyRulesNull string
+
+func Test_policyRulesNull(t *testing.T) {
+	err := validatePoliciesYaml([]byte(policyRulesNull), "./validatePoliciesYamlFixtures/policyRulesNull.yaml")
+	assert.Nil(t, err)
+}
+
 //go:embed validatePoliciesYamlFixtures/missingCustomRules.yaml
 var missingCustomRules string
 
 func Test_missingCustomRules(t *testing.T) {
 	err := validatePoliciesYaml([]byte(missingCustomRules), "./validatePoliciesYamlFixtures/missingCustomRules.yaml")
+	assert.Nil(t, err)
+}
+
+//go:embed validatePoliciesYamlFixtures/missingPolicyRules.yaml
+var missingPolicyRules string
+
+func Test_missingPolicyRules(t *testing.T) {
+	err := validatePoliciesYaml([]byte(missingPolicyRules), "./validatePoliciesYamlFixtures/missingPolicyRules.yaml")
 	assert.Nil(t, err)
 }
 

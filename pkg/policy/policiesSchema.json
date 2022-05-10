@@ -25,7 +25,10 @@
             "type": "boolean"
           },
           "rules": {
-            "type": "array",
+            "type": [
+              "array",
+              "null"
+            ],
             "uniqueItems": true,
             "items": {
               "type": "object",
