@@ -72,10 +72,10 @@ func Test_customRuleMissingIdentifier(t *testing.T) {
 	assert.EqualError(t, err, "found errors in policies file ./validatePoliciesYamlFixtures/customRuleMissingIdentifier.yaml:\n(root)/customRules/0: missing properties: 'identifier'")
 }
 
-//go:embed validatePoliciesYamlFixtures/customRuleMissingIdentifier.yaml
-var customRuleMissingIdentifier string
+//go:embed validatePoliciesYamlFixtures/customRuleMissingName.yaml
+var customRuleMissingName string
 
-func Test_customRuleMissingIdentifier(t *testing.T) {
-	err := validatePoliciesYaml([]byte(customRuleMissingIdentifier), "./validatePoliciesYamlFixtures/customRuleMissingIdentifier.yaml")
-	assert.EqualError(t, err, "found errors in policies file ./validatePoliciesYamlFixtures/customRuleMissingIdentifier.yaml:\n(root)/customRules/0: missing properties: 'identifier'")
+func Test_customRuleMissingName(t *testing.T) {
+	err := validatePoliciesYaml([]byte(customRuleMissingName), "./validatePoliciesYamlFixtures/customRuleMissingName.yaml")
+	assert.EqualError(t, err, "found errors in policies file ./validatePoliciesYamlFixtures/customRuleMissingName.yaml:\n(root)/customRules/0: missing properties: 'name'")
 }
