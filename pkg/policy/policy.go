@@ -85,7 +85,7 @@ func validatePoliciesYaml(content []byte, policyYamlPath string) error {
 		validationErrors := fmt.Errorf("found errors in policies file %s:", policyYamlPath)
 
 		for _, validationError := range errorsResult {
-			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError.Error)
+			validationErrors = fmt.Errorf("%s\n(root)%s: %s", validationErrors, validationError.InstanceLocation, validationError.Error)
 		}
 
 		return validationErrors
