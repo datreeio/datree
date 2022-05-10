@@ -2,8 +2,9 @@ package policy
 
 import (
 	_ "embed"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 //go:embed validatePoliciesYamlFixtures/customRulesNull.yaml
