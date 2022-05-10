@@ -79,3 +79,11 @@ func Test_customRuleMissingName(t *testing.T) {
 	err := validatePoliciesYaml([]byte(customRuleMissingName), "./validatePoliciesYamlFixtures/customRuleMissingName.yaml")
 	assert.EqualError(t, err, "found errors in policies file ./validatePoliciesYamlFixtures/customRuleMissingName.yaml:\n(root)/customRules/0: missing properties: 'name'")
 }
+
+//go:embed validatePoliciesYamlFixtures/customRuleMissingDefaultMessageOnFailure.yaml
+var customRuleMissingDefaultMessageOnFailure string
+
+func Test_customRuleMissingDefaultMessageOnFailure(t *testing.T) {
+	err := validatePoliciesYaml([]byte(customRuleMissingDefaultMessageOnFailure), "./validatePoliciesYamlFixtures/customRuleMissingDefaultMessageOnFailure.yaml")
+	assert.EqualError(t, err, "found errors in policies file ./validatePoliciesYamlFixtures/customRuleMissingDefaultMessageOnFailure.yaml:\n(root)/customRules/0: missing properties: 'defaultMessageOnFailure'")
+}
