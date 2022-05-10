@@ -95,11 +95,3 @@ func Test_customRuleValidSchema(t *testing.T) {
 	err := validatePoliciesYaml([]byte(customRuleValidSchema), "./validatePoliciesYamlFixtures/customRuleValidSchema.yaml")
 	assert.Nil(t, err)
 }
-
-//go:embed validatePoliciesYamlFixtures/customRuleInvalidSchema.yaml
-var customRuleInvalidSchema string
-
-func Test_customRuleInvalidSchema(t *testing.T) {
-	err := validatePoliciesYaml([]byte(customRuleInvalidSchema), "./validatePoliciesYamlFixtures/customRuleInvalidSchema.yaml")
-	assert.Nil(t, err)
-}
