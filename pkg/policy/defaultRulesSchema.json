@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
   "type": "object",
   "properties": {
     "apiVersion": {
@@ -60,17 +61,17 @@
           }
         }
       },
-        "required": [
-          "id",
-          "name",
-          "uniqueName",
-          "enabledByDefault",
-          "documentationUrl",
-          "messageOnFailure",
-          "category",
-          "schema"
-        ]
-      }
+      "required": [
+        "id",
+        "name",
+        "uniqueName",
+        "enabledByDefault",
+        "documentationUrl",
+        "messageOnFailure",
+        "category",
+        "schema"
+      ]
+    }
   },
   "required": [
     "apiVersion",

@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
   "type": "object",
   "properties": {
     "apiVersion": {
@@ -24,7 +25,10 @@
             "type": "boolean"
           },
           "rules": {
-            "type": "array",
+            "type": [
+              "array",
+              "null"
+            ],
             "uniqueItems": true,
             "items": {
               "type": "object",
@@ -48,7 +52,10 @@
       }
     },
     "customRules": {
-      "type": "array",
+      "type": [
+        "array",
+        "null"
+      ],
       "items": {
         "type": "object",
         "properties": {
