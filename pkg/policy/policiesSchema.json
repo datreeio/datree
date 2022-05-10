@@ -49,7 +49,10 @@
       }
     },
     "customRules": {
-      "type": "array",
+      "type": [
+        "array",
+        "null"
+      ],
       "items": {
         "type": "object",
         "properties": {
