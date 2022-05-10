@@ -53,3 +53,11 @@ func Test_missingPolicyName(t *testing.T) {
 	err := validatePoliciesYaml([]byte(missingPolicyName), "./validatePoliciesYamlFixtures/missingPolicyName.yaml")
 	assert.EqualError(t, err, "found errors in policies file ./validatePoliciesYamlFixtures/missingPolicyName.yaml:\n(root)/policies/0: missing properties: 'name'")
 }
+
+//go:embed validatePoliciesYamlFixtures/wrongApiVersion.yaml
+var wrongApiVersion string
+
+func Test_wrongApiVersion(t *testing.T) {
+	err := validatePoliciesYaml([]byte(wrongApiVersion), "./validatePoliciesYamlFixtures/wrongApiVersion.yaml")
+	assert.EqualError(t, err, "found errors in policies file ./validatePoliciesYamlFixtures/wrongApiVersion.yaml:\n(root)/apiVersion: value must be \"v1\"")
+}
