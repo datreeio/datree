@@ -87,3 +87,19 @@ func Test_customRuleMissingDefaultMessageOnFailure(t *testing.T) {
 	err := validatePoliciesYaml([]byte(customRuleMissingDefaultMessageOnFailure), "./validatePoliciesYamlFixtures/customRuleMissingDefaultMessageOnFailure.yaml")
 	assert.EqualError(t, err, "found errors in policies file ./validatePoliciesYamlFixtures/customRuleMissingDefaultMessageOnFailure.yaml:\n(root)/customRules/0: missing properties: 'defaultMessageOnFailure'")
 }
+
+//go:embed validatePoliciesYamlFixtures/customRuleValidSchema.yaml
+var customRuleValidSchema string
+
+func Test_customRuleValidSchema(t *testing.T) {
+	err := validatePoliciesYaml([]byte(customRuleValidSchema), "./validatePoliciesYamlFixtures/customRuleValidSchema.yaml")
+	assert.Nil(t, err)
+}
+
+//go:embed validatePoliciesYamlFixtures/customRuleInvalidSchema.yaml
+var customRuleInvalidSchema string
+
+func Test_customRuleInvalidSchema(t *testing.T) {
+	err := validatePoliciesYaml([]byte(customRuleInvalidSchema), "./validatePoliciesYamlFixtures/customRuleInvalidSchema.yaml")
+	assert.Nil(t, err)
+}

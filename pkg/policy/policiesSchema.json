@@ -73,7 +73,8 @@
             "type": "string"
           },
           "schema": {
-            "type": "object"
+            "$ref": "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.23.6/_definitions.json#/definitions/io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1.CustomResourceDefinitionSpec",
+            "description": "openAPIV3Schema is the OpenAPI v3 schema to use for validation and pruning."
           }
         },
         "required": [
