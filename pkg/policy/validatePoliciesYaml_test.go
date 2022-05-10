@@ -61,3 +61,21 @@ func Test_wrongApiVersion(t *testing.T) {
 	err := validatePoliciesYaml([]byte(wrongApiVersion), "./validatePoliciesYamlFixtures/wrongApiVersion.yaml")
 	assert.EqualError(t, err, "found errors in policies file ./validatePoliciesYamlFixtures/wrongApiVersion.yaml:\n(root)/apiVersion: value must be \"v1\"")
 }
+
+// customRule
+
+//go:embed validatePoliciesYamlFixtures/customRuleMissingIdentifier.yaml
+var customRuleMissingIdentifier string
+
+func Test_customRuleMissingIdentifier(t *testing.T) {
+	err := validatePoliciesYaml([]byte(customRuleMissingIdentifier), "./validatePoliciesYamlFixtures/customRuleMissingIdentifier.yaml")
+	assert.EqualError(t, err, "found errors in policies file ./validatePoliciesYamlFixtures/customRuleMissingIdentifier.yaml:\n(root)/customRules/0: missing properties: 'identifier'")
+}
+
+//go:embed validatePoliciesYamlFixtures/customRuleMissingIdentifier.yaml
+var customRuleMissingIdentifier string
+
+func Test_customRuleMissingIdentifier(t *testing.T) {
+	err := validatePoliciesYaml([]byte(customRuleMissingIdentifier), "./validatePoliciesYamlFixtures/customRuleMissingIdentifier.yaml")
+	assert.EqualError(t, err, "found errors in policies file ./validatePoliciesYamlFixtures/customRuleMissingIdentifier.yaml:\n(root)/customRules/0: missing properties: 'identifier'")
+}
