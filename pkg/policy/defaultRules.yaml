@@ -1,3 +1,5 @@
+# for autocompletion in VS Code
+# yaml-language-server: $schema=./defaultRulesSchema.json
 apiVersion: v1
 aliases:
   - &standardKinds

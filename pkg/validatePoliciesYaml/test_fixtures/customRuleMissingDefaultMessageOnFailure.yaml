@@ -1,0 +1,12 @@
+apiVersion: v1
+policies:
+  - name: Default
+    isDefault: true
+    rules:
+customRules:
+  - identifier: PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION
+    name: pods to undergo least voluntary disruption
+    schema:
+      type: object
+      required:
+        - spec

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JsonSchemaMappingsProjectConfiguration">
+    <state>
+      <map>
+        <entry key="defaultRulesSchema">
+          <value>
+            <SchemaInfo>
+              <option name="name" value="defaultRulesSchema" />
+              <option name="relativePathToSchema" value="pkg/policy/defaultRulesSchema.json" />
+              <option name="schemaVersion" value="JSON Schema version 7" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="pkg/policy/defaultRules.yaml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="policiesSchema">
+          <value>
+            <SchemaInfo>
+              <option name="name" value="policiesSchema" />
+              <option name="relativePathToSchema" value="pkg/validatePoliciesYaml/policiesSchema.json" />
+              <option name="schemaVersion" value="JSON Schema version 7" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="internal/fixtures/policyAsCode/policies.yaml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+      </map>
+    </state>
+  </component>
+</project>

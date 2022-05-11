@@ -2,22 +2,19 @@ package policy
 
 import (
 	_ "embed"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"github.com/datreeio/datree/pkg/validatePoliciesYaml"
+
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/fileReader"
-	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/ghodss/yaml"
 )
 
 //go:embed defaultRules.yaml
 var embeddedDefaultRulesYamlContent string
-
-//go:embed policiesSchema.json
-var policiesSchemaContent string
 
 type DefaultRulesDefinitions struct {
 	ApiVersion string                   `yaml:"apiVersion"`
@@ -53,7 +50,7 @@ func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, 
 
 	policiesStrBytes := []byte(policiesStr)
 
-	err = validatePoliciesYaml(policiesStrBytes, path)
+	err = validatePoliciesYaml.ValidatePoliciesYaml(policiesStrBytes, path)
 	if err != nil {
 		return nil, err
 	}
@@ -70,28 +67,6 @@ func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, 
 	}
 
 	return policies, nil
-}
-
-func validatePoliciesYaml(content []byte, policyYamlPath string) error {
-	jsonSchemaValidator := jsonSchemaValidator.New()
-	jsonContent, _ := yaml.YAMLToJSON(content)
-	errorsResult, err := jsonSchemaValidator.Validate(policiesSchemaContent, jsonContent)
-
-	if err != nil {
-		return err
-	}
-
-	if errorsResult != nil {
-		validationErrors := fmt.Errorf("found errors in policies file %s:", policyYamlPath)
-
-		for _, validationError := range errorsResult {
-			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError.Error)
-		}
-
-		return validationErrors
-	}
-
-	return nil
 }
 
 func yamlToStruct(content string) (*DefaultRulesDefinitions, error) {

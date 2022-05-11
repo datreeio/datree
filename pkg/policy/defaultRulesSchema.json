@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "apiVersion": {
@@ -56,21 +57,22 @@
             ]
           },
           "schema": {
-            "type": "object"
+            "$ref": "http://json-schema.org/draft-07/schema#",
+            "description": "schema is the logic of the rule, should be a yaml schema as specified in http://json-schema.org/draft-07/schema#"
           }
         }
       },
-        "required": [
-          "id",
-          "name",
-          "uniqueName",
-          "enabledByDefault",
-          "documentationUrl",
-          "messageOnFailure",
-          "category",
-          "schema"
-        ]
-      }
+      "required": [
+        "id",
+        "name",
+        "uniqueName",
+        "enabledByDefault",
+        "documentationUrl",
+        "messageOnFailure",
+        "category",
+        "schema"
+      ]
+    }
   },
   "required": [
     "apiVersion",
