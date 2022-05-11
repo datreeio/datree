@@ -1,3 +1,4 @@
+# for autocompletion in VS Code
 # yaml-language-server: $schema=./defaultRulesSchema.json
 apiVersion: v1
 aliases:
@@ -1281,7 +1282,7 @@ rules:
     name: Prevent containers from allowing command execution
     uniqueName: CONTAINERS_INCORRECT_RESOURCES_VERBS_VALUE
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-allowing-command-execution'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-allowing-command-execution"
     messageOnFailure: "Incorrect value for key `resources` and/or `verbs` - allowing containers to run the exec command can be exploited by attackers"
     category: NSA
     schema:
@@ -1315,7 +1316,7 @@ rules:
     name: Prevent containers from having insecure capabilities
     uniqueName: CONTAINERS_INVALID_CAPABILITIES_VALUE
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-insecure-capabilities'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-insecure-capabilities"
     messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
     category: NSA
     schema:
@@ -1360,7 +1361,7 @@ rules:
     name: Prevent containers from insecurely exposing workload
     uniqueName: CONTAINERS_INCORRECT_KEY_HOSTPORT
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-insecurely-exposing-workload'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-insecurely-exposing-workload"
     messageOnFailure: "Incorrect key `hostPort` - refrain from using this key to prevent insecurely exposing your workload"
     category: NSA
     schema:
@@ -1390,7 +1391,7 @@ rules:
     name: Prevent containers from accessing host files by using high GIDs
     uniqueName: CONTAINERS_INCORRECT_RUNASGROUP_VALUE_LOWGID
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-accessing-host-files-by-using-high-gids'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-accessing-host-files-by-using-high-gids"
     messageOnFailure: "Invalid value for key `runAsGroup` - must be greater than 999 to ensure container is running with non-root group membership"
     category: NSA
     schema:
@@ -1433,7 +1434,7 @@ rules:
     name: Prevent container from running with root privileges
     uniqueName: CONTAINERS_INCORRECT_RUNASNONROOT_VALUE
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-running-with-root-privileges'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-running-with-root-privileges"
     messageOnFailure: "Invalid value for key `runAsNonRoot` - must be set to `true` to prevent unnecessary privileges"
     category: NSA
     schema:
@@ -1481,7 +1482,7 @@ rules:
     name: Prevent service account token auto-mounting on pods
     uniqueName: SRVACC_INCORRECT_AUTOMOUNTSERVICEACCOUNTTOKEN_VALUE
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-service-account-token-auto-mount'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-service-account-token-auto-mount"
     messageOnFailure: "Invalid value for key `automountServiceAccountToken` - must be set to `false` to prevent granting unnecessary access to the service account"
     category: NSA
     schema:
