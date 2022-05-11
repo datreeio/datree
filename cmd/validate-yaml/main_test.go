@@ -124,9 +124,6 @@ func TestInvalidYaml(t *testing.T) {
 }
 
 func TestValidYaml(t *testing.T) {
-	// mockedExtractor := &MockExtractor{}
-	// mockedExtractor.On("ExtractConfigurationsFromYamlFile", mock.Anything).Return(nil, "", nil)
-
 	mockedFileReader, mockedPrinter, mockedExtractor := createMocks()
 	cmd := createCommand(mockedFileReader, mockedPrinter, mockedExtractor)
 
