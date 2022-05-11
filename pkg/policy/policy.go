@@ -2,7 +2,7 @@ package policy
 
 import (
 	_ "embed"
-	policy "github.com/datreeio/datree/pkg/policy/validatePoliciesYaml"
+	"github.com/datreeio/datree/pkg/validatePoliciesYaml"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -49,7 +49,7 @@ func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, 
 
 	policiesStrBytes := []byte(policiesStr)
 
-	err = policy.ValidatePoliciesYaml(policiesStrBytes, path)
+	err = validatePoliciesYaml.ValidatePoliciesYaml(policiesStrBytes, path)
 	if err != nil {
 		return nil, err
 	}
