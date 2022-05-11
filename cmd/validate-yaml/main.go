@@ -5,30 +5,19 @@ import (
 	"fmt"
 	"strings"
 
-	pkgExtractor "github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/utils"
+	"github.com/datreeio/datree/pkg/yamlValidator"
 	"github.com/spf13/cobra"
 )
-
-type IPrinter interface {
-	PrintFilename(title string)
-	PrintYamlValidationErrors(validationErrors []error)
-	PrintYamlValidationSummary(passedFiles int, allFiles int)
-	PrintMessage(messageText string, messageColor string)
-}
 
 type IReader interface {
 	FilterFiles(paths []string) ([]string, error)
 }
 
-type IExtractor interface {
-	ExtractConfigurationsFromYamlFile(path string) (*[]pkgExtractor.Configuration, string, *pkgExtractor.InvalidFile)
-}
-
 type ValidateYamlCommandContext struct {
-	Printer   IPrinter
+	Printer   yamlValidator.IPrinter
 	Reader    IReader
-	Extractor IExtractor
+	Extractor yamlValidator.IExtractor
 }
 
 var YamlNotValidError = errors.New("")
@@ -78,8 +67,8 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 				return err
 			}
 
-			invalidYamlFiles := ValidateFiles(ctx.Extractor, filesPaths)
-			PrintValidationResults(ctx.Printer, invalidYamlFiles, filesCount)
+			invalidYamlFiles := yamlValidator.ValidateFiles(ctx.Extractor, filesPaths)
+			yamlValidator.PrintValidationResults(ctx.Printer, invalidYamlFiles, filesCount)
 
 			if len(invalidYamlFiles) > 0 {
 				return YamlNotValidError
@@ -88,27 +77,4 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 			return nil
 		},
 	}
-}
-
-func ValidateFiles(extractor IExtractor, filesPaths []string) []*pkgExtractor.InvalidFile {
-	var invalidYamlFiles []*pkgExtractor.InvalidFile
-	for _, filePath := range filesPaths {
-		_, _, invalidYamlFile := extractor.ExtractConfigurationsFromYamlFile(filePath)
-		if invalidYamlFile != nil {
-			invalidYamlFiles = append(invalidYamlFiles, invalidYamlFile)
-		}
-	}
-
-	return invalidYamlFiles
-}
-
-func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.InvalidFile, filesCount int) {
-	for _, invalidFile := range invalidFiles {
-		printer.PrintFilename(invalidFile.Path)
-		printer.PrintYamlValidationErrors(invalidFile.ValidationErrors)
-	}
-
-	// print summary
-	validFilesCount := filesCount - len(invalidFiles)
-	printer.PrintYamlValidationSummary(validFilesCount, filesCount)
 }
