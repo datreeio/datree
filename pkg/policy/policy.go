@@ -2,10 +2,11 @@ package policy
 
 import (
 	_ "embed"
-	"github.com/datreeio/datree/pkg/validatePoliciesYaml"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/datreeio/datree/pkg/validatePoliciesYaml"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/fileReader"

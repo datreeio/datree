@@ -3,6 +3,7 @@ package validatePoliciesYaml
 import (
 	_ "embed"
 	"fmt"
+
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/ghodss/yaml"
 )
