@@ -14,22 +14,22 @@ type MockExtractor struct {
 
 func (e *MockExtractor) ExtractConfigurationsFromYamlFile(path string) (*[]pkgExtractor.Configuration, string, *pkgExtractor.InvalidFile) {
 	args := e.Called(path)
-	var firstArgument *[]pkgExtractor.Configuration
-	var thirdArgument *pkgExtractor.InvalidFile
+	var configurations *[]pkgExtractor.Configuration
+	var invalidFile *pkgExtractor.InvalidFile
 
 	if args.Get(0) == nil {
-		firstArgument = nil
+		configurations = nil
 	} else {
-		firstArgument = args.Get(0).(*[]pkgExtractor.Configuration)
+		configurations = args.Get(0).(*[]pkgExtractor.Configuration)
 	}
 
 	if args.Get(2) == nil {
-		thirdArgument = nil
+		invalidFile = nil
 	} else {
-		thirdArgument = args.Get(2).(*pkgExtractor.InvalidFile)
+		invalidFile = args.Get(2).(*pkgExtractor.InvalidFile)
 	}
 
-	return firstArgument, args.String(1), thirdArgument
+	return configurations, args.String(1), invalidFile
 }
 
 func TestValidateFiles(t *testing.T) {
