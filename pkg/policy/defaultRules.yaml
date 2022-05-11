@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./defaultRulesSchema.json
 apiVersion: v1
 aliases:
   - &standardKinds
