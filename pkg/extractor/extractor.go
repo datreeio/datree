@@ -54,7 +54,7 @@ func ExtractConfigurationsFromYamlFile(path string) (*[]Configuration, string, *
 
 	configurations, err := ParseYaml(content)
 	if err != nil {
-		return nil, "", &InvalidFile{Path: absolutePath, ValidationErrors: []error{&InvalidYamlError{ErrorMessage: "file content is not valid yaml"}}}
+		return nil, "", &InvalidFile{Path: absolutePath, ValidationErrors: []error{&InvalidYamlError{ErrorMessage: err.Error()}}}
 	}
 
 	return configurations, absolutePath, nil
