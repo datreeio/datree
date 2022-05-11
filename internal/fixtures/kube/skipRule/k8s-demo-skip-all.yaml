@@ -8,11 +8,11 @@ metadata:
     environment: prod
     app: web
   annotations:
-    datree.io/skip/WORKLOAD_INVALID_LABELS_VALUE: skip 1 k8s-demo rule
-    datree.io/skip/CONTAINERS_MISSING_LIVENESSPROBE_KEY: skip 2 k8s-demo rule
-    datree.io/skip/CONTAINERS_MISSING_IMAGE_VALUE_VERSION: skip 3 k8s-demo rule
-    datree.io/skip/CONTAINERS_MISSING_MEMORY_LIMIT_KEY: skip 4 k8s-demo rule
-    datree.io/skip/SERVICE_INCORRECT_TYPE_VALUE_NODEPORT: skip rule that not exists
+    datree.skip/WORKLOAD_INVALID_LABELS_VALUE: skip 1 k8s-demo rule
+    datree.skip/CONTAINERS_MISSING_LIVENESSPROBE_KEY: skip 2 k8s-demo rule
+    datree.skip/CONTAINERS_MISSING_IMAGE_VALUE_VERSION: skip 3 k8s-demo rule
+    datree.skip/CONTAINERS_MISSING_MEMORY_LIMIT_KEY: skip 4 k8s-demo rule
+    datree.skip/SERVICE_INCORRECT_TYPE_VALUE_NODEPORT: skip rule that not exists
 spec:
   replicas: 2
   selector:

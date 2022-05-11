@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	SKIP_RULE_PREFIX string = "datree.io/skip/"
+	SKIP_RULE_PREFIX string = "datree.skip/"
 )
 
 type CLIClient interface {
