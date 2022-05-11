@@ -28,7 +28,7 @@
               <option name="patterns">
                 <list>
                   <Item>
-                    <option name="path" value="pkg/validatePoliciesYaml/test_fixtures/customRuleValidSchema.yaml" />
+                    <option name="path" value="internal/fixtures/policyAsCode/policies.yaml" />
                   </Item>
                 </list>
               </option>
