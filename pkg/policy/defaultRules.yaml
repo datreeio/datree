@@ -388,7 +388,7 @@ rules:
   - id: 14
     name: Ensure HPA has maximum replicas configured
     uniqueName: HPA_MISSING_MAXREPLICAS_KEY
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/ensure-hpa-maximum-replicas"
     messageOnFailure: "Missing property object `maxReplicas` - the value should be within the accepted boundaries recommended by the organization"
     category: Other
@@ -1516,3 +1516,37 @@ rules:
       allOf:
         - $ref: "#/definitions/podPattern"
         - $ref: "#/definitions/serviceAccountPattern"
+  - id: 54
+    name: Ensure resource has a configured name
+    uniqueName: RESOURCE_MISSING_NAME
+    enabledByDefault: true
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-resource-name"
+    messageOnFailure: "Missing key `name` or `generateName` - one of them must be set to apply resource to a cluster"
+    category: Other
+    schema:
+      definitions:
+        metadataNamePattern:
+          properties:
+            metadata:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+          required:
+            - metadata
+        metadataGenerateNamePattern:
+          properties:
+            metadata:
+              type: object
+              properties:
+                generateName:
+                  type: string
+              required:
+                - generateName
+          required:
+            - metadata
+      anyOf:
+        - $ref: "#/definitions/metadataNamePattern"
+        - $ref: "#/definitions/metadataGenerateNamePattern"
