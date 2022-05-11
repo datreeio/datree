@@ -386,7 +386,7 @@ rules:
   - id: 14
     name: Ensure HPA has maximum replicas configured
     uniqueName: HPA_MISSING_MAXREPLICAS_KEY
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/ensure-hpa-maximum-replicas"
     messageOnFailure: "Missing property object `maxReplicas` - the value should be within the accepted boundaries recommended by the organization"
     category: Other
@@ -1280,7 +1280,7 @@ rules:
     name: Prevent containers from allowing command execution
     uniqueName: CONTAINERS_INCORRECT_RESOURCES_VERBS_VALUE
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-allowing-command-execution'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-allowing-command-execution"
     messageOnFailure: "Incorrect value for key `resources` and/or `verbs` - allowing containers to run the exec command can be exploited by attackers"
     category: NSA
     schema:
@@ -1314,7 +1314,7 @@ rules:
     name: Prevent containers from having insecure capabilities
     uniqueName: CONTAINERS_INVALID_CAPABILITIES_VALUE
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-insecure-capabilities'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-insecure-capabilities"
     messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
     category: NSA
     schema:
@@ -1359,7 +1359,7 @@ rules:
     name: Prevent containers from insecurely exposing workload
     uniqueName: CONTAINERS_INCORRECT_KEY_HOSTPORT
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-insecurely-exposing-workload'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-insecurely-exposing-workload"
     messageOnFailure: "Incorrect key `hostPort` - refrain from using this key to prevent insecurely exposing your workload"
     category: NSA
     schema:
@@ -1389,7 +1389,7 @@ rules:
     name: Prevent containers from accessing host files by using high GIDs
     uniqueName: CONTAINERS_INCORRECT_RUNASGROUP_VALUE_LOWGID
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-accessing-host-files-by-using-high-gids'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-accessing-host-files-by-using-high-gids"
     messageOnFailure: "Invalid value for key `runAsGroup` - must be greater than 999 to ensure container is running with non-root group membership"
     category: NSA
     schema:
@@ -1432,7 +1432,7 @@ rules:
     name: Prevent container from running with root privileges
     uniqueName: CONTAINERS_INCORRECT_RUNASNONROOT_VALUE
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-running-with-root-privileges'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-running-with-root-privileges"
     messageOnFailure: "Invalid value for key `runAsNonRoot` - must be set to `true` to prevent unnecessary privileges"
     category: NSA
     schema:
@@ -1480,7 +1480,7 @@ rules:
     name: Prevent service account token auto-mounting on pods
     uniqueName: SRVACC_INCORRECT_AUTOMOUNTSERVICEACCOUNTTOKEN_VALUE
     enabledByDefault: false
-    documentationUrl: 'https://hub.datree.io/built-in-rules/prevent-service-account-token-auto-mount'
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-service-account-token-auto-mount"
     messageOnFailure: "Invalid value for key `automountServiceAccountToken` - must be set to `false` to prevent granting unnecessary access to the service account"
     category: NSA
     schema:
@@ -1514,3 +1514,37 @@ rules:
       allOf:
         - $ref: "#/definitions/podPattern"
         - $ref: "#/definitions/serviceAccountPattern"
+  - id: 54
+    name: Ensure resource has a configured name
+    uniqueName: RESOURCE_MISSING_NAME
+    enabledByDefault: true
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-resource-name"
+    messageOnFailure: "Missing key `name` or `generateName` - one of them must be set to apply resource to a cluster"
+    category: Other
+    schema:
+      definitions:
+        metadataNamePattern:
+          properties:
+            metadata:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+          required:
+            - metadata
+        metadataGenerateNamePattern:
+          properties:
+            metadata:
+              type: object
+              properties:
+                generateName:
+                  type: string
+              required:
+                - generateName
+          required:
+            - metadata
+      anyOf:
+        - $ref: "#/definitions/metadataNamePattern"
+        - $ref: "#/definitions/metadataGenerateNamePattern"
