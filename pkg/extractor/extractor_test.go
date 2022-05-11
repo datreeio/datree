@@ -88,7 +88,7 @@ func TestExtractConfigurationsFromYamlFile(t *testing.T) {
 
 		assert.Empty(t, configurations)
 		assert.Empty(t, absolutePath)
-		assert.Equal(t, "yaml validation error: file content is not valid yaml\n", err.ValidationErrors[0].Error())
+		assert.Equal(t, "yaml validation error: yaml: line 2: did not find expected key\n", err.ValidationErrors[0].Error())
 	})
 
 	t.Run("valid yaml file, should return a configuration and no error", func(t *testing.T) {
