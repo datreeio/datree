@@ -3,7 +3,7 @@ vendor
 datree
 .DS_STORE
 .vscode
-.idea
+.idea/*
 
 # macos code signing
 DatreeCli.cer
@@ -17,3 +17,6 @@ travis_wait*
 
 # 
 changelog.txt
+
+# don't ignore json schema config files
+!.idea/jsonSchemas.xml
