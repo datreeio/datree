@@ -68,6 +68,7 @@ type EvaluationRequestData struct {
 	FailedK8sFiles            []string
 	PolicyCheckResults        FailedRulesByFiles
 	EvaluationDurationSeconds float64
+	ExecutionEnvironment      string
 }
 
 var OSInfoFn = NewOSInfo
@@ -86,6 +87,7 @@ func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequest
 			KernelVersion:             osInfo.KernelVersion,
 			CIContext:                 evaluationRequestData.CiContext,
 			EvaluationDurationSeconds: evaluationRequestData.EvaluationDurationSeconds,
+			ExecutionEnvironment:      evaluationRequestData.ExecutionEnvironment,
 		},
 		FailedYamlFiles:    evaluationRequestData.FailedYamlFiles,
 		FailedK8sFiles:     evaluationRequestData.FailedK8sFiles,

@@ -29,6 +29,7 @@ type Metadata struct {
 	KernelVersion             string               `json:"kernelVersion"`
 	CIContext                 *ciContext.CIContext `json:"ciContext"`
 	EvaluationDurationSeconds float64              `json:"evaluationDurationSeconds"`
+	ExecutionEnvironment      string               `json:"executionEnvironment"`
 }
 
 type SendEvaluationResultsResponse struct {

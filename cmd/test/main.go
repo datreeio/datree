@@ -513,6 +513,13 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}
 
 	ciContext := ciContext.Extract()
+	// TODO add case for "K8S_CLUSTER"
+	var executionEnvironment string
+	if ciContext.IsCI {
+		executionEnvironment = "CI_SERVER"
+	} else {
+		executionEnvironment = "DEVELOPMENT"
+	}
 	endEvaluationTime := time.Now()
 	EvaluationDurationSeconds := endEvaluationTime.Sub(ctx.StartTime).Seconds()
 	evaluationRequestData := evaluation.EvaluationRequestData{
@@ -528,6 +535,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		FailedK8sFiles:            failedK8sFiles,
 		PolicyCheckResults:        policyCheckResultData.RawResults,
 		EvaluationDurationSeconds: EvaluationDurationSeconds,
+		ExecutionEnvironment:      executionEnvironment,
 	}
 
 	sendEvaluationResultsResponse, err := ctx.Evaluator.SendEvaluationResult(evaluationRequestData)
