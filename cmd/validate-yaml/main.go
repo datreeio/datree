@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	pkgExtractor "github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/datreeio/datree/pkg/yamlValidator"
 	"github.com/spf13/cobra"
@@ -14,8 +15,15 @@ type IReader interface {
 	FilterFiles(paths []string) ([]string, error)
 }
 
+type IPrinter interface {
+	PrintFilename(title string)
+	PrintYamlValidationErrors(validationErrors []error)
+	PrintYamlValidationSummary(passedFiles int, allFiles int)
+	PrintMessage(messageText string, messageColor string)
+}
+
 type ValidateYamlCommandContext struct {
-	Printer   yamlValidator.IPrinter
+	Printer   IPrinter
 	Reader    IReader
 	Extractor yamlValidator.IExtractor
 }
@@ -64,8 +72,12 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 				return err
 			}
 
-			invalidYamlFiles := yamlValidator.ValidateFiles(ctx.Extractor, filesPaths)
-			yamlValidator.PrintValidationResults(ctx.Printer, invalidYamlFiles, filesCount)
+			newYamlValidator := yamlValidator.New(&yamlValidator.YamlValidatorOptions{
+				Extractor: ctx.Extractor,
+			})
+
+			invalidYamlFiles := newYamlValidator.ValidateFiles(filesPaths)
+			PrintValidationResults(ctx.Printer, invalidYamlFiles, filesCount)
 
 			if len(invalidYamlFiles) > 0 {
 				return YamlNotValidError
@@ -74,4 +86,15 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.InvalidFile, filesCount int) {
+	for _, invalidFile := range invalidFiles {
+		printer.PrintFilename(invalidFile.Path)
+		printer.PrintYamlValidationErrors(invalidFile.ValidationErrors)
+	}
+
+	// print summary
+	validFilesCount := filesCount - len(invalidFiles)
+	printer.PrintYamlValidationSummary(validFilesCount, filesCount)
 }

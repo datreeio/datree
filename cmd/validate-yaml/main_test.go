@@ -81,7 +81,7 @@ func createMocks() (*MockFileReader, *MockPrinter, *MockExtractor) {
 	return mockedFileReader, mockedPrinter, mockedExtractor
 }
 
-func createCommand(reader IReader, printer yamlValidator.IPrinter, extractor yamlValidator.IExtractor) *cobra.Command {
+func createCommand(reader IReader, printer IPrinter, extractor yamlValidator.IExtractor) *cobra.Command {
 	cmd := New(&ValidateYamlCommandContext{
 		Reader:    reader,
 		Printer:   printer,

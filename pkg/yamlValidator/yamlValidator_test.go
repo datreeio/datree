@@ -33,19 +33,23 @@ func (e *MockExtractor) ExtractConfigurationsFromYamlFile(path string) (*[]pkgEx
 }
 
 func TestValidateFiles(t *testing.T) {
+	extractor := &MockExtractor{}
+
+	var yamlValidator = New(&YamlValidatorOptions{
+		Extractor: extractor,
+	})
+
 	t.Run("invalid yaml files", func(t *testing.T) {
 		invalidFilePath := "invalid.not-yaml"
-		executor := &MockExtractor{}
-		executor.On("ExtractConfigurationsFromYamlFile", mock.Anything).Return(nil, "", &pkgExtractor.InvalidFile{Path: invalidFilePath})
-		invalidFiles := ValidateFiles(executor, []string{invalidFilePath})
+		extractor.On("ExtractConfigurationsFromYamlFile", mock.Anything).Once().Return(nil, "", &pkgExtractor.InvalidFile{Path: invalidFilePath})
+		invalidFiles := yamlValidator.ValidateFiles([]string{invalidFilePath})
 		assert.Equal(t, invalidFilePath, invalidFiles[0].Path, "invalid file path should be returned")
 	})
 
 	t.Run("valid yaml files", func(t *testing.T) {
 		validFilePath := "valid.yaml"
-		executor := &MockExtractor{}
-		executor.On("ExtractConfigurationsFromYamlFile", mock.Anything).Return(nil, "", nil)
-		invalidFiles := ValidateFiles(executor, []string{validFilePath})
+		extractor.On("ExtractConfigurationsFromYamlFile", mock.Anything).Once().Return(nil, "", nil)
+		invalidFiles := yamlValidator.ValidateFiles([]string{validFilePath})
 		assert.Equal(t, 0, len(invalidFiles), "invalid files should be empty")
 	})
 }
