@@ -1,8 +1,6 @@
 package cliClient
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -16,34 +14,13 @@ type ValidatedYamlResult struct {
 	ClientId string           `json:"clientId"`
 	Metadata *Metadata        `json:"metadata"`
 	Files    []*ValidatedFile `json:"files"`
-	Status   bool             `json:"status"`
+	Status   string           `json:"status"`
 }
 
-func (c *CliClient) SendValidateYamlResult(request *ValidatedYamlResult) error {
+func (c *CliClient) SendValidateYamlResult(request *ValidatedYamlResult) {
 	if c.networkValidator.IsLocalMode() {
-		return nil
+		return
 	}
 
-	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/yaml-validation/", request, c.flagsHeaders)
-	if err != nil {
-		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
-		if networkErr != nil {
-			return networkErr
-		}
-
-		if c.networkValidator.IsLocalMode() {
-			return nil
-		}
-
-		return err
-	}
-
-	var errorJson map[string]interface{}
-	err = json.Unmarshal(httpRes.Body, &errorJson)
-	fmt.Println(errorJson)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	c.httpClient.Request(http.MethodPost, "/cli/yaml-validation/", request, c.flagsHeaders)
 }
