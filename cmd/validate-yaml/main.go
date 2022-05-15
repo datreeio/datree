@@ -94,7 +94,6 @@ func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.Inval
 		printer.PrintYamlValidationErrors(invalidFile.ValidationErrors)
 	}
 
-	// print summary
 	validFilesCount := filesCount - len(invalidFiles)
 	printer.PrintYamlValidationSummary(validFilesCount, filesCount)
 }
