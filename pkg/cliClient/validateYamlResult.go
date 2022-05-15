@@ -5,8 +5,8 @@ import (
 )
 
 type ValidatedFile struct {
-	Path   string `json:"path"`
-	Status bool   `json:"status"`
+	Path    string `json:"path"`
+	IsValid bool   `json:"isValid"`
 }
 
 type ValidatedYamlResult struct {

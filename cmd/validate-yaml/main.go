@@ -97,33 +97,9 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 			invalidYamlFiles := newYamlValidator.ValidateFiles(filesPaths)
 			PrintValidationResults(ctx.Printer, invalidYamlFiles, filesCount)
 
-			// send results
 			var isValid bool = len(invalidYamlFiles) == 0
-			// SendResults(ctx.LocalConfig, ctx.CliClient, ctx.CliVersion, isValid, invalidYamlFiles, filesCount)
-			osInfo := utils.NewOSInfo()
-			resultFiles := prepareResultFiles(invalidYamlFiles, filesCount)
-			configData, err := ctx.LocalConfig.GetLocalConfiguration()
-			if err != nil {
-				return err
-			}
-			var status string = STATUS_PASSED
-			if !isValid {
-				status = STATUS_FAILED
-			}
-			result := &cliClient.ValidatedYamlResult{
-				Token:    configData.Token,
-				ClientId: configData.ClientId,
-				Files:    resultFiles,
-				Status:   status,
-				Metadata: &cliClient.Metadata{
-					CliVersion:      ctx.CliVersion,
-					Os:              osInfo.OS,
-					KernelVersion:   osInfo.KernelVersion,
-					PlatformVersion: osInfo.PlatformVersion,
-				},
-			}
 
-			ctx.CliClient.SendValidateYamlResult(result)
+			SendResults(ctx.LocalConfig, ctx.CliClient, ctx.CliVersion, isValid, invalidYamlFiles, filesPaths)
 
 			if !isValid {
 				return YamlNotValidError
@@ -144,10 +120,9 @@ func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.Inval
 	printer.PrintYamlValidationSummary(validFilesCount, filesCount)
 }
 
-func SendResults(localConfig ILocalConfig, sender ICliClient, cliVersion string, isValid bool, invalidYamlFiles []*pkgExtractor.InvalidFile, filesCount int) {
-	fmt.Println("len(invalidFiles): ", len(invalidYamlFiles))
+func SendResults(localConfig ILocalConfig, sender ICliClient, cliVersion string, isValid bool, invalidYamlFiles []*pkgExtractor.InvalidFile, filesPaths []string) {
 	osInfo := utils.NewOSInfo()
-	resultFiles := prepareResultFiles(invalidYamlFiles, filesCount)
+	resultFiles := prepareResultFiles(invalidYamlFiles, filesPaths)
 	configData, err := localConfig.GetLocalConfiguration()
 	if err != nil {
 		return
@@ -172,6 +147,22 @@ func SendResults(localConfig ILocalConfig, sender ICliClient, cliVersion string,
 	sender.SendValidateYamlResult(result)
 }
 
-func prepareResultFiles(invalidFiles []*pkgExtractor.InvalidFile, filesCount int) []*cliClient.ValidatedFile {
-	return []*cliClient.ValidatedFile{}
+func prepareResultFiles(invalidFiles []*pkgExtractor.InvalidFile, filesPaths []string) []*cliClient.ValidatedFile {
+	var resultFiles []*cliClient.ValidatedFile
+	var filesMap map[string]bool = make(map[string]bool)
+
+	for _, filename := range filesPaths {
+		absoluteFilePath, _ := pkgExtractor.ToAbsolutePath(filename)
+		filesMap[absoluteFilePath] = true
+	}
+	for _, invalidFile := range invalidFiles {
+		filesMap[invalidFile.Path] = false
+	}
+	for filename, isValid := range filesMap {
+		resultFiles = append(resultFiles, &cliClient.ValidatedFile{
+			Path:    filename,
+			IsValid: isValid,
+		})
+	}
+	return resultFiles
 }
