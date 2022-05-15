@@ -26,6 +26,7 @@ import (
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/cmd"
 	"github.com/datreeio/datree/cmd/test"
+	validateYaml "github.com/datreeio/datree/cmd/validate-yaml"
 )
 
 const DEFAULT_ERR_EXIT_CODE = 1
@@ -68,7 +69,7 @@ func main() {
 	}()
 
 	if err := cmd.Execute(); err != nil {
-		if errors.Is(err, test.ViolationsFoundError) {
+		if errors.Is(err, test.ViolationsFoundError) || errors.Is(err, validateYaml.YamlNotValidError) {
 			os.Exit(VIOLATIONS_FOUND_EXIT_CODE)
 		}
 		reporter.ReportUnexpectedError(err)
