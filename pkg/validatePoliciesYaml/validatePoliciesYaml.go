@@ -148,25 +148,24 @@ func checkCustomRulesIdentifiersUniqueness(customRules []*cliClient.CustomRule) 
 		return err
 	}
 
+	defaultRulesIdentifierToExistenceMap := make(map[string]bool)
+	for _, defaultRule := range defaultRules.Rules {
+		defaultRulesIdentifierToExistenceMap[defaultRule.UniqueName] = true
+	}
+
 	customRulesIdentifierToExistenceMap := make(map[string]bool)
-	for _, customRule := range customRules {
+	for index, customRule := range customRules {
 		identifier := customRule.Identifier
 		if customRulesIdentifierToExistenceMap[identifier] {
 			return fmt.Errorf("(root)/customRules: identifier \"%s\" is used in more than one custom rule", identifier)
 		}
 		customRulesIdentifierToExistenceMap[customRule.Identifier] = true
-	}
 
-	defaultRulesIdentifierToExistenceMap := make(map[string]bool)
-	for _, defaultRule := range defaultRules.Rules {
-		defaultRulesIdentifierToExistenceMap[defaultRule.UniqueName] = true
-	}
-	for index, customRule := range customRules {
-		identifier := customRule.Identifier
 		if defaultRulesIdentifierToExistenceMap[identifier] {
 			return fmt.Errorf("(root)/customRules/%d: a default rule with same identifier \"%s\" already exists", index, identifier)
 		}
 	}
+
 	return nil
 }
 
