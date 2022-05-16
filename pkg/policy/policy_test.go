@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/defaultRules"
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/ghodss/yaml"
@@ -45,7 +46,7 @@ func TestDefaultRulesValidation(t *testing.T) {
 		panic(err)
 	}
 
-	defaultRules, err := GetDefaultRules()
+	defaultRules, err := defaultRules.GetDefaultRules()
 	if err != nil {
 		panic(err)
 	}

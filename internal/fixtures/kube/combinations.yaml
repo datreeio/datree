@@ -16,8 +16,8 @@ spec:
               servicePort: 80
 ---
 # Skipped K8s schema validation
-apiVersion: v1
-kind: CustomResourceDefinitiona
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinitiona # Not a real kind (extra "a" suffix)
 metadata:
   name: my-service
 spec:
@@ -51,7 +51,7 @@ metadata:
     environment: prod
     app: web
   annotations:
-    datree.io/skip/CONTAINERS_MISSING_MEMORY_LIMIT_KEY:  ''
+    datree.skip/CONTAINERS_MISSING_MEMORY_LIMIT_KEY:  ''
 spec:
   replicas: 2
   selector:

@@ -174,6 +174,9 @@ func (c *CliClientMock) RequestEvaluationPrerunData(token string, isCi bool) (*c
 	return args.Get(0).(*cliClient.EvaluationPrerunDataResponse), nil
 }
 
+func (c *CliClientMock) AddFlags(flags map[string]interface{}) {
+}
+
 type ReaderMock struct {
 	mock.Mock
 }
@@ -690,6 +693,7 @@ func setup() {
 
 	mockedCliClient = &CliClientMock{}
 	mockedCliClient.On("RequestEvaluationPrerunData", mock.Anything).Return(prerunData, nil)
+	mockedCliClient.On("AddFlags", mock.Anything).Return()
 
 	ciContext := &ciContext.CIContext{
 		IsCI: false,
@@ -725,7 +729,7 @@ func TestTestCommandEmptyDir(t *testing.T) {
 	readerMock.On("FilterFiles", []string{emptyDirPaths}).Return([]string{}, nil)
 	err := Test(ctx, []string{emptyDirPaths}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: testingPolicy, Token: "134kh"})
 
-	assert.EqualError(t, err, "No files detected")
+	assert.EqualError(t, err, "no files detected")
 }
 func TestTestCommandNoFlags(t *testing.T) {
 	setup()
@@ -842,15 +846,15 @@ func test_testCommand_output_flags_validation(t *testing.T, ctx *TestCommandCont
 
 	for _, value := range values {
 		err := executeTestCommand(ctx, []string{"8/*", "--output=" + value})
-		expectedErrorStr := "Invalid --output option - \"" + value + "\"\n" +
-			"Valid output values are - simple, yaml, json, xml, JUnit\n"
+		expectedErrorStr := "invalid --output option - \"" + value + "\"\n" +
+			"Valid output values are - simple, yaml, json, xml, JUnit"
 		assert.EqualError(t, err, expectedErrorStr)
 	}
 }
 
 func test_testCommand_version_flags_validation(t *testing.T, ctx *TestCommandContext) {
 	getExpectedErrorStr := func(value string) string {
-		expectedStr := "The specified schema-version \"" + value + "\" is not in the correct format.\n" +
+		expectedStr := "the specified schema-version \"" + value + "\" is not in the correct format.\n" +
 			"Make sure you are following the semantic versioning format <MAJOR>.<MINOR>.<PATCH>\n" +
 			"Read more about kubernetes versioning: https://kubernetes.io/releases/version-skew-policy/#supported-versions"
 		return expectedStr

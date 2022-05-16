@@ -1,0 +1,7 @@
+apiVersion: v1
+policies:
+  - name: Default
+    isDefault: true
+    rules:
+      - identifier: SOME_IDENTIFIER_NAME
+        messageOnFailure: 'this identifier is not defined'

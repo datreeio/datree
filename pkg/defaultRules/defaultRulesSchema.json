@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "enum": [
+        "v1"
+      ]
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 54,
+      "maxItems": 54,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 54
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueName": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^([A-Za-z0-9_])*([0-9]+\\.?[0-9]*|\\.[0-9]+)?([A-Za-z0-9_])*$"
+          },
+          "enabledByDefault": {
+            "type": "boolean"
+          },
+          "documentationUrl": {
+            "type": "string",
+            "minLength": 1
+          },
+          "messageOnFailure": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "Containers",
+              "Workload",
+              "CronJob",
+              "Networking",
+              "Deprecation",
+              "Security",
+              "Other",
+              "Custom",
+              "Argo",
+              "NSA"
+            ]
+          },
+          "schema": {
+            "$ref": "http://json-schema.org/draft-07/schema#",
+            "description": "schema is the logic of the rule, should be a yaml schema as specified in http://json-schema.org/draft-07/schema#"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "uniqueName",
+        "enabledByDefault",
+        "documentationUrl",
+        "messageOnFailure",
+        "category",
+        "schema"
+      ]
+    }
+  },
+  "required": [
+    "apiVersion",
+    "rules"
+  ]
+}
