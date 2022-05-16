@@ -71,7 +71,7 @@ type MockCliClient struct {
 	mock.Mock
 }
 
-func (cc MockCliClient) SendValidateYamlResult(request *cliClient.ValidatedYamlResult) {
+func (cc *MockCliClient) SendValidateYamlResult(request *cliClient.ValidatedYamlResult) {
 	cc.Called(request)
 }
 
@@ -79,7 +79,7 @@ type MockLocalConfig struct {
 	mock.Mock
 }
 
-func (lc MockLocalConfig) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
+func (lc *MockLocalConfig) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
 	lc.Called()
 	localConfig := &localConfig.LocalConfig{}
 	return localConfig, nil
