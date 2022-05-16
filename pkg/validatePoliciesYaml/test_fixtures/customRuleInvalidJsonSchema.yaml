@@ -17,4 +17,8 @@ customRules:
   - identifier: PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION
     name: pods to undergo least voluntary disruption
     defaultMessageOnFailure: Setting minAvailable to 100 and maxUnavailable to 0 is not allowed by the organization, as node on which the pod is running can never be drained.
-    jsonSchema: "{\"definitions\": [1,2,3]}"
+    jsonSchema: |
+      {
+        "definitions": [1,2,3]
+      }
+
