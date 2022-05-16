@@ -59,6 +59,9 @@ var customRuleInvalidSchema string
 //go:embed test_fixtures/customRuleInvalidJsonSchema.yaml
 var customRuleInvalidJsonSchema string
 
+//go:embed test_fixtures/customRuleJsonSchemaInvalidJson.yaml
+var customRuleJsonSchemaInvalidJson string
+
 //go:embed test_fixtures/identifierNotDefined.yaml
 var identifierNotDefined string
 
@@ -100,4 +103,5 @@ func TestValidatePoliciesYaml(t *testing.T) {
 	assertValidationResult(t, customRuleIdentifierNotUnique, "./test_fixtures/customRuleIdentifierNotUnique.yaml", errors.New("found errors in policies file ./test_fixtures/customRuleIdentifierNotUnique.yaml:\n(root)/customRules: identifier \"PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION\" is used in more than one custom rule"))
 	assertValidationResult(t, customRuleIdentifierMatchDefaultRule, "./test_fixtures/customRuleIdentifierMatchDefaultRule.yaml", errors.New("found errors in policies file ./test_fixtures/customRuleIdentifierMatchDefaultRule.yaml:\n(root)/customRules: a default rule with same identifier \"RESOURCE_MISSING_NAME\" already exists"))
 	assertValidationResult(t, duplicateRuleIdentifier, "./test_fixtures/duplicateRuleIdentifier.yaml", errors.New("found errors in policies file ./test_fixtures/duplicateRuleIdentifier.yaml:\n(root)/policies/0/rules: identifier \"PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION\" is used more than once in policy"))
+	assertValidationResult(t, customRuleJsonSchemaInvalidJson, "./test_fixtures/customRuleJsonSchemaInvalidJson.yaml", errors.New("found errors in policies file ./test_fixtures/customRuleJsonSchemaInvalidJson.yaml:\n(root)/customRules/1/schema: invalid character '2' looking for beginning of object key string"))
 }
