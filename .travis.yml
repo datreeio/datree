@@ -5,8 +5,8 @@ go:
 dist: focal 
 
 before_script:
-  - pyenv install 3.6.3
-  - pyenv global 3.6.3
+  - pyenv install 3.6.10
+  - pyenv global 3.6.10
   - pip install -U pip
   - pip install --user awscli
   - aws --version
