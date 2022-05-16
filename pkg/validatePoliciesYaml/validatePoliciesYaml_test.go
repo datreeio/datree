@@ -59,6 +59,9 @@ var customRuleInvalidSchema string
 //go:embed test_fixtures/customRuleInvalidJsonSchema.yaml
 var customRuleInvalidJsonSchema string
 
+//go:embed test_fixtures/customRuleJsonSchemaInvalidJson.yaml
+var customRuleJsonSchemaInvalidJson string
+
 //go:embed test_fixtures/identifierNotDefined.yaml
 var identifierNotDefined string
 
@@ -94,11 +97,11 @@ func TestValidatePoliciesYaml(t *testing.T) {
 	assertValidationResult(t, customRuleMissingDefaultMessageOnFailure, "./test_fixtures/customRuleMissingDefaultMessageOnFailure.yaml", errors.New("found errors in policies file ./test_fixtures/customRuleMissingDefaultMessageOnFailure.yaml:\n(root)/customRules/0: missing properties: 'defaultMessageOnFailure'"))
 	assertValidationResult(t, customRuleValidSchema, "./test_fixtures/customRuleValidSchema.yaml", nil)
 	assertValidationResult(t, customRuleInvalidSchema, "./test_fixtures/customRuleInvalidSchema.yaml", errors.New("found errors in policies file ./test_fixtures/customRuleInvalidSchema.yaml:\n(root)/customRules/1/schema: has a primitive type that is NOT VALID -- given: /arrayi/ Expected valid values are:[array boolean integer number null object string]"))
-	// assertValidationResult(t, schemaNotValidJson, "./test_fixtures/schemaNotValidJson.yaml", errors.New("found errors in policies file ./test_fixtures/schemaNotValidJson.yaml:\n(root)/customRules/0: %s"))
-	assertValidationResult(t, customRuleInvalidJsonSchema, "./test_fixtures/customRuleInvalidJsonSchema.yaml", errors.New("found errors in policies file ./test_fixtures/customRuleInvalidJsonSchema.yaml:\n(root)/customRules/1/schema: Invalid type. Expected: array of schemas, given: definitions"))
+	assertValidationResult(t, customRuleInvalidJsonSchema, "./test_fixtures/customRuleInvalidJsonSchema.yaml", errors.New("found errors in policies file ./test_fixtures/customRuleInvalidJsonSchema.yaml:\n(root)/customRules/1/jsonSchema: Invalid type. Expected: array of schemas, given: definitions"))
 	assertValidationResult(t, bothSchemaAndJsonSchemaDefined, "./test_fixtures/bothSchemaAndJsonSchemaDefined.yaml", errors.New("found errors in policies file ./test_fixtures/bothSchemaAndJsonSchemaDefined.yaml:\n(root)/customRules/0: Exactly one of [schema,jsonSchema] should be defined per custom rule"))
 	assertValidationResult(t, identifierNotDefined, "./test_fixtures/identifierNotDefined.yaml", errors.New("found errors in policies file ./test_fixtures/identifierNotDefined.yaml:\n(root)/policies/0/rules: identifier \"SOME_IDENTIFIER_NAME\" is neither custom nor default"))
 	assertValidationResult(t, customRuleIdentifierNotUnique, "./test_fixtures/customRuleIdentifierNotUnique.yaml", errors.New("found errors in policies file ./test_fixtures/customRuleIdentifierNotUnique.yaml:\n(root)/customRules: identifier \"PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION\" is used in more than one custom rule"))
-	assertValidationResult(t, customRuleIdentifierMatchDefaultRule, "./test_fixtures/customRuleIdentifierMatchDefaultRule.yaml", errors.New("found errors in policies file ./test_fixtures/customRuleIdentifierMatchDefaultRule.yaml:\n(root)/customRules: a default rule with same identifier \"RESOURCE_MISSING_NAME\" already exists"))
+	assertValidationResult(t, customRuleIdentifierMatchDefaultRule, "./test_fixtures/customRuleIdentifierMatchDefaultRule.yaml", errors.New("found errors in policies file ./test_fixtures/customRuleIdentifierMatchDefaultRule.yaml:\n(root)/customRules/0: a default rule with same identifier \"RESOURCE_MISSING_NAME\" already exists"))
 	assertValidationResult(t, duplicateRuleIdentifier, "./test_fixtures/duplicateRuleIdentifier.yaml", errors.New("found errors in policies file ./test_fixtures/duplicateRuleIdentifier.yaml:\n(root)/policies/0/rules: identifier \"PODDISRUPTIONBUDGET_DENY_ZERO_VOLUNTARY_DISRUPTION\" is used more than once in policy"))
+	assertValidationResult(t, customRuleJsonSchemaInvalidJson, "./test_fixtures/customRuleJsonSchemaInvalidJson.yaml", errors.New("found errors in policies file ./test_fixtures/customRuleJsonSchemaInvalidJson.yaml:\n(root)/customRules/1/jsonSchema: invalid character '2' looking for beginning of object key string"))
 }
