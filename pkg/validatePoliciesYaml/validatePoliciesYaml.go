@@ -147,27 +147,26 @@ func checkIdentifierUniqueness(customRules []*cliClient.CustomRule) error {
 	if err != nil {
 		return err
 	}
-	propertyValuesExistenceMap := make(map[string]bool)
 
-	for _, item := range customRules {
-		identifier := item.Identifier
-
-		if propertyValuesExistenceMap[identifier] {
+	customRulesIdentifierToExistenceMap := make(map[string]bool)
+	for _, customRule := range customRules {
+		identifier := customRule.Identifier
+		if customRulesIdentifierToExistenceMap[identifier] {
 			return fmt.Errorf("(root)/customRules: identifier \"%s\" is used in more than one custom rule", identifier)
 		}
-
-		propertyValuesExistenceMap[identifier] = true
+		customRulesIdentifierToExistenceMap[customRule.Identifier] = true
 	}
 
-	for _, item := range defaultRules.Rules {
-		identifier := item.UniqueName
-
-		if propertyValuesExistenceMap[identifier] {
-			return fmt.Errorf("(root)/customRules: a default rule with same identifier \"%s\" already exists", identifier)
+	defaultRulesIdentifierToExistenceMap := make(map[string]bool)
+	for _, defaultRule := range defaultRules.Rules {
+		defaultRulesIdentifierToExistenceMap[defaultRule.UniqueName] = true
+	}
+	for index, customRule := range customRules {
+		identifier := customRule.Identifier
+		if defaultRulesIdentifierToExistenceMap[identifier] {
+			return fmt.Errorf("(root)/customRules/%d: a default rule with same identifier \"%s\" already exists", index, identifier)
 		}
-		propertyValuesExistenceMap[identifier] = true
 	}
-
 	return nil
 }
 
