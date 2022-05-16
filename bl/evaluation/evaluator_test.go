@@ -158,7 +158,6 @@ func TestEvaluate(t *testing.T) {
 
 type evaluateArgs struct {
 	policyCheckData PolicyCheckData
-	osInfo          *utils.OSInfo
 }
 
 type evaluateExpected struct {
