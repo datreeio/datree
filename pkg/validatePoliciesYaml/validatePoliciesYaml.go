@@ -74,7 +74,7 @@ func validateIdentifier(policies []*cliClient.Policy, customRules []*cliClient.C
 		return err
 	}
 
-	err = checkIdentifierUniqueness(customRules)
+	err = checkCustomRulesIdentifiersUniqueness(customRules)
 	return err
 }
 
@@ -142,7 +142,7 @@ func checkIdentifierUniquenessInPolicy(policies []*cliClient.Policy) error {
 	return nil
 }
 
-func checkIdentifierUniqueness(customRules []*cliClient.CustomRule) error {
+func checkCustomRulesIdentifiersUniqueness(customRules []*cliClient.CustomRule) error {
 	defaultRules, err := defaultRules.GetDefaultRules()
 	if err != nil {
 		return err
