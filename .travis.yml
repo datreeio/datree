@@ -2,7 +2,7 @@ language: go
 go:
   - "1.17"
 
-dist: trusty
+dist: focal 
 
 before_script:
   - pyenv global 3.6
