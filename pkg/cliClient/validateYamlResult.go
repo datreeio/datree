@@ -22,5 +22,5 @@ func (c *CliClient) SendValidateYamlResult(request *ValidatedYamlResult) {
 		return
 	}
 
-	c.httpClient.Request(http.MethodPost, "/cli/yaml-validation/", request, c.flagsHeaders)
+	_, _ = c.httpClient.Request(http.MethodPost, "/cli/yaml-validation/", request, c.flagsHeaders)
 }
