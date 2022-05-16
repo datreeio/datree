@@ -196,6 +196,7 @@ func validateSchemaField(customRules []*cliClient.CustomRule) error {
 		if rule.Schema != nil && rule.JsonSchema != "" {
 			return fmt.Errorf("(root)/customRules/%d: Exactly one of [schema,jsonSchema] should be defined per custom rule", index)
 		}
+		var schemaKeyUsed string
 		if rule.Schema != nil {
 			var content []byte
 			schema := rule.Schema
@@ -204,8 +205,10 @@ func validateSchemaField(customRules []*cliClient.CustomRule) error {
 				return fmt.Errorf("(root)/customRules/%d: %s", index, err.Error())
 			}
 			jsonContent = string(content)
+			schemaKeyUsed = "schema"
 		} else {
 			jsonContent = rule.JsonSchema
+			schemaKeyUsed = "jsonSchema"
 		}
 
 		if jsonContent == "" {
@@ -214,7 +217,7 @@ func validateSchemaField(customRules []*cliClient.CustomRule) error {
 		schemaLoader := gojsonschema.NewStringLoader(jsonContent)
 		_, err = gojsonschema.NewSchemaLoader().Compile(schemaLoader)
 		if err != nil {
-			return fmt.Errorf("(root)/customRules/%v/schema: %s", index, err.Error())
+			return fmt.Errorf("(root)/customRules/%v/%s: %s", index, schemaKeyUsed, err.Error())
 		}
 	}
 	return nil
