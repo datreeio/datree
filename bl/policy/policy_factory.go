@@ -1,12 +1,11 @@
 package policy
 
 import (
-	_ "embed"
 	"encoding/json"
 	"fmt"
 
 	"github.com/datreeio/datree/pkg/cliClient"
-	internal_policy "github.com/datreeio/datree/pkg/policy"
+	"github.com/datreeio/datree/pkg/defaultRules"
 )
 
 type Policy struct {
@@ -27,7 +26,7 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 		return Policy{}, fmt.Errorf("policy %s doesn't exist, sign in to the dashboard to customize your policies: %s", policyName, registrationURL)
 	}
 
-	defaultRules, err := internal_policy.GetDefaultRules()
+	defaultRules, err := defaultRules.GetDefaultRules()
 
 	if err != nil {
 		return Policy{}, err
@@ -66,7 +65,7 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 	return Policy{policyName, rules}, nil
 }
 
-func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.CustomRule, defaultRules []*internal_policy.DefaultRuleDefinition) ([]RuleWithSchema, error) {
+func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.CustomRule, defaultRules []*defaultRules.DefaultRuleDefinition) ([]RuleWithSchema, error) {
 	var rules = []RuleWithSchema{}
 
 	if policyRules == nil {
@@ -102,7 +101,7 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 	return rules, nil
 }
 
-func getDefaultRuleByIdentifier(defaultRules []*internal_policy.DefaultRuleDefinition, identifier string) *internal_policy.DefaultRuleDefinition {
+func getDefaultRuleByIdentifier(defaultRules []*defaultRules.DefaultRuleDefinition, identifier string) *defaultRules.DefaultRuleDefinition {
 	for _, defaultRule := range defaultRules {
 		if identifier == defaultRule.UniqueName {
 			return defaultRule
@@ -122,7 +121,7 @@ func getCustomRuleByIdentifier(customRules []*cliClient.CustomRule, identifier s
 	return nil
 }
 
-func createDefaultPolicy(defaultRules *internal_policy.DefaultRulesDefinitions) Policy {
+func createDefaultPolicy(defaultRules *defaultRules.DefaultRulesDefinitions) Policy {
 	var rules []RuleWithSchema
 
 	for _, defaultRule := range defaultRules.Rules {
