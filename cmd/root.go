@@ -99,7 +99,6 @@ func NewRootCommand(app *App) *cobra.Command {
 		CliClient:   app.Context.CliClient,
 		CliVersion:  CliVersion,
 		LocalConfig: app.Context.LocalConfig,
-		// CiContext:   app.Context.CiContext,
 	}))
 	return rootCmd
 }
