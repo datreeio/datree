@@ -34,10 +34,10 @@ func ValidatePoliciesYaml(content []byte, policyYamlPath string) error {
 		return validationErrors
 	}
 
-	return validatePoliciesContent(jsonContent)
+	return validatePoliciesContent(jsonContent, policyYamlPath)
 }
 
-func validatePoliciesContent(content []byte) error {
+func validatePoliciesContent(content []byte, policyYamlPath string) error {
 	// unmarshal the content
 	var schema *cliClient.EvaluationPrerunPolicies
 	err := json.Unmarshal(content, &schema)
@@ -46,41 +46,90 @@ func validatePoliciesContent(content []byte) error {
 	}
 
 	// validate that exactly one policy is set to default
-	err = validateSingleDefaultPolicy(schema.Policies)
+	err = validateSingleDefaultPolicy(schema.Policies, policyYamlPath)
 	if err != nil {
 		return err
 	}
 
 	// validate if the policy file has any identifier related issues
-	err = validateIdentifier(schema.Policies, schema.CustomRules)
+	err = validateIdentifier(schema.Policies, schema.CustomRules, policyYamlPath)
 	if err != nil {
 		return err
 	}
 
 	// validate the schema of each rule
-	err = validateSchemaField(schema.CustomRules)
+	err = validateSchemaField(schema.CustomRules, policyYamlPath)
 	return err
 }
 
-func validateIdentifier(policies []*cliClient.Policy, customRules []*cliClient.CustomRule) error {
+func validateIdentifier(policies []*cliClient.Policy, customRules []*cliClient.CustomRule, policyYamlPath string) error {
 
-	err := checkIdentifierUniquenessInPolicy(policies)
+	err := checkIdentifierInPolicy(policies, customRules, policyYamlPath)
 	if err != nil {
 		return err
 	}
 
-	err = checkIdentifierUniqueness(customRules)
+	err = checkIdentifierUniqueness(customRules, policyYamlPath)
 	return err
 }
 
-func checkIdentifierUniquenessInPolicy(policies []*cliClient.Policy) error {
-	for _, policy := range policies {
+func checkIdentifierInPolicy(policies []*cliClient.Policy, customRules []*cliClient.CustomRule, policyYamlPath string) error {
+	err := checkIdentifierUniquenessInPolicy(policies, policyYamlPath)
+	if err != nil {
+		return err
+	}
+
+	err = checkIdentifierExistence(policies, customRules, policyYamlPath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func checkIdentifierExistence(policies []*cliClient.Policy, customRules []*cliClient.CustomRule, policyYamlPath string) error {
+	defaultRules, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		return err
+	}
+
+	for index, policy := range policies {
+		rules := policy.Rules
+
+		for _, rule := range rules {
+			found := false
+			identifier := rule.Identifier
+			for _, customRule := range customRules {
+				if identifier == customRule.Identifier {
+					found = true
+					break
+				}
+			}
+			if found {
+				continue
+			}
+			for _, defaultRule := range defaultRules.Rules {
+				if identifier == defaultRule.UniqueName {
+					found = true
+					break
+				}
+			}
+			if !found {
+				return fmt.Errorf("found errors in policies file %s:\n(root)/policies/%d/rules: identifier \"%s\" is neither custom nor default", policyYamlPath, index, identifier)
+			}
+		}
+	}
+
+	return nil
+}
+
+func checkIdentifierUniquenessInPolicy(policies []*cliClient.Policy, policyYamlPath string) error {
+	for index, policy := range policies {
 		propertyValuesExistenceMap := make(map[string]bool)
 		rules := policy.Rules
 		for _, rule := range rules {
 			identifier := rule.Identifier
 			if propertyValuesExistenceMap[identifier] {
-				return fmt.Errorf("invalid policy file: identifier \"%s\" used atleast two times in policy \"%s\"", identifier, policy.Name)
+				return fmt.Errorf("found errors in policies file %s:\n(root)/policies/%d/rules: identifier \"%s\" is used more than once in policy", policyYamlPath, index, identifier)
 			}
 			propertyValuesExistenceMap[identifier] = true
 		}
@@ -88,7 +137,7 @@ func checkIdentifierUniquenessInPolicy(policies []*cliClient.Policy) error {
 	return nil
 }
 
-func checkIdentifierUniqueness(customRules []*cliClient.CustomRule) error {
+func checkIdentifierUniqueness(customRules []*cliClient.CustomRule, policyYamlPath string) error {
 	defaultRules, err := defaultRules.GetDefaultRules()
 	if err != nil {
 		return err
@@ -99,7 +148,7 @@ func checkIdentifierUniqueness(customRules []*cliClient.CustomRule) error {
 		identifier := item.Identifier
 
 		if propertyValuesExistenceMap[identifier] {
-			return fmt.Errorf("invalid policy file: identifier \"%s\" is used in atleast two rules", identifier)
+			return fmt.Errorf("found errors in policies file %s:\n(root)/customRules: identifier \"%s\" is used in more than one custom rule", policyYamlPath, identifier)
 		}
 
 		propertyValuesExistenceMap[identifier] = true
@@ -109,7 +158,7 @@ func checkIdentifierUniqueness(customRules []*cliClient.CustomRule) error {
 		identifier := item.UniqueName
 
 		if propertyValuesExistenceMap[identifier] {
-			return fmt.Errorf("invalid policy file: a default rule with same identifier \"%s\" already exists", identifier)
+			return fmt.Errorf("found errors in policies file %s:\n(root)/customRules: a default rule with same identifier \"%s\" already exists", policyYamlPath, identifier)
 		}
 		propertyValuesExistenceMap[identifier] = true
 	}
@@ -117,31 +166,37 @@ func checkIdentifierUniqueness(customRules []*cliClient.CustomRule) error {
 	return nil
 }
 
-func validateSingleDefaultPolicy(policies []*cliClient.Policy) error {
+func validateSingleDefaultPolicy(policies []*cliClient.Policy, policyYamlPath string) error {
 	sawDefault := false
 	for _, policy := range policies {
 
 		if policy.IsDefault {
 			if sawDefault {
-				return fmt.Errorf("invalid policy file: multiple policies are set to default")
+				return fmt.Errorf("found errors in policies file %s:\n(root)/policies: Should have exactly one policy set as default", policyYamlPath)
 			}
 			sawDefault = true
 		}
 	}
+
+	if !sawDefault {
+		return fmt.Errorf("found errors in policies file %s:\n(root)/policies: Should have exactly one policy set as default", policyYamlPath)
+	}
 	return nil
 }
 
-func validateSchemaField(customRules []*cliClient.CustomRule) error {
-	for _, rule := range customRules {
+func validateSchemaField(customRules []*cliClient.CustomRule, policyYamlPath string) error {
+	for index, rule := range customRules {
 		var err error
 		var jsonContent string
-		identifier := rule.Identifier
+		if rule.Schema != nil && rule.JsonSchema != "" {
+			return fmt.Errorf("found errors in policies file %s:\n(root)/customRules/%d: Exactly one of [schema,jsonSchema] should be defined per custom rule", policyYamlPath, index)
+		}
 		if rule.Schema != nil {
 			var content []byte
 			schema := rule.Schema
 			content, err = json.Marshal(schema)
 			if err != nil {
-				return err
+				return fmt.Errorf("found errors in policies file %s:\n(root)/customRules/%d: %s", policyYamlPath, index, err.Error())
 			}
 			jsonContent = string(content)
 		} else {
@@ -149,12 +204,12 @@ func validateSchemaField(customRules []*cliClient.CustomRule) error {
 		}
 
 		if jsonContent == "" {
-			return fmt.Errorf("invalid policy file: rule identifier \"%s\" has no associated schema", identifier)
+			return fmt.Errorf("found errors in policies file %s:\n(root)/customRules/%d: Exactly one of [schema,jsonSchema] should be defined per custom rule", policyYamlPath, index)
 		}
 		schemaLoader := gojsonschema.NewStringLoader(jsonContent)
 		_, err = gojsonschema.NewSchemaLoader().Compile(schemaLoader)
 		if err != nil {
-			return fmt.Errorf("invalid policy file: rule \"%s\" has schema error: %s", rule.Identifier, err.Error())
+			return fmt.Errorf("found errors in policies file %s:\n(root)/customRules/%v/schema: %s", policyYamlPath, index, err.Error())
 		}
 	}
 	return nil
