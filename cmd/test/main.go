@@ -77,7 +77,7 @@ func (flags *TestCommandFlags) Validate() error {
 
 	if !evaluation.IsValidOutputOption(outputValue) {
 		return fmt.Errorf("invalid --output option - %q\n"+
-			"Valid output values are - "+evaluation.OutputFormats()+"\n", outputValue)
+			"Valid output values are - "+evaluation.OutputFormats(), outputValue)
 	}
 
 	err := validateK8sVersionFormatIfProvided(flags.K8sVersion)
