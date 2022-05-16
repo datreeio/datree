@@ -1,5 +1,7 @@
 package evaluation
 
+import "strings"
+
 var FormattedOutputOptions = []string{"yaml", "json", "xml", "JUnit"}
 var InteractiveOutputOptions = []string{"", "simple"}
 var ValidOutputOptions = append(FormattedOutputOptions, InteractiveOutputOptions...)
@@ -21,4 +23,8 @@ func IsFormattedOutputOption(option string) bool {
 		}
 	}
 	return false
+}
+
+func OutputFormats() string {
+	return strings.Join(ExplicitOptionOptions, ", ")
 }

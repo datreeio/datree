@@ -75,7 +75,7 @@ func (flags *TestCommandFlags) Validate() error {
 
 	if !evaluation.IsValidOutputOption(outputValue) {
 		return fmt.Errorf("Invalid --output option - %q\n"+
-			"Valid output values are - "+strings.Join(evaluation.ExplicitOptionOptions, ", ")+"\n", outputValue)
+			"Valid output values are - "+evaluation.OutputFormats()+"\n", outputValue)
 	}
 
 	err := validateK8sVersionFormatIfProvided(flags.K8sVersion)
@@ -222,9 +222,9 @@ func New(ctx *TestCommandContext) *cobra.Command {
 // AddFlags registers flags for a cli
 func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	if ciContext.Extract() != nil && ciContext.Extract().CIMetadata.ShouldHideEmojis {
-		cmd.Flags().StringVarP(&flags.Output, "output", "o", "simple", "Define output format (json, yaml, xml, JUnit)")
+		cmd.Flags().StringVarP(&flags.Output, "output", "o", "simple", "Define output format "+evaluation.OutputFormats())
 	} else {
-		cmd.Flags().StringVarP(&flags.Output, "output", "o", "", "Define output format (json, yaml, xml, JUnit)")
+		cmd.Flags().StringVarP(&flags.Output, "output", "o", "", "Define output format "+evaluation.OutputFormats())
 	}
 	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.19.0")
 	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
