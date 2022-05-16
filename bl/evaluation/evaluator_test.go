@@ -7,6 +7,7 @@ import (
 
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/pkg/fileReader"
+	"github.com/datreeio/datree/pkg/utils"
 
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -66,8 +67,8 @@ func TestSendEvaluationResult(t *testing.T) {
 			},
 		}
 
-		osInfo := &OSInfo{OS: "darwin", PlatformVersion: "1.2.3", KernelVersion: "4.5.6"}
-		OSInfoFn = func() *OSInfo {
+		osInfo := &utils.OSInfo{OS: "darwin", PlatformVersion: "1.2.3", KernelVersion: "4.5.6"}
+		OSInfoFn = func() *utils.OSInfo {
 			return osInfo
 		}
 
@@ -157,7 +158,7 @@ func TestEvaluate(t *testing.T) {
 
 type evaluateArgs struct {
 	policyCheckData PolicyCheckData
-	osInfo          *OSInfo
+	osInfo          *utils.OSInfo
 }
 
 type evaluateExpected struct {
