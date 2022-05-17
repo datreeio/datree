@@ -97,7 +97,7 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 			invalidYamlFiles := newYamlValidator.ValidateFiles(filesPaths)
 			PrintValidationResults(ctx.Printer, invalidYamlFiles, filesCount)
 
-			var isValid bool = len(invalidYamlFiles) == 0
+			isValid := len(invalidYamlFiles) == 0
 
 			SendResults(ctx.LocalConfig, ctx.CliClient, ctx.CliVersion, isValid, invalidYamlFiles, filesPaths)
 
@@ -120,14 +120,16 @@ func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.Inval
 	printer.PrintYamlValidationSummary(validFilesCount, filesCount)
 }
 
-func SendResults(localConfig ILocalConfig, sender ICliClient, cliVersion string, isValid bool, invalidYamlFiles []*pkgExtractor.InvalidFile, filesPaths []string) {
+func SendResults(localConfig ILocalConfig, client ICliClient, cliVersion string, isValid bool, invalidYamlFiles []*pkgExtractor.InvalidFile, filesPaths []string) {
 	osInfo := utils.NewOSInfo()
-	resultFiles := prepareResultFiles(invalidYamlFiles, filesPaths)
+	resultFiles := prepareValidationResults(invalidYamlFiles, filesPaths)
 	configData, err := localConfig.GetLocalConfiguration()
+
 	if err != nil {
 		return
 	}
-	var status string = STATUS_PASSED
+
+	status := STATUS_PASSED
 	if !isValid {
 		status = STATUS_FAILED
 	}
@@ -144,12 +146,12 @@ func SendResults(localConfig ILocalConfig, sender ICliClient, cliVersion string,
 		},
 	}
 
-	sender.SendValidateYamlResult(result)
+	client.SendValidateYamlResult(result)
 }
 
-func prepareResultFiles(invalidFiles []*pkgExtractor.InvalidFile, filesPaths []string) []*cliClient.ValidatedFile {
-	var resultFiles []*cliClient.ValidatedFile
-	var filesMap map[string]bool = make(map[string]bool)
+func prepareValidationResults(invalidFiles []*pkgExtractor.InvalidFile, filesPaths []string) []*cliClient.ValidatedFile {
+	var validationResults []*cliClient.ValidatedFile
+	filesMap := make(map[string]bool)
 
 	for _, filename := range filesPaths {
 		absoluteFilePath, _ := pkgExtractor.ToAbsolutePath(filename)
@@ -159,10 +161,10 @@ func prepareResultFiles(invalidFiles []*pkgExtractor.InvalidFile, filesPaths []s
 		filesMap[invalidFile.Path] = false
 	}
 	for filename, isValid := range filesMap {
-		resultFiles = append(resultFiles, &cliClient.ValidatedFile{
+		validationResults = append(validationResults, &cliClient.ValidatedFile{
 			Path:    filename,
 			IsValid: isValid,
 		})
 	}
-	return resultFiles
+	return validationResults
 }
