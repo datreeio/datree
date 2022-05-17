@@ -5,10 +5,17 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/datreeio/datree/pkg/cliClient"
 	pkgExtractor "github.com/datreeio/datree/pkg/extractor"
+	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/datreeio/datree/pkg/yamlValidator"
 	"github.com/spf13/cobra"
+)
+
+const (
+	STATUS_PASSED = "passed"
+	STATUS_FAILED = "failed"
 )
 
 type IReader interface {
@@ -22,10 +29,21 @@ type IPrinter interface {
 	PrintMessage(messageText string, messageColor string)
 }
 
+type ICliClient interface {
+	SendValidateYamlResult(request *cliClient.ValidatedYamlResult)
+}
+
+type ILocalConfig interface {
+	GetLocalConfiguration() (*localConfig.LocalConfig, error)
+}
+
 type ValidateYamlCommandContext struct {
-	Printer   IPrinter
-	Reader    IReader
-	Extractor yamlValidator.IExtractor
+	Printer     IPrinter
+	Reader      IReader
+	Extractor   yamlValidator.IExtractor
+	CliClient   ICliClient
+	LocalConfig ILocalConfig
+	CliVersion  string
 }
 
 var YamlNotValidError = errors.New("")
@@ -79,7 +97,11 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 			invalidYamlFiles := newYamlValidator.ValidateFiles(filesPaths)
 			PrintValidationResults(ctx.Printer, invalidYamlFiles, filesCount)
 
-			if len(invalidYamlFiles) > 0 {
+			isValid := len(invalidYamlFiles) == 0
+
+			SendResults(ctx.LocalConfig, ctx.CliClient, ctx.CliVersion, isValid, invalidYamlFiles, filesPaths)
+
+			if !isValid {
 				return YamlNotValidError
 			}
 
@@ -96,4 +118,53 @@ func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.Inval
 
 	validFilesCount := filesCount - len(invalidFiles)
 	printer.PrintYamlValidationSummary(validFilesCount, filesCount)
+}
+
+func SendResults(localConfig ILocalConfig, client ICliClient, cliVersion string, isValid bool, invalidYamlFiles []*pkgExtractor.InvalidFile, filesPaths []string) {
+	osInfo := utils.NewOSInfo()
+	resultFiles := prepareValidationResults(invalidYamlFiles, filesPaths)
+	configData, err := localConfig.GetLocalConfiguration()
+
+	if err != nil {
+		return
+	}
+
+	status := STATUS_PASSED
+	if !isValid {
+		status = STATUS_FAILED
+	}
+	result := &cliClient.ValidatedYamlResult{
+		Token:    configData.Token,
+		ClientId: configData.ClientId,
+		Files:    resultFiles,
+		Status:   status,
+		Metadata: &cliClient.Metadata{
+			CliVersion:      cliVersion,
+			Os:              osInfo.OS,
+			KernelVersion:   osInfo.KernelVersion,
+			PlatformVersion: osInfo.PlatformVersion,
+		},
+	}
+
+	client.SendValidateYamlResult(result)
+}
+
+func prepareValidationResults(invalidFiles []*pkgExtractor.InvalidFile, filesPaths []string) []*cliClient.ValidatedFile {
+	var validationResults []*cliClient.ValidatedFile
+	filesMap := make(map[string]bool)
+
+	for _, filename := range filesPaths {
+		absoluteFilePath, _ := pkgExtractor.ToAbsolutePath(filename)
+		filesMap[absoluteFilePath] = true
+	}
+	for _, invalidFile := range invalidFiles {
+		filesMap[invalidFile.Path] = false
+	}
+	for filename, isValid := range filesMap {
+		validationResults = append(validationResults, &cliClient.ValidatedFile{
+			Path:    filename,
+			IsValid: isValid,
+		})
+	}
+	return validationResults
 }
