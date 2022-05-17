@@ -789,7 +789,7 @@ rules:
     name: "Prevent ConfigMap security vulnerability (CVE-2021-25742)"
     uniqueName: "CONFIGMAP_CVE2021_25742_INCORRECT_SNIPPET_ANNOTATIONS_VALUE"
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/prevent-configmap-security-vulnerability-cve-2021-25742"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-configmap-security-vulnerability-cve-2021-25742"
     messageOnFailure: Missing property object `allow-snippet-annotations` - set it to "false" to override default behaviour
     category: Security
     schema:
@@ -811,7 +811,7 @@ rules:
     name: "Prevent Ingress security vulnerability (CVE-2021-25742)"
     uniqueName: "INGRESS_CVE2021_25742_INCORRECT_SERVER_SNIPPET_KEY"
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/prevent-ingress-security-vulnerability-cve-2021-25742"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-ingress-security-vulnerability-cve-2021-25742"
     messageOnFailure: Forbidden property object `server-snippet` - ingress-nginx custom snippets are not allowed
     category: Security
     schema:
@@ -832,7 +832,7 @@ rules:
     name: "Prevent container security vulnerability (CVE-2021-25741)"
     uniqueName: "CONTAINER_CVE2021_25741_INCORRECT_SUBPATH_KEY"
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/prevent-container-security-vulnerability-cve-2021-25741"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-container-security-vulnerability-cve-2021-25741"
     messageOnFailure: Forbidden property object `subPath` - malicious users can gain access to files & directories outside of the volume
     category: Security
     schema:
@@ -861,7 +861,7 @@ rules:
     name: "Prevent EndpointSlice security vulnerability (CVE-2021-25737)"
     uniqueName: "ENDPOINTSLICE_CVE2021_25373_INCORRECT_ADDRESSES_VALUE"
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/prevent-endpointslice-validation-from-enabling-host-network-hijack-cve-2021-25737"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-endpointslice-validation-from-enabling-host-network-hijack-cve-2021-25737"
     messageOnFailure: Incorrect value for key `addresses` - IP address is within vulnerable ranges (127.0.0.0/8 and 169.254.0.0/16)
     category: Security
     schema:
@@ -887,7 +887,7 @@ rules:
     name: "Ensure Workflow DAG fail-fast on node failure"
     uniqueName: "ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE"
     enabledByDefault: false
-    documentationUrl: https://hub.datree.io/ensure-workflow-dag-fail-fast-on-node-failure
+    documentationUrl: https://hub.datree.io/built-in-rules/ensure-workflow-dag-fail-fast-on-node-failure
     messageOnFailure: Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches
     category: Argo
     schema:
@@ -923,7 +923,7 @@ rules:
     name: "Prevent Workflow pods from using the default service account"
     uniqueName: "ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT"
     enabledByDefault: false
-    documentationUrl: https://hub.datree.io/prevent-workflow-pods-from-using-the-default-service-account
+    documentationUrl: https://hub.datree.io/built-in-rules/prevent-workflow-pods-from-using-the-default-service-account
     messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
     category: Argo
     schema:
@@ -947,7 +947,7 @@ rules:
     name: "Ensure ConfigMap is recognized by ArgoCD"
     uniqueName: "ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD"
     enabledByDefault: false
-    documentationUrl: https://hub.datree.io/ensure-configmap-is-recognized-by-argocd
+    documentationUrl: https://hub.datree.io/built-in-rules/ensure-configmap-is-recognized-by-argocd
     messageOnFailure: Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won't recognize this resource
     category: Argo
     schema:
@@ -980,7 +980,7 @@ rules:
     name: "Ensure Rollout pause step has a configured duration"
     uniqueName: "ARGO_ROLLOUT_MISSING_PAUSE_DURATION"
     enabledByDefault: false
-    documentationUrl: https://hub.datree.io/ensure-rollout-pause-step-has-a-configured-duration
+    documentationUrl: https://hub.datree.io/built-in-rules/ensure-rollout-pause-step-has-a-configured-duration
     messageOnFailure: Missing the key `duration` - prevent the rollout from waiting indefinitely for the pause condition
     category: Argo
     schema:
@@ -1013,7 +1013,7 @@ rules:
     name: "Ensure Application and AppProject are part of the argocd namespace"
     uniqueName: "ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE"
     enabledByDefault: false
-    documentationUrl: https://hub.datree.io/ensure-application-and-appproject-are-part-of-the-argocd-namespace
+    documentationUrl: https://hub.datree.io/built-in-rules/ensure-application-and-appproject-are-part-of-the-argocd-namespace
     messageOnFailure: Incorrect value for property `namespace` - Application and AppProject have to be installed on the argocd namespace
     category: Argo
     schema:
@@ -1036,7 +1036,7 @@ rules:
     name: "Prevent Workflow from having an empty retry strategy"
     uniqueName: "ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY"
     enabledByDefault: false
-    documentationUrl: https://hub.datree.io/prevent-workflow-from-having-an-empty-retry-strategy
+    documentationUrl: https://hub.datree.io/built-in-rules/prevent-workflow-from-having-an-empty-retry-strategy
     messageOnFailure: Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues
     category: Argo
     schema:
@@ -1059,7 +1059,7 @@ rules:
     name: "Ensure Rollout has revision history set"
     uniqueName: "ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0"
     enabledByDefault: false
-    documentationUrl: https://hub.datree.io/ensure-rollout-has-revision-history-set
+    documentationUrl: https://hub.datree.io/built-in-rules/ensure-rollout-has-revision-history-set
     messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
     category: Argo
     schema:
@@ -1080,7 +1080,7 @@ rules:
     name: "Ensure Rollout allows broadcasting IP table changes"
     uniqueName: "ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30"
     enabledByDefault: false
-    documentationUrl: https://hub.datree.io/ensure-rollout-allows-broadcasting-ip-table-changes
+    documentationUrl: https://hub.datree.io/built-in-rules/ensure-rollout-allows-broadcasting-ip-table-changes
     messageOnFailure: Incorrect value for key `scaleDownDelaySeconds` - value should be at least 30 to prevent packets from being sent to a node that killed the pod
     category: Argo
     schema:
@@ -1107,7 +1107,7 @@ rules:
     name: "Ensure Rollout that is marked as degraded scales down ReplicaSet"
     uniqueName: "ARGO_ROLLOUT_INCORRECT_PROGRESS_DEADLINE_ABORT_VALUE_FALSE"
     enabledByDefault: false
-    documentationUrl: https://hub.datree.io/ensure-rollout-that-is-marked-as-degraded-scales-down-replicaset
+    documentationUrl: https://hub.datree.io/built-in-rules/ensure-rollout-that-is-marked-as-degraded-scales-down-replicaset
     messageOnFailure: Incorrect value for key `progressDeadlineAbort` - value should be `true` to prevent the rollout pod from retrying indefinitely
     category: Argo
     schema:
@@ -1134,7 +1134,7 @@ rules:
     name: Ensure Workflow retry policy catches relevant errors only
     uniqueName: "ARGO_WORKFLOW_ENSURE_RETRY_ON_BOTH_ERROR_AND_TRANSIENT_ERROR"
     enabledByDefault: false
-    documentationUrl: https://hub.datree.io/ensure-workflow-retry-policy-catches-relevant-errors-only
+    documentationUrl: https://hub.datree.io/built-in-rules/ensure-workflow-retry-policy-catches-relevant-errors-only
     messageOnFailure: Incorrect value for key `retryPolicy` - the expression should include retry on steps that failed either on transient or Argo controller errors
     category: Argo
     schema:
@@ -1550,3 +1550,4 @@ rules:
       anyOf:
         - $ref: "#/definitions/metadataNamePattern"
         - $ref: "#/definitions/metadataGenerateNamePattern"
+        
