@@ -240,9 +240,9 @@ func (flags *TestCommandFlags) ToMapping() map[string]interface{} {
 // AddFlags registers flags for a cli
 func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	if ciContext.Extract() != nil && ciContext.Extract().CIMetadata.ShouldHideEmojis {
-		cmd.Flags().StringVarP(&flags.Output, "output", "o", "simple", "Define output format "+evaluation.OutputFormats())
+		cmd.Flags().StringVarP(&flags.Output, "output", "o", "simple", "Define output format ("+evaluation.OutputFormats()+")")
 	} else {
-		cmd.Flags().StringVarP(&flags.Output, "output", "o", "", "Define output format "+evaluation.OutputFormats())
+		cmd.Flags().StringVarP(&flags.Output, "output", "o", "", "Define output format ("+evaluation.OutputFormats()+")")
 	}
 	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.19.0")
 	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
