@@ -5,7 +5,7 @@ import "strings"
 var FormattedOutputOptions = []string{"yaml", "json", "xml", "JUnit"}
 var InteractiveOutputOptions = []string{"", "simple"}
 var ValidOutputOptions = append(FormattedOutputOptions, InteractiveOutputOptions...)
-var ExplicitOptionOptions = []string{"simple", "yaml", "json", "xml", "JUnit"}
+var ExplicitOutputOptions = []string{"simple", "yaml", "json", "xml", "JUnit"}
 
 func IsValidOutputOption(option string) bool {
 	for _, validOption := range ValidOutputOptions {
@@ -26,5 +26,5 @@ func IsFormattedOutputOption(option string) bool {
 }
 
 func OutputFormats() string {
-	return strings.Join(ExplicitOptionOptions, ", ")
+	return strings.Join(ExplicitOutputOptions, ", ")
 }
