@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/datreeio/datree/pkg/utils"
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 )
 
@@ -151,7 +152,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 			isAtLeastOneConfigSkipped = true
 		}
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
-			if val.isNetworkError(res.Err.Error()) {
+			if utils.IsNetworkError(res.Err.Error()) {
 				noConnectionWarning := &validationWarning{
 					WarningKind:    NetworkError,
 					WarningMessage: "k8s schema validation skipped: no internet connection",
@@ -179,10 +180,6 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 		}
 	}
 	return isValid, validationErrors, warning, nil
-}
-
-func (val *K8sValidator) isNetworkError(errorString string) bool {
-	return strings.Contains(errorString, "no such host") || strings.Contains(errorString, "connection refused") || strings.Contains(errorString, "i/o timeout")
 }
 
 func newKubeconformValidator(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) ValidationClient {
