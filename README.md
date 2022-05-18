@@ -42,7 +42,7 @@ The CLI integration provides a policy enforcement solution for Kubernetes to run
 _Linux & MacOS:_ `curl https://get.datree.io | /bin/bash`  
 _Windows:_ `iwr -useb https://get.datree.io/windows_install.ps1 | iex`
 
-_Other installation options (Homebrew, Docker, etc.) can be found [here](https://hub.datree.io/#a-1-install-datrees-cli-integration/#utm_source=github&utm_medium=organic_oss)_
+_Other installation options (Homebrew, Docker, etc.) can be found [here](https://hub.datree.io/#1-install-the-datree-cli)_
 
 ### 2. Pass Datree a Kubernetes manifest file to scan
 
@@ -50,11 +50,11 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 
 ...and voilà, you just ran your first policy check! 🥳
 
-## [Command Line Interface](https://hub.datree.io/cli-output/#utm_source=github&utm_medium=organic_oss) (CLI)
+## [Command Line Interface](https://hub.datree.io/cli-output) (CLI)
 
 <img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree-cli" width="60%" height="50%">
 
-## [Web Application Interface](https://hub.datree.io/centralized-policy/#utm_source=github&utm_medium=organic_oss) (Dashboard)
+## [Web Application Interface](https://hub.datree.io/centralized-policy) (Dashboard)
 
 <img src="https://user-images.githubusercontent.com/19731161/130956287-ca44e831-46ba-48fa-96eb-be8e23d43bdf.png" alt="Datree-saas" width="60%" height="50%">
 
@@ -73,15 +73,15 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 
 ## 🗂 Kustomize support
 
-Datree comes with out-of-the-box [support for Kustomize](https://hub.datree.io/kustomize-support/#utm_source=github&utm_medium=organic_oss):
+Datree comes with out-of-the-box [support for Kustomize](https://hub.datree.io/kustomize-support):
 
 `datree kustomize test [kustomization.yaml dir path/]`
 
 ## 🤖 Built-in schema validation & policy check
 
-Every policy check will (also) validate your [Kubernetes schema](https://hub.datree.io/schema-validation/#utm_source=github&utm_medium=organic_oss). In addition, there are 30 battle-tested rules for you to select to create your policy.
+Every policy check will (also) validate your [Kubernetes schema](https://hub.datree.io/schema-validation). In addition, there are 30 battle-tested rules for you to select to create your policy.
 
-The policy rules cover a variety of [Kubernetes resources and use cases](https://hub.datree.io/built-in-rules/#utm_source=github&utm_medium=organic_oss):
+The policy rules cover a variety of [Kubernetes resources and use cases](https://hub.datree.io/built-in-rules):
 
 - Workload
 - CronJob
@@ -93,11 +93,11 @@ The policy rules cover a variety of [Kubernetes resources and use cases](https:/
 
 ## 🔧 Custom rules
 
-In addition to our built-in rules, you can write [any custom rule](https://hub.datree.io/custom-rules-overview/#utm_source=github&utm_medium=organic_oss) you wish, and then run them against your Kubernetes configurations to check for rule violations. The custom rule engine is based on JSON Schema.
+In addition to our built-in rules, you can write [any custom rule](https://hub.datree.io/custom-rules-overview) you wish, and then run them against your Kubernetes configurations to check for rule violations. The custom rule engine is based on JSON Schema.
 
 ## 🔗 CI/CD integrations
 
-Like any linter or static code analysis tool, Datree's command-line tool can be **integrated with all CI/CD platforms** to automatically scan every code change and provide feedback as part of the workflow. In the [docs](https://hub.datree.io/integrations/#utm_source=github&utm_medium=organic_oss), you can find examples of some of the common CI/CD platforms.
+Like any linter or static code analysis tool, Datree's command-line tool can be **integrated with all CI/CD platforms** to automatically scan every code change and provide feedback as part of the workflow. In the [docs](https://hub.datree.io/integrations), you can find examples of some of the common CI/CD platforms.
 
 If you run into any difficulties with CI/CD integrations, please join our [community Slack channel](https://bit.ly/3BHwCEG) or open an issue, and we'd be happy to guide you through it.
 
