@@ -93,3 +93,7 @@ func (f *FilesExtractor) ExtractYamlFileToUnknownStruct(path string) (UnknownStr
 
 	return policies, nil
 }
+
+func (f *FilesExtractor) ExtractConfigurationsFromYamlFile(path string) (*[]extractor.Configuration, string, *extractor.InvalidFile) {
+	return extractor.ExtractConfigurationsFromYamlFile(path)
+}

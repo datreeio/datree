@@ -1,0 +1,8 @@
+apiVersion: v2
+policies:
+  - name: Default
+    isDefault: true
+    rules:
+      - identifier: INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE
+        messageOnFailure: Incorrect value for key `host` - specify host instead of using a wildcard character ("*")
+customRules:

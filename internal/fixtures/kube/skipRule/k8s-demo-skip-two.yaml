@@ -8,8 +8,8 @@ metadata:
     environment: prod
     app: web
   annotations:
-    datree.io/skip/WORKLOAD_INVALID_LABELS_VALUE: skip first k8s-demo rule
-    datree.io/skip/CONTAINERS_MISSING_LIVENESSPROBE_KEY: skip second k8s-demo rule
+    datree.skip/WORKLOAD_INVALID_LABELS_VALUE: skip first k8s-demo rule
+    datree.skip/CONTAINERS_MISSING_LIVENESSPROBE_KEY: skip second k8s-demo rule
 spec:
   replicas: 2
   selector:

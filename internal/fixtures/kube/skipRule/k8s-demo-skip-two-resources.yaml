@@ -8,7 +8,7 @@ metadata:
     environment: prod
     app: web
   annotations:
-    datree.io/skip/SERVICE_INCORRECT_TYPE_VALUE_NODEPORT: two resources skip rule that not fall for k8s demo
+    datree.skip/SERVICE_INCORRECT_TYPE_VALUE_NODEPORT: two resources skip rule that not fall for k8s demo
 spec:
   replicas: 2
   selector:
@@ -70,8 +70,8 @@ metadata:
     environment: prod
     app: web
   annotations:
-    datree.io/skip/WORKLOAD_INVALID_LABELS_VALUE: two resources skip 1/2 k8s demo
-    datree.io/skip/CONTAINERS_MISSING_LIVENESSPROBE_KEY: two resources skip 1/2 k8s demo
+    datree.skip/WORKLOAD_INVALID_LABELS_VALUE: two resources skip 1/2 k8s demo
+    datree.skip/CONTAINERS_MISSING_LIVENESSPROBE_KEY: two resources skip 1/2 k8s demo
 spec:
   replicas: 2
   selector:

@@ -11,8 +11,9 @@ import (
 	"github.com/datreeio/datree/cmd/config"
 	"github.com/datreeio/datree/cmd/kustomize"
 	"github.com/datreeio/datree/cmd/publish"
-	schema_validator "github.com/datreeio/datree/cmd/schema-validator"
+	schemaValidator "github.com/datreeio/datree/cmd/schema-validator"
 	"github.com/datreeio/datree/cmd/test"
+	validateYaml "github.com/datreeio/datree/cmd/validate-yaml"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -86,11 +87,19 @@ func NewRootCommand(app *App) *cobra.Command {
 
 	rootCmd.AddCommand(completion.New())
 
-	rootCmd.AddCommand(schema_validator.New(&schema_validator.JSONSchemaValidatorCommandContext{
+	rootCmd.AddCommand(schemaValidator.New(&schemaValidator.JSONSchemaValidatorCommandContext{
 		JSONSchemaValidator: app.Context.JSONSchemaValidator,
 		Printer:             app.Context.Printer,
 	}))
 
+	rootCmd.AddCommand(validateYaml.New(&validateYaml.ValidateYamlCommandContext{
+		Printer:     app.Context.Printer,
+		Reader:      app.Context.Reader,
+		Extractor:   app.Context.FilesExtractor,
+		CliClient:   app.Context.CliClient,
+		CliVersion:  CliVersion,
+		LocalConfig: app.Context.LocalConfig,
+	}))
 	return rootCmd
 }
 

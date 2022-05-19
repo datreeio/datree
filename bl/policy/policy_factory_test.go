@@ -6,9 +6,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/defaultRules"
 	"github.com/datreeio/datree/pkg/fileReader"
-
-	internal_policy "github.com/datreeio/datree/pkg/policy"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 
@@ -29,7 +28,7 @@ func TestCreatePolicy(t *testing.T) {
 		policy, _ := CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL)
 		var expectedRules []RuleWithSchema
 
-		defaultRules, err := internal_policy.GetDefaultRules()
+		defaultRules, err := defaultRules.GetDefaultRules()
 
 		if err != nil {
 			panic(err)

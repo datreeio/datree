@@ -69,6 +69,7 @@ jobs:
     env:
       REPO_NAME: datree
       IMAGE_NAME: datree
+      CI_IMAGE_NAME: datreeci
     name: Release container image to public registries
     needs: [ release, define_version_job ]
     runs-on: ubuntu-latest
@@ -80,14 +81,25 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push to registries
+      - name: Build and push datree image to registries
         uses: docker/build-push-action@v2
         with:
           context: .
+          file: dockerfiles/image-datree/Dockerfile
           platforms: linux/amd64
           push: true
           tags: |
             ${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ needs.define_version_job.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha
+      - name: Build and push datree CI image to registries
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: dockerfiles/image-datreeci/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ env.REPO_NAME }}/${{ env.CI_IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha
