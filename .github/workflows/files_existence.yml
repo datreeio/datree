@@ -1,6 +1,8 @@
 name: Files existence
 
-on: [push, pull_request]
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
 
 jobs:
   file_existence:
@@ -14,7 +16,3 @@ jobs:
         uses: andstor/file-existence-action@v1
         with:
           files: "pkg/defaultRules/defaultRules.yaml"
-
-      - name: Files exist
-        if: steps.check_files.outputs.files_exists == 'true'
-        run: echo All files exist!
