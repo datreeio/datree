@@ -11,6 +11,7 @@ import (
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
+	"github.com/datreeio/datree/pkg/utils"
 )
 
 const (
@@ -70,7 +71,7 @@ type EvaluationRequestData struct {
 	EvaluationDurationSeconds float64
 }
 
-var OSInfoFn = NewOSInfo
+var OSInfoFn = utils.NewOSInfo
 
 func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
 	osInfo := OSInfoFn()

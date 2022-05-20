@@ -1,4 +1,4 @@
-package evaluation
+package utils
 
 import "github.com/shirou/gopsutil/v3/host"
 

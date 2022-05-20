@@ -5,7 +5,9 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/cliClient"
 	pkgExtractor "github.com/datreeio/datree/pkg/extractor"
+	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/yamlValidator"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
@@ -65,7 +67,25 @@ func (e *MockExtractor) ExtractConfigurationsFromYamlFile(path string) (*[]pkgEx
 	return configurations, args.String(1), invalidFile
 }
 
-func createMocks() (*MockFileReader, *MockPrinter, *MockExtractor) {
+type MockCliClient struct {
+	mock.Mock
+}
+
+func (cc *MockCliClient) SendValidateYamlResult(request *cliClient.ValidatedYamlResult) {
+	cc.Called(request)
+}
+
+type MockLocalConfig struct {
+	mock.Mock
+}
+
+func (lc *MockLocalConfig) GetLocalConfiguration() (*localConfig.LocalConfig, error) {
+	lc.Called()
+	localConfig := &localConfig.LocalConfig{}
+	return localConfig, nil
+}
+
+func createMocks() (*MockFileReader, *MockPrinter, *MockExtractor, *MockCliClient, *MockLocalConfig) {
 	mockedFileReader := &MockFileReader{}
 	mockedFileReader.On("FilterFiles", mock.Anything).Return([]string{"."}, nil)
 
@@ -78,21 +98,30 @@ func createMocks() (*MockFileReader, *MockPrinter, *MockExtractor) {
 	mockedExtractor := &MockExtractor{}
 	mockedExtractor.On("ExtractConfigurationsFromYamlFile", mock.Anything).Return(nil, "", nil)
 
-	return mockedFileReader, mockedPrinter, mockedExtractor
+	mockedCliClient := &MockCliClient{}
+	mockedCliClient.On("SendValidateYamlResult", mock.Anything).Return()
+
+	mockedLocalConfig := &MockLocalConfig{}
+	mockedLocalConfig.On("GetLocalConfiguration").Return(&localConfig.LocalConfig{}, nil)
+
+	return mockedFileReader, mockedPrinter, mockedExtractor, mockedCliClient, mockedLocalConfig
 }
 
-func createCommand(reader IReader, printer IPrinter, extractor yamlValidator.IExtractor) *cobra.Command {
+func createCommand(reader IReader, printer IPrinter, extractor yamlValidator.IExtractor, CliClient ICliClient, LocalConfig ILocalConfig, cliVersion string) *cobra.Command {
 	cmd := New(&ValidateYamlCommandContext{
-		Reader:    reader,
-		Printer:   printer,
-		Extractor: extractor,
+		Reader:      reader,
+		Printer:     printer,
+		Extractor:   extractor,
+		CliClient:   CliClient,
+		LocalConfig: LocalConfig,
+		CliVersion:  cliVersion,
 	})
 	return cmd
 }
 
 func TestNoFilesSelected(t *testing.T) {
-	mockedFileReader, mockedPrinter, mockedExtractor := createMocks()
-	cmd := createCommand(mockedFileReader, mockedPrinter, mockedExtractor)
+	mockedFileReader, mockedPrinter, mockedExtractor, mockedCliClient, mockedLocalConfig := createMocks()
+	cmd := createCommand(mockedFileReader, mockedPrinter, mockedExtractor, mockedCliClient, mockedLocalConfig, "")
 
 	cmd.SetArgs([]string{})
 	output := cmd.Execute()
@@ -111,8 +140,8 @@ func TestInvalidYaml(t *testing.T) {
 		},
 	})
 
-	mockedFileReader, mockedPrinter, _ := createMocks()
-	cmd := createCommand(mockedFileReader, mockedPrinter, mockedExtractor)
+	mockedFileReader, mockedPrinter, _, mockedCliClient, mockedLocalConfig := createMocks()
+	cmd := createCommand(mockedFileReader, mockedPrinter, mockedExtractor, mockedCliClient, mockedLocalConfig, "")
 
 	actual := new(bytes.Buffer)
 	cmd.SetOut(actual)
@@ -124,8 +153,8 @@ func TestInvalidYaml(t *testing.T) {
 }
 
 func TestValidYaml(t *testing.T) {
-	mockedFileReader, mockedPrinter, mockedExtractor := createMocks()
-	cmd := createCommand(mockedFileReader, mockedPrinter, mockedExtractor)
+	mockedFileReader, mockedPrinter, mockedExtractor, mockedCliClient, mockedLocalConfig := createMocks()
+	cmd := createCommand(mockedFileReader, mockedPrinter, mockedExtractor, mockedCliClient, mockedLocalConfig, "")
 
 	actual := new(bytes.Buffer)
 	cmd.SetOut(actual)

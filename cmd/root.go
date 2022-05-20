@@ -93,9 +93,12 @@ func NewRootCommand(app *App) *cobra.Command {
 	}))
 
 	rootCmd.AddCommand(validateYaml.New(&validateYaml.ValidateYamlCommandContext{
-		Printer:   app.Context.Printer,
-		Reader:    app.Context.Reader,
-		Extractor: app.Context.FilesExtractor,
+		Printer:     app.Context.Printer,
+		Reader:      app.Context.Reader,
+		Extractor:   app.Context.FilesExtractor,
+		CliClient:   app.Context.CliClient,
+		CliVersion:  CliVersion,
+		LocalConfig: app.Context.LocalConfig,
 	}))
 	return rootCmd
 }
