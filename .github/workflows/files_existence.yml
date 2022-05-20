@@ -11,7 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
 
-      - name: Check files existence
+      - name: Check if important files exist
         id: check_files
         uses: andstor/file-existence-action@v1
         with:
