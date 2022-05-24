@@ -97,7 +97,7 @@ In addition to our built-in rules, you can write [any custom rule](https://hub.d
 
 ## 🔗 CI/CD integrations
 
-Like any linter or static code analysis tool, Datree's command-line tool can be **integrated with all CI/CD platforms** to automatically scan every code change and provide feedback as part of the workflow. In the [docs](https://hub.datree.io/integrations), you can find examples of some of the common CI/CD platforms.
+Like any linter or static code analysis tool, Datree's command-line tool can be **integrated with all CI/CD platforms** to automatically scan every code change and provide feedback as part of the workflow. In the [docs](https://hub.datree.io/cicd-examples), you can find examples of some of the common CI/CD platforms.
 
 If you run into any difficulties with CI/CD integrations, please join our [community Slack channel](https://bit.ly/3BHwCEG) or open an issue, and we'd be happy to guide you through it.
 
