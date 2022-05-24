@@ -16,7 +16,8 @@ type ValidationClient interface {
 }
 
 type K8sValidator struct {
-	validationClient ValidationClient
+	validationClient              ValidationClient
+	areThereCustomSchemaLocations bool
 }
 
 type K8sValidationWarningPerValidFile map[string]FileWithWarning
@@ -26,6 +27,7 @@ func New() *K8sValidator {
 }
 
 func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) {
+	val.areThereCustomSchemaLocations = len(schemaLocations) > 0
 	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, getAllSchemaLocations(schemaLocations))
 }
 
@@ -152,7 +154,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 			isAtLeastOneConfigSkipped = true
 		}
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
-			if utils.IsNetworkError(res.Err.Error()) {
+			if utils.IsNetworkError(res.Err.Error()) && !val.areThereCustomSchemaLocations {
 				noConnectionWarning := &validationWarning{
 					WarningKind:    NetworkError,
 					WarningMessage: "k8s schema validation skipped: no internet connection",
