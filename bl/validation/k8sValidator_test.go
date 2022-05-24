@@ -215,7 +215,7 @@ func test_get_all_schema_locations(t *testing.T) {
 		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
 		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/argo/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
 	}
-	actual := getAllSchemaLocations([]string{"/my-local-schema-location"})
+	actual := getAllSchemaLocations([]string{"/my-local-schema-location"}, false)
 	assert.Equal(t, expectedOutput, actual)
 }
 

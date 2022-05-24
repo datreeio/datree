@@ -2,13 +2,13 @@ package validation
 
 import (
 	"fmt"
+	"github.com/datreeio/datree/pkg/extractor"
+	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 	"io"
+	"net/http"
 	"os"
 	"strings"
-
-	"github.com/datreeio/datree/pkg/extractor"
-	"github.com/datreeio/datree/pkg/utils"
-	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
+	"time"
 )
 
 type ValidationClient interface {
@@ -17,6 +17,7 @@ type ValidationClient interface {
 
 type K8sValidator struct {
 	validationClient              ValidationClient
+	isOffline                     bool
 	areThereCustomSchemaLocations bool
 }
 
@@ -26,9 +27,23 @@ func New() *K8sValidator {
 	return &K8sValidator{}
 }
 
-func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) {
-	val.areThereCustomSchemaLocations = len(schemaLocations) > 0
-	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, getAllSchemaLocations(schemaLocations))
+func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, userProvidedSchemaLocations []string) {
+	val.isOffline = val.checkIsOffline()
+	val.areThereCustomSchemaLocations = len(userProvidedSchemaLocations) > 0
+	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, getAllSchemaLocations(userProvidedSchemaLocations, val.isOffline))
+}
+
+// TODO move to DI for tests
+func (val *K8sValidator) checkIsOffline() bool {
+	client := http.Client{
+		Timeout: 10 * time.Second,
+	}
+	resp, err := client.Get("https://www.githubstatus.com/api/v2/status.json")
+	if err == nil && resp != nil && resp.StatusCode == 200 {
+		return false
+	} else {
+		return true
+	}
 }
 
 type WarningKind int
@@ -136,6 +151,14 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 
 	defer f.Close()
 
+	if val.isOffline && !val.areThereCustomSchemaLocations {
+		noConnectionWarning := &validationWarning{
+			WarningKind:    NetworkError,
+			WarningMessage: "k8s schema validation skipped: no internet connection",
+		}
+		return true, []error{}, noConnectionWarning, nil
+	}
+
 	results := val.validationClient.Validate(filepath, f)
 
 	// Return an error if no valid configurations found
@@ -154,18 +177,9 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 			isAtLeastOneConfigSkipped = true
 		}
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
-			if utils.IsNetworkError(res.Err.Error()) && !val.areThereCustomSchemaLocations {
-				noConnectionWarning := &validationWarning{
-					WarningKind:    NetworkError,
-					WarningMessage: "k8s schema validation skipped: no internet connection",
-				}
-				return true, []error{}, noConnectionWarning, nil
-			}
 			isValid = false
-
 			errorMessages := strings.Split(res.Err.Error(), "-")
 
-			// errorMessages slice is not empty
 			if len(errorMessages) > 0 {
 				for _, errorMessage := range errorMessages {
 					msg := strings.Trim(errorMessage, " ")
@@ -199,11 +213,13 @@ func isEveryResultStatusEmpty(results []kubeconformValidator.Result) bool {
 	return isEveryResultStatusEmpty
 }
 
-func getAllSchemaLocations(userProvidedSchemaLocations []string) []string {
-	// order matters!
-	// it's important that provided schema locations (from --schema-locations flag) are *before* the default schema locations
-	// this will give them priority and allow using a local schema in offline mode
-	return append(userProvidedSchemaLocations, getDefaultSchemaLocations()...)
+func getAllSchemaLocations(userProvidedSchemaLocations []string, isOffline bool) []string {
+	if isOffline {
+		return userProvidedSchemaLocations
+	} else {
+		// order matters! userProvidedSchemaLocations get priority over defaultSchemaLocations
+		return append(userProvidedSchemaLocations, getDefaultSchemaLocations()...)
+	}
 }
 
 func getDefaultSchemaLocations() []string {
