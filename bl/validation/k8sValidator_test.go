@@ -134,7 +134,9 @@ func test_no_connection(t *testing.T) {
 		{Status: kubeconformValidator.Error, Err: fmt.Errorf("no such host")},
 	})
 	k8sValidator := K8sValidator{
-		validationClient: validationClient,
+		validationClient:              validationClient,
+		areThereCustomSchemaLocations: false,
+		isOffline:                     true,
 	}
 
 	path := "../../internal/fixtures/kube/pass-all.yaml"
