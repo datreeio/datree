@@ -31,9 +31,9 @@
 
 It’s far more effective than manual processes, such as sending an email to a slew of developers, begging them to set various limits, which likely falls on deaf ears because developers are already overwhelmed.
 
-## ⚙️ How it Works
+## ⚙️ How it works
 
-The CLI integration provides a policy enforcement solution for Kubernetes to run automatic checks on every code change for rule violations and misconfigurations. When rule violations are found, Datree produces an alert that guides the developer to fix the issue inside the CI process — or even earlier as a pre-commit hook — while explaining the reason behind the rule.
+The CLI integration provides a policy enforcement solution for Kubernetes to run automatic checks on every code change for rule violations and misconfigurations. When rule violations are found, Datree produces an alert that guides the engineer to fix the issue inside the CI process — or even earlier as a pre-commit hook — while explaining the reason behind the rule.
 
 ## ⏩ Quick-start in two steps
 
