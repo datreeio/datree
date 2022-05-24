@@ -26,7 +26,7 @@ func New() *K8sValidator {
 }
 
 func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) {
-	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, append(getDefaultSchemaLocations(), schemaLocations...))
+	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, getAllSchemaLocations(schemaLocations))
 }
 
 type WarningKind int
@@ -195,6 +195,13 @@ func isEveryResultStatusEmpty(results []kubeconformValidator.Result) bool {
 		}
 	}
 	return isEveryResultStatusEmpty
+}
+
+func getAllSchemaLocations(userProvidedSchemaLocations []string) []string {
+	// order matters!
+	// it's important that provided schema locations (from --schema-locations flag) are *before* the default schema locations
+	// this will give them priority and allow using a local schema in offline mode
+	return append(userProvidedSchemaLocations, getDefaultSchemaLocations()...)
 }
 
 func getDefaultSchemaLocations() []string {

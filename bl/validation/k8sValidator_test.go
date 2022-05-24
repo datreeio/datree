@@ -25,7 +25,7 @@ func TestValidateResources(t *testing.T) {
 	test_valid_multiple_configurations(t)
 	test_valid_multiple_configurations_only_k8s_files(t)
 	test_invalid_file(t)
-	test_default_schema_location(t)
+	test_get_all_schema_locations(t)
 	test_get_datree_crd_schema_by_name(t)
 	t.Run("test empty file", test_empty_file)
 	t.Run("test no internet connection", test_no_connection)
@@ -208,13 +208,14 @@ func test_missing_schema_skipped(t *testing.T) {
 	assert.Equal(t, "k8s schema validation skipped: --ignore-missing-schemas flag was used", k8sValidationWarningPerValidFile[path].Warning)
 }
 
-func test_default_schema_location(t *testing.T) {
+func test_get_all_schema_locations(t *testing.T) {
 	expectedOutput := []string{
+		"/my-local-schema-location",
 		"default",
 		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
 		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/argo/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
 	}
-	actual := getDefaultSchemaLocations()
+	actual := getAllSchemaLocations([]string{"/my-local-schema-location"})
 	assert.Equal(t, expectedOutput, actual)
 }
 
