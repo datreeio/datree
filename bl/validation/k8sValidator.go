@@ -3,6 +3,7 @@ package validation
 import (
 	"fmt"
 	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/datreeio/datree/pkg/utils"
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 	"io"
 	"net/http"
@@ -33,7 +34,6 @@ func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool
 	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, getAllSchemaLocations(userProvidedSchemaLocations, val.isOffline))
 }
 
-// TODO move to DI for tests
 func (val *K8sValidator) checkIsOffline() bool {
 	client := http.Client{
 		Timeout: 10 * time.Second,
@@ -177,7 +177,15 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 			isAtLeastOneConfigSkipped = true
 		}
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
+			if utils.IsNetworkError(res.Err.Error()) {
+				noConnectionWarning := &validationWarning{
+					WarningKind:    NetworkError,
+					WarningMessage: "k8s schema validation skipped: no internet connection",
+				}
+				return true, []error{}, noConnectionWarning, nil
+			}
 			isValid = false
+
 			errorMessages := strings.Split(res.Err.Error(), "-")
 
 			if len(errorMessages) > 0 {
