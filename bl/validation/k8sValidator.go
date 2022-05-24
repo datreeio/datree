@@ -3,7 +3,6 @@ package validation
 import (
 	"fmt"
 	"github.com/datreeio/datree/pkg/extractor"
-	"github.com/datreeio/datree/pkg/utils"
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 	"io"
 	"net/http"
@@ -156,6 +155,10 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 
 	defer f.Close()
 
+	if val.isOffline && !val.areThereCustomSchemaLocations {
+		return true, []error{}, noConnectionWarning, nil
+	}
+
 	results := val.validationClient.Validate(filepath, f)
 
 	// Return an error if no valid configurations found
@@ -174,9 +177,6 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 			isAtLeastOneConfigSkipped = true
 		}
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
-			if utils.IsNetworkError(res.Err.Error()) {
-				return true, []error{}, noConnectionWarning, nil
-			}
 			isValid = false
 
 			errorMessages := strings.Split(res.Err.Error(), "-")
