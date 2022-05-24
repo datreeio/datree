@@ -156,10 +156,6 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 
 	defer f.Close()
 
-	if val.isOffline && !val.areThereCustomSchemaLocations {
-		return true, []error{}, noConnectionWarning, nil
-	}
-
 	results := val.validationClient.Validate(filepath, f)
 
 	// Return an error if no valid configurations found
