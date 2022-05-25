@@ -3,6 +3,7 @@ package validation
 import (
 	"fmt"
 	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/datreeio/datree/pkg/utils"
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 	"io"
 	"net/http"
@@ -178,13 +179,14 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 		}
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
 			isValid = false
+			errString := res.Err.Error()
 
-			errorMessages := strings.Split(res.Err.Error(), "-")
-
-			if len(errorMessages) > 0 {
+			if utils.IsNetworkError(errString) {
+				validationErrors = append(validationErrors, &InvalidK8sSchemaError{errString})
+			} else {
+				errorMessages := strings.Split(errString, "-")
 				for _, errorMessage := range errorMessages {
-					msg := strings.Trim(errorMessage, " ")
-					validationErrors = append(validationErrors, &InvalidK8sSchemaError{ErrorMessage: msg})
+					validationErrors = append(validationErrors, &InvalidK8sSchemaError{ErrorMessage: strings.Trim(errorMessage, " ")})
 				}
 			}
 		}

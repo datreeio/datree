@@ -29,7 +29,8 @@ func TestValidateResources(t *testing.T) {
 	test_get_all_schema_locations_offline(t)
 	test_get_datree_crd_schema_by_name(t)
 	t.Run("test empty file", test_empty_file)
-	t.Run("test no internet connection", test_no_connection)
+	t.Run("test no internet connection", test_offline_without_custom_schema_locations)
+	t.Run("test no internet connection", test_offline_with_custom_schema_location)
 	t.Run("test missing schema skipped", test_missing_schema_skipped)
 }
 
@@ -129,7 +130,7 @@ func test_empty_file(t *testing.T) {
 	}
 }
 
-func test_no_connection(t *testing.T) {
+func test_offline_without_custom_schema_locations(t *testing.T) {
 	validationClient := &mockValidationClient{}
 	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
 		{Status: kubeconformValidator.Error, Err: fmt.Errorf("no such host")},
@@ -150,25 +151,43 @@ func test_no_connection(t *testing.T) {
 	close(filesConfigurationsChan)
 	k8sValidationWarningPerValidFile := make(K8sValidationWarningPerValidFile)
 
-	var wg sync.WaitGroup
-	filesConfigurationsChanRes, invalidFilesChan, filesWithWarningsChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
-	wg.Add(1)
-	go func() {
-		for p := range filesConfigurationsChanRes {
-			_ = p
-		}
-		for p := range invalidFilesChan {
-			_ = p
-		}
-		for p := range filesWithWarningsChan {
-			k8sValidationWarningPerValidFile[p.Filename] = *p
-		}
-		wg.Done()
-	}()
-	wg.Wait()
+	_, _, filesWithWarningsChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	for p := range filesWithWarningsChan {
+		k8sValidationWarningPerValidFile[p.Filename] = *p
+	}
 
 	assert.Equal(t, 1, len(k8sValidationWarningPerValidFile))
 	assert.Equal(t, "k8s schema validation skipped: no internet connection", k8sValidationWarningPerValidFile[path].Warning)
+}
+
+func test_offline_with_custom_schema_location(t *testing.T) {
+	validationClient := &mockValidationClient{}
+	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
+		{Status: kubeconformValidator.Error, Err: fmt.Errorf("no such host")},
+	})
+	k8sValidator := K8sValidator{
+		validationClient:              validationClient,
+		areThereCustomSchemaLocations: true,
+		isOffline:                     true,
+	}
+
+	path := "../../internal/fixtures/kube/pass-all.yaml"
+
+	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
+	filesConfigurationsChan <- &extractor.FileConfigurations{
+		FileName:       path,
+		Configurations: []extractor.Configuration{},
+	}
+	close(filesConfigurationsChan)
+
+	_, invalidFilesChan, filesWithWarningsChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	for p := range invalidFilesChan {
+		assert.Equal(t, 1, len(p.ValidationErrors))
+		assert.Equal(t, "k8s schema validation error: no such host\n", p.ValidationErrors[0].Error())
+	}
+	for p := range filesWithWarningsChan {
+		panic("expected 0 warnings when custom --schema-location provided, instead got warning: " + p.Warning)
+	}
 }
 
 func test_missing_schema_skipped(t *testing.T) {
