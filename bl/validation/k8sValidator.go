@@ -13,11 +13,6 @@ import (
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 )
 
-var noConnectionWarning = &validationWarning{
-	WarningKind:    NetworkError,
-	WarningMessage: "k8s schema validation skipped: no internet connection",
-}
-
 type ValidationClient interface {
 	Validate(filename string, r io.ReadCloser) []kubeconformValidator.Result
 }
@@ -158,6 +153,10 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 	defer f.Close()
 
 	if val.isOffline && !val.areThereCustomSchemaLocations {
+		var noConnectionWarning = &validationWarning{
+			WarningKind:    NetworkError,
+			WarningMessage: "k8s schema validation skipped: no internet connection",
+		}
 		return true, []error{}, noConnectionWarning, nil
 	}
 
