@@ -30,7 +30,7 @@ func TestValidateResources(t *testing.T) {
 	test_get_datree_crd_schema_by_name(t)
 	t.Run("test empty file", test_empty_file)
 	t.Run("test no internet connection", test_offline_without_custom_schema_locations)
-	t.Run("test no internet connection", test_offline_with_custom_schema_location)
+	t.Run("test no internet connection", test_offline_with_remote_custom_schema_location)
 	t.Run("test missing schema skipped", test_missing_schema_skipped)
 }
 
@@ -160,7 +160,7 @@ func test_offline_without_custom_schema_locations(t *testing.T) {
 	assert.Equal(t, "k8s schema validation skipped: no internet connection", k8sValidationWarningPerValidFile[path].Warning)
 }
 
-func test_offline_with_custom_schema_location(t *testing.T) {
+func test_offline_with_remote_custom_schema_location(t *testing.T) {
 	validationClient := &mockValidationClient{}
 	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
 		{Status: kubeconformValidator.Error, Err: fmt.Errorf("no such host")},
