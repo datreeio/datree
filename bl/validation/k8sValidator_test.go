@@ -29,8 +29,8 @@ func TestValidateResources(t *testing.T) {
 	test_get_all_schema_locations_offline(t)
 	test_get_datree_crd_schema_by_name(t)
 	t.Run("test empty file", test_empty_file)
-	t.Run("test no internet connection", test_offline_without_custom_schema_locations)
-	t.Run("test no internet connection", test_offline_with_remote_custom_schema_location)
+	t.Run("test_offline_without_custom_schema_locations", test_offline_without_custom_schema_locations)
+	t.Run("test_offline_with_remote_custom_schema_location", test_offline_with_remote_custom_schema_location)
 	t.Run("test missing schema skipped", test_missing_schema_skipped)
 }
 
@@ -130,36 +130,6 @@ func test_empty_file(t *testing.T) {
 	}
 }
 
-func test_offline_without_custom_schema_locations(t *testing.T) {
-	validationClient := &mockValidationClient{}
-	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
-		{Status: kubeconformValidator.Error, Err: fmt.Errorf("no such host")},
-	})
-	k8sValidator := K8sValidator{
-		validationClient:              validationClient,
-		areThereCustomSchemaLocations: false,
-		isOffline:                     true,
-	}
-
-	path := "../../internal/fixtures/kube/pass-all.yaml"
-
-	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
-	filesConfigurationsChan <- &extractor.FileConfigurations{
-		FileName:       path,
-		Configurations: []extractor.Configuration{},
-	}
-	close(filesConfigurationsChan)
-	k8sValidationWarningPerValidFile := make(K8sValidationWarningPerValidFile)
-
-	_, _, filesWithWarningsChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
-	for p := range filesWithWarningsChan {
-		k8sValidationWarningPerValidFile[p.Filename] = *p
-	}
-
-	assert.Equal(t, 1, len(k8sValidationWarningPerValidFile))
-	assert.Equal(t, "k8s schema validation skipped: no internet connection", k8sValidationWarningPerValidFile[path].Warning)
-}
-
 func test_offline_with_remote_custom_schema_location(t *testing.T) {
 	validationClient := &mockValidationClient{}
 	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
@@ -188,6 +158,33 @@ func test_offline_with_remote_custom_schema_location(t *testing.T) {
 	for p := range filesWithWarningsChan {
 		panic("expected 0 warnings when custom --schema-location provided, instead got warning: " + p.Warning)
 	}
+}
+
+func test_offline_without_custom_schema_locations(t *testing.T) {
+	validationClient := &mockValidationClient{}
+	k8sValidator := K8sValidator{
+		validationClient:              validationClient,
+		areThereCustomSchemaLocations: false,
+		isOffline:                     true,
+	}
+
+	path := "../../internal/fixtures/kube/pass-all.yaml"
+
+	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 1)
+	filesConfigurationsChan <- &extractor.FileConfigurations{
+		FileName:       path,
+		Configurations: []extractor.Configuration{},
+	}
+	close(filesConfigurationsChan)
+	k8sValidationWarningPerValidFile := make(K8sValidationWarningPerValidFile)
+
+	_, _, filesWithWarningsChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	for p := range filesWithWarningsChan {
+		k8sValidationWarningPerValidFile[p.Filename] = *p
+	}
+
+	assert.Equal(t, 1, len(k8sValidationWarningPerValidFile))
+	assert.Equal(t, "k8s schema validation skipped: no internet connection", k8sValidationWarningPerValidFile[path].Warning)
 }
 
 func test_missing_schema_skipped(t *testing.T) {
