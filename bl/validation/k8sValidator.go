@@ -2,14 +2,15 @@ package validation
 
 import (
 	"fmt"
-	"github.com/datreeio/datree/pkg/extractor"
-	"github.com/datreeio/datree/pkg/utils"
-	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 	"io"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/datreeio/datree/pkg/utils"
+	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 )
 
 var noConnectionWarning = &validationWarning{
