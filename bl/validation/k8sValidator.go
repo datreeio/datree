@@ -30,12 +30,12 @@ func New() *K8sValidator {
 }
 
 func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, userProvidedSchemaLocations []string) {
-	val.isOffline = val.checkIsOffline()
+	val.isOffline = checkIsOffline()
 	val.areThereCustomSchemaLocations = len(userProvidedSchemaLocations) > 0
 	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, getAllSchemaLocations(userProvidedSchemaLocations, val.isOffline))
 }
 
-func (val *K8sValidator) checkIsOffline() bool {
+func checkIsOffline() bool {
 	client := http.Client{
 		Timeout: 10 * time.Second,
 	}
