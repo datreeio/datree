@@ -76,8 +76,8 @@ func TestPrintResults(t *testing.T) {
 			_ = PrintResults(&PrintResultsData{
 				Results: tt.args.results,
 				AdditionalJUnitData: AdditionalJUnitData{
-					RulesData: tt.args.rulesData,
-					AllFiles:  []string{},
+					AllEnabledRules: tt.args.rulesData,
+					AllFiles:        []string{},
 				},
 				InvalidYamlFiles:      tt.args.invalidYamlFiles,
 				InvalidK8sFiles:       tt.args.invalidK8sFiles,
@@ -175,8 +175,8 @@ func createAdditionalJUnitData() AdditionalJUnitData {
 		}
 	}
 	return AdditionalJUnitData{
-		RulesData: result,
-		AllFiles:  []string{},
+		AllEnabledRules: result,
+		AllFiles:        []string{},
 	}
 }
 

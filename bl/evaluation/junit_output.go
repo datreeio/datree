@@ -2,7 +2,6 @@ package evaluation
 
 import (
 	"encoding/xml"
-	"fmt"
 	"strconv"
 
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -51,13 +50,11 @@ type failure struct {
 }
 
 type AdditionalJUnitData struct {
-	RulesData []cliClient.RuleData
-	AllFiles  []string
+	AllEnabledRules []cliClient.RuleData
+	AllFiles        []string
 }
 
 func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUnitData AdditionalJUnitData) JUnitOutput {
-	fmt.Println(len(additionalJUnitData.RulesData))
-	fmt.Println(len(additionalJUnitData.AllFiles))
 	jUnitOutput := JUnitOutput{
 		Name:       formattedOutput.PolicySummary.PolicyName,
 		Tests:      formattedOutput.PolicySummary.TotalRulesInPolicy,
@@ -67,7 +64,7 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUn
 	}
 
 	for _, policyValidationResult := range formattedOutput.PolicyValidationResults {
-		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, additionalJUnitData.RulesData))
+		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, additionalJUnitData.AllEnabledRules))
 	}
 	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicySummaryTestSuite(formattedOutput))
 	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getEvaluationSummaryTestSuite(formattedOutput))
