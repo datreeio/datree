@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/utils"
 )
 
 // JUnit specifications:
@@ -49,7 +50,12 @@ type failure struct {
 	Content string   `xml:",chardata"`
 }
 
-func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, rulesData []cliClient.RuleData) JUnitOutput {
+type AdditionalJUnitData struct {
+	AllEnabledRules            []cliClient.RuleData
+	AllFilesThatRanPolicyCheck []string
+}
+
+func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUnitData AdditionalJUnitData) JUnitOutput {
 	jUnitOutput := JUnitOutput{
 		Name:       formattedOutput.PolicySummary.PolicyName,
 		Tests:      formattedOutput.PolicySummary.TotalRulesInPolicy,
@@ -58,8 +64,14 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, rulesData []c
 		TestSuites: []testSuite{},
 	}
 
-	for _, policyValidationResult := range formattedOutput.PolicyValidationResults {
-		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, rulesData))
+	for _, fileThatRanPolicyCheck := range additionalJUnitData.AllFilesThatRanPolicyCheck {
+		policyValidationResult := findFileInPolicyValidationResults(fileThatRanPolicyCheck, formattedOutput.PolicyValidationResults)
+
+		if policyValidationResult != nil {
+			jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, additionalJUnitData.AllEnabledRules))
+		} else {
+			jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPassingFileTestSuite(fileThatRanPolicyCheck, additionalJUnitData.AllEnabledRules))
+		}
 	}
 	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicySummaryTestSuite(formattedOutput))
 	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getEvaluationSummaryTestSuite(formattedOutput))
@@ -67,13 +79,27 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, rulesData []c
 	return jUnitOutput
 }
 
-func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults, rulesData []cliClient.RuleData) testSuite {
+func getPassingFileTestSuite(fileName string, allEnabledRules []cliClient.RuleData) testSuite {
+	return testSuite{
+		Name: fileName,
+		TestCases: utils.MapSlice[cliClient.RuleData, testCase](allEnabledRules, func(ruleData cliClient.RuleData) testCase {
+			return testCase{
+				Name:      ruleData.Name,
+				ClassName: ruleData.Identifier,
+				Skipped:   nil,
+				Failure:   nil,
+			}
+		}),
+	}
+}
+
+func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults, allEnabledRules []cliClient.RuleData) testSuite {
 	suite := testSuite{
 		Name:      policyValidationResult.FileName,
 		TestCases: []testCase{},
 	}
 
-	for _, rule := range rulesData {
+	for _, rule := range allEnabledRules {
 		testCase := testCase{
 			Name:      rule.Name,
 			ClassName: rule.Identifier,
@@ -175,4 +201,13 @@ func areAllOccurrencesSkipped(occurrencesDetails []OccurrenceDetails) bool {
 		}
 	}
 	return true
+}
+
+func findFileInPolicyValidationResults(fileName string, policyValidationResults []*FormattedEvaluationResults) *FormattedEvaluationResults {
+	for _, policyValidationResult := range policyValidationResults {
+		if policyValidationResult.FileName == fileName {
+			return policyValidationResult
+		}
+	}
+	return nil
 }
