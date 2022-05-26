@@ -2,10 +2,10 @@ package evaluation
 
 import (
 	"encoding/xml"
-	"github.com/datreeio/datree/pkg/utils"
 	"strconv"
 
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/utils"
 )
 
 // JUnit specifications:
