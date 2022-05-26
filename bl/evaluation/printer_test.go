@@ -35,13 +35,13 @@ func (c *mockPrinter) PrintEvaluationSummary(summary printer.EvaluationSummary, 
 }
 
 type printResultsTestCaseArgs struct {
-	results           FormattedResults
-	rulesData         []cliClient.RuleData
-	invalidYamlFiles  []*extractor.InvalidFile
-	invalidK8sFiles   []*extractor.InvalidFile
-	evaluationSummary printer.EvaluationSummary
-	loginURL          string
-	outputFormat      string
+	results             FormattedResults
+	additionalJUnitData AdditionalJUnitData
+	invalidYamlFiles    []*extractor.InvalidFile
+	invalidK8sFiles     []*extractor.InvalidFile
+	evaluationSummary   printer.EvaluationSummary
+	loginURL            string
+	outputFormat        string
 }
 
 type printResultsTestCase struct {
@@ -74,11 +74,8 @@ func TestPrintResults(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			_ = PrintResults(&PrintResultsData{
-				Results: tt.args.results,
-				AdditionalJUnitData: AdditionalJUnitData{
-					AllEnabledRules: tt.args.rulesData,
-					AllFiles:        []string{},
-				},
+				Results:               tt.args.results,
+				AdditionalJUnitData:   tt.args.additionalJUnitData,
 				InvalidYamlFiles:      tt.args.invalidYamlFiles,
 				InvalidK8sFiles:       tt.args.invalidK8sFiles,
 				EvaluationSummary:     tt.args.evaluationSummary,
@@ -287,7 +284,10 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 					FormattedEvaluationResults: []*FormattedEvaluationResults{},
 				},
 			},
-			rulesData:         []cliClient.RuleData{},
+			additionalJUnitData: AdditionalJUnitData{
+				AllEnabledRules: []cliClient.RuleData{},
+				AllFiles:        []string{},
+			},
 			invalidYamlFiles:  []*extractor.InvalidFile{},
 			invalidK8sFiles:   []*extractor.InvalidFile{},
 			evaluationSummary: printer.EvaluationSummary{},
