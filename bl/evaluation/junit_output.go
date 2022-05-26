@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"encoding/xml"
+	"github.com/datreeio/datree/pkg/utils"
 	"strconv"
 
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -63,13 +64,33 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUn
 		TestSuites: []testSuite{},
 	}
 
-	for _, policyValidationResult := range formattedOutput.PolicyValidationResults {
-		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, additionalJUnitData.AllEnabledRules))
+	for _, fileThatRanPolicyCheck := range additionalJUnitData.AllFilesThatRanPolicyCheck {
+		policyValidationResult := findFileInPolicyValidationResults(fileThatRanPolicyCheck, formattedOutput.PolicyValidationResults)
+
+		if policyValidationResult != nil {
+			jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, additionalJUnitData.AllEnabledRules))
+		} else {
+			jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPassingFileTestSuite(fileThatRanPolicyCheck, additionalJUnitData.AllEnabledRules))
+		}
 	}
 	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicySummaryTestSuite(formattedOutput))
 	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getEvaluationSummaryTestSuite(formattedOutput))
 
 	return jUnitOutput
+}
+
+func getPassingFileTestSuite(fileName string, allEnabledRules []cliClient.RuleData) testSuite {
+	return testSuite{
+		Name: fileName,
+		TestCases: utils.MapSlice[cliClient.RuleData, testCase](allEnabledRules, func(ruleData cliClient.RuleData) testCase {
+			return testCase{
+				Name:      ruleData.Name,
+				ClassName: ruleData.Identifier,
+				Skipped:   nil,
+				Failure:   nil,
+			}
+		}),
+	}
 }
 
 func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults, allEnabledRules []cliClient.RuleData) testSuite {
@@ -180,4 +201,13 @@ func areAllOccurrencesSkipped(occurrencesDetails []OccurrenceDetails) bool {
 		}
 	}
 	return true
+}
+
+func findFileInPolicyValidationResults(fileName string, formattedEvaluationResults []*FormattedEvaluationResults) *FormattedEvaluationResults {
+	for _, formattedEvaluationResult := range formattedEvaluationResults {
+		if formattedEvaluationResult.FileName == fileName {
+			return formattedEvaluationResult
+		}
+	}
+	return nil
 }
