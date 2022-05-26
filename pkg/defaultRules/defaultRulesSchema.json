@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "apiVersion": {
@@ -9,15 +10,15 @@
     },
     "rules": {
       "type": "array",
-      "minItems": 53,
-      "maxItems": 53,
+      "minItems": 54,
+      "maxItems": 54,
       "items": {
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
             "minimum": 1,
-            "maximum": 53
+            "maximum": 54
           },
           "name": {
             "type": "string",
@@ -56,21 +57,22 @@
             ]
           },
           "schema": {
-            "type": "object"
+            "$ref": "http://json-schema.org/draft-07/schema#",
+            "description": "schema is the logic of the rule, should be a yaml schema as specified in http://json-schema.org/draft-07/schema#"
           }
         }
       },
-        "required": [
-          "id",
-          "name",
-          "uniqueName",
-          "enabledByDefault",
-          "documentationUrl",
-          "messageOnFailure",
-          "category",
-          "schema"
-        ]
-      }
+      "required": [
+        "id",
+        "name",
+        "uniqueName",
+        "enabledByDefault",
+        "documentationUrl",
+        "messageOnFailure",
+        "category",
+        "schema"
+      ]
+    }
   },
   "required": [
     "apiVersion",

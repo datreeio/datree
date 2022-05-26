@@ -1,4 +1,4 @@
-package policy
+package defaultRules
 
 import (
 	"encoding/json"

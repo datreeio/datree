@@ -1,3 +1,5 @@
+# for autocompletion in VS Code
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/datree/main/pkg/validatePoliciesYaml/policiesSchema.json
 apiVersion: v1
 policies:
   - name: Default
@@ -12,7 +14,7 @@ policies:
       - identifier: CONTAINERS_MISSING_CPU_REQUEST_KEY
         messageOnFailure: Missing property object `requests.cpu` - value should be within the accepted boundaries recommended by the organization
       - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
-        messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and therefor, will not work as expected'
+        messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and therefor, will not work as expected"
       - identifier: WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS
         messageOnFailure: Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource
       - identifier: CONTAINERS_MISSING_CPU_LIMIT_KEY
@@ -26,7 +28,7 @@ policies:
       - identifier: K8S_DEPRECATED_APIVERSION_1.16
         messageOnFailure: Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.16)
       - identifier: CONTAINERS_MISSING_IMAGE_VALUE_DIGEST
-        messageOnFailure: 'Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image'
+        messageOnFailure: "Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image"
       - identifier: CONTAINERS_INCORRECT_HOSTIPC_VALUE_TRUE
         messageOnFailure: Incorrect value for key `hostIPC` - running on the host’s IPC namespace can be (maliciously) used to interact with other processes running outside the container
       - identifier: DEPLOYMENT_INCORRECT_REPLICAS_VALUE
@@ -78,28 +80,28 @@ customRules:
     schema:
       type: object
       if:
-       properties:
-         kind:
-           enum:
-             - PodDisruptionBudget
+        properties:
+          kind:
+            enum:
+              - PodDisruptionBudget
       then:
-       required:
-       - spec
-       properties:
-         metadata:
-           type: object
-         spec:
-           type: object
-           properties:
-             minAvailable:
-               not:
-                 const: '100%'
-             maxUnavailable:
-               allOf:
-               - not:
-                   const: 0
-               - not:
-                   const: '0%'
+        required:
+          - spec
+        properties:
+          metadata:
+            type: object
+          spec:
+            type: object
+            properties:
+              minAvailable:
+                not:
+                  const: "100%"
+              maxUnavailable:
+                allOf:
+                  - not:
+                      const: 0
+                  - not:
+                      const: "0%"
   - identifier: WORKLOAD_MISSING_NAMESPACE_FOR_NAMESPACED_RESOURCES
     name: Ensure namespaced resources have namespace specified
     defaultMessageOnFailure: Namespaced resources without namespace is not allowed by the organization, please specify a valid namespace in the cluster
@@ -146,7 +148,7 @@ customRules:
           metadata:
             type: object
             required:
-            - namespace
+              - namespace
             properties:
               namespace:
                 type: string
@@ -162,19 +164,19 @@ customRules:
             enum:
               - Ingress
       then:
-       required:
-         - spec
-       properties:
-         spec:
-           type: object
-           required:
-             - rules
-           properties:
-             rules:
-               type: array
-               items:
-                 type: object
-                 properties:
-                   host:
-                     type: string
-                     pattern: "^.*$"
+        required:
+          - spec
+        properties:
+          spec:
+            type: object
+            required:
+              - rules
+            properties:
+              rules:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    host:
+                      type: string
+                      pattern: "^.*$"

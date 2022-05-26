@@ -1,0 +1,16 @@
+apiVersion: v1
+policies:
+  - name: Default
+    isDefault: true
+    rules:
+      - identifier: SOME_IDENTIFIER_NAME
+        messageOnFailure: ''
+customRules:
+  - identifier: SOME_IDENTIFIER_NAME
+    name: pods to undergo least voluntary disruption
+    defaultMessageOnFailure: Setting minAvailable to 100 and maxUnavailable to 0 is not allowed by the organization, as node on which the pod is running can never be drained.
+    jsonSchema: "{\"definitions\": [1,2,3]}"
+    schema:
+      type: object
+      required:
+        - spec

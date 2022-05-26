@@ -1,11 +1,12 @@
 language: go
 go:
-  - "1.17"
+  - "1.18"
 
-dist: trusty
+dist: focal 
 
 before_script:
-  - pyenv global 3.6
+  - pyenv install 3.6.10
+  - pyenv global 3.6.10
   - pip install -U pip
   - pip install --user awscli
   - aws --version

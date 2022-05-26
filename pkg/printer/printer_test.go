@@ -12,7 +12,7 @@ func TestPrintWarnings(t *testing.T) {
 	printer := CreateNewPrinter()
 
 	warnings := []Warning{{
-		Title: "Failed with Occurrences",
+		Title: "~/.datree/k8-demo.yaml",
 		FailedRules: []FailedRule{
 			{
 				Name:               "Caption",
@@ -23,17 +23,17 @@ func TestPrintWarnings(t *testing.T) {
 		},
 	},
 		{
-			Title:           "Failed with yaml validation",
+			Title:           "/datree/datree/internal/fixtures/kube/yaml-validation-error.yaml\n",
 			FailedRules:     []FailedRule{},
 			InvalidYamlInfo: InvalidYamlInfo{ValidationErrors: []error{fmt.Errorf("yaml validation error")}},
 		},
 		{
-			Title:          "Failed with k8s validation",
+			Title:          "/datree/datree/internal/fixtures/kube/k8s-validation-error.yaml\n",
 			FailedRules:    []FailedRule{},
 			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
 		},
 		{
-			Title:          ">>  File: /datree/datree/internal/fixtures/kube/Chart.yaml\n",
+			Title:          "/datree/datree/internal/fixtures/kube/Chart.yaml\n",
 			FailedRules:    []FailedRule{},
 			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
 			ExtraMessages: []ExtraMessage{{Text: "Are you trying to test a raw helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree",
@@ -50,7 +50,8 @@ func TestPrintWarnings(t *testing.T) {
 		got := out.(*bytes.Buffer).Bytes()
 
 		expected := []byte(
-			`Failed with Occurrences
+			`>>  File: ~/.datree/k8-demo.yaml
+
 [V] YAML validation
 [V] Kubernetes schema validation
 
@@ -60,7 +61,9 @@ func TestPrintWarnings(t *testing.T) {
     — metadata.name: yishay (kind: Pod)
 💡  Suggestion
 
-Failed with yaml validation
+>>  File: /datree/datree/internal/fixtures/kube/yaml-validation-error.yaml
+
+
 [X] YAML validation
 
 ❌  yaml validation error
@@ -68,7 +71,9 @@ Failed with yaml validation
 [?] Kubernetes schema validation didn't run for this file
 [?] Policy check didn't run for this file
 
-Failed with k8s validation
+>>  File: /datree/datree/internal/fixtures/kube/k8s-validation-error.yaml
+
+
 [V] YAML validation
 [X] Kubernetes schema validation
 
@@ -77,6 +82,7 @@ Failed with k8s validation
 [?] Policy check didn't run for this file
 
 >>  File: /datree/datree/internal/fixtures/kube/Chart.yaml
+
 
 [V] YAML validation
 [X] Kubernetes schema validation
@@ -102,7 +108,8 @@ https://github.com/datreeio/helm-datree
 		got := out.(*bytes.Buffer).Bytes()
 
 		expected := []byte(
-			`Failed with Occurrences
+			`>>  File: ~/.datree/k8-demo.yaml
+
 [V] YAML validation
 [V] Kubernetes schema validation
 
@@ -112,7 +119,9 @@ https://github.com/datreeio/helm-datree
     — metadata.name: yishay (kind: Pod)
 [*]  Suggestion
 
-Failed with yaml validation
+>>  File: /datree/datree/internal/fixtures/kube/yaml-validation-error.yaml
+
+
 [X] YAML validation
 
 [X]  yaml validation error
@@ -120,7 +129,9 @@ Failed with yaml validation
 [?] Kubernetes schema validation didn't run for this file
 [?] Policy check didn't run for this file
 
-Failed with k8s validation
+>>  File: /datree/datree/internal/fixtures/kube/k8s-validation-error.yaml
+
+
 [V] YAML validation
 [X] Kubernetes schema validation
 
@@ -129,6 +140,7 @@ Failed with k8s validation
 [?] Policy check didn't run for this file
 
 >>  File: /datree/datree/internal/fixtures/kube/Chart.yaml
+
 
 [V] YAML validation
 [X] Kubernetes schema validation

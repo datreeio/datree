@@ -76,8 +76,8 @@ func (flags *TestCommandFlags) Validate() error {
 	outputValue := flags.Output
 
 	if !evaluation.IsValidOutputOption(outputValue) {
-		return fmt.Errorf("Invalid --output option - %q\n"+
-			"Valid output values are - "+strings.Join(evaluation.ExplicitOptionOptions, ", ")+"\n", outputValue)
+		return fmt.Errorf("invalid --output option - %q\n"+
+			"Valid output values are - "+evaluation.OutputFormats(), outputValue)
 	}
 
 	err := validateK8sVersionFormatIfProvided(flags.K8sVersion)
@@ -239,11 +239,12 @@ func (flags *TestCommandFlags) ToMapping() map[string]interface{} {
 
 // AddFlags registers flags for a cli
 func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
+	defaultOutputValue := ""
 	if ciContext.Extract() != nil && ciContext.Extract().CIMetadata.ShouldHideEmojis {
-		cmd.Flags().StringVarP(&flags.Output, "output", "o", "simple", "Define output format")
-	} else {
-		cmd.Flags().StringVarP(&flags.Output, "output", "o", "", "Define output format")
+		defaultOutputValue = "simple"
 	}
+	cmd.Flags().StringVarP(&flags.Output, "output", "o", defaultOutputValue, "Define output format ("+evaluation.OutputFormats()+")")
+
 	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.19.0")
 	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
 
@@ -275,7 +276,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 
 	if testCommandFlags.PolicyConfig != "" {
 		if !evaluationPrerunDataResp.IsPolicyAsCodeMode {
-			return nil, fmt.Errorf("To use --policy-config flag you must first enable policy-as-code mode: https://hub.datree.io/policy-as-code")
+			return nil, fmt.Errorf("to use --policy-config flag you must first enable policy-as-code mode: https://hub.datree.io/policy-as-code")
 		}
 
 		policies, err = policy.GetPoliciesFileFromPath(testCommandFlags.PolicyConfig)
@@ -317,7 +318,7 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 	if isK8sVersionInCorrectFormat {
 		return nil
 	} else {
-		return fmt.Errorf("The specified schema-version %q is not in the correct format.\n"+
+		return fmt.Errorf("the specified schema-version %q is not in the correct format.\n"+
 			"Make sure you are following the semantic versioning format <MAJOR>.<MINOR>.<PATCH>\n"+
 			"Read more about kubernetes versioning: https://kubernetes.io/releases/version-skew-policy/#supported-versions", k8sVersion)
 	}
@@ -343,7 +344,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 	}
 	filesCount := len(filesPaths)
 	if filesCount == 0 {
-		noFilesErr := fmt.Errorf("No files detected")
+		noFilesErr := fmt.Errorf("no files detected")
 		return noFilesErr
 	}
 

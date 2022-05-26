@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/policy"
+	"github.com/datreeio/datree/pkg/defaultRules"
 
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
@@ -145,7 +145,7 @@ func readOutput(outputFormat string, formattedOutput FormattedOutput, rulesData 
 }
 
 func createRulesData() []cliClient.RuleData {
-	dr, err := policy.GetDefaultRules()
+	dr, err := defaultRules.GetDefaultRules()
 	if err != nil {
 		panic(err)
 	}

@@ -11,10 +11,11 @@ import (
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
+	"github.com/datreeio/datree/pkg/utils"
 )
 
 const (
-	SKIP_RULE_PREFIX string = "datree.io/skip/"
+	SKIP_RULE_PREFIX string = "datree.skip/"
 )
 
 type CLIClient interface {
@@ -70,7 +71,7 @@ type EvaluationRequestData struct {
 	EvaluationDurationSeconds float64
 }
 
-var OSInfoFn = NewOSInfo
+var OSInfoFn = utils.NewOSInfo
 
 func (e *Evaluator) SendEvaluationResult(evaluationRequestData EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
 	osInfo := OSInfoFn()

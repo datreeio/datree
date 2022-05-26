@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine AS builder
+FROM golang:1.18-alpine AS builder
 RUN apk --no-cache add curl
 
 WORKDIR /go/src/app
