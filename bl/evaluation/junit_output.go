@@ -72,13 +72,13 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUn
 	return jUnitOutput
 }
 
-func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults, rulesData []cliClient.RuleData) testSuite {
+func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults, allEnabledRules []cliClient.RuleData) testSuite {
 	suite := testSuite{
 		Name:      policyValidationResult.FileName,
 		TestCases: []testCase{},
 	}
 
-	for _, rule := range rulesData {
+	for _, rule := range allEnabledRules {
 		testCase := testCase{
 			Name:      rule.Name,
 			ClassName: rule.Identifier,
