@@ -494,7 +494,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	additionalJUnitData := evaluation.AdditionalJUnitData{
 		AllEnabledRules: policyCheckResultData.RulesData,
-		AllFiles:        []string{},
+		AllFiles:        utils.MapSlice[cliClient.FileData, string](policyCheckResultData.FilesData, func(fileData cliClient.FileData) string { return fileData.FilePath }),
 	}
 
 	if prerunData.NoRecord {
