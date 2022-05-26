@@ -50,8 +50,8 @@ type failure struct {
 }
 
 type AdditionalJUnitData struct {
-	AllEnabledRules []cliClient.RuleData
-	AllFiles        []string
+	AllEnabledRules            []cliClient.RuleData
+	AllFilesThatRanPolicyCheck []string
 }
 
 func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUnitData AdditionalJUnitData) JUnitOutput {

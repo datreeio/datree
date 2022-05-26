@@ -481,8 +481,8 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		RulesCount:        0,
 		FormattedResults:  evaluation.FormattedResults{},
 		AdditionalJUnitData: evaluation.AdditionalJUnitData{
-			AllEnabledRules: []cliClient.RuleData{},
-			AllFiles:        []string{},
+			AllEnabledRules:            []cliClient.RuleData{},
+			AllFilesThatRanPolicyCheck: []string{},
 		},
 		PromptMessage: "",
 	}
@@ -493,8 +493,8 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}
 
 	additionalJUnitData := evaluation.AdditionalJUnitData{
-		AllEnabledRules: policyCheckResultData.RulesData,
-		AllFiles:        utils.MapSlice[cliClient.FileData, string](policyCheckResultData.FilesData, func(fileData cliClient.FileData) string { return fileData.FilePath }),
+		AllEnabledRules:            policyCheckResultData.RulesData,
+		AllFilesThatRanPolicyCheck: utils.MapSlice[cliClient.FileData, string](policyCheckResultData.FilesData, func(fileData cliClient.FileData) string { return fileData.FilePath }),
 	}
 
 	if prerunData.NoRecord {

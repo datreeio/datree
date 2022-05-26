@@ -172,8 +172,8 @@ func createAdditionalJUnitData() AdditionalJUnitData {
 		}
 	}
 	return AdditionalJUnitData{
-		AllEnabledRules: result,
-		AllFiles:        []string{"File1", "File2"},
+		AllEnabledRules:            result,
+		AllFilesThatRanPolicyCheck: []string{"File1", "File2"},
 	}
 }
 
@@ -285,8 +285,8 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 				},
 			},
 			additionalJUnitData: AdditionalJUnitData{
-				AllEnabledRules: []cliClient.RuleData{},
-				AllFiles:        []string{},
+				AllEnabledRules:            []cliClient.RuleData{},
+				AllFilesThatRanPolicyCheck: []string{},
 			},
 			invalidYamlFiles:  []*extractor.InvalidFile{},
 			invalidK8sFiles:   []*extractor.InvalidFile{},
