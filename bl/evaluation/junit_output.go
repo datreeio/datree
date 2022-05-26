@@ -203,10 +203,10 @@ func areAllOccurrencesSkipped(occurrencesDetails []OccurrenceDetails) bool {
 	return true
 }
 
-func findFileInPolicyValidationResults(fileName string, formattedEvaluationResults []*FormattedEvaluationResults) *FormattedEvaluationResults {
-	for _, formattedEvaluationResult := range formattedEvaluationResults {
-		if formattedEvaluationResult.FileName == fileName {
-			return formattedEvaluationResult
+func findFileInPolicyValidationResults(fileName string, policyValidationResults []*FormattedEvaluationResults) *FormattedEvaluationResults {
+	for _, policyValidationResult := range policyValidationResults {
+		if policyValidationResult.FileName == fileName {
+			return policyValidationResult
 		}
 	}
 	return nil
