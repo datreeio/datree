@@ -378,7 +378,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 
 	err = evaluation.PrintResults(&evaluation.PrintResultsData{
 		Results:               results,
-		RulesData:             evaluationResultData.RulesData,
+		AdditionalJUnitData:   evaluationResultData.AdditionalJUnitData,
 		InvalidYamlFiles:      validationManager.InvalidYamlFiles(),
 		InvalidK8sFiles:       validationManager.InvalidK8sFiles(),
 		EvaluationSummary:     evaluationSummary,
@@ -417,11 +417,11 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 }
 
 type EvaluationResultData struct {
-	ValidationManager *ValidationManager
-	RulesCount        int
-	FormattedResults  evaluation.FormattedResults
-	RulesData         []cliClient.RuleData
-	PromptMessage     string
+	ValidationManager   *ValidationManager
+	RulesCount          int
+	FormattedResults    evaluation.FormattedResults
+	AdditionalJUnitData evaluation.AdditionalJUnitData
+	PromptMessage       string
 }
 
 func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (EvaluationResultData, error) {
@@ -480,8 +480,11 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		ValidationManager: nil,
 		RulesCount:        0,
 		FormattedResults:  evaluation.FormattedResults{},
-		RulesData:         []cliClient.RuleData{},
-		PromptMessage:     "",
+		AdditionalJUnitData: evaluation.AdditionalJUnitData{
+			RulesData: []cliClient.RuleData{},
+			AllFiles:  []string{},
+		},
+		PromptMessage: "",
 	}
 
 	policyCheckResultData, err := ctx.Evaluator.Evaluate(policyCheckData)
@@ -494,8 +497,11 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 			ValidationManager: validationManager,
 			RulesCount:        policyCheckResultData.RulesCount,
 			FormattedResults:  policyCheckResultData.FormattedResults,
-			RulesData:         policyCheckResultData.RulesData,
-			PromptMessage:     "",
+			AdditionalJUnitData: evaluation.AdditionalJUnitData{
+				policyCheckResultData.RulesData,
+				[]string{},
+			},
+			PromptMessage: "",
 		}, nil
 	}
 
@@ -541,8 +547,11 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		ValidationManager: validationManager,
 		RulesCount:        policyCheckResultData.RulesCount,
 		FormattedResults:  policyCheckResultData.FormattedResults,
-		RulesData:         policyCheckResultData.RulesData,
-		PromptMessage:     sendEvaluationResultsResponse.PromptMessage,
+		AdditionalJUnitData: evaluation.AdditionalJUnitData{
+			RulesData: policyCheckResultData.RulesData,
+			AllFiles:  []string{},
+		},
+		PromptMessage: sendEvaluationResultsResponse.PromptMessage,
 	}
 
 	return evaluationResultData, nil
