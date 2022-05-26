@@ -173,7 +173,7 @@ func createAdditionalJUnitData() AdditionalJUnitData {
 	}
 	return AdditionalJUnitData{
 		AllEnabledRules: result,
-		AllFiles:        []string{},
+		AllFiles:        []string{"File1", "File2"},
 	}
 }
 

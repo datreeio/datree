@@ -492,16 +492,18 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		return emptyEvaluationResultData, err
 	}
 
+	additionalJUnitData := evaluation.AdditionalJUnitData{
+		AllEnabledRules: policyCheckResultData.RulesData,
+		AllFiles:        []string{},
+	}
+
 	if prerunData.NoRecord {
 		return EvaluationResultData{
-			ValidationManager: validationManager,
-			RulesCount:        policyCheckResultData.RulesCount,
-			FormattedResults:  policyCheckResultData.FormattedResults,
-			AdditionalJUnitData: evaluation.AdditionalJUnitData{
-				policyCheckResultData.RulesData,
-				[]string{},
-			},
-			PromptMessage: "",
+			ValidationManager:   validationManager,
+			RulesCount:          policyCheckResultData.RulesCount,
+			FormattedResults:    policyCheckResultData.FormattedResults,
+			AdditionalJUnitData: additionalJUnitData,
+			PromptMessage:       "",
 		}, nil
 	}
 
@@ -544,14 +546,11 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}
 
 	evaluationResultData := EvaluationResultData{
-		ValidationManager: validationManager,
-		RulesCount:        policyCheckResultData.RulesCount,
-		FormattedResults:  policyCheckResultData.FormattedResults,
-		AdditionalJUnitData: evaluation.AdditionalJUnitData{
-			AllEnabledRules: policyCheckResultData.RulesData,
-			AllFiles:        []string{},
-		},
-		PromptMessage: sendEvaluationResultsResponse.PromptMessage,
+		ValidationManager:   validationManager,
+		RulesCount:          policyCheckResultData.RulesCount,
+		FormattedResults:    policyCheckResultData.FormattedResults,
+		AdditionalJUnitData: additionalJUnitData,
+		PromptMessage:       sendEvaluationResultsResponse.PromptMessage,
 	}
 
 	return evaluationResultData, nil
