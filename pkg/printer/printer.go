@@ -177,7 +177,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 				}
 
 				for _, occurrenceDetails := range skippedRule.OccurrencesDetails {
-					sb.WriteString(fmt.Sprintf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
+					sb.WriteString(fmt.Sprintf("    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
 					m := p.Theme.Colors.White.Sprint(occurrenceDetails.SkipMessage)
 					sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, m))
 				}
@@ -206,7 +206,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 				}
 
 				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
-					sb.WriteString(fmt.Sprintf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
+					sb.WriteString(fmt.Sprintf("    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
 				}
 				sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion))
 
