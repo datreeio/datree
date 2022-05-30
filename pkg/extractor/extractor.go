@@ -120,13 +120,13 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 			return nil, err
 		}
 
-		configurations = append(configurations, extractMetadataNameAndKind(jsonByte))
+		configurations = append(configurations, extractConfigurationK8sData(jsonByte))
 	}
 
 	return &configurations, nil
 }
 
-func extractMetadataNameAndKind(content []byte) Configuration {
+func extractConfigurationK8sData(content []byte) Configuration {
 	var configuration Configuration
 	jsonParse, err := ParseJsonToK8sValues(content)
 

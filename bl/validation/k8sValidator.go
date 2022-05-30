@@ -13,11 +13,6 @@ import (
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 )
 
-type MetadataAndKind struct {
-	metadata string
-	kind     string
-}
-
 type ValidationClient interface {
 	Validate(filename string, r io.ReadCloser) []kubeconformValidator.Result
 }
