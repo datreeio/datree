@@ -134,7 +134,6 @@ func extractConfigurationK8sData(content []byte) Configuration {
 			if metadata["annotations"] != nil {
 				configuration.Annotations = metadata["annotations"].(map[string]interface{})
 			}
-
 		}
 	}
 
