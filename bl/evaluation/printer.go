@@ -363,7 +363,7 @@ func (t OutputTitle) String() string {
 
 func buildEnabledRulesTitle(policyName string) string {
 	var str strings.Builder
-	fmt.Fprintf(&str, "Enabled rules in policy “%s”", policyName)
+	fmt.Fprintf(&str, "Enabled rules in policy \"%s\"", policyName)
 	return str.String()
 }
 
