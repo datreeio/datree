@@ -1,5 +1,19 @@
 #!/bin/bash
 
+create_uninstall_script()
+{
+    UNINSTALL_SCRIPT="$HOME/.datree/uninstall.sh"
+    touch $UNINSTALL_SCRIPT && chmod +x $UNINSTALL_SCRIPT
+
+    echo "if [ \"\$(id -u)\" -ne 0 ] ; then" >> $UNINSTALL_SCRIPT
+    echo "echo \"This script must be executed with root privileges.\" && exit 1" >> $UNINSTALL_SCRIPT
+    echo "fi" >> $UNINSTALL_SCRIPT
+    echo "rm -f /usr/local/bin/datree" >> $UNINSTALL_SCRIPT
+    echo "rm -rf $HOME/.datree" >> $UNINSTALL_SCRIPT
+    echo "echo \"Datree was successfully uninstalled.\"" >> $UNINSTALL_SCRIPT
+}
+
+
 set -e
 
 osName=$(uname -s)
@@ -45,7 +59,12 @@ cp $OUTPUT_BASENAME/datree /usr/local/bin 2> /dev/null || sudo cp $OUTPUT_BASENA
 rm $OUTPUT_BASENAME_WITH_POSTFIX
 rm -rf $OUTPUT_BASENAME
 
+# download and save demo file
 curl -s https://get.datree.io/k8s-demo.yaml > ~/.datree/k8s-demo.yaml
+
+# create uninstall script
+create_uninstall_script
+
 echo -e "\033[32m[V] Finished Installation\033[0m"
 
 echo
