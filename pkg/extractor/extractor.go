@@ -84,15 +84,6 @@ func ParseYaml(content string) (*[]Configuration, error) {
 	}
 }
 
-func ParseJsonToK8sValues(content []byte) (map[string]interface{}, error) {
-	var values map[string]interface{}
-	err := json.Unmarshal(content, &values)
-	if err != nil {
-		return nil, err
-	}
-	return values, nil
-}
-
 func extractYamlConfigurations(content string) (*[]Configuration, error) {
 	var configurations []Configuration
 
@@ -128,25 +119,24 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 
 func extractConfigurationK8sData(content []byte) Configuration {
 	var configuration Configuration
-	jsonParse, err := ParseJsonToK8sValues(content)
+	var jsonObject map[string]interface{}
+	configuration.Payload = content
+	err := json.Unmarshal(content, &jsonObject)
 
 	if err != nil {
-		configuration.MetadataName = ""
-		configuration.Kind = ""
+		return configuration
 	}
 
-	configuration.Payload = content
-
-	if jsonParse["metadata"] != nil {
-		metadata := jsonParse["metadata"].(map[string]interface{})
+	if jsonObject["metadata"] != nil {
+		metadata := jsonObject["metadata"].(map[string]interface{})
 		if metadata["name"] != nil {
 			configuration.MetadataName = metadata["name"].(string)
 			configuration.Annotations = metadata["annotations"].(map[string]interface{})
 		}
 	}
 
-	if jsonParse["kind"] != nil {
-		configuration.Kind = jsonParse["kind"].(string)
+	if jsonObject["kind"] != nil {
+		configuration.Kind = jsonObject["kind"].(string)
 	}
 
 	return configuration
