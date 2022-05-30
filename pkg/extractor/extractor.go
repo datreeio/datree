@@ -2,12 +2,14 @@ package extractor
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
+	yamlConvertor "sigs.k8s.io/yaml"
 )
 
 type InvalidFile struct {
@@ -60,7 +62,13 @@ func ExtractConfigurationsFromYamlFile(path string) (*[]Configuration, string, *
 	return configurations, absolutePath, nil
 }
 
-type Configuration map[string]interface{}
+type Configuration struct {
+	MetadataName string
+	Kind         string
+	ApiVersion   string
+	Annotations  map[string]interface{}
+	Payload      []byte
+}
 
 type FileConfigurations struct {
 	FileName       string          `json:"fileName"`
@@ -76,6 +84,15 @@ func ParseYaml(content string) (*[]Configuration, error) {
 	}
 }
 
+func ParseJsonToK8sValues(content []byte) (map[string]interface{}, error) {
+	var values map[string]interface{}
+	err := json.Unmarshal(content, &values)
+	if err != nil {
+		return nil, err
+	}
+	return values, nil
+}
+
 func extractYamlConfigurations(content string) (*[]Configuration, error) {
 	var configurations []Configuration
 
@@ -83,22 +100,56 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 
 	var err error
 	for {
-		var doc = map[string]interface{}{}
-		err = yamlDecoder.Decode(&doc)
+		var anyTypeStore interface{}
+		err = yamlDecoder.Decode(&anyTypeStore)
 		if err != nil {
-			break
+			if err == io.EOF {
+				break
+			} else {
+				return nil, err
+			}
 		}
 
-		if len(doc) > 0 {
-			configurations = append(configurations, doc)
+		yamlByteArray, err := yaml.Marshal(anyTypeStore)
+		if err != nil {
+			return nil, err
+		}
+
+		jsonByte, err := yamlConvertor.YAMLToJSON(yamlByteArray)
+		if err != nil {
+			return nil, err
+		}
+
+		configurations = append(configurations, extractMetadataNameAndKind(jsonByte))
+	}
+
+	return &configurations, nil
+}
+
+func extractMetadataNameAndKind(content []byte) Configuration {
+	var configuration Configuration
+	jsonParse, err := ParseJsonToK8sValues(content)
+
+	if err != nil {
+		configuration.MetadataName = ""
+		configuration.Kind = ""
+	}
+
+	configuration.Payload = content
+
+	if jsonParse["metadata"] != nil {
+		metadata := jsonParse["metadata"].(map[string]interface{})
+		if metadata["name"] != nil {
+			configuration.MetadataName = metadata["name"].(string)
+			configuration.Annotations = metadata["annotations"].(map[string]interface{})
 		}
 	}
 
-	if err == io.EOF {
-		err = nil
+	if jsonParse["kind"] != nil {
+		configuration.Kind = jsonParse["kind"].(string)
 	}
 
-	return &configurations, err
+	return configuration
 }
 
 func ReadFileContent(filepath string) (string, error) {

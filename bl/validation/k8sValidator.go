@@ -13,6 +13,11 @@ import (
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 )
 
+type MetadataAndKind struct {
+	metadata string
+	kind     string
+}
+
 type ValidationClient interface {
 	Validate(filename string, r io.ReadCloser) []kubeconformValidator.Result
 }
@@ -128,9 +133,8 @@ func (val *K8sValidator) GetK8sFiles(filesConfigurationsChan chan *extractor.Fil
 
 func (val *K8sValidator) isK8sFile(fileConfigurations []extractor.Configuration) bool {
 	for _, configuration := range fileConfigurations {
-		_, has_apiVersion := configuration["apiVersion"]
-		_, has_kind := configuration["kind"]
-
+		has_apiVersion := configuration.ApiVersion != ""
+		has_kind := configuration.Kind != ""
 		if !has_apiVersion || !has_kind {
 			return false
 		}
