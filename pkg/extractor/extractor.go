@@ -2,12 +2,14 @@ package extractor
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
+	yamlConvertor "sigs.k8s.io/yaml"
 )
 
 type InvalidFile struct {
@@ -60,7 +62,13 @@ func ExtractConfigurationsFromYamlFile(path string) (*[]Configuration, string, *
 	return configurations, absolutePath, nil
 }
 
-type Configuration map[string]interface{}
+type Configuration struct {
+	MetadataName string
+	Kind         string
+	ApiVersion   string
+	Annotations  map[string]interface{}
+	Payload      []byte
+}
 
 type FileConfigurations struct {
 	FileName       string          `json:"fileName"`
@@ -83,22 +91,55 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 
 	var err error
 	for {
-		var doc = map[string]interface{}{}
-		err = yamlDecoder.Decode(&doc)
+		var anyTypeStore interface{}
+		err = yamlDecoder.Decode(&anyTypeStore)
 		if err != nil {
-			break
+			if err == io.EOF {
+				break
+			} else {
+				return nil, err
+			}
 		}
 
-		if len(doc) > 0 {
-			configurations = append(configurations, doc)
+		yamlByteArray, err := yaml.Marshal(anyTypeStore)
+		if err != nil {
+			return nil, err
+		}
+
+		jsonByte, err := yamlConvertor.YAMLToJSON(yamlByteArray)
+		if err != nil {
+			return nil, err
+		}
+
+		configurations = append(configurations, extractConfigurationK8sData(jsonByte))
+	}
+
+	return &configurations, nil
+}
+
+func extractConfigurationK8sData(content []byte) Configuration {
+	var configuration Configuration
+	var jsonObject map[string]interface{}
+	configuration.Payload = content
+	err := json.Unmarshal(content, &jsonObject)
+
+	if err != nil {
+		return configuration
+	}
+
+	if jsonObject["metadata"] != nil {
+		metadata := jsonObject["metadata"].(map[string]interface{})
+		if metadata["name"] != nil {
+			configuration.MetadataName = metadata["name"].(string)
+			configuration.Annotations = metadata["annotations"].(map[string]interface{})
 		}
 	}
 
-	if err == io.EOF {
-		err = nil
+	if jsonObject["kind"] != nil {
+		configuration.Kind = jsonObject["kind"].(string)
 	}
 
-	return &configurations, err
+	return configuration
 }
 
 func ReadFileContent(filepath string) (string, error) {

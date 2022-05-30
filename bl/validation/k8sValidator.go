@@ -128,9 +128,8 @@ func (val *K8sValidator) GetK8sFiles(filesConfigurationsChan chan *extractor.Fil
 
 func (val *K8sValidator) isK8sFile(fileConfigurations []extractor.Configuration) bool {
 	for _, configuration := range fileConfigurations {
-		_, has_apiVersion := configuration["apiVersion"]
-		_, has_kind := configuration["kind"]
-
+		has_apiVersion := configuration.ApiVersion != ""
+		has_kind := configuration.Kind != ""
 		if !has_apiVersion || !has_kind {
 			return false
 		}
