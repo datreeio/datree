@@ -265,16 +265,20 @@ func (p *Printer) PrintSummaryTable(summary Summary) {
 	}
 
 	skipRow := []string{summary.SkipRow.LeftCol, summary.SkipRow.RightCol}
-	summaryTable.Rich(skipRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Cyan)}, {int(p.Theme.ColorsAttributes.Cyan)}})
-	rowIndex++
-
 	errorRow := []string{summary.ErrorRow.LeftCol, summary.ErrorRow.RightCol}
-	summaryTable.Rich(errorRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Red)}, {int(p.Theme.ColorsAttributes.Red)}})
-	rowIndex++
-
 	successRow := []string{summary.SuccessRow.LeftCol, summary.SuccessRow.RightCol}
-	summaryTable.Rich(successRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Green)}, {int(p.Theme.ColorsAttributes.Green)}})
-	rowIndex++
+	
+	if p.Theme.Name == "Simple" {
+		summaryTable.Append(skipRow)
+		summaryTable.Append(errorRow)
+		summaryTable.Append(successRow)
+	} else {		
+		summaryTable.Rich(skipRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Cyan)}, {int(p.Theme.ColorsAttributes.Cyan)}})
+		summaryTable.Rich(errorRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Red)}, {int(p.Theme.ColorsAttributes.Red)}})
+		summaryTable.Rich(successRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Green)}, {int(p.Theme.ColorsAttributes.Green)}})
+	}
+	
+	rowIndex = rowIndex + 3
 
 	for plainRowsIndex < len(summary.PlainRows) && summary.PlainRows[plainRowsIndex].RowIndex >= rowIndex {
 		summaryTable.Append([]string{summary.PlainRows[plainRowsIndex].LeftCol, summary.PlainRows[plainRowsIndex].RightCol})
