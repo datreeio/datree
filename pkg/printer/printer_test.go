@@ -58,7 +58,7 @@ func TestPrintWarnings(t *testing.T) {
 [X] Policy check
 
 ❌  Caption  [1 occurrence]
-    — metadata.name: yishay (kind: Pod)
+    - metadata.name: yishay (kind: Pod)
 💡  Suggestion
 
 >>  File: /datree/datree/internal/fixtures/kube/yaml-validation-error.yaml
@@ -116,7 +116,7 @@ https://github.com/datreeio/helm-datree
 [X] Policy check
 
 [X]  Caption  [1 occurrence]
-    — metadata.name: yishay (kind: Pod)
+    - metadata.name: yishay (kind: Pod)
 [*]  Suggestion
 
 >>  File: /datree/datree/internal/fixtures/kube/yaml-validation-error.yaml

@@ -164,7 +164,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 				}
 
 				for _, occurrenceDetails := range skippedRule.OccurrencesDetails {
-					fmt.Fprintf(out, "    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
+					fmt.Fprintf(out, "    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
 					m := p.Theme.Colors.White.Sprint(occurrenceDetails.SkipMessage)
 					fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Suggestion, m)
 				}
@@ -193,7 +193,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 				}
 
 				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
-					fmt.Fprintf(out, "    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
+					fmt.Fprintf(out, "    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
 				}
 				fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion)
 
