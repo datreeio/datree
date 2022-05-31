@@ -2,6 +2,7 @@ package test
 
 import (
 	"encoding/json"
+	evaluation2 "github.com/datreeio/datree/pkg/evaluation"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -18,7 +19,6 @@ import (
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/pkg/errors"
 
-	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -45,7 +45,7 @@ type TestFlowTestCase struct {
 			filesWithWarningsChan      chan *validation.FileWithWarning
 		}
 		Evaluate struct {
-			policyCheckResultData evaluation.PolicyCheckResultData
+			policyCheckResultData evaluation2.PolicyCheckResultData
 			err                   error
 		}
 		SendEvaluationResult struct {
@@ -58,10 +58,10 @@ type TestFlowTestCase struct {
 			filesConfigurationsChan chan *extractor.FileConfigurations
 		}
 		Evaluate struct {
-			evaluationData evaluation.PolicyCheckData
+			evaluationData evaluation2.PolicyCheckData
 		}
 		SendEvaluationResult struct {
-			evaluationRequestData evaluation.EvaluationRequestData
+			evaluationRequestData evaluation2.EvaluationRequestData
 		}
 		PrintWarnings     []printer.Warning
 		EvaluationSummary printer.EvaluationSummary
@@ -69,12 +69,12 @@ type TestFlowTestCase struct {
 	}
 }
 
-func (m *mockEvaluator) Evaluate(evaluationData evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error) {
+func (m *mockEvaluator) Evaluate(evaluationData evaluation2.PolicyCheckData) (evaluation2.PolicyCheckResultData, error) {
 	args := m.Called(evaluationData)
-	return args.Get(0).(evaluation.PolicyCheckResultData), args.Error(1)
+	return args.Get(0).(evaluation2.PolicyCheckResultData), args.Error(1)
 }
 
-func (m *mockEvaluator) SendEvaluationResult(evaluationRequestData evaluation.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
+func (m *mockEvaluator) SendEvaluationResult(evaluationRequestData evaluation2.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error) {
 	args := m.Called(evaluationRequestData)
 	return args.Get(0).(*cliClient.SendEvaluationResultsResponse), args.Error(1)
 }
@@ -272,7 +272,7 @@ func TestTestFlow(t *testing.T) {
 			printerMock.AssertNotCalled(t, "SetTheme", mock.Anything)
 			filesExtractorMock.AssertCalled(t, "ExtractFilesConfigurations", tt.args.path, 100)
 			k8sValidatorMock.AssertCalled(t, "ValidateResources", tt.expected.ValidateResources.filesConfigurationsChan, 100)
-			evaluatorMock.AssertCalled(t, "Evaluate", mock.MatchedBy(func(policyCheckData evaluation.PolicyCheckData) bool {
+			evaluatorMock.AssertCalled(t, "Evaluate", mock.MatchedBy(func(policyCheckData evaluation2.PolicyCheckData) bool {
 				expectedPolicyCheckData := tt.expected.Evaluate.evaluationData
 				if len(policyCheckData.FilesConfigurations) == len(expectedPolicyCheckData.FilesConfigurations) {
 					for index, validK8sFilesConfiguration := range policyCheckData.FilesConfigurations {
@@ -290,7 +290,7 @@ func TestTestFlow(t *testing.T) {
 				}
 				return true
 			}))
-			evaluatorMock.AssertCalled(t, "SendEvaluationResult", mock.MatchedBy(func(evaluationRequestData evaluation.EvaluationRequestData) bool {
+			evaluatorMock.AssertCalled(t, "SendEvaluationResult", mock.MatchedBy(func(evaluationRequestData evaluation2.EvaluationRequestData) bool {
 				expectedEvaluationRequestData := tt.expected.SendEvaluationResult.evaluationRequestData
 				if expectedEvaluationRequestData.PolicyName != evaluationRequestData.PolicyName {
 					return false
@@ -367,7 +367,7 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 				filesWithWarningsChan      chan *validation.FileWithWarning
 			}
 			Evaluate struct {
-				policyCheckResultData evaluation.PolicyCheckResultData
+				policyCheckResultData evaluation2.PolicyCheckResultData
 				err                   error
 			}
 			SendEvaluationResult struct {
@@ -392,14 +392,14 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 				filesWithWarningsChan:      newK8sValidationWarningsChan(),
 			},
 			Evaluate: struct {
-				policyCheckResultData evaluation.PolicyCheckResultData
+				policyCheckResultData evaluation2.PolicyCheckResultData
 				err                   error
 			}{
-				policyCheckResultData: evaluation.PolicyCheckResultData{
-					FormattedResults: evaluation.FormattedResults{
-						EvaluationResults: &evaluation.EvaluationResults{
-							FileNameRuleMapper: make(map[string]map[string]*evaluation.Rule),
-							Summary: evaluation.EvaluationResultsSummery{
+				policyCheckResultData: evaluation2.PolicyCheckResultData{
+					FormattedResults: evaluation2.FormattedResults{
+						EvaluationResults: &evaluation2.EvaluationResults{
+							FileNameRuleMapper: make(map[string]map[string]*evaluation2.Rule),
+							Summary: evaluation2.EvaluationResultsSummery{
 								TotalFailedRules:  0,
 								TotalSkippedRules: 0,
 								FilesCount:        1,
@@ -409,7 +409,7 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 					},
 					RulesData:  []cliClient.RuleData{},
 					FilesData:  []cliClient.FileData{{FilePath: validPath, ConfigurationsCount: 5}},
-					RawResults: evaluation.FailedRulesByFiles{},
+					RawResults: evaluation2.FailedRulesByFiles{},
 					RulesCount: len(policy.Rules),
 				},
 				err: nil,
@@ -429,10 +429,10 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 				filesConfigurationsChan chan *extractor.FileConfigurations
 			}
 			Evaluate struct {
-				evaluationData evaluation.PolicyCheckData
+				evaluationData evaluation2.PolicyCheckData
 			}
 			SendEvaluationResult struct {
-				evaluationRequestData evaluation.EvaluationRequestData
+				evaluationRequestData evaluation2.EvaluationRequestData
 			}
 			PrintWarnings     []printer.Warning
 			EvaluationSummary printer.EvaluationSummary
@@ -444,9 +444,9 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 				filesConfigurationsChan: filesConfigurationsChan,
 			},
 			Evaluate: struct {
-				evaluationData evaluation.PolicyCheckData
+				evaluationData evaluation2.PolicyCheckData
 			}{
-				evaluationData: evaluation.PolicyCheckData{
+				evaluationData: evaluation2.PolicyCheckData{
 					FilesConfigurations: validK8sFilesConfigurations,
 					IsInteractiveMode:   true,
 					PolicyName:          policy.Name,
@@ -454,9 +454,9 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 				},
 			},
 			SendEvaluationResult: struct {
-				evaluationRequestData evaluation.EvaluationRequestData
+				evaluationRequestData evaluation2.EvaluationRequestData
 			}{
-				evaluationRequestData: evaluation.EvaluationRequestData{
+				evaluationRequestData: evaluation2.EvaluationRequestData{
 					PolicyName: policy.Name,
 					FilesData:  []cliClient.FileData{{FilePath: validPath, ConfigurationsCount: 5}},
 				},
@@ -521,7 +521,7 @@ func test_no_k8s_resources_found() *TestFlowTestCase {
 				filesWithWarningsChan      chan *validation.FileWithWarning
 			}
 			Evaluate struct {
-				policyCheckResultData evaluation.PolicyCheckResultData
+				policyCheckResultData evaluation2.PolicyCheckResultData
 				err                   error
 			}
 			SendEvaluationResult struct {
@@ -546,14 +546,14 @@ func test_no_k8s_resources_found() *TestFlowTestCase {
 				filesWithWarningsChan:      newK8sValidationWarningsChan(),
 			},
 			Evaluate: struct {
-				policyCheckResultData evaluation.PolicyCheckResultData
+				policyCheckResultData evaluation2.PolicyCheckResultData
 				err                   error
 			}{
-				policyCheckResultData: evaluation.PolicyCheckResultData{
-					FormattedResults: evaluation.FormattedResults{},
+				policyCheckResultData: evaluation2.PolicyCheckResultData{
+					FormattedResults: evaluation2.FormattedResults{},
 					RulesData:        []cliClient.RuleData{},
 					FilesData:        []cliClient.FileData{},
-					RawResults:       evaluation.FailedRulesByFiles{},
+					RawResults:       evaluation2.FailedRulesByFiles{},
 					RulesCount:       len(policy.Rules),
 				},
 				err: nil,
@@ -574,10 +574,10 @@ func test_no_k8s_resources_found() *TestFlowTestCase {
 				filesConfigurationsChan chan *extractor.FileConfigurations
 			}
 			Evaluate struct {
-				evaluationData evaluation.PolicyCheckData
+				evaluationData evaluation2.PolicyCheckData
 			}
 			SendEvaluationResult struct {
-				evaluationRequestData evaluation.EvaluationRequestData
+				evaluationRequestData evaluation2.EvaluationRequestData
 			}
 			PrintWarnings     []printer.Warning
 			EvaluationSummary printer.EvaluationSummary
@@ -589,9 +589,9 @@ func test_no_k8s_resources_found() *TestFlowTestCase {
 				filesConfigurationsChan: filesConfigurationsChan,
 			},
 			Evaluate: struct {
-				evaluationData evaluation.PolicyCheckData
+				evaluationData evaluation2.PolicyCheckData
 			}{
-				evaluationData: evaluation.PolicyCheckData{
+				evaluationData: evaluation2.PolicyCheckData{
 					FilesConfigurations: []*extractor.FileConfigurations{},
 					IsInteractiveMode:   true,
 					PolicyName:          policy.Name,
@@ -608,9 +608,9 @@ func test_no_k8s_resources_found() *TestFlowTestCase {
 				PassedPolicyCheckCount:    0,
 			},
 			SendEvaluationResult: struct {
-				evaluationRequestData evaluation.EvaluationRequestData
+				evaluationRequestData evaluation2.EvaluationRequestData
 			}{
-				evaluationRequestData: evaluation.EvaluationRequestData{
+				evaluationRequestData: evaluation2.EvaluationRequestData{
 					PolicyName:     policy.Name,
 					FilesData:      []cliClient.FileData{},
 					FailedK8sFiles: paths,
@@ -626,9 +626,9 @@ func setup() {
 
 	prerunData := mockGetPreRunData()
 
-	formattedResults := evaluation.FormattedResults{}
+	formattedResults := evaluation2.FormattedResults{}
 
-	policyCheckResultData := evaluation.PolicyCheckResultData{
+	policyCheckResultData := evaluation2.PolicyCheckResultData{
 		FormattedResults: formattedResults,
 		RulesData:        []cliClient.RuleData{},
 		FilesData:        []cliClient.FileData{},
@@ -636,9 +636,9 @@ func setup() {
 		RulesCount:       0,
 	}
 
-	formattedResults.EvaluationResults = &evaluation.EvaluationResults{
-		FileNameRuleMapper: map[string]map[string]*evaluation.Rule{},
-		Summary: evaluation.EvaluationResultsSummery{
+	formattedResults.EvaluationResults = &evaluation2.EvaluationResults{
+		FileNameRuleMapper: map[string]map[string]*evaluation2.Rule{},
+		Summary: evaluation2.EvaluationResultsSummery{
 			TotalFailedRules:  0,
 			TotalSkippedRules: 0,
 			FilesCount:        0,
@@ -735,7 +735,7 @@ func TestTestCommandNoFlags(t *testing.T) {
 	setup()
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: testingPolicy, Token: "134kh"})
 
-	policyCheckData := evaluation.PolicyCheckData{
+	policyCheckData := evaluation2.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   true,
 		PolicyName:          testingPolicy.Name,
@@ -750,7 +750,7 @@ func TestTestCommandJsonOutput(t *testing.T) {
 	setup()
 	_ = Test(ctx, []string{"valid/path"}, &TestCommandData{Output: "json", Policy: testingPolicy})
 
-	policyCheckData := evaluation.PolicyCheckData{
+	policyCheckData := evaluation2.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   false,
 		PolicyName:          testingPolicy.Name,
@@ -765,7 +765,7 @@ func TestTestCommandYamlOutput(t *testing.T) {
 	setup()
 	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "yaml", Policy: testingPolicy})
 
-	policyCheckData := evaluation.PolicyCheckData{
+	policyCheckData := evaluation2.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   false,
 		PolicyName:          testingPolicy.Name,
@@ -780,7 +780,7 @@ func TestTestCommandXmlOutput(t *testing.T) {
 	setup()
 	_ = Test(ctx, []string{"valid/path"}, &TestCommandData{Output: "xml", Policy: testingPolicy})
 
-	policyCheckData := evaluation.PolicyCheckData{
+	policyCheckData := evaluation2.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   false,
 		PolicyName:          testingPolicy.Name,
@@ -803,7 +803,7 @@ func TestTestCommandNoInternetConnection(t *testing.T) {
 	setup()
 	_ = Test(ctx, []string{"valid/path"}, &TestCommandData{Policy: testingPolicy})
 
-	policyCheckData := evaluation.PolicyCheckData{
+	policyCheckData := evaluation2.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
 		IsInteractiveMode:   true,
 		PolicyName:          testingPolicy.Name,
