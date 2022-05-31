@@ -156,15 +156,8 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 
 func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
 	skipAnnotations := extractSkipAnnotations(configuration)
-
-	configurationJson, err := json.Marshal(configuration.Payload)
-	if err != nil {
-		return err
-	}
-
 	for _, rule := range policyCheckData.Policy.Rules {
-
-		failedRule, err := e.evaluateRule(rule, configurationJson, configuration.MetadataName, configuration.Kind, skipAnnotations)
+		failedRule, err := e.evaluateRule(rule, configuration.Payload, configuration.MetadataName, configuration.Kind, skipAnnotations)
 		if err != nil {
 			return err
 		}
