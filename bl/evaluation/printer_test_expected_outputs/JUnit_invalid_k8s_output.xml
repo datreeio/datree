@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="" tests="0" failures="0" skipped="0">
+	<testsuite name="File1">
+		<testcase name="invalid k8s file" classname="k8s validation">
+			<failure message="Invalid k8s file">k8s schema validation error: could not find schema for Deploymentt You can skip files with missing schemas instead of failing by using the `--ignore-missing-schemas` flag </failure>
+		</testcase>
+		<testcase name="invalid k8s file" classname="k8s validation">
+			<failure message="Invalid k8s file">k8s schema validation error: For field spec.replicas: Invalid type. Expected: [integer,null], given: string </failure>
+		</testcase>
+	</testsuite>
+	<testsuite name="evaluationSummary">
+		<properties>
+			<property name="configsCount" value="0"></property>
+			<property name="filesCount" value="1"></property>
+			<property name="passedYamlValidationCount" value="1"></property>
+			<property name="k8sValidation" value="0/1"></property>
+			<property name="passedPolicyValidationCount" value="0"></property>
+		</properties>
+	</testsuite>
+</testsuites>

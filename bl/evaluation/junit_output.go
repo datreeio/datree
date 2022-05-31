@@ -56,7 +56,7 @@ type AdditionalJUnitData struct {
 }
 
 func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUnitData AdditionalJUnitData) JUnitOutput {
-	jUnitOutput := JUnitOutput{}
+	var jUnitOutput JUnitOutput
 
 	if formattedOutput.PolicySummary != nil {
 		jUnitOutput = JUnitOutput{
@@ -66,21 +66,35 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUn
 			Skipped:    formattedOutput.PolicySummary.TotalSkippedRules,
 			TestSuites: []testSuite{},
 		}
-
-		for _, fileThatRanPolicyCheck := range additionalJUnitData.AllFilesThatRanPolicyCheck {
-			policyValidationResult := findFileInPolicyValidationResults(fileThatRanPolicyCheck, formattedOutput.PolicyValidationResults)
-
-			if policyValidationResult != nil {
-				jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, additionalJUnitData.AllEnabledRules))
-			} else {
-				jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPassingFileTestSuite(fileThatRanPolicyCheck, additionalJUnitData.AllEnabledRules))
-			}
-		}
-		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicySummaryTestSuite(formattedOutput))
-		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getEvaluationSummaryTestSuite(formattedOutput))
 	} else {
-		jUnitOutput.TestSuites = getInvalidYamlFilesAndK8sConfigsTestSuites(formattedOutput)
+		jUnitOutput = JUnitOutput{
+			TestSuites: []testSuite{},
+		}
 	}
+
+	if formattedOutput.YamlValidationResults != nil && len(formattedOutput.YamlValidationResults) > 0 {
+		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getInvalidYamlFilesTestSuite(formattedOutput)...)
+	}
+
+	if formattedOutput.K8sValidationResults != nil && len(formattedOutput.K8sValidationResults) > 0 {
+		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getInvalidK8sFilesTestSuite(formattedOutput)...)
+	}
+
+	for _, fileThatRanPolicyCheck := range additionalJUnitData.AllFilesThatRanPolicyCheck {
+		policyValidationResult := findFileInPolicyValidationResults(fileThatRanPolicyCheck, formattedOutput.PolicyValidationResults)
+
+		if policyValidationResult != nil {
+			jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, additionalJUnitData.AllEnabledRules))
+		} else {
+			jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPassingFileTestSuite(fileThatRanPolicyCheck, additionalJUnitData.AllEnabledRules))
+		}
+	}
+
+	if formattedOutput.PolicySummary != nil {
+		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicySummaryTestSuite(formattedOutput))
+	}
+
+	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getEvaluationSummaryTestSuite(formattedOutput))
 
 	return jUnitOutput
 }
@@ -224,19 +238,18 @@ func getInvalidYamlFilesTestSuite(formattedOutput FormattedOutput) []testSuite {
 	for _, invalidYamlFile := range formattedOutput.YamlValidationResults {
 		suite := testSuite{
 			Name: invalidYamlFile.Path,
-		}
-
-		testCase := testCase{
-			Name:      "invalid yaml file",
-			ClassName: "yaml validation",
-			Skipped:   nil,
-			Failure: &failure{
-				Message: "Invalid yaml file",
-				Content: invalidYamlFile.ValidationErrors[0].Error(),
+			TestCases: []testCase{
+				{
+					Name:      "invalid yaml file",
+					ClassName: "yaml validation",
+					Skipped:   nil,
+					Failure: &failure{
+						Message: "Invalid yaml file",
+						Content: invalidYamlFile.ValidationErrors[0].Error(),
+					},
+				},
 			},
 		}
-
-		suite.TestCases = append(suite.TestCases, testCase)
 		suites = append(suites, suite)
 	}
 
@@ -250,6 +263,7 @@ func getInvalidK8sFilesTestSuite(formattedOutput FormattedOutput) []testSuite {
 		suite := testSuite{
 			Name: invalidK8sFile.Path,
 		}
+
 		for _, k8sError := range invalidK8sFile.ValidationErrors {
 			testCase := testCase{
 				Name:      "invalid k8s file",
@@ -267,17 +281,4 @@ func getInvalidK8sFilesTestSuite(formattedOutput FormattedOutput) []testSuite {
 	}
 
 	return suites
-}
-
-func getInvalidYamlFilesAndK8sConfigsTestSuites(formattedOutput FormattedOutput) []testSuite {
-	var testSuites []testSuite
-	if formattedOutput.YamlValidationResults != nil {
-		testSuites = append(testSuites, getInvalidYamlFilesTestSuite(formattedOutput)...)
-	}
-
-	if formattedOutput.K8sValidationResults != nil {
-		testSuites = append(testSuites, getInvalidK8sFilesTestSuite(formattedOutput)...)
-	}
-
-	return testSuites
 }

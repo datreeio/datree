@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"log"
 	"os"
@@ -60,11 +61,11 @@ type expectedOutputs struct {
 // TODO: fill missing call assertions
 func TestPrintResults(t *testing.T) {
 	tests := []*printResultsTestCase{
-		print_resultst(""),
-		print_resultst("json"),
-		print_resultst("yaml"),
-		print_resultst("xml"),
-		print_resultst("JUnit"),
+		printResults(""),
+		printResults("json"),
+		printResults("yaml"),
+		printResults("xml"),
+		printResults("JUnit"),
 	}
 	for _, tt := range tests {
 		mockedPrinter := &mockPrinter{}
@@ -123,6 +124,15 @@ func TestCustomOutputs(t *testing.T) {
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
+func TestInvalidK8sCustomOutputs(t *testing.T) {
+	formattedOutput := createInvalidK8sFileFormattedOutput()
+	additionalJUnitData := createAdditionalJUnitDataInvalidK8sFile()
+	expectedOutputs := getInvalidK8sFileExpectedOutputs()
+
+	JUnitStdout := readInvalidK8sFileOutput("JUnit", formattedOutput, additionalJUnitData)
+	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
+}
+
 func readOutput(outputFormat string, formattedOutput FormattedOutput, additionalJUnitData AdditionalJUnitData) string {
 	reader, writer, err := os.Pipe()
 	if err != nil {
@@ -157,6 +167,34 @@ func readOutput(outputFormat string, formattedOutput FormattedOutput, additional
 	return <-out
 }
 
+func readInvalidK8sFileOutput(outputFormat string, formattedOutput FormattedOutput, additionalJUnitData AdditionalJUnitData) string {
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	os.Stdout = writer
+	os.Stderr = writer
+	log.SetOutput(writer)
+
+	out := make(chan string)
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, reader)
+		out <- buf.String()
+	}()
+
+	switch {
+	case outputFormat == "JUnit":
+		err := jUnitOutput(&formattedOutput, additionalJUnitData)
+		if err != nil {
+			panic("unexpected error in printer_test: " + err.Error())
+		}
+	}
+
+	writer.Close()
+	return <-out
+}
+
 func createAdditionalJUnitData() AdditionalJUnitData {
 	dr, err := defaultRules.GetDefaultRules()
 	if err != nil {
@@ -174,6 +212,26 @@ func createAdditionalJUnitData() AdditionalJUnitData {
 	return AdditionalJUnitData{
 		AllEnabledRules:            result,
 		AllFilesThatRanPolicyCheck: []string{"File1", "File2"},
+	}
+}
+
+func createAdditionalJUnitDataInvalidK8sFile() AdditionalJUnitData {
+	dr, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+	var result []cliClient.RuleData
+	for _, r := range dr.Rules {
+		if r.EnabledByDefault {
+			result = append(result, cliClient.RuleData{
+				Identifier: r.UniqueName,
+				Name:       r.Name,
+			})
+		}
+	}
+	return AdditionalJUnitData{
+		AllEnabledRules:            result,
+		AllFilesThatRanPolicyCheck: []string{},
 	}
 }
 
@@ -247,6 +305,25 @@ func createFormattedOutput() FormattedOutput {
 	}
 }
 
+func createInvalidK8sFileFormattedOutput() FormattedOutput {
+	err := errors.New("k8s schema validation error: could not find schema for Deploymentt You can skip files with missing schemas instead of failing by using the `--ignore-missing-schemas` flag ")
+	err2 := errors.New("k8s schema validation error: For field spec.replicas: Invalid type. Expected: [integer,null], given: string ")
+	invalidK8sFile := &extractor.InvalidFile{
+		Path:             "File1",
+		ValidationErrors: []error{err, err2},
+	}
+	return FormattedOutput{
+		EvaluationSummary: NonInteractiveEvaluationSummary{
+			ConfigsCount:                0,
+			FilesCount:                  1,
+			PassedYamlValidationCount:   1,
+			K8sValidation:               "0/1",
+			PassedPolicyValidationCount: 0,
+		},
+		K8sValidationResults: []*extractor.InvalidFile{invalidK8sFile},
+	}
+}
+
 func getExpectedOutputs() expectedOutputs {
 	jsonOutput, _ := os.ReadFile("./printer_test_expected_outputs/json_output.json")
 	yamlOutput, _ := os.ReadFile("./printer_test_expected_outputs/yaml_output.yaml")
@@ -260,7 +337,14 @@ func getExpectedOutputs() expectedOutputs {
 	}
 }
 
-func print_resultst(outputFormat string) *printResultsTestCase {
+func getInvalidK8sFileExpectedOutputs() expectedOutputs {
+	jUnitOutput, _ := os.ReadFile("./printer_test_expected_outputs/JUnit_invalid_k8s_output.xml")
+	return expectedOutputs{
+		JUnit: string(jUnitOutput),
+	}
+}
+
+func printResults(outputFormat string) *printResultsTestCase {
 	return &printResultsTestCase{
 		name: "Print Results Text",
 		args: &printResultsTestCaseArgs{
