@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	evaluation2 "github.com/datreeio/datree/pkg/evaluation"
 	"io"
 	"io/ioutil"
 	"os"
@@ -12,7 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	policy_factory "github.com/datreeio/datree/bl/policy"
@@ -33,8 +33,8 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(policyCheckData evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error)
-	SendEvaluationResult(evaluationRequestData evaluation.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error)
+	Evaluate(policyCheckData evaluation2.PolicyCheckData) (evaluation2.PolicyCheckResultData, error)
+	SendEvaluationResult(evaluationRequestData evaluation2.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error)
 }
 
 type Messager interface {
@@ -75,9 +75,9 @@ func NewTestCommandFlags() *TestCommandFlags {
 func (flags *TestCommandFlags) Validate() error {
 	outputValue := flags.Output
 
-	if !evaluation.IsValidOutputOption(outputValue) {
+	if !evaluation2.IsValidOutputOption(outputValue) {
 		return fmt.Errorf("invalid --output option - %q\n"+
-			"Valid output values are - "+evaluation.OutputFormats(), outputValue)
+			"Valid output values are - "+evaluation2.OutputFormats(), outputValue)
 	}
 
 	err := validateK8sVersionFormatIfProvided(flags.K8sVersion)
@@ -145,7 +145,7 @@ type TestCommandContext struct {
 
 func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
 	outputFlag, _ := cmd.Flags().GetString("output")
-	if !evaluation.IsFormattedOutputOption(outputFlag) {
+	if !evaluation2.IsFormattedOutputOption(outputFlag) {
 
 		messages := ctx.Messager.LoadVersionMessages(ctx.CliVersion)
 		for msg := range messages {
@@ -243,7 +243,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	if ciContext.Extract() != nil && ciContext.Extract().CIMetadata.ShouldHideEmojis {
 		defaultOutputValue = "simple"
 	}
-	cmd.Flags().StringVarP(&flags.Output, "output", "o", defaultOutputValue, "Define output format ("+evaluation.OutputFormats()+")")
+	cmd.Flags().StringVarP(&flags.Output, "output", "o", defaultOutputValue, "Define output format ("+evaluation2.OutputFormats()+")")
 
 	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.19.0")
 	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
@@ -376,7 +376,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(&evaluation.PrintResultsData{
+	err = evaluation2.PrintResults(&evaluation2.PrintResultsData{
 		Results:               results,
 		AdditionalJUnitData:   evaluationResultData.AdditionalJUnitData,
 		InvalidYamlFiles:      validationManager.InvalidYamlFiles(),
@@ -419,13 +419,13 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 type EvaluationResultData struct {
 	ValidationManager   *ValidationManager
 	RulesCount          int
-	FormattedResults    evaluation.FormattedResults
-	AdditionalJUnitData evaluation.AdditionalJUnitData
+	FormattedResults    evaluation2.FormattedResults
+	AdditionalJUnitData evaluation2.AdditionalJUnitData
 	PromptMessage       string
 }
 
 func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (EvaluationResultData, error) {
-	isInteractiveMode := !evaluation.IsFormattedOutputOption(prerunData.Output)
+	isInteractiveMode := !evaluation2.IsFormattedOutputOption(prerunData.Output)
 
 	var _spinner *spinner.Spinner
 	if isInteractiveMode && prerunData.Output != "simple" {
@@ -469,7 +469,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	policyName := prerunData.Policy.Name
 
-	policyCheckData := evaluation.PolicyCheckData{
+	policyCheckData := evaluation2.PolicyCheckData{
 		FilesConfigurations: validationManager.ValidK8sFilesConfigurations(),
 		IsInteractiveMode:   isInteractiveMode,
 		PolicyName:          policyName,
@@ -479,8 +479,8 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	emptyEvaluationResultData := EvaluationResultData{
 		ValidationManager: nil,
 		RulesCount:        0,
-		FormattedResults:  evaluation.FormattedResults{},
-		AdditionalJUnitData: evaluation.AdditionalJUnitData{
+		FormattedResults:  evaluation2.FormattedResults{},
+		AdditionalJUnitData: evaluation2.AdditionalJUnitData{
 			AllEnabledRules:            []cliClient.RuleData{},
 			AllFilesThatRanPolicyCheck: []string{},
 		},
@@ -492,7 +492,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		return emptyEvaluationResultData, err
 	}
 
-	additionalJUnitData := evaluation.AdditionalJUnitData{
+	additionalJUnitData := evaluation2.AdditionalJUnitData{
 		AllEnabledRules:            policyCheckResultData.RulesData,
 		AllFilesThatRanPolicyCheck: utils.MapSlice[cliClient.FileData, string](policyCheckResultData.FilesData, func(fileData cliClient.FileData) string { return fileData.FilePath }),
 	}
@@ -524,7 +524,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	ciContext := ciContext.Extract()
 	endEvaluationTime := time.Now()
 	EvaluationDurationSeconds := endEvaluationTime.Sub(ctx.StartTime).Seconds()
-	evaluationRequestData := evaluation.EvaluationRequestData{
+	evaluationRequestData := evaluation2.EvaluationRequestData{
 		Token:                     prerunData.Token,
 		ClientId:                  prerunData.ClientId,
 		CliVersion:                ctx.CliVersion,
@@ -556,7 +556,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	return evaluationResultData, nil
 }
 
-func wereViolationsFound(validationManager *ValidationManager, results *evaluation.FormattedResults) bool {
+func wereViolationsFound(validationManager *ValidationManager, results *evaluation2.FormattedResults) bool {
 	if validationManager.InvalidYamlFilesCount() > 0 {
 		return true
 	} else if validationManager.InvalidK8sFilesCount() > 0 {
