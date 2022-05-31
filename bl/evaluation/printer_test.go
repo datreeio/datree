@@ -179,7 +179,10 @@ func readInvalidK8sFileOutput(outputFormat string, formattedOutput FormattedOutp
 	out := make(chan string)
 	go func() {
 		var buf bytes.Buffer
-		io.Copy(&buf, reader)
+		_, err := io.Copy(&buf, reader)
+		if err != nil {
+			panic(err)
+		}
 		out <- buf.String()
 	}()
 
