@@ -139,8 +139,9 @@ type PrinterMock struct {
 	mock.Mock
 }
 
-func (p *PrinterMock) PrintWarnings(warnings []printer.Warning) {
+func (p *PrinterMock) GetWarningsText(warnings []printer.Warning) string {
 	p.Called(warnings)
+	return ""
 }
 
 func (p *PrinterMock) PrintSummaryTable(summary printer.Summary) {

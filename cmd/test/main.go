@@ -91,7 +91,7 @@ func (flags *TestCommandFlags) Validate() error {
 }
 
 type EvaluationPrinter interface {
-	PrintWarnings(warnings []printer.Warning)
+	GetWarningsText(warnings []printer.Warning) string
 	PrintSummaryTable(summary printer.Summary)
 	PrintMessage(messageText string, messageColor string)
 	PrintPromptMessage(promptMessage string)

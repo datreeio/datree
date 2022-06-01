@@ -23,8 +23,9 @@ type mockPrinter struct {
 	mock.Mock
 }
 
-func (m *mockPrinter) PrintWarnings(warnings []printer.Warning) {
+func (m *mockPrinter) GetWarningsText(warnings []printer.Warning) string {
 	m.Called(warnings)
+	return ""
 }
 
 func (c *mockPrinter) PrintSummaryTable(summary printer.Summary) {
@@ -69,7 +70,7 @@ func TestPrintResults(t *testing.T) {
 	}
 	for _, tt := range tests {
 		mockedPrinter := &mockPrinter{}
-		mockedPrinter.On("PrintWarnings", mock.Anything, mock.Anything, mock.Anything)
+		mockedPrinter.On("GetWarningsText", mock.Anything, mock.Anything, mock.Anything)
 		mockedPrinter.On("PrintSummaryTable", mock.Anything)
 		mockedPrinter.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
 
@@ -90,17 +91,17 @@ func TestPrintResults(t *testing.T) {
 			})
 
 			if tt.args.outputFormat == "json" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else if tt.args.outputFormat == "yaml" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else if tt.args.outputFormat == "xml" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else if tt.args.outputFormat == "JUnit" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else {
 				pwd, _ := os.Getwd()
 				warnings, _ := parseToPrinterWarnings(tt.args.results.EvaluationResults, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0", validation.K8sValidationWarningPerValidFile{}, false)
-				mockedPrinter.AssertCalled(t, "PrintWarnings", warnings)
+				mockedPrinter.AssertCalled(t, "GetWarningsText", warnings)
 			}
 		})
 	}

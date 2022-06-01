@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPrintWarnings(t *testing.T) {
+func TestGetWarningsText(t *testing.T) {
 	printer := CreateNewPrinter()
 
 	warnings := []Warning{{
@@ -41,11 +41,11 @@ func TestPrintWarnings(t *testing.T) {
 		},
 	}
 
-	t.Run("Test PrintWarnings", func(t *testing.T) {
+	t.Run("Test GetWarningsText", func(t *testing.T) {
 
 		out = new(bytes.Buffer)
 
-		printer.PrintWarnings(warnings)
+		printer.GetWarningsText(warnings)
 
 		got := out.(*bytes.Buffer).Bytes()
 
@@ -97,13 +97,13 @@ https://github.com/datreeio/helm-datree
 		assert.Equal(t, string(expected), string(got))
 	})
 
-	t.Run("Test PrintWarnings simple output", func(t *testing.T) {
+	t.Run("Test GetWarningsText simple output", func(t *testing.T) {
 
 		out = new(bytes.Buffer)
 
 		printer.SetTheme(CreateSimpleTheme())
 
-		printer.PrintWarnings(warnings)
+		printer.GetWarningsText(warnings)
 
 		got := out.(*bytes.Buffer).Bytes()
 

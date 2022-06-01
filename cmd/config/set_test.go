@@ -37,8 +37,9 @@ type PrinterMock struct {
 	mock.Mock
 }
 
-func (p *PrinterMock) PrintWarnings(warnings []printer.Warning) {
+func (p *PrinterMock) GetWarningsText(warnings []printer.Warning) string {
 	p.Called(warnings)
+	return ""
 }
 
 func (p *PrinterMock) PrintSummaryTable(summary printer.Summary) {
@@ -72,7 +73,7 @@ func TestSetCommand(t *testing.T) {
 	messager.On("LoadVersionMessages", mock.Anything)
 
 	printerMock := &PrinterMock{}
-	printerMock.On("PrintWarnings", mock.Anything)
+	printerMock.On("GetWarningsText", mock.Anything)
 	printerMock.On("PrintSummaryTable", mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)

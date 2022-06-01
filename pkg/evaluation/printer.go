@@ -5,6 +5,8 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/fatih/color"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -17,8 +19,11 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// duplicate
+var out io.Writer = color.Output
+
 type Printer interface {
-	PrintWarnings(warnings []printer.Warning)
+	GetWarningsText(warnings []printer.Warning) string
 	PrintSummaryTable(summary printer.Summary)
 	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
 }
@@ -153,7 +158,8 @@ func textOutput(outputData textOutputData) error {
 		return err
 	}
 
-	outputData.printer.PrintWarnings(warnings)
+	warningsText := outputData.printer.GetWarningsText(warnings)
+	out.Write([]byte(warningsText))
 
 	summary := parseEvaluationResultsToSummary(outputData.results, outputData.evaluationSummary, outputData.url, outputData.policyName)
 

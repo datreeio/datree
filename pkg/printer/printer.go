@@ -128,7 +128,7 @@ func (p *Printer) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, err
 	}
 }
 
-func (p *Printer) PrintWarnings(warnings []Warning) {
+func (p *Printer) GetWarningsText(warnings []Warning) string {
 	for _, warning := range warnings {
 		p.PrintFilename(warning.Title)
 
@@ -203,6 +203,7 @@ func (p *Printer) PrintWarnings(warnings []Warning) {
 	}
 
 	fmt.Fprintln(out)
+	return ""
 }
 
 type SummaryItem struct {
