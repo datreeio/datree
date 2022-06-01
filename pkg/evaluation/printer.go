@@ -173,7 +173,7 @@ func textOutput(outputData textOutputData) error {
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
