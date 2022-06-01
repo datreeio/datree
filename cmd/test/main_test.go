@@ -6,6 +6,8 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/evaluation"
+
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	policy_factory "github.com/datreeio/datree/bl/policy"
@@ -18,7 +20,6 @@ import (
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/pkg/errors"
 
-	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

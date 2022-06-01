@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/datreeio/datree/pkg/evaluation"
+
 	"github.com/datreeio/datree/bl/files"
 
 	"github.com/datreeio/datree/pkg/ciContext"
@@ -21,7 +23,6 @@ import (
 	"github.com/datreeio/datree/pkg/utils"
 
 	"github.com/datreeio/datree/bl/errorReporter"
-	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/cmd"
