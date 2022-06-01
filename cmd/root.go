@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/datreeio/datree/pkg/evaluation"
 	"time"
+
+	"github.com/datreeio/datree/pkg/evaluation"
 
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"

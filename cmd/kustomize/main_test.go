@@ -1,8 +1,9 @@
 package kustomize
 
 import (
-	"github.com/datreeio/datree/pkg/evaluation"
 	"testing"
+
+	"github.com/datreeio/datree/pkg/evaluation"
 
 	"github.com/datreeio/datree/bl/files"
 

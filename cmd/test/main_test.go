@@ -2,10 +2,11 @@ package test
 
 import (
 	"encoding/json"
-	"github.com/datreeio/datree/pkg/evaluation"
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/datreeio/datree/pkg/evaluation"
 
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"

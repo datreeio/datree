@@ -2,6 +2,7 @@ package publish
 
 import (
 	"fmt"
+
 	"github.com/datreeio/datree/pkg/evaluation"
 
 	"github.com/datreeio/datree/bl/files"
