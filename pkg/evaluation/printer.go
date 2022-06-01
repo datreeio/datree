@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/fatih/color"
-	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -19,8 +18,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// duplicate
-var out io.Writer = color.Output
+var out = color.Output
 
 type Printer interface {
 	GetWarningsText(warnings []printer.Warning) string
