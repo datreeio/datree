@@ -32,8 +32,9 @@ func (c *mockPrinter) PrintSummaryTable(summary printer.Summary) {
 	c.Called(summary)
 }
 
-func (c *mockPrinter) PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string) {
+func (c *mockPrinter) GetEvaluationSummaryText(summary printer.EvaluationSummary, k8sVersion string) string {
 	c.Called(summary, k8sVersion)
+	return ""
 }
 
 type printResultsTestCaseArgs struct {
@@ -72,7 +73,7 @@ func TestPrintResults(t *testing.T) {
 		mockedPrinter := &mockPrinter{}
 		mockedPrinter.On("GetWarningsText", mock.Anything, mock.Anything, mock.Anything)
 		mockedPrinter.On("PrintSummaryTable", mock.Anything)
-		mockedPrinter.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
+		mockedPrinter.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 
 		t.Run(tt.name, func(t *testing.T) {
 			_ = PrintResults(&PrintResultsData{

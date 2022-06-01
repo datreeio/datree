@@ -148,8 +148,9 @@ func (p *PrinterMock) PrintSummaryTable(summary printer.Summary) {
 	p.Called(summary)
 }
 
-func (p *PrinterMock) PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string) {
+func (p *PrinterMock) GetEvaluationSummaryText(evaluationSummary printer.EvaluationSummary, k8sVersion string) string {
 	p.Called(evaluationSummary)
+	return ""
 }
 
 func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {

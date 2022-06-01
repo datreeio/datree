@@ -151,8 +151,9 @@ func (p *PrinterMock) PrintSummaryTable(summary printer.Summary) {
 	p.Called(summary)
 }
 
-func (p *PrinterMock) PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string) {
+func (p *PrinterMock) GetEvaluationSummaryText(evaluationSummary printer.EvaluationSummary, k8sVersion string) string {
 	p.Called(evaluationSummary)
+	return ""
 }
 
 func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {
@@ -244,7 +245,7 @@ func TestTestFlow(t *testing.T) {
 
 			printerMock.On("GetWarningsText", mock.Anything)
 			printerMock.On("PrintSummaryTable", mock.Anything)
-			printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
+			printerMock.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 			printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 			printerMock.On("PrintPromptMessage", mock.Anything)
 			printerMock.On("SetTheme", mock.Anything)
@@ -326,7 +327,7 @@ func TestTestFlow(t *testing.T) {
 			printerMock.AssertCalled(t, "GetWarningsText", mock.MatchedBy(func(warnings []printer.Warning) bool {
 				return len(warnings) == len(tt.expected.GetWarningsText)
 			}))
-			printerMock.AssertCalled(t, "PrintEvaluationSummary", mock.MatchedBy(func(evaluationSummary printer.EvaluationSummary) bool {
+			printerMock.AssertCalled(t, "GetEvaluationSummaryText", mock.MatchedBy(func(evaluationSummary printer.EvaluationSummary) bool {
 				expected := tt.expected.EvaluationSummary
 				if (evaluationSummary.ConfigsCount == expected.ConfigsCount) && (evaluationSummary.RulesCount == expected.RulesCount) &&
 					(evaluationSummary.FilesCount == expected.FilesCount) && (evaluationSummary.PassedYamlValidationCount == expected.PassedYamlValidationCount) &&
@@ -681,7 +682,7 @@ func setup() {
 	printerMock := &PrinterMock{}
 	printerMock.On("GetWarningsText", mock.Anything)
 	printerMock.On("PrintSummaryTable", mock.Anything)
-	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
+	printerMock.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 	printerMock.On("PrintPromptMessage", mock.Anything)
 	printerMock.On("SetTheme", mock.Anything)

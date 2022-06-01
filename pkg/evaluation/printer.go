@@ -25,7 +25,7 @@ var out io.Writer = color.Output
 type Printer interface {
 	GetWarningsText(warnings []printer.Warning) string
 	PrintSummaryTable(summary printer.Summary)
-	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
+	GetEvaluationSummaryText(summary printer.EvaluationSummary, k8sVersion string) string
 }
 
 type PrintResultsData struct {
@@ -163,7 +163,8 @@ func textOutput(outputData textOutputData) error {
 
 	summary := parseEvaluationResultsToSummary(outputData.results, outputData.evaluationSummary, outputData.url, outputData.policyName)
 
-	outputData.printer.PrintEvaluationSummary(outputData.evaluationSummary, outputData.k8sVersion)
+	evaluationSummaryText := outputData.printer.GetEvaluationSummaryText(outputData.evaluationSummary, outputData.k8sVersion)
+	out.Write([]byte(evaluationSummaryText))
 
 	outputData.printer.PrintSummaryTable(summary)
 

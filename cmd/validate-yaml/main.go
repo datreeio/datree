@@ -25,7 +25,7 @@ type IReader interface {
 type IPrinter interface {
 	GetFileNameText(title string) string
 	GetYamlValidationErrorsText(validationErrors []error) string
-	PrintYamlValidationSummary(passedFiles int, allFiles int)
+	GetYamlValidationSummaryText(passedFiles int, allFiles int) string
 	PrintMessage(messageText string, messageColor string)
 }
 
@@ -117,7 +117,7 @@ func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.Inval
 	}
 
 	validFilesCount := filesCount - len(invalidFiles)
-	printer.PrintYamlValidationSummary(validFilesCount, filesCount)
+	printer.GetYamlValidationSummaryText(validFilesCount, filesCount)
 }
 
 func SendResults(localConfig ILocalConfig, client ICliClient, cliVersion string, isValid bool, invalidYamlFiles []*pkgExtractor.InvalidFile, filesPaths []string) {

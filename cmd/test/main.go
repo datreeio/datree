@@ -95,7 +95,7 @@ type EvaluationPrinter interface {
 	PrintSummaryTable(summary printer.Summary)
 	PrintMessage(messageText string, messageColor string)
 	PrintPromptMessage(promptMessage string)
-	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
+	GetEvaluationSummaryText(evaluationSummary printer.EvaluationSummary, k8sVersion string) string
 	SetTheme(theme *printer.Theme)
 }
 

@@ -238,21 +238,19 @@ func (p *Printer) GetFileNameText(title string) string {
 	return p.getTextInColor(fmt.Sprintf(">>  File: %s\n\n", title), p.Theme.Colors.Yellow)
 }
 
-func (p *Printer) PrintEvaluationSummary(summary EvaluationSummary, k8sVersion string) {
-	p.printInColor("(Summary)\n", p.Theme.Colors.White)
-	fmt.Fprintln(out)
+func (p *Printer) GetEvaluationSummaryText(summary EvaluationSummary, k8sVersion string) string {
+	var sb strings.Builder
+	sb.WriteString(p.getTextInColor("(Summary)\n\n", p.Theme.Colors.White))
 
-	p.PrintYamlValidationSummary(summary.PassedYamlValidationCount, summary.FilesCount)
+	sb.WriteString(p.GetYamlValidationSummaryText(summary.PassedYamlValidationCount, summary.FilesCount))
 
-	fmt.Fprintf(out, "- Passing Kubernetes (%s) schema validation: %s\n", k8sVersion, summary.K8sValidation)
-	fmt.Fprintln(out)
-	fmt.Fprintf(out, "- Passing policy check: %v/%v\n", summary.PassedPolicyCheckCount, summary.FilesCount)
-	fmt.Fprintln(out)
+	sb.WriteString(fmt.Sprintf("- Passing Kubernetes (%s) schema validation: %s\n\n", k8sVersion, summary.K8sValidation))
+	sb.WriteString(fmt.Sprintf("- Passing policy check: %v/%v\n\n", summary.PassedPolicyCheckCount, summary.FilesCount))
+	return sb.String()
 }
 
-func (p *Printer) PrintYamlValidationSummary(passedFiles int, allFiles int) {
-	fmt.Fprintf(out, "- Passing YAML validation: %v/%v\n", passedFiles, allFiles)
-	fmt.Fprintln(out)
+func (p *Printer) GetYamlValidationSummaryText(passedFiles int, allFiles int) string {
+	return fmt.Sprintf("- Passing YAML validation: %v/%v\n\n", passedFiles, allFiles)
 }
 
 func (p *Printer) PrintSummaryTable(summary Summary) {

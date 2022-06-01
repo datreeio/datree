@@ -37,8 +37,9 @@ func (p *MockPrinter) GetYamlValidationErrorsText(validationErrors []error) stri
 	return ""
 }
 
-func (p *MockPrinter) PrintYamlValidationSummary(passedFiles int, allFiles int) {
+func (p *MockPrinter) GetYamlValidationSummaryText(passedFiles int, allFiles int) string {
 	p.Called(passedFiles, allFiles)
+	return ""
 }
 
 func (p *MockPrinter) PrintMessage(messageText string, messageColor string) {
@@ -94,7 +95,7 @@ func createMocks() (*MockFileReader, *MockPrinter, *MockExtractor, *MockCliClien
 	mockedPrinter := &MockPrinter{}
 	mockedPrinter.On("GetFileNameText", mock.Anything).Return()
 	mockedPrinter.On("GetYamlValidationErrorsText", mock.Anything).Return()
-	mockedPrinter.On("PrintYamlValidationSummary", mock.Anything, mock.Anything).Return()
+	mockedPrinter.On("GetYamlValidationSummaryText", mock.Anything, mock.Anything).Return()
 	mockedPrinter.On("PrintMessage", mock.Anything, mock.Anything).Return()
 
 	mockedExtractor := &MockExtractor{}

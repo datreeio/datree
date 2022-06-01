@@ -152,8 +152,8 @@ https://github.com/datreeio/helm-datree
 	})
 }
 
-func TestPrintEvaluationSummary(t *testing.T) {
-	t.Run("Test PrintEvaluationSummary", func(t *testing.T) {
+func TestGetEvaluationSummaryText(t *testing.T) {
+	t.Run("Test GetEvaluationSummaryText", func(t *testing.T) {
 		out = new(bytes.Buffer)
 		printer := CreateNewPrinter()
 		summary := EvaluationSummary{
@@ -166,7 +166,7 @@ func TestPrintEvaluationSummary(t *testing.T) {
 		}
 		k8sVersion := "1.2.3"
 
-		printer.PrintEvaluationSummary(summary, k8sVersion)
+		got := printer.GetEvaluationSummaryText(summary, k8sVersion)
 		expected := []byte(`(Summary)
 
 - Passing YAML validation: 4/5
@@ -177,13 +177,11 @@ func TestPrintEvaluationSummary(t *testing.T) {
 
 `)
 
-		got := out.(*bytes.Buffer).Bytes()
-
-		assert.Equal(t, string(expected), string(got))
+		assert.Equal(t, string(expected), got)
 
 	})
 
-	t.Run("Test PrintEvaluationSummary with no connection warning", func(t *testing.T) {
+	t.Run("Test GetEvaluationSummaryText with no connection warning", func(t *testing.T) {
 		out = new(bytes.Buffer)
 		printer := CreateNewPrinter()
 		summary := EvaluationSummary{
@@ -196,7 +194,7 @@ func TestPrintEvaluationSummary(t *testing.T) {
 		}
 		k8sVersion := "1.2.3"
 
-		printer.PrintEvaluationSummary(summary, k8sVersion)
+		got := printer.GetEvaluationSummaryText(summary, k8sVersion)
 		expected := []byte(`(Summary)
 
 - Passing YAML validation: 4/5
@@ -207,9 +205,7 @@ func TestPrintEvaluationSummary(t *testing.T) {
 
 `)
 
-		got := out.(*bytes.Buffer).Bytes()
-
-		assert.Equal(t, string(expected), string(got))
+		assert.Equal(t, string(expected), got)
 
 	})
 }
