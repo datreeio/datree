@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/fatih/color"
+
 	"github.com/datreeio/datree/pkg/cliClient"
 	pkgExtractor "github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
@@ -12,6 +14,8 @@ import (
 	"github.com/datreeio/datree/pkg/yamlValidator"
 	"github.com/spf13/cobra"
 )
+
+var out = color.Output
 
 const (
 	STATUS_PASSED = "passed"
@@ -23,9 +27,9 @@ type IReader interface {
 }
 
 type IPrinter interface {
-	PrintFilename(title string)
-	PrintYamlValidationErrors(validationErrors []error)
-	PrintYamlValidationSummary(passedFiles int, allFiles int)
+	GetFileNameText(title string) string
+	GetYamlValidationErrorsText(validationErrors []error) string
+	GetYamlValidationSummaryText(passedFiles int, allFiles int) string
 	PrintMessage(messageText string, messageColor string)
 }
 
@@ -111,13 +115,20 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 }
 
 func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.InvalidFile, filesCount int) {
+	sb := strings.Builder{}
+
 	for _, invalidFile := range invalidFiles {
-		printer.PrintFilename(invalidFile.Path)
-		printer.PrintYamlValidationErrors(invalidFile.ValidationErrors)
+		sb.WriteString(printer.GetFileNameText(invalidFile.Path))
+		sb.WriteString(printer.GetYamlValidationErrorsText(invalidFile.ValidationErrors))
 	}
 
 	validFilesCount := filesCount - len(invalidFiles)
-	printer.PrintYamlValidationSummary(validFilesCount, filesCount)
+	sb.WriteString(printer.GetYamlValidationSummaryText(validFilesCount, filesCount))
+
+	_, err := out.Write([]byte(sb.String()))
+	if err != nil {
+		panic(err)
+	}
 }
 
 func SendResults(localConfig ILocalConfig, client ICliClient, cliVersion string, isValid bool, invalidYamlFiles []*pkgExtractor.InvalidFile, filesPaths []string) {

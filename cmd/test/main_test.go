@@ -64,7 +64,7 @@ type TestFlowTestCase struct {
 		SendEvaluationResult struct {
 			evaluationRequestData evaluation.EvaluationRequestData
 		}
-		PrintWarnings     []printer.Warning
+		GetWarningsText   []printer.Warning
 		EvaluationSummary printer.EvaluationSummary
 		err               error
 	}
@@ -142,16 +142,19 @@ type PrinterMock struct {
 	mock.Mock
 }
 
-func (p *PrinterMock) PrintWarnings(warnings []printer.Warning) {
+func (p *PrinterMock) GetWarningsText(warnings []printer.Warning) string {
 	p.Called(warnings)
+	return ""
 }
 
-func (p *PrinterMock) PrintSummaryTable(summary printer.Summary) {
+func (p *PrinterMock) GetSummaryTableText(summary printer.Summary) string {
 	p.Called(summary)
+	return ""
 }
 
-func (p *PrinterMock) PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string) {
+func (p *PrinterMock) GetEvaluationSummaryText(evaluationSummary printer.EvaluationSummary, k8sVersion string) string {
 	p.Called(evaluationSummary)
+	return ""
 }
 
 func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {
@@ -241,9 +244,9 @@ func TestTestFlow(t *testing.T) {
 			evaluatorMock.On("Evaluate", mock.Anything, mock.Anything, mock.Anything).Return(tt.mock.Evaluate.policyCheckResultData, tt.mock.Evaluate.err)
 			evaluatorMock.On("SendEvaluationResult", mock.Anything).Return(tt.mock.SendEvaluationResult.sendEvaluationResultsResponse, tt.mock.SendEvaluationResult.err)
 
-			printerMock.On("PrintWarnings", mock.Anything)
-			printerMock.On("PrintSummaryTable", mock.Anything)
-			printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
+			printerMock.On("GetWarningsText", mock.Anything)
+			printerMock.On("GetSummaryTableText", mock.Anything)
+			printerMock.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 			printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 			printerMock.On("PrintPromptMessage", mock.Anything)
 			printerMock.On("SetTheme", mock.Anything)
@@ -322,10 +325,10 @@ func TestTestFlow(t *testing.T) {
 				}
 				return true
 			}))
-			printerMock.AssertCalled(t, "PrintWarnings", mock.MatchedBy(func(warnings []printer.Warning) bool {
-				return len(warnings) == len(tt.expected.PrintWarnings)
+			printerMock.AssertCalled(t, "GetWarningsText", mock.MatchedBy(func(warnings []printer.Warning) bool {
+				return len(warnings) == len(tt.expected.GetWarningsText)
 			}))
-			printerMock.AssertCalled(t, "PrintEvaluationSummary", mock.MatchedBy(func(evaluationSummary printer.EvaluationSummary) bool {
+			printerMock.AssertCalled(t, "GetEvaluationSummaryText", mock.MatchedBy(func(evaluationSummary printer.EvaluationSummary) bool {
 				expected := tt.expected.EvaluationSummary
 				if (evaluationSummary.ConfigsCount == expected.ConfigsCount) && (evaluationSummary.RulesCount == expected.RulesCount) &&
 					(evaluationSummary.FilesCount == expected.FilesCount) && (evaluationSummary.PassedYamlValidationCount == expected.PassedYamlValidationCount) &&
@@ -435,7 +438,7 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 			SendEvaluationResult struct {
 				evaluationRequestData evaluation.EvaluationRequestData
 			}
-			PrintWarnings     []printer.Warning
+			GetWarningsText   []printer.Warning
 			EvaluationSummary printer.EvaluationSummary
 			err               error
 		}{
@@ -462,7 +465,7 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 					FilesData:  []cliClient.FileData{{FilePath: validPath, ConfigurationsCount: 5}},
 				},
 			},
-			PrintWarnings: []printer.Warning{},
+			GetWarningsText: []printer.Warning{},
 			EvaluationSummary: printer.EvaluationSummary{
 				ConfigsCount:              0,
 				RulesCount:                len(policy.Rules),
@@ -580,7 +583,7 @@ func test_no_k8s_resources_found() *TestFlowTestCase {
 			SendEvaluationResult struct {
 				evaluationRequestData evaluation.EvaluationRequestData
 			}
-			PrintWarnings     []printer.Warning
+			GetWarningsText   []printer.Warning
 			EvaluationSummary printer.EvaluationSummary
 			err               error
 		}{
@@ -599,7 +602,7 @@ func test_no_k8s_resources_found() *TestFlowTestCase {
 					Policy:              policy,
 				},
 			},
-			PrintWarnings: make([]printer.Warning, 3),
+			GetWarningsText: make([]printer.Warning, 3),
 			EvaluationSummary: printer.EvaluationSummary{
 				ConfigsCount:              0,
 				RulesCount:                len(policy.Rules),
@@ -678,9 +681,9 @@ func setup() {
 	filesExtractorMock := &FilesExtractorMock{}
 	filesExtractorMock.On("ExtractFilesConfigurations", mock.Anything, 100).Return(filesConfigurationsChan, invalidFilesChan)
 	printerMock := &PrinterMock{}
-	printerMock.On("PrintWarnings", mock.Anything)
-	printerMock.On("PrintSummaryTable", mock.Anything)
-	printerMock.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
+	printerMock.On("GetWarningsText", mock.Anything)
+	printerMock.On("GetSummaryTableText", mock.Anything)
+	printerMock.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 	printerMock.On("PrintPromptMessage", mock.Anything)
 	printerMock.On("SetTheme", mock.Anything)
