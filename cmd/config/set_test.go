@@ -7,7 +7,6 @@ import (
 
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/localConfig"
-	"github.com/datreeio/datree/pkg/printer"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -37,22 +36,8 @@ type PrinterMock struct {
 	mock.Mock
 }
 
-func (p *PrinterMock) GetWarningsText(warnings []printer.Warning) string {
-	p.Called(warnings)
-	return ""
-}
-
-func (p *PrinterMock) GetSummaryTableText(summary printer.Summary) {
-	p.Called(summary)
-}
-
 func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {
 	p.Called(messageText, messageColor)
-}
-
-func (p *PrinterMock) GetEvaluationSummaryText(evaluationSummary printer.EvaluationSummary, k8sVersion string) string {
-	p.Called(evaluationSummary)
-	return ""
 }
 
 type LocalConfigMock struct {
@@ -74,10 +59,7 @@ func TestSetCommand(t *testing.T) {
 	messager.On("LoadVersionMessages", mock.Anything)
 
 	printerMock := &PrinterMock{}
-	printerMock.On("GetWarningsText", mock.Anything)
-	printerMock.On("GetSummaryTableText", mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
-	printerMock.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 
 	localConfigMock := &LocalConfigMock{}
 	localConfigMock.On("GetLocalConfiguration").Return(&localConfig.LocalConfig{Token: "previousToken"}, nil)
