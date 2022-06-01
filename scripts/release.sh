@@ -8,7 +8,7 @@ git checkout "$release_tag-rc"
 git tag $release_tag -a -m "Generated tag from manual TravisCI for production build $TRAVIS_BUILD_NUMBER"
 git push origin $release_tag # TODO: check if goreleaser pushes the tag itself (so no need to push here)
 
-export DATREE_BUILD_VERSION=$release_tag
+export DATREE_BUILD_VERSION=v$release_tag
 echo $DATREE_BUILD_VERSION
 
 bash ./scripts/custom_changelog.sh
