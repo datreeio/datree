@@ -36,12 +36,6 @@ deploy:
       condition: $RELEASE_DATREE_PROD != true
   - provider: script
     skip_cleanup: true
-    script: bash ./scripts/deploy_release_candidate_with_v.sh
-    on:
-      branch: DAT-4146-add-v-version
-      condition: $RELEASE_DATREE_PROD != true
-  - provider: script
-    skip_cleanup: true
     script: bash ./scripts/release.sh
     on:
       branch: main
