@@ -23,8 +23,8 @@ type CLIClient interface {
 }
 
 type Evaluator struct {
-	cliClient CLIClient
-	ciContext *ciContext.CIContext
+	cliClient           CLIClient
+	ciContext           *ciContext.CIContext
 	jsonSchemaValidator *jsonSchemaValidator.JSONSchemaValidator
 }
 
