@@ -3,6 +3,7 @@ package validate_yaml
 import (
 	"errors"
 	"fmt"
+	"github.com/fatih/color"
 	"strings"
 
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -12,6 +13,8 @@ import (
 	"github.com/datreeio/datree/pkg/yamlValidator"
 	"github.com/spf13/cobra"
 )
+
+var out = color.Output
 
 const (
 	STATUS_PASSED = "passed"
@@ -111,13 +114,17 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 }
 
 func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.InvalidFile, filesCount int) {
+	sb := strings.Builder{}
+
 	for _, invalidFile := range invalidFiles {
-		printer.GetFileNameText(invalidFile.Path)
-		printer.GetYamlValidationErrorsText(invalidFile.ValidationErrors)
+		sb.WriteString(printer.GetFileNameText(invalidFile.Path))
+		sb.WriteString(printer.GetYamlValidationErrorsText(invalidFile.ValidationErrors))
 	}
 
 	validFilesCount := filesCount - len(invalidFiles)
-	printer.GetYamlValidationSummaryText(validFilesCount, filesCount)
+	sb.WriteString(printer.GetYamlValidationSummaryText(validFilesCount, filesCount))
+
+	out.Write([]byte(sb.String()))
 }
 
 func SendResults(localConfig ILocalConfig, client ICliClient, cliVersion string, isValid bool, invalidYamlFiles []*pkgExtractor.InvalidFile, filesPaths []string) {

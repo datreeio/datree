@@ -2,7 +2,6 @@ package printer
 
 import (
 	"fmt"
-	"io"
 	"strings"
 
 	"github.com/santhosh-tekuri/jsonschema/v5"
@@ -13,7 +12,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-var out io.Writer = color.Output
+var out = color.Output
 
 type Printer struct {
 	Theme *Theme
