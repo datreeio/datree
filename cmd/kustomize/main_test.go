@@ -144,8 +144,9 @@ func (p *PrinterMock) GetWarningsText(warnings []printer.Warning) string {
 	return ""
 }
 
-func (p *PrinterMock) PrintSummaryTable(summary printer.Summary) {
+func (p *PrinterMock) GetSummaryTableText(summary printer.Summary) string {
 	p.Called(summary)
+	return ""
 }
 
 func (p *PrinterMock) GetEvaluationSummaryText(evaluationSummary printer.EvaluationSummary, k8sVersion string) string {

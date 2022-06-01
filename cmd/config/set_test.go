@@ -42,7 +42,7 @@ func (p *PrinterMock) GetWarningsText(warnings []printer.Warning) string {
 	return ""
 }
 
-func (p *PrinterMock) PrintSummaryTable(summary printer.Summary) {
+func (p *PrinterMock) GetSummaryTableText(summary printer.Summary) {
 	p.Called(summary)
 }
 
@@ -75,7 +75,7 @@ func TestSetCommand(t *testing.T) {
 
 	printerMock := &PrinterMock{}
 	printerMock.On("GetWarningsText", mock.Anything)
-	printerMock.On("PrintSummaryTable", mock.Anything)
+	printerMock.On("GetSummaryTableText", mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 	printerMock.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 

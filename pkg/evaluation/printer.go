@@ -24,7 +24,7 @@ var out io.Writer = color.Output
 
 type Printer interface {
 	GetWarningsText(warnings []printer.Warning) string
-	PrintSummaryTable(summary printer.Summary)
+	GetSummaryTableText(summary printer.Summary) string
 	GetEvaluationSummaryText(summary printer.EvaluationSummary, k8sVersion string) string
 }
 
@@ -166,7 +166,8 @@ func textOutput(outputData textOutputData) error {
 	evaluationSummaryText := outputData.printer.GetEvaluationSummaryText(outputData.evaluationSummary, outputData.k8sVersion)
 	out.Write([]byte(evaluationSummaryText))
 
-	outputData.printer.PrintSummaryTable(summary)
+	summaryTableText := outputData.printer.GetSummaryTableText(summary)
+	out.Write([]byte(summaryTableText))
 
 	return nil
 }

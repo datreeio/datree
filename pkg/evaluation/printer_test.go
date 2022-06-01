@@ -28,8 +28,9 @@ func (m *mockPrinter) GetWarningsText(warnings []printer.Warning) string {
 	return ""
 }
 
-func (c *mockPrinter) PrintSummaryTable(summary printer.Summary) {
+func (c *mockPrinter) GetSummaryTableText(summary printer.Summary) string {
 	c.Called(summary)
+	return ""
 }
 
 func (c *mockPrinter) GetEvaluationSummaryText(summary printer.EvaluationSummary, k8sVersion string) string {
@@ -72,7 +73,7 @@ func TestPrintResults(t *testing.T) {
 	for _, tt := range tests {
 		mockedPrinter := &mockPrinter{}
 		mockedPrinter.On("GetWarningsText", mock.Anything, mock.Anything, mock.Anything)
-		mockedPrinter.On("PrintSummaryTable", mock.Anything)
+		mockedPrinter.On("GetSummaryTableText", mock.Anything)
 		mockedPrinter.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 
 		t.Run(tt.name, func(t *testing.T) {

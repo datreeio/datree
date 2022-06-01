@@ -253,8 +253,9 @@ func (p *Printer) GetYamlValidationSummaryText(passedFiles int, allFiles int) st
 	return fmt.Sprintf("- Passing YAML validation: %v/%v\n\n", passedFiles, allFiles)
 }
 
-func (p *Printer) PrintSummaryTable(summary Summary) {
-	summaryTable := tablewriter.NewWriter(out)
+func (p *Printer) GetSummaryTableText(summary Summary) string {
+	var sb strings.Builder
+	summaryTable := tablewriter.NewWriter(&sb)
 	summaryTable.SetAutoWrapText(false)
 	summaryTable.SetAlignment(tablewriter.ALIGN_LEFT)
 
@@ -286,6 +287,7 @@ func (p *Printer) PrintSummaryTable(summary Summary) {
 	}
 
 	summaryTable.Render()
+	return sb.String()
 }
 
 func (p *Printer) printInColor(title string, color *color.Color) {

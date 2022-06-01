@@ -147,8 +147,9 @@ func (p *PrinterMock) GetWarningsText(warnings []printer.Warning) string {
 	return ""
 }
 
-func (p *PrinterMock) PrintSummaryTable(summary printer.Summary) {
+func (p *PrinterMock) GetSummaryTableText(summary printer.Summary) string {
 	p.Called(summary)
+	return ""
 }
 
 func (p *PrinterMock) GetEvaluationSummaryText(evaluationSummary printer.EvaluationSummary, k8sVersion string) string {
@@ -244,7 +245,7 @@ func TestTestFlow(t *testing.T) {
 			evaluatorMock.On("SendEvaluationResult", mock.Anything).Return(tt.mock.SendEvaluationResult.sendEvaluationResultsResponse, tt.mock.SendEvaluationResult.err)
 
 			printerMock.On("GetWarningsText", mock.Anything)
-			printerMock.On("PrintSummaryTable", mock.Anything)
+			printerMock.On("GetSummaryTableText", mock.Anything)
 			printerMock.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 			printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 			printerMock.On("PrintPromptMessage", mock.Anything)
@@ -681,7 +682,7 @@ func setup() {
 	filesExtractorMock.On("ExtractFilesConfigurations", mock.Anything, 100).Return(filesConfigurationsChan, invalidFilesChan)
 	printerMock := &PrinterMock{}
 	printerMock.On("GetWarningsText", mock.Anything)
-	printerMock.On("PrintSummaryTable", mock.Anything)
+	printerMock.On("GetSummaryTableText", mock.Anything)
 	printerMock.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 	printerMock.On("PrintPromptMessage", mock.Anything)
