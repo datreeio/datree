@@ -5,11 +5,12 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/fatih/color"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/fatih/color"
 
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"

@@ -3,8 +3,9 @@ package validate_yaml
 import (
 	"errors"
 	"fmt"
-	"github.com/fatih/color"
 	"strings"
+
+	"github.com/fatih/color"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	pkgExtractor "github.com/datreeio/datree/pkg/extractor"
