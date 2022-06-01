@@ -88,30 +88,32 @@ func (p *Printer) GetYamlValidationErrorsText(yamlValidationErrors []error) stri
 	return sb.String()
 }
 
-func (p *Printer) printK8sValidationError(warning Warning) {
-	p.printPassedYamlValidation()
-	p.printInColor("[X] Kubernetes schema validation\n", p.Theme.Colors.White)
-	fmt.Fprintln(out)
+func (p *Printer) printK8sValidationError(warning Warning) string {
+	sb := strings.Builder{}
+	sb.WriteString(p.getPassedYamlValidationText())
+	sb.WriteString(p.getTextInColor("[X] Kubernetes schema validation\n\n", p.Theme.Colors.White))
 
 	for _, validationError := range warning.InvalidK8sInfo.ValidationErrors {
 		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
-		fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Error, validationError)
+		sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Error, validationError))
 	}
 
 	for _, extraMessage := range warning.ExtraMessages {
-		p.PrintMessage(extraMessage.Text, extraMessage.Color)
+		sb.WriteString(p.getMessageText(extraMessage.Text, extraMessage.Color))
 	}
 
-	fmt.Fprintln(out)
-
-	p.getSkippedPolicyCheckText()
-	fmt.Fprintln(out)
+	sb.WriteString("\n")
+	sb.WriteString(p.getSkippedPolicyCheckText())
+	sb.WriteString("\n")
+	return sb.String()
 }
 
-func (p *Printer) printK8sValidationWarning(warning Warning) {
-	fmt.Fprintln(out)
-	fmt.Println("[?] Kubernetes schema validation")
-	fmt.Println(warning.InvalidK8sInfo.ValidationWarning)
+func (p *Printer) printK8sValidationWarning(warning Warning) string {
+	sb := strings.Builder{}
+	sb.WriteString("\n")
+	sb.WriteString("[?] Kubernetes schema validation")
+	sb.WriteString(warning.InvalidK8sInfo.ValidationWarning)
+	return sb.String()
 }
 
 func (p *Printer) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, error error) {
@@ -139,41 +141,41 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 		if len(warning.InvalidYamlInfo.ValidationErrors) > 0 {
 			sb.WriteString(p.getYamlValidationWarningText(warning))
 		} else if len(warning.InvalidK8sInfo.ValidationErrors) > 0 {
-			p.printK8sValidationError(warning)
+			sb.WriteString(p.printK8sValidationError(warning))
 		} else {
-			p.printPassedYamlValidation()
+			sb.WriteString(p.getPassedYamlValidationText())
 
 			if warning.InvalidK8sInfo.ValidationWarning != "" {
-				p.printK8sValidationWarning(warning)
+				sb.WriteString(p.printK8sValidationWarning(warning))
 			} else {
-				p.printInColor("[V] Kubernetes schema validation\n", p.Theme.Colors.Green)
+				sb.WriteString(p.getTextInColor("[V] Kubernetes schema validation\n", p.Theme.Colors.Green))
 			}
 
-			fmt.Fprintln(out)
-			p.printInColor("[X] Policy check\n", p.Theme.Colors.White)
-			fmt.Fprintln(out)
+			sb.WriteString("\n")
+			sb.WriteString(p.getTextInColor("[X] Policy check\n", p.Theme.Colors.White))
+			sb.WriteString("\n")
 
 			if len(warning.SkippedRules) > 0 {
-				fmt.Fprintf(out, "%v", p.Theme.Colors.CyanBold.Sprintf("SKIPPED")+"\n\n")
+				sb.WriteString(fmt.Sprintf("%v", p.Theme.Colors.CyanBold.Sprintf("SKIPPED")+"\n\n"))
 			}
 
 			for _, skippedRule := range warning.SkippedRules {
 				ruleName := p.Theme.Colors.CyanBold.Sprint(skippedRule.Name)
 
-				fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Skip, ruleName)
+				sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Skip, ruleName))
 
 				if skippedRule.DocumentationUrl != "" {
 					howToFix := p.Theme.Colors.Cyan.Sprint(skippedRule.DocumentationUrl)
-					fmt.Fprintf(out, "    How to fix: %v\n", howToFix)
+					sb.WriteString(fmt.Sprintf("    How to fix: %v\n", howToFix))
 				}
 
 				for _, occurrenceDetails := range skippedRule.OccurrencesDetails {
-					fmt.Fprintf(out, "    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
+					sb.WriteString(fmt.Sprintf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind)))
 					m := p.Theme.Colors.White.Sprint(occurrenceDetails.SkipMessage)
-					fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Suggestion, m)
+					sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, m))
 				}
 
-				fmt.Fprintln(out)
+				sb.WriteString("\n")
 			}
 
 			for _, failedRule := range warning.FailedRules {
@@ -189,24 +191,24 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 
 				ruleName := p.Theme.Colors.RedBold.Sprint(failedRule.Name)
 
-				fmt.Fprintf(out, "%v %v %v\n", p.Theme.Emoji.Error, ruleName, occurrences)
+				sb.WriteString(fmt.Sprintf("%v %v %v\n", p.Theme.Emoji.Error, ruleName, occurrences))
 
 				if failedRule.DocumentationUrl != "" {
 					howToFix := p.Theme.Colors.Cyan.Sprint(failedRule.DocumentationUrl)
-					fmt.Fprintf(out, "    How to fix: %v\n", howToFix)
+					sb.WriteString(fmt.Sprintf("    How to fix: %v\n", howToFix))
 				}
 
 				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
-					fmt.Fprintf(out, "    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind))
+					sb.WriteString(fmt.Sprintf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind)))
 				}
-				fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion)
+				sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion))
 
-				fmt.Fprintln(out)
+				sb.WriteString("\n")
 			}
 		}
 	}
 
-	fmt.Fprintln(out)
+	sb.WriteString("\n")
 	return sb.String()
 }
 
@@ -315,17 +317,22 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 	}
 }
 
+// TODO
 func (p *Printer) PrintMessage(messageText string, messageColor string) {
 	colorPrintFn := p.createNewColor(messageColor)
 	p.printInColor(messageText, colorPrintFn)
+}
+func (p *Printer) getMessageText(messageText string, messageColor string) string {
+	colorPrintFn := p.createNewColor(messageColor)
+	return p.getTextInColor(messageText, colorPrintFn)
 }
 
 func (p *Printer) PrintPromptMessage(promptMessage string) {
 	fmt.Fprint(out, color.HiCyanString("\n\n"+promptMessage+" (Y/n)\n"))
 }
 
-func (p *Printer) printPassedYamlValidation() {
-	p.printInColor("[V] YAML validation\n", p.Theme.Colors.Green)
+func (p *Printer) getPassedYamlValidationText() string {
+	return p.getTextInColor("[V] YAML validation\n", p.Theme.Colors.Green)
 }
 
 func (p *Printer) getSkippedPolicyCheckText() string {

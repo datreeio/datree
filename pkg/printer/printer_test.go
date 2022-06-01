@@ -153,7 +153,7 @@ https://github.com/datreeio/helm-datree
 }
 
 func TestPrintEvaluationSummary(t *testing.T) {
-	t.Skip("Test PrintEvaluationSummary", func(t *testing.T) {
+	t.Run("Test PrintEvaluationSummary", func(t *testing.T) {
 		out = new(bytes.Buffer)
 		printer := CreateNewPrinter()
 		summary := EvaluationSummary{
@@ -183,7 +183,7 @@ func TestPrintEvaluationSummary(t *testing.T) {
 
 	})
 
-	t.Skip("Test PrintEvaluationSummary with no connection warning", func(t *testing.T) {
+	t.Run("Test PrintEvaluationSummary with no connection warning", func(t *testing.T) {
 		out = new(bytes.Buffer)
 		printer := CreateNewPrinter()
 		summary := EvaluationSummary{
