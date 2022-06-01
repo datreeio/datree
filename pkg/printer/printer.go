@@ -71,7 +71,7 @@ func (p *Printer) SetTheme(theme *Theme) {
 func (p *Printer) getYamlValidationWarningText(warning Warning) string {
 	sb := strings.Builder{}
 	sb.WriteString(p.GetYamlValidationErrorsText(warning.InvalidYamlInfo.ValidationErrors))
-	sb.WriteString(p.getTextInColor("[?] Kubernetes schema validation didn't run for this file\n", p.Theme.Colors.White))
+	sb.WriteString(p.GetTextInColor("[?] Kubernetes schema validation didn't run for this file\n", p.Theme.Colors.White))
 	sb.WriteString(p.getSkippedPolicyCheckText())
 	sb.WriteString("\n")
 	return sb.String()
@@ -79,7 +79,7 @@ func (p *Printer) getYamlValidationWarningText(warning Warning) string {
 
 func (p *Printer) GetYamlValidationErrorsText(yamlValidationErrors []error) string {
 	sb := strings.Builder{}
-	sb.WriteString(p.getTextInColor("[X] YAML validation\n\n", p.Theme.Colors.White))
+	sb.WriteString(p.GetTextInColor("[X] YAML validation\n\n", p.Theme.Colors.White))
 	for _, validationError := range yamlValidationErrors {
 		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
 		sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Error, validationError))
@@ -91,7 +91,7 @@ func (p *Printer) GetYamlValidationErrorsText(yamlValidationErrors []error) stri
 func (p *Printer) getK8sValidationErrorText(warning Warning) string {
 	sb := strings.Builder{}
 	sb.WriteString(p.getPassedYamlValidationText())
-	sb.WriteString(p.getTextInColor("[X] Kubernetes schema validation\n\n", p.Theme.Colors.White))
+	sb.WriteString(p.GetTextInColor("[X] Kubernetes schema validation\n\n", p.Theme.Colors.White))
 
 	for _, validationError := range warning.InvalidK8sInfo.ValidationErrors {
 		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
@@ -122,18 +122,18 @@ func (p *Printer) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, err
 func (p *Printer) getYamlSchemaResultsText(errorsResult []jsonschema.Detailed, error error) string {
 	sb := strings.Builder{}
 	if errorsResult != nil {
-		sb.WriteString(p.getTextInColor("Input does NOT pass validation against schema\n", p.Theme.Colors.RedBold))
+		sb.WriteString(p.GetTextInColor("Input does NOT pass validation against schema\n", p.Theme.Colors.RedBold))
 		var errorsAsString = ""
 		for _, desc := range errorsResult {
 			errorsAsString = errorsAsString + desc.InstanceLocation + " - " + desc.Error + "\n"
 		}
-		sb.WriteString(p.getTextInColor(errorsAsString, p.Theme.Colors.RedBold))
+		sb.WriteString(p.GetTextInColor(errorsAsString, p.Theme.Colors.RedBold))
 		return sb.String()
 	}
 	if error == nil {
-		sb.WriteString(p.getTextInColor("Input PASSES validation against schema\n", p.Theme.Colors.Green))
+		sb.WriteString(p.GetTextInColor("Input PASSES validation against schema\n", p.Theme.Colors.Green))
 	} else {
-		sb.WriteString(p.getTextInColor("The File Is Invalid\n", p.Theme.Colors.RedBold))
+		sb.WriteString(p.GetTextInColor("The File Is Invalid\n", p.Theme.Colors.RedBold))
 	}
 	return sb.String()
 }
@@ -153,11 +153,11 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 			if warning.InvalidK8sInfo.ValidationWarning != "" {
 				sb.WriteString(p.getK8sValidationWarningText(warning))
 			} else {
-				sb.WriteString(p.getTextInColor("[V] Kubernetes schema validation\n", p.Theme.Colors.Green))
+				sb.WriteString(p.GetTextInColor("[V] Kubernetes schema validation\n", p.Theme.Colors.Green))
 			}
 
 			sb.WriteString("\n")
-			sb.WriteString(p.getTextInColor("[X] Policy check\n", p.Theme.Colors.White))
+			sb.WriteString(p.GetTextInColor("[X] Policy check\n", p.Theme.Colors.White))
 			sb.WriteString("\n")
 
 			if len(warning.SkippedRules) > 0 {
@@ -240,12 +240,12 @@ type EvaluationSummary struct {
 }
 
 func (p *Printer) GetFileNameText(title string) string {
-	return p.getTextInColor(fmt.Sprintf(">>  File: %s\n\n", title), p.Theme.Colors.Yellow)
+	return p.GetTextInColor(fmt.Sprintf(">>  File: %s\n\n", title), p.Theme.Colors.Yellow)
 }
 
 func (p *Printer) GetEvaluationSummaryText(summary EvaluationSummary, k8sVersion string) string {
 	var sb strings.Builder
-	sb.WriteString(p.getTextInColor("(Summary)\n\n", p.Theme.Colors.White))
+	sb.WriteString(p.GetTextInColor("(Summary)\n\n", p.Theme.Colors.White))
 
 	sb.WriteString(p.GetYamlValidationSummaryText(summary.PassedYamlValidationCount, summary.FilesCount))
 
@@ -300,7 +300,7 @@ func (p *Printer) printInColor(title string, color *color.Color) {
 	colorPrintFn(out, title)
 }
 
-func (p *Printer) getTextInColor(text string, color *color.Color) string {
+func (p *Printer) GetTextInColor(text string, color *color.Color) string {
 	colorSprintFn := color.SprintfFunc()
 	return colorSprintFn(text)
 }
@@ -328,7 +328,7 @@ func (p *Printer) PrintMessage(messageText string, messageColor string) {
 }
 func (p *Printer) getMessageText(messageText string, messageColor string) string {
 	colorPrintFn := p.createNewColor(messageColor)
-	return p.getTextInColor(messageText, colorPrintFn)
+	return p.GetTextInColor(messageText, colorPrintFn)
 }
 
 func (p *Printer) PrintPromptMessage(promptMessage string) {
@@ -336,11 +336,11 @@ func (p *Printer) PrintPromptMessage(promptMessage string) {
 }
 
 func (p *Printer) getPassedYamlValidationText() string {
-	return p.getTextInColor("[V] YAML validation\n", p.Theme.Colors.Green)
+	return p.GetTextInColor("[V] YAML validation\n", p.Theme.Colors.Green)
 }
 
 func (p *Printer) getSkippedPolicyCheckText() string {
-	return p.getTextInColor("[?] Policy check didn't run for this file\n", p.Theme.Colors.White)
+	return p.GetTextInColor("[?] Policy check didn't run for this file\n", p.Theme.Colors.White)
 }
 
 func (p *Printer) getStringOrNotAvailable(str string) string {

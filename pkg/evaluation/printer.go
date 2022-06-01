@@ -147,6 +147,7 @@ func printAsXml(output interface{}) error {
 }
 
 func textOutput(outputData textOutputData) error {
+	sb := strings.Builder{}
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -159,15 +160,17 @@ func textOutput(outputData textOutputData) error {
 	}
 
 	warningsText := outputData.printer.GetWarningsText(warnings)
-	out.Write([]byte(warningsText))
+	sb.WriteString(warningsText)
 
 	summary := parseEvaluationResultsToSummary(outputData.results, outputData.evaluationSummary, outputData.url, outputData.policyName)
 
 	evaluationSummaryText := outputData.printer.GetEvaluationSummaryText(outputData.evaluationSummary, outputData.k8sVersion)
-	out.Write([]byte(evaluationSummaryText))
+	sb.WriteString(evaluationSummaryText)
 
 	summaryTableText := outputData.printer.GetSummaryTableText(summary)
-	out.Write([]byte(summaryTableText))
+	sb.WriteString(summaryTableText)
+
+	out.Write([]byte(sb.String()))
 
 	return nil
 }
