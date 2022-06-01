@@ -12,13 +12,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/evaluation"
 	"github.com/datreeio/datree/pkg/policy"
 	"github.com/pkg/errors"
 
