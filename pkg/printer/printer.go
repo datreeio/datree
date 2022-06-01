@@ -116,8 +116,12 @@ func (p *Printer) getK8sValidationWarningText(warning Warning) string {
 }
 
 func (p *Printer) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, error error) {
-	out.Write([]byte(p.getYamlSchemaResultsText(errorsResult, error)))
+	_, err := out.Write([]byte(p.getYamlSchemaResultsText(errorsResult, error)))
+	if err != nil {
+		panic(err)
+	}
 }
+
 func (p *Printer) getYamlSchemaResultsText(errorsResult []jsonschema.Detailed, error error) string {
 	sb := strings.Builder{}
 	if errorsResult != nil {

@@ -169,8 +169,11 @@ func textOutput(outputData textOutputData) error {
 	summaryTableText := outputData.printer.GetSummaryTableText(summary)
 	sb.WriteString(summaryTableText)
 
-	out.Write([]byte(sb.String()))
-
+	_, err = out.Write([]byte(sb.String()))
+	if err != nil {
+		return err
+	}
+	
 	return nil
 }
 
