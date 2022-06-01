@@ -88,7 +88,7 @@ func (p *Printer) GetYamlValidationErrorsText(yamlValidationErrors []error) stri
 	return sb.String()
 }
 
-func (p *Printer) printK8sValidationError(warning Warning) string {
+func (p *Printer) getK8sValidationErrorText(warning Warning) string {
 	sb := strings.Builder{}
 	sb.WriteString(p.getPassedYamlValidationText())
 	sb.WriteString(p.getTextInColor("[X] Kubernetes schema validation\n\n", p.Theme.Colors.White))
@@ -108,7 +108,7 @@ func (p *Printer) printK8sValidationError(warning Warning) string {
 	return sb.String()
 }
 
-func (p *Printer) printK8sValidationWarning(warning Warning) string {
+func (p *Printer) getK8sValidationWarningText(warning Warning) string {
 	sb := strings.Builder{}
 	sb.WriteString("\n")
 	sb.WriteString("[?] Kubernetes schema validation")
@@ -117,20 +117,25 @@ func (p *Printer) printK8sValidationWarning(warning Warning) string {
 }
 
 func (p *Printer) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, error error) {
+	out.Write([]byte(p.getYamlSchemaResultsText(errorsResult, error)))
+}
+func (p *Printer) getYamlSchemaResultsText(errorsResult []jsonschema.Detailed, error error) string {
+	sb := strings.Builder{}
 	if errorsResult != nil {
-		p.printInColor("Input does NOT pass validation against schema\n", p.Theme.Colors.RedBold)
+		sb.WriteString(p.getTextInColor("Input does NOT pass validation against schema\n", p.Theme.Colors.RedBold))
 		var errorsAsString = ""
 		for _, desc := range errorsResult {
 			errorsAsString = errorsAsString + desc.InstanceLocation + " - " + desc.Error + "\n"
 		}
-		p.printInColor(errorsAsString, p.Theme.Colors.RedBold)
-		return
+		sb.WriteString(p.getTextInColor(errorsAsString, p.Theme.Colors.RedBold))
+		return sb.String()
 	}
 	if error == nil {
-		p.printInColor("Input PASSES validation against schema\n", p.Theme.Colors.Green)
+		sb.WriteString(p.getTextInColor("Input PASSES validation against schema\n", p.Theme.Colors.Green))
 	} else {
-		p.printInColor("The File Is Invalid\n", p.Theme.Colors.RedBold)
+		sb.WriteString(p.getTextInColor("The File Is Invalid\n", p.Theme.Colors.RedBold))
 	}
+	return sb.String()
 }
 
 func (p *Printer) GetWarningsText(warnings []Warning) string {
@@ -141,12 +146,12 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 		if len(warning.InvalidYamlInfo.ValidationErrors) > 0 {
 			sb.WriteString(p.getYamlValidationWarningText(warning))
 		} else if len(warning.InvalidK8sInfo.ValidationErrors) > 0 {
-			sb.WriteString(p.printK8sValidationError(warning))
+			sb.WriteString(p.getK8sValidationErrorText(warning))
 		} else {
 			sb.WriteString(p.getPassedYamlValidationText())
 
 			if warning.InvalidK8sInfo.ValidationWarning != "" {
-				sb.WriteString(p.printK8sValidationWarning(warning))
+				sb.WriteString(p.getK8sValidationWarningText(warning))
 			} else {
 				sb.WriteString(p.getTextInColor("[V] Kubernetes schema validation\n", p.Theme.Colors.Green))
 			}
