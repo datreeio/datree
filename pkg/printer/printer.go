@@ -98,7 +98,7 @@ func (p *Printer) getK8sValidationErrorText(warning Warning) string {
 	}
 
 	for _, extraMessage := range warning.ExtraMessages {
-		sb.WriteString(p.getMessageText(extraMessage.Text, extraMessage.Color))
+		sb.WriteString(p.GetTextInColor(extraMessage.Text, p.createNewColor(extraMessage.Color)))
 	}
 
 	sb.WriteString("\n")
@@ -174,7 +174,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 				}
 
 				for _, occurrenceDetails := range skippedRule.OccurrencesDetails {
-					sb.WriteString(fmt.Sprintf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind)))
+					sb.WriteString(fmt.Sprintf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
 					m := p.Theme.Colors.White.Sprint(occurrenceDetails.SkipMessage)
 					sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, m))
 				}
@@ -203,7 +203,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 				}
 
 				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
-					sb.WriteString(fmt.Sprintf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailable(occurrenceDetails.MetadataName), p.getStringOrNotAvailable(occurrenceDetails.Kind)))
+					sb.WriteString(fmt.Sprintf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
 				}
 				sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion))
 
@@ -325,10 +325,6 @@ func (p *Printer) PrintMessage(messageText string, messageColor string) {
 	colorPrintFn := p.createNewColor(messageColor)
 	p.printInColor(messageText, colorPrintFn)
 }
-func (p *Printer) getMessageText(messageText string, messageColor string) string {
-	colorPrintFn := p.createNewColor(messageColor)
-	return p.GetTextInColor(messageText, colorPrintFn)
-}
 
 func (p *Printer) PrintPromptMessage(promptMessage string) {
 	fmt.Fprint(out, color.HiCyanString("\n\n"+promptMessage+" (Y/n)\n"))
@@ -342,7 +338,7 @@ func (p *Printer) getSkippedPolicyCheckText() string {
 	return p.GetTextInColor("[?] Policy check didn't run for this file\n", p.Theme.Colors.White)
 }
 
-func (p *Printer) getStringOrNotAvailable(str string) string {
+func (p *Printer) getStringOrNotAvailableText(str string) string {
 	if str == "" {
 		return "N/A"
 	} else {
