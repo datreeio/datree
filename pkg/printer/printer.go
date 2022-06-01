@@ -111,7 +111,9 @@ func (p *Printer) getK8sValidationWarningText(warning Warning) string {
 	sb := strings.Builder{}
 	sb.WriteString("\n")
 	sb.WriteString("[?] Kubernetes schema validation")
+	sb.WriteString("\n")
 	sb.WriteString(warning.InvalidK8sInfo.ValidationWarning)
+	sb.WriteString("\n")
 	return sb.String()
 }
 
