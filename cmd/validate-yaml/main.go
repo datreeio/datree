@@ -23,8 +23,8 @@ type IReader interface {
 }
 
 type IPrinter interface {
-	PrintFilename(title string)
-	PrintYamlValidationErrors(validationErrors []error)
+	GetFileNameText(title string) string
+	GetYamlValidationErrorsText(validationErrors []error) string
 	PrintYamlValidationSummary(passedFiles int, allFiles int)
 	PrintMessage(messageText string, messageColor string)
 }
@@ -112,8 +112,8 @@ func New(ctx *ValidateYamlCommandContext) *cobra.Command {
 
 func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.InvalidFile, filesCount int) {
 	for _, invalidFile := range invalidFiles {
-		printer.PrintFilename(invalidFile.Path)
-		printer.PrintYamlValidationErrors(invalidFile.ValidationErrors)
+		printer.GetFileNameText(invalidFile.Path)
+		printer.GetYamlValidationErrorsText(invalidFile.ValidationErrors)
 	}
 
 	validFilesCount := filesCount - len(invalidFiles)

@@ -27,12 +27,14 @@ type MockPrinter struct {
 	mock.Mock
 }
 
-func (p *MockPrinter) PrintFilename(title string) {
+func (p *MockPrinter) GetFileNameText(title string) string {
 	p.Called(title)
+	return ""
 }
 
-func (p *MockPrinter) PrintYamlValidationErrors(validationErrors []error) {
+func (p *MockPrinter) GetYamlValidationErrorsText(validationErrors []error) string {
 	p.Called(validationErrors)
+	return ""
 }
 
 func (p *MockPrinter) PrintYamlValidationSummary(passedFiles int, allFiles int) {
@@ -90,8 +92,8 @@ func createMocks() (*MockFileReader, *MockPrinter, *MockExtractor, *MockCliClien
 	mockedFileReader.On("FilterFiles", mock.Anything).Return([]string{"."}, nil)
 
 	mockedPrinter := &MockPrinter{}
-	mockedPrinter.On("PrintFilename", mock.Anything).Return()
-	mockedPrinter.On("PrintYamlValidationErrors", mock.Anything).Return()
+	mockedPrinter.On("GetFileNameText", mock.Anything).Return()
+	mockedPrinter.On("GetYamlValidationErrorsText", mock.Anything).Return()
 	mockedPrinter.On("PrintYamlValidationSummary", mock.Anything, mock.Anything).Return()
 	mockedPrinter.On("PrintMessage", mock.Anything, mock.Anything).Return()
 

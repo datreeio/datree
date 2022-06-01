@@ -3,6 +3,7 @@ package printer
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/santhosh-tekuri/jsonschema/v5"
 
@@ -67,22 +68,24 @@ func (p *Printer) SetTheme(theme *Theme) {
 	p.Theme = theme
 }
 
-func (p *Printer) printYamlValidationWarning(warning Warning) {
-	p.PrintYamlValidationErrors(warning.InvalidYamlInfo.ValidationErrors)
-
-	p.printInColor("[?] Kubernetes schema validation didn't run for this file\n", p.Theme.Colors.White)
-	p.printSkippedPolicyCheck()
-	fmt.Fprintln(out)
+func (p *Printer) getYamlValidationWarningText(warning Warning) string {
+	sb := strings.Builder{}
+	sb.WriteString(p.GetYamlValidationErrorsText(warning.InvalidYamlInfo.ValidationErrors))
+	sb.WriteString(p.getTextInColor("[?] Kubernetes schema validation didn't run for this file\n", p.Theme.Colors.White))
+	sb.WriteString(p.getSkippedPolicyCheckText())
+	sb.WriteString("\n")
+	return sb.String()
 }
 
-func (p *Printer) PrintYamlValidationErrors(yamlValidationErrors []error) {
-	p.printInColor("[X] YAML validation\n", p.Theme.Colors.White)
-	fmt.Fprintln(out)
+func (p *Printer) GetYamlValidationErrorsText(yamlValidationErrors []error) string {
+	sb := strings.Builder{}
+	sb.WriteString(p.getTextInColor("[X] YAML validation\n\n", p.Theme.Colors.White))
 	for _, validationError := range yamlValidationErrors {
 		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
-		fmt.Fprintf(out, "%v %v\n", p.Theme.Emoji.Error, validationError)
+		sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Error, validationError))
 	}
-	fmt.Fprintln(out)
+	sb.WriteString("\n")
+	return sb.String()
 }
 
 func (p *Printer) printK8sValidationError(warning Warning) {
@@ -101,7 +104,7 @@ func (p *Printer) printK8sValidationError(warning Warning) {
 
 	fmt.Fprintln(out)
 
-	p.printSkippedPolicyCheck()
+	p.getSkippedPolicyCheckText()
 	fmt.Fprintln(out)
 }
 
@@ -129,11 +132,12 @@ func (p *Printer) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, err
 }
 
 func (p *Printer) GetWarningsText(warnings []Warning) string {
+	var sb strings.Builder
 	for _, warning := range warnings {
-		p.PrintFilename(warning.Title)
+		sb.WriteString(p.GetFileNameText(warning.Title))
 
 		if len(warning.InvalidYamlInfo.ValidationErrors) > 0 {
-			p.printYamlValidationWarning(warning)
+			sb.WriteString(p.getYamlValidationWarningText(warning))
 		} else if len(warning.InvalidK8sInfo.ValidationErrors) > 0 {
 			p.printK8sValidationError(warning)
 		} else {
@@ -203,7 +207,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 	}
 
 	fmt.Fprintln(out)
-	return ""
+	return sb.String()
 }
 
 type SummaryItem struct {
@@ -228,9 +232,8 @@ type EvaluationSummary struct {
 	PassedPolicyCheckCount    int
 }
 
-func (p *Printer) PrintFilename(title string) {
-	p.printInColor(fmt.Sprintf(">>  File: %s\n", title), p.Theme.Colors.Yellow)
-	fmt.Fprintln(out)
+func (p *Printer) GetFileNameText(title string) string {
+	return p.getTextInColor(fmt.Sprintf(">>  File: %s\n\n", title), p.Theme.Colors.Yellow)
 }
 
 func (p *Printer) PrintEvaluationSummary(summary EvaluationSummary, k8sVersion string) {
@@ -290,6 +293,11 @@ func (p *Printer) printInColor(title string, color *color.Color) {
 	colorPrintFn(out, title)
 }
 
+func (p *Printer) getTextInColor(text string, color *color.Color) string {
+	colorSprintFn := color.SprintfFunc()
+	return colorSprintFn(text)
+}
+
 func (p *Printer) createNewColor(clr string) *color.Color {
 	switch clr {
 	case "error":
@@ -320,8 +328,8 @@ func (p *Printer) printPassedYamlValidation() {
 	p.printInColor("[V] YAML validation\n", p.Theme.Colors.Green)
 }
 
-func (p *Printer) printSkippedPolicyCheck() {
-	p.printInColor("[?] Policy check didn't run for this file\n", p.Theme.Colors.White)
+func (p *Printer) getSkippedPolicyCheckText() string {
+	return p.getTextInColor("[?] Policy check didn't run for this file\n", p.Theme.Colors.White)
 }
 
 func (p *Printer) getStringOrNotAvailable(str string) string {
