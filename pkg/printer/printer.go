@@ -322,7 +322,6 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 	}
 }
 
-// TODO
 func (p *Printer) PrintMessage(messageText string, messageColor string) {
 	colorPrintFn := p.createNewColor(messageColor)
 	p.printInColor(messageText, colorPrintFn)
