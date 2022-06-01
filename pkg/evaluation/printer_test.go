@@ -23,16 +23,19 @@ type mockPrinter struct {
 	mock.Mock
 }
 
-func (m *mockPrinter) PrintWarnings(warnings []printer.Warning) {
+func (m *mockPrinter) GetWarningsText(warnings []printer.Warning) string {
 	m.Called(warnings)
+	return ""
 }
 
-func (c *mockPrinter) PrintSummaryTable(summary printer.Summary) {
+func (c *mockPrinter) GetSummaryTableText(summary printer.Summary) string {
 	c.Called(summary)
+	return ""
 }
 
-func (c *mockPrinter) PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string) {
+func (c *mockPrinter) GetEvaluationSummaryText(summary printer.EvaluationSummary, k8sVersion string) string {
 	c.Called(summary, k8sVersion)
+	return ""
 }
 
 type printResultsTestCaseArgs struct {
@@ -69,9 +72,9 @@ func TestPrintResults(t *testing.T) {
 	}
 	for _, tt := range tests {
 		mockedPrinter := &mockPrinter{}
-		mockedPrinter.On("PrintWarnings", mock.Anything, mock.Anything, mock.Anything)
-		mockedPrinter.On("PrintSummaryTable", mock.Anything)
-		mockedPrinter.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
+		mockedPrinter.On("GetWarningsText", mock.Anything, mock.Anything, mock.Anything)
+		mockedPrinter.On("GetSummaryTableText", mock.Anything)
+		mockedPrinter.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 
 		t.Run(tt.name, func(t *testing.T) {
 			_ = PrintResults(&PrintResultsData{
@@ -90,17 +93,17 @@ func TestPrintResults(t *testing.T) {
 			})
 
 			if tt.args.outputFormat == "json" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else if tt.args.outputFormat == "yaml" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else if tt.args.outputFormat == "xml" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else if tt.args.outputFormat == "JUnit" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else {
 				pwd, _ := os.Getwd()
 				warnings, _ := parseToPrinterWarnings(tt.args.results.EvaluationResults, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0", validation.K8sValidationWarningPerValidFile{}, false)
-				mockedPrinter.AssertCalled(t, "PrintWarnings", warnings)
+				mockedPrinter.AssertCalled(t, "GetWarningsText", warnings)
 			}
 		})
 	}

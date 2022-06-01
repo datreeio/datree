@@ -10,6 +10,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/fatih/color"
+
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 
@@ -17,10 +19,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var out = color.Output
+
 type Printer interface {
-	PrintWarnings(warnings []printer.Warning)
-	PrintSummaryTable(summary printer.Summary)
-	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
+	GetWarningsText(warnings []printer.Warning) string
+	GetSummaryTableText(summary printer.Summary) string
+	GetEvaluationSummaryText(summary printer.EvaluationSummary, k8sVersion string) string
 }
 
 type PrintResultsData struct {
@@ -142,6 +146,7 @@ func printAsXml(output interface{}) error {
 }
 
 func textOutput(outputData textOutputData) error {
+	sb := strings.Builder{}
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -153,13 +158,21 @@ func textOutput(outputData textOutputData) error {
 		return err
 	}
 
-	outputData.printer.PrintWarnings(warnings)
+	warningsText := outputData.printer.GetWarningsText(warnings)
+	sb.WriteString(warningsText)
 
 	summary := parseEvaluationResultsToSummary(outputData.results, outputData.evaluationSummary, outputData.url, outputData.policyName)
 
-	outputData.printer.PrintEvaluationSummary(outputData.evaluationSummary, outputData.k8sVersion)
+	evaluationSummaryText := outputData.printer.GetEvaluationSummaryText(outputData.evaluationSummary, outputData.k8sVersion)
+	sb.WriteString(evaluationSummaryText)
 
-	outputData.printer.PrintSummaryTable(summary)
+	summaryTableText := outputData.printer.GetSummaryTableText(summary)
+	sb.WriteString(summaryTableText)
+
+	_, err = out.Write([]byte(sb.String()))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
