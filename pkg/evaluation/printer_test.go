@@ -1,10 +1,7 @@
 package evaluation
 
 import (
-	"bytes"
 	"errors"
-	"io"
-	"log"
 	"os"
 	"testing"
 
@@ -114,16 +111,16 @@ func TestCustomOutputs(t *testing.T) {
 	additionalJUnitData := createAdditionalJUnitData()
 	expectedOutputs := getExpectedOutputs()
 
-	jsonStdout := readOutput("json", formattedOutput, additionalJUnitData)
+	jsonStdout, _ := jsonOutput(&formattedOutput)
 	assert.Equal(t, expectedOutputs.json, jsonStdout)
 
-	yamlStdout := readOutput("yaml", formattedOutput, additionalJUnitData)
+	yamlStdout, _ := yamlOutput(&formattedOutput)
 	assert.Equal(t, expectedOutputs.yaml, yamlStdout)
 
-	xmlStdout := readOutput("xml", formattedOutput, additionalJUnitData)
+	xmlStdout, _ := xmlOutput(&formattedOutput)
 	assert.Equal(t, expectedOutputs.xml, xmlStdout)
 
-	JUnitStdout := readOutput("JUnit", formattedOutput, additionalJUnitData)
+	JUnitStdout, _ := jUnitOutput(&formattedOutput, additionalJUnitData)
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
@@ -132,73 +129,8 @@ func TestInvalidK8sCustomOutputs(t *testing.T) {
 	additionalJUnitData := createAdditionalJUnitDataInvalidK8sFile()
 	expectedOutputs := getInvalidK8sFileExpectedOutputs()
 
-	JUnitStdout := readInvalidK8sFileOutput("JUnit", formattedOutput, additionalJUnitData)
+	JUnitStdout, _ := jUnitOutput(&formattedOutput, additionalJUnitData)
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
-}
-
-func readOutput(outputFormat string, formattedOutput FormattedOutput, additionalJUnitData AdditionalJUnitData) string {
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		panic(err)
-	}
-	os.Stdout = writer
-	os.Stderr = writer
-	log.SetOutput(writer)
-
-	out := make(chan string)
-	go func() {
-		var buf bytes.Buffer
-		io.Copy(&buf, reader)
-		out <- buf.String()
-	}()
-
-	switch {
-	case outputFormat == "json":
-		jsonOutput(&formattedOutput)
-	case outputFormat == "yaml":
-		yamlOutput(&formattedOutput)
-	case outputFormat == "xml":
-		xmlOutput(&formattedOutput)
-	case outputFormat == "JUnit":
-		err := jUnitOutput(&formattedOutput, additionalJUnitData)
-		if err != nil {
-			panic("unexpected error in printer_test: " + err.Error())
-		}
-	}
-
-	writer.Close()
-	return <-out
-}
-
-func readInvalidK8sFileOutput(outputFormat string, formattedOutput FormattedOutput, additionalJUnitData AdditionalJUnitData) string {
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		panic(err)
-	}
-	os.Stdout = writer
-	os.Stderr = writer
-	log.SetOutput(writer)
-
-	out := make(chan string)
-	go func() {
-		var buf bytes.Buffer
-		_, err := io.Copy(&buf, reader)
-		if err != nil {
-			panic(err)
-		}
-		out <- buf.String()
-	}()
-
-	switch {
-	case outputFormat == "JUnit":
-		err := jUnitOutput(&formattedOutput, additionalJUnitData)
-		if err != nil {
-			panic("unexpected error in printer_test: " + err.Error())
-		}
-	}
-
-	writer.Close()
-	return <-out
 }
 
 func createAdditionalJUnitData() AdditionalJUnitData {
