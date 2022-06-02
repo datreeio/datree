@@ -12,7 +12,7 @@ else
     nextVersion=$(echo $latestRcTag | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
 fi
 
-export DATREE_BUILD_VERSION=v$nextVersion-rc
+export DATREE_BUILD_VERSION=$nextVersion-rc
 echo $DATREE_BUILD_VERSION
 
 git tag $DATREE_BUILD_VERSION -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
