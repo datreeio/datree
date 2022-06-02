@@ -4,7 +4,7 @@ set -ex
 MAJOR_VERSION=1
 MINOR_VERSION=4
 
-latestRcTag=$(git tag --sort=-version:refname | grep -E "^${MAJOR_VERSION}\.${MINOR_VERSION}.[0-9]+-rc" | head -n 1 | grep --only-matching "^${MAJOR_VERSION}\.${MINOR_VERSION}.[0-9]\+" || true)
+latestRcTag=$(git tag --sort=-version:refname | grep -E "^v${MAJOR_VERSION}\.${MINOR_VERSION}.[0-9]+-rc" | head -n 1 | grep --only-matching "^v${MAJOR_VERSION}\.${MINOR_VERSION}.[0-9]\+" || true)
 
 if [ "$latestRcTag" == "" ]; then
     nextVersion=$MAJOR_VERSION.$MINOR_VERSION.0
