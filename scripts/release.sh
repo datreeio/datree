@@ -2,11 +2,16 @@
 set -ex
 
 release_tag=$RELEASE_VERSION
+v_release_tag=v$release_tag
 
 git checkout "$release_tag-rc"
 
+
 git tag $release_tag -a -m "Generated tag from manual TravisCI for production build $TRAVIS_BUILD_NUMBER"
-git push origin $release_tag # TODO: check if goreleaser pushes the tag itself (so no need to push here)
+git tag $v_release_tag -a -m "Generated tag with v from manual TravisCI for production build $TRAVIS_BUILD_NUMBER"
+
+git push origin $release_tag
+git push origin $v_release_tag
 
 export DATREE_BUILD_VERSION=$release_tag
 echo $DATREE_BUILD_VERSION
