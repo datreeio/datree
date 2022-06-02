@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fatih/color"
-
 	"github.com/datreeio/datree/pkg/cliClient"
 	pkgExtractor "github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
@@ -14,8 +12,6 @@ import (
 	"github.com/datreeio/datree/pkg/yamlValidator"
 	"github.com/spf13/cobra"
 )
-
-var out = color.Output
 
 const (
 	STATUS_PASSED = "passed"
@@ -125,10 +121,7 @@ func PrintValidationResults(printer IPrinter, invalidFiles []*pkgExtractor.Inval
 	validFilesCount := filesCount - len(invalidFiles)
 	sb.WriteString(printer.GetYamlValidationSummaryText(validFilesCount, filesCount))
 
-	_, err := out.Write([]byte(sb.String()))
-	if err != nil {
-		panic(err)
-	}
+	fmt.Print(sb.String())
 }
 
 func SendResults(localConfig ILocalConfig, client ICliClient, cliVersion string, isValid bool, invalidYamlFiles []*pkgExtractor.InvalidFile, filesPaths []string) {
