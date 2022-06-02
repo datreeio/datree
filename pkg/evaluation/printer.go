@@ -83,18 +83,18 @@ func GetResultsText(resultsData *PrintResultsData) (string, error) {
 
 		switch resultsData.OutputFormat {
 		case "json":
-			return jsonOutput(&formattedOutput)
+			return getJsonOutput(&formattedOutput)
 		case "yaml":
-			return yamlOutput(&formattedOutput)
+			return getYamlOutput(&formattedOutput)
 		case "xml":
-			return xmlOutput(&formattedOutput)
+			return getXmlOutput(&formattedOutput)
 		case "JUnit":
-			return jUnitOutput(&formattedOutput, resultsData.AdditionalJUnitData)
+			return getJUnitOutput(&formattedOutput, resultsData.AdditionalJUnitData)
 		default:
 			panic(errors.New("invalid output format"))
 		}
 	} else {
-		return textOutput(textOutputData{
+		return getTextOutput(textOutputData{
 			results:               resultsData.Results.EvaluationResults,
 			invalidYamlFiles:      resultsData.InvalidYamlFiles,
 			invalidK8sFiles:       resultsData.InvalidK8sFiles,
@@ -109,7 +109,7 @@ func GetResultsText(resultsData *PrintResultsData) (string, error) {
 	}
 }
 
-func jsonOutput(formattedOutput *FormattedOutput) (string, error) {
+func getJsonOutput(formattedOutput *FormattedOutput) (string, error) {
 	jsonOutput, err := json.Marshal(formattedOutput)
 	if err != nil {
 		return "", err
@@ -118,7 +118,7 @@ func jsonOutput(formattedOutput *FormattedOutput) (string, error) {
 	return fmt.Sprintln(string(jsonOutput)), nil
 }
 
-func yamlOutput(formattedOutput *FormattedOutput) (string, error) {
+func getYamlOutput(formattedOutput *FormattedOutput) (string, error) {
 	yamlOutput, err := yaml.Marshal(formattedOutput)
 	if err != nil {
 		return "", err
@@ -127,15 +127,15 @@ func yamlOutput(formattedOutput *FormattedOutput) (string, error) {
 	return fmt.Sprintln(string(yamlOutput)), nil
 }
 
-func xmlOutput(formattedOutput *FormattedOutput) (string, error) {
-	return getXmlOutput(formattedOutput)
+func getXmlOutput(formattedOutput *FormattedOutput) (string, error) {
+	return convertStructToXml(formattedOutput)
 }
 
-func jUnitOutput(formattedOutput *FormattedOutput, additionalJUnitData AdditionalJUnitData) (string, error) {
-	return getXmlOutput(FormattedOutputToJUnitOutput(*formattedOutput, additionalJUnitData))
+func getJUnitOutput(formattedOutput *FormattedOutput, additionalJUnitData AdditionalJUnitData) (string, error) {
+	return convertStructToXml(FormattedOutputToJUnitOutput(*formattedOutput, additionalJUnitData))
 }
 
-func getXmlOutput(output interface{}) (string, error) {
+func convertStructToXml(output interface{}) (string, error) {
 	xmlOutput, err := xml.MarshalIndent(output, "", "\t")
 	xmlOutput = []byte(xml.Header + string(xmlOutput))
 	if err != nil {
@@ -145,7 +145,7 @@ func getXmlOutput(output interface{}) (string, error) {
 	return fmt.Sprintln(string(xmlOutput)), nil
 }
 
-func textOutput(outputData textOutputData) (string, error) {
+func getTextOutput(outputData textOutputData) (string, error) {
 	sb := strings.Builder{}
 	pwd, err := os.Getwd()
 	if err != nil {
