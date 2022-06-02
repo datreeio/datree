@@ -10,16 +10,12 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/fatih/color"
-
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"gopkg.in/yaml.v2"
 )
-
-var out = color.Output
 
 type Printer interface {
 	GetWarningsText(warnings []printer.Warning) string
@@ -56,6 +52,16 @@ type textOutputData struct {
 }
 
 func PrintResults(resultsData *PrintResultsData) error {
+	resultsText, err := GetResultsText(resultsData)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print(resultsText)
+	return nil
+}
+
+func GetResultsText(resultsData *PrintResultsData) (string, error) {
 	if IsFormattedOutputOption(resultsData.OutputFormat) {
 		nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
 		if nonInteractiveEvaluationResults == nil {
@@ -103,59 +109,52 @@ func PrintResults(resultsData *PrintResultsData) error {
 	}
 }
 
-func jsonOutput(formattedOutput *FormattedOutput) error {
+func jsonOutput(formattedOutput *FormattedOutput) (string, error) {
 	jsonOutput, err := json.Marshal(formattedOutput)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return "", err
 	}
 
-	fmt.Println(string(jsonOutput))
-	return nil
+	return fmt.Sprintln(string(jsonOutput)), nil
 }
 
-func yamlOutput(formattedOutput *FormattedOutput) error {
+func yamlOutput(formattedOutput *FormattedOutput) (string, error) {
 	yamlOutput, err := yaml.Marshal(formattedOutput)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return "", err
 	}
 
-	fmt.Println(string(yamlOutput))
-	return nil
+	return fmt.Sprintln(string(yamlOutput)), nil
 }
 
-func xmlOutput(formattedOutput *FormattedOutput) error {
-	return printAsXml(formattedOutput)
+func xmlOutput(formattedOutput *FormattedOutput) (string, error) {
+	return getXmlOutput(formattedOutput)
 }
 
-func jUnitOutput(formattedOutput *FormattedOutput, additionalJUnitData AdditionalJUnitData) error {
-	return printAsXml(FormattedOutputToJUnitOutput(*formattedOutput, additionalJUnitData))
+func jUnitOutput(formattedOutput *FormattedOutput, additionalJUnitData AdditionalJUnitData) (string, error) {
+	return getXmlOutput(FormattedOutputToJUnitOutput(*formattedOutput, additionalJUnitData))
 }
 
-func printAsXml(output interface{}) error {
+func getXmlOutput(output interface{}) (string, error) {
 	xmlOutput, err := xml.MarshalIndent(output, "", "\t")
 	xmlOutput = []byte(xml.Header + string(xmlOutput))
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return "", err
 	}
 
-	fmt.Println(string(xmlOutput))
-	return nil
+	return fmt.Sprintln(string(xmlOutput)), nil
 }
 
-func textOutput(outputData textOutputData) error {
+func textOutput(outputData textOutputData) (string, error) {
 	sb := strings.Builder{}
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	warnings, err := parseToPrinterWarnings(outputData.results, outputData.invalidYamlFiles, outputData.invalidK8sFiles, pwd, outputData.k8sVersion, outputData.k8sValidationWarnings, outputData.Verbose)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return "", err
 	}
 
 	warningsText := outputData.printer.GetWarningsText(warnings)
@@ -169,12 +168,7 @@ func textOutput(outputData textOutputData) error {
 	summaryTableText := outputData.printer.GetSummaryTableText(summary)
 	sb.WriteString(summaryTableText)
 
-	_, err = out.Write([]byte(sb.String()))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return sb.String(), nil
 }
 
 func parseInvalidYamlFilesToWarnings(invalidYamlFiles []*extractor.InvalidFile) []printer.Warning {
