@@ -167,7 +167,7 @@ func textOutput(outputData textOutputData) (string, error) {
 
 	summaryTableText := outputData.printer.GetSummaryTableText(summary)
 	sb.WriteString(summaryTableText)
-	
+
 	return sb.String(), nil
 }
 
