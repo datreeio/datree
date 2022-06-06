@@ -127,23 +127,20 @@ func extractConfigurationK8sData(content []byte) Configuration {
 		return configuration
 	}
 
-	if metadata, ok := jsonObject["metadata"]; ok {
-		if metadataName, ok := metadata.(map[string]interface{})["name"]; ok {
+	if metadata := jsonObject["metadata"]; metadata != nil {
+		if metadataName := metadata.(map[string]interface{})["name"]; metadataName != nil {
 			configuration.MetadataName = metadataName.(string)
-			if annotations, ok := metadata.(map[string]interface{})["annotations"]; ok {
+			if annotations := metadata.(map[string]interface{})["annotations"]; annotations != nil {
 				configuration.Annotations = annotations.(map[string]interface{})
 			}
-
 		}
 	}
 
-	apiVersion, ok := jsonObject["apiVersion"]
-	if ok {
+	if apiVersion := jsonObject["apiVersion"]; apiVersion != nil {
 		configuration.ApiVersion = apiVersion.(string)
 	}
 
-	kind, ok := jsonObject["kind"]
-	if ok {
+	if kind := jsonObject["kind"]; kind != nil {
 		configuration.Kind = kind.(string)
 	}
 
