@@ -36,6 +36,12 @@ deploy:
       condition: $RELEASE_DATREE_PROD != true
   - provider: script
     skip_cleanup: true
+    script: bash ./scripts/deploy_release_candidate.sh
+    on:
+      branch: fix-version-sufix
+      condition: $RELEASE_DATREE_PROD != true
+  - provider: script
+    skip_cleanup: true
     script: bash ./scripts/release.sh
     on:
       branch: main
