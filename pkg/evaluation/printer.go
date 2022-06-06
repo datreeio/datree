@@ -279,10 +279,15 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 				}
 			}
 
+			title := filename
 			relativePath, _ := filepath.Rel(pwd, filename)
 
+			if relativePath != "" {
+				title = relativePath
+			}
+
 			warnings = append(warnings, printer.Warning{
-				Title:           relativePath,
+				Title:           title,
 				FailedRules:     failedRules,
 				SkippedRules:    skippedRules,
 				InvalidYamlInfo: printer.InvalidYamlInfo{},
