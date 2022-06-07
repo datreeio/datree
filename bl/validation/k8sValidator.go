@@ -235,6 +235,6 @@ func getDefaultSchemaLocations() []string {
 }
 
 func getDatreeCRDSchemaByName(crdCatalogName string) string {
-	crdCatalog := "https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/" + crdCatalogName + "/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
+	crdCatalog := "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/" + crdCatalogName + "/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
 	return crdCatalog
 }
