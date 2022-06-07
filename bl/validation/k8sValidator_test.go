@@ -206,7 +206,7 @@ func test_get_all_schema_locations_online(t *testing.T) {
 		"/my-local-schema-location",
 		"default",
 		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
-		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/argo/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
+		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argo/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
 	}
 	actual := getAllSchemaLocations([]string{"/my-local-schema-location"}, false)
 	assert.Equal(t, expectedOutput, actual)
@@ -222,7 +222,7 @@ func test_get_all_schema_locations_offline(t *testing.T) {
 
 func test_get_datree_crd_schema_by_name(t *testing.T) {
 	input := "argo"
-	expectedOutput := "https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/argo/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
+	expectedOutput := "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argo/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
 	actual := getDatreeCRDSchemaByName(input)
 
 	if actual != expectedOutput {
