@@ -252,7 +252,8 @@ func TestTestFlow(t *testing.T) {
 			printerMock.On("SetTheme", mock.Anything)
 
 			ciContext := &ciContext.CIContext{
-				IsCI: false,
+				IsCI:        false,
+				IsInCluster: false,
 			}
 
 			ctx := &TestCommandContext{
@@ -700,7 +701,8 @@ func setup() {
 	mockedCliClient.On("AddFlags", mock.Anything).Return()
 
 	ciContext := &ciContext.CIContext{
-		IsCI: false,
+		IsCI:        false,
+		IsInCluster: false,
 	}
 
 	ctx = &TestCommandContext{
