@@ -60,7 +60,8 @@ func TestSendEvaluationResult(t *testing.T) {
 		promptMessage := ""
 		policyName := "Default"
 		ciContext := &ciContext.CIContext{
-			IsCI: true,
+			IsCI:        true,
+			IsInCluster: false,
 			CIMetadata: &ciContext.CIMetadata{
 				CIEnvValue:       "travis",
 				ShouldHideEmojis: false,
