@@ -279,17 +279,17 @@ func (p *Printer) GetSummaryTableText(summary Summary) string {
 	skipRow := []string{summary.SkipRow.LeftCol, summary.SkipRow.RightCol}
 	errorRow := []string{summary.ErrorRow.LeftCol, summary.ErrorRow.RightCol}
 	successRow := []string{summary.SuccessRow.LeftCol, summary.SuccessRow.RightCol}
-	
+
 	if p.Theme.Name == "Simple" {
 		summaryTable.Append(skipRow)
 		summaryTable.Append(errorRow)
 		summaryTable.Append(successRow)
-	} else {		
+	} else {
 		summaryTable.Rich(skipRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Cyan)}, {int(p.Theme.ColorsAttributes.Cyan)}})
 		summaryTable.Rich(errorRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Red)}, {int(p.Theme.ColorsAttributes.Red)}})
 		summaryTable.Rich(successRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Green)}, {int(p.Theme.ColorsAttributes.Green)}})
 	}
-	
+
 	rowIndex = rowIndex + 3
 
 	for plainRowsIndex < len(summary.PlainRows) && summary.PlainRows[plainRowsIndex].RowIndex >= rowIndex {
