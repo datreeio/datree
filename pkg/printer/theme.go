@@ -8,7 +8,7 @@ import (
 )
 
 type Theme struct {
-	Name string
+	Name   string
 	Colors struct {
 		Green     *color.Color
 		Yellow    *color.Color
