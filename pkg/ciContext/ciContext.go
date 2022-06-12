@@ -7,9 +7,8 @@ import (
 )
 
 type CIContext struct {
-	IsCI        bool        `json:"isCI"`
-	CIMetadata  *CIMetadata `json:"ciMetadata"`
-	IsInCluster bool        `json:"isInCluster"`
+	IsCI       bool        `json:"isCI"`
+	CIMetadata *CIMetadata `json:"ciMetadata"`
 }
 type CIMetadata struct {
 	CIEnvValue       string `json:"ciEnvValue"`
