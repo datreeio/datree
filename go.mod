@@ -21,16 +21,13 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/apimachinery v0.23.5
+	sigs.k8s.io/yaml v1.2.0
 )
 
 require (
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/jwalton/go-supportscolor v1.1.0 // indirect
-	github.com/kr/pretty v0.2.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
 require (
@@ -64,7 +61,6 @@ require (
 )
 
 require (
-	github.com/jwalton/gchalk v1.3.0
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/shirou/gopsutil/v3 v3.22.2
