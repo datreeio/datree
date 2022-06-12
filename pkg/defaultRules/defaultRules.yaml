@@ -1213,9 +1213,7 @@ rules:
                         const: true
                     required:
                       - readOnlyRootFilesystem
-                required:
-                  - securityContext
-      anyOf:
+      allOf:
         - $ref: "#/definitions/containerSecurityPattern"
         - $ref: "#/definitions/podSecurityContextPattern"
       additionalProperties:
@@ -1550,4 +1548,3 @@ rules:
       anyOf:
         - $ref: "#/definitions/metadataNamePattern"
         - $ref: "#/definitions/metadataGenerateNamePattern"
-        

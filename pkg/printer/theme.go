@@ -8,6 +8,7 @@ import (
 )
 
 type Theme struct {
+	Name   string
 	Colors struct {
 		Green     *color.Color
 		Yellow    *color.Color
@@ -35,6 +36,7 @@ type Theme struct {
 
 func createDefaultTheme() *Theme {
 	return &Theme{
+		Name: "Default",
 		Colors: struct {
 			Green     *color.Color
 			Yellow    *color.Color
@@ -79,6 +81,7 @@ func createDefaultTheme() *Theme {
 }
 func CreateSimpleTheme() *Theme {
 	return &Theme{
+		Name: "Simple",
 		Colors: struct {
 			Green     *color.Color
 			Yellow    *color.Color

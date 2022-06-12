@@ -16,6 +16,9 @@ build-staging:
 build-dev:
 	make datree_build_env=dev build
 
+build-windows-amd:
+	GOOS=windows GOARCH=amd64 go build -tags $(or $(datree_build_env),staging) -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=1.0.0"
+
 test:
 	go test ./...
 

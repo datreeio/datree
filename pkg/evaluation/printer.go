@@ -12,10 +12,13 @@ import (
 
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/fatih/color"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"gopkg.in/yaml.v2"
 )
+
+var out = color.Output
 
 type Printer interface {
 	GetWarningsText(warnings []printer.Warning) string
@@ -57,7 +60,10 @@ func PrintResults(resultsData *PrintResultsData) error {
 		return err
 	}
 
-	fmt.Print(resultsText)
+	_, err = out.Write([]byte(resultsText))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -375,7 +381,7 @@ func (t OutputTitle) String() string {
 
 func buildEnabledRulesTitle(policyName string) string {
 	var str strings.Builder
-	fmt.Fprintf(&str, "Enabled rules in policy “%s”", policyName)
+	fmt.Fprintf(&str, "Enabled rules in policy \"%s\"", policyName)
 	return str.String()
 }
 

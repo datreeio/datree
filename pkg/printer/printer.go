@@ -177,7 +177,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 				}
 
 				for _, occurrenceDetails := range skippedRule.OccurrencesDetails {
-					sb.WriteString(fmt.Sprintf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
+					sb.WriteString(fmt.Sprintf("    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
 					m := p.Theme.Colors.White.Sprint(occurrenceDetails.SkipMessage)
 					sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, m))
 				}
@@ -206,7 +206,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 				}
 
 				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
-					sb.WriteString(fmt.Sprintf("    — metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
+					sb.WriteString(fmt.Sprintf("    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
 				}
 				sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion))
 
@@ -277,16 +277,20 @@ func (p *Printer) GetSummaryTableText(summary Summary) string {
 	}
 
 	skipRow := []string{summary.SkipRow.LeftCol, summary.SkipRow.RightCol}
-	summaryTable.Rich(skipRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Cyan)}, {int(p.Theme.ColorsAttributes.Cyan)}})
-	rowIndex++
-
 	errorRow := []string{summary.ErrorRow.LeftCol, summary.ErrorRow.RightCol}
-	summaryTable.Rich(errorRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Red)}, {int(p.Theme.ColorsAttributes.Red)}})
-	rowIndex++
-
 	successRow := []string{summary.SuccessRow.LeftCol, summary.SuccessRow.RightCol}
-	summaryTable.Rich(successRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Green)}, {int(p.Theme.ColorsAttributes.Green)}})
-	rowIndex++
+
+	if p.Theme.Name == "Simple" {
+		summaryTable.Append(skipRow)
+		summaryTable.Append(errorRow)
+		summaryTable.Append(successRow)
+	} else {
+		summaryTable.Rich(skipRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Cyan)}, {int(p.Theme.ColorsAttributes.Cyan)}})
+		summaryTable.Rich(errorRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Red)}, {int(p.Theme.ColorsAttributes.Red)}})
+		summaryTable.Rich(successRow, []tablewriter.Colors{{int(p.Theme.ColorsAttributes.Green)}, {int(p.Theme.ColorsAttributes.Green)}})
+	}
+
+	rowIndex = rowIndex + 3
 
 	for plainRowsIndex < len(summary.PlainRows) && summary.PlainRows[plainRowsIndex].RowIndex >= rowIndex {
 		summaryTable.Append([]string{summary.PlainRows[plainRowsIndex].LeftCol, summary.PlainRows[plainRowsIndex].RightCol})
