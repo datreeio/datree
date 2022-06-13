@@ -245,6 +245,10 @@ func (p *Printer) GetTitleText(title string) string {
 	return p.GetTextInColor(title, p.Theme.Colors.Yellow)
 }
 
+func GetFileNameText(title string) string {
+	return fmt.Sprintf(">>  File: %s\n\n", title)
+}
+
 func (p *Printer) GetEvaluationSummaryText(summary EvaluationSummary, k8sVersion string) string {
 	var sb strings.Builder
 	sb.WriteString(p.GetTextInColor("(Summary)\n\n", p.Theme.Colors.White))

@@ -47,7 +47,3 @@ func ValidateStdinPathArgument(paths []string) error {
 
 	return nil
 }
-
-func GetFileNameText(title string) string {
-	return fmt.Sprintf(">>  File: %s\n\n", title)
-}

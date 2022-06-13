@@ -10,8 +10,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/datreeio/datree/pkg/utils"
-
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/fatih/color"
@@ -184,7 +182,7 @@ func parseInvalidYamlFilesToWarnings(invalidYamlFiles []*extractor.InvalidFile) 
 
 	for _, invalidFile := range invalidYamlFiles {
 		warnings = append(warnings, printer.Warning{
-			Title:       utils.GetFileNameText(invalidFile.Path),
+			Title:       printer.GetFileNameText(invalidFile.Path),
 			FailedRules: []printer.FailedRule{},
 			InvalidYamlInfo: printer.InvalidYamlInfo{
 				ValidationErrors: invalidFile.ValidationErrors,
@@ -200,7 +198,7 @@ func parseInvalidK8sFilesToWarnings(invalidK8sFiles []*extractor.InvalidFile, k8
 
 	for _, invalidFile := range invalidK8sFiles {
 		warnings = append(warnings, printer.Warning{
-			Title:       utils.GetFileNameText(invalidFile.Path),
+			Title:       printer.GetFileNameText(invalidFile.Path),
 			FailedRules: []printer.FailedRule{},
 			InvalidK8sInfo: printer.InvalidK8sInfo{
 				ValidationErrors: invalidFile.ValidationErrors,
@@ -291,7 +289,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 			relativePath, _ := filepath.Rel(pwd, filename)
 
 			if relativePath != "" {
-				title = utils.GetFileNameText(relativePath)
+				title = printer.GetFileNameText(relativePath)
 			}
 
 			warnings = append(warnings, printer.Warning{
