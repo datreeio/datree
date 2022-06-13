@@ -559,8 +559,7 @@ func test_sendEvaluationResult_success() *SendEvaluationResultTestCase {
 			PlatformVersion: "1.2.3",
 			KernelVersion:   "4.5.6",
 			CIContext: &ciContext.CIContext{
-				IsInCluster: false,
-				IsCI:        true,
+				IsCI: true,
 				CIMetadata: &ciContext.CIMetadata{
 					CIEnvValue:       "travis",
 					ShouldHideEmojis: false,
@@ -641,8 +640,7 @@ func test_sendEvaluationResult_network_error(offlineMode string, expectedRespons
 			PlatformVersion: "1.2.3",
 			KernelVersion:   "4.5.6",
 			CIContext: &ciContext.CIContext{
-				IsCI:        true,
-				IsInCluster: false,
+				IsCI: true,
 				CIMetadata: &ciContext.CIMetadata{
 					CIEnvValue:       "travis",
 					ShouldHideEmojis: false,
