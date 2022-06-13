@@ -10,7 +10,6 @@ import (
 
 func TestGetWarningsText(t *testing.T) {
 	printer := CreateNewPrinter()
-	//fmt.Sprintf(">>  File: %s\n\n", invalidFile.Path),
 	warnings := []Warning{{
 		Title: fmt.Sprintf(">>  File: %s\n\n", "~/.datree/k8-demo.yaml"),
 		FailedRules: []FailedRule{
