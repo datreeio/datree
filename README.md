@@ -31,7 +31,7 @@
 
 It’s far more effective than manual processes, such as sending an email to a slew of developers, begging them to set various limits, which likely falls on deaf ears because developers are already overwhelmed.
 
-## ⚙️ How it Works
+## ⚙️ How it works
 
 The CLI integration provides a policy enforcement solution for Kubernetes to run automatic checks on every code change for rule violations and misconfigurations. When rule violations are found, Datree produces an alert that guides the developer to fix the issue inside the CI process - or even earlier as a pre-commit hook - while explaining the reason behind the rule.
 
@@ -97,7 +97,7 @@ In addition to our built-in rules, you can write [any custom rule](https://hub.d
 
 ## 🔗 CI/CD integrations
 
-Like any linter or static code analysis tool, Datree's command-line tool can be **integrated with all CI/CD platforms** to automatically scan every code change and provide feedback as part of the workflow. In the [docs](https://hub.datree.io/integrations), you can find examples of some of the common CI/CD platforms.
+Like any linter or static code analysis tool, Datree's command-line tool can be **integrated with all CI/CD platforms** to automatically scan every code change and provide feedback as part of the workflow. In the [docs](https://hub.datree.io/cicd-examples), you can find examples of some of the common CI/CD platforms.
 
 If you run into any difficulties with CI/CD integrations, please join our [community Slack channel](https://bit.ly/3BHwCEG) or open an issue, and we'd be happy to guide you through it.
 
