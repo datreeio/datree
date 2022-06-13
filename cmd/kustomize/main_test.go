@@ -3,9 +3,10 @@ package kustomize
 import (
 	"testing"
 
+	"github.com/datreeio/datree/pkg/evaluation"
+
 	"github.com/datreeio/datree/bl/files"
 
-	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/cmd/test"
@@ -138,16 +139,19 @@ type PrinterMock struct {
 	mock.Mock
 }
 
-func (p *PrinterMock) PrintWarnings(warnings []printer.Warning) {
+func (p *PrinterMock) GetWarningsText(warnings []printer.Warning) string {
 	p.Called(warnings)
+	return ""
 }
 
-func (p *PrinterMock) PrintSummaryTable(summary printer.Summary) {
+func (p *PrinterMock) GetSummaryTableText(summary printer.Summary) string {
 	p.Called(summary)
+	return ""
 }
 
-func (p *PrinterMock) PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string) {
+func (p *PrinterMock) GetEvaluationSummaryText(evaluationSummary printer.EvaluationSummary, k8sVersion string) string {
 	p.Called(evaluationSummary)
+	return ""
 }
 
 func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {

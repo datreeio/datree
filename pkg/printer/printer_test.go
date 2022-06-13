@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPrintWarnings(t *testing.T) {
+func TestGetWarningsText(t *testing.T) {
 	printer := CreateNewPrinter()
 
 	warnings := []Warning{{
@@ -41,13 +41,11 @@ func TestPrintWarnings(t *testing.T) {
 		},
 	}
 
-	t.Run("Test PrintWarnings", func(t *testing.T) {
+	t.Run("Test GetWarningsText", func(t *testing.T) {
 
 		out = new(bytes.Buffer)
 
-		printer.PrintWarnings(warnings)
-
-		got := out.(*bytes.Buffer).Bytes()
+		got := printer.GetWarningsText(warnings)
 
 		expected := []byte(
 			`>>  File: ~/.datree/k8-demo.yaml
@@ -58,7 +56,7 @@ func TestPrintWarnings(t *testing.T) {
 [X] Policy check
 
 ❌  Caption  [1 occurrence]
-    — metadata.name: yishay (kind: Pod)
+    - metadata.name: yishay (kind: Pod)
 💡  Suggestion
 
 >>  File: /datree/datree/internal/fixtures/kube/yaml-validation-error.yaml
@@ -94,18 +92,16 @@ https://github.com/datreeio/helm-datree
 
 
 `)
-		assert.Equal(t, string(expected), string(got))
+		assert.Equal(t, string(expected), got)
 	})
 
-	t.Run("Test PrintWarnings simple output", func(t *testing.T) {
+	t.Run("Test GetWarningsText simple output", func(t *testing.T) {
 
 		out = new(bytes.Buffer)
 
 		printer.SetTheme(CreateSimpleTheme())
 
-		printer.PrintWarnings(warnings)
-
-		got := out.(*bytes.Buffer).Bytes()
+		got := printer.GetWarningsText(warnings)
 
 		expected := []byte(
 			`>>  File: ~/.datree/k8-demo.yaml
@@ -116,7 +112,7 @@ https://github.com/datreeio/helm-datree
 [X] Policy check
 
 [X]  Caption  [1 occurrence]
-    — metadata.name: yishay (kind: Pod)
+    - metadata.name: yishay (kind: Pod)
 [*]  Suggestion
 
 >>  File: /datree/datree/internal/fixtures/kube/yaml-validation-error.yaml
@@ -152,12 +148,12 @@ https://github.com/datreeio/helm-datree
 
 
 `)
-		assert.Equal(t, string(expected), string(got))
+		assert.Equal(t, string(expected), got)
 	})
 }
 
-func TestPrintEvaluationSummary(t *testing.T) {
-	t.Run("Test PrintEvaluationSummary", func(t *testing.T) {
+func TestGetEvaluationSummaryText(t *testing.T) {
+	t.Run("Test GetEvaluationSummaryText", func(t *testing.T) {
 		out = new(bytes.Buffer)
 		printer := CreateNewPrinter()
 		summary := EvaluationSummary{
@@ -170,7 +166,7 @@ func TestPrintEvaluationSummary(t *testing.T) {
 		}
 		k8sVersion := "1.2.3"
 
-		printer.PrintEvaluationSummary(summary, k8sVersion)
+		got := printer.GetEvaluationSummaryText(summary, k8sVersion)
 		expected := []byte(`(Summary)
 
 - Passing YAML validation: 4/5
@@ -181,13 +177,11 @@ func TestPrintEvaluationSummary(t *testing.T) {
 
 `)
 
-		got := out.(*bytes.Buffer).Bytes()
-
-		assert.Equal(t, string(expected), string(got))
+		assert.Equal(t, string(expected), got)
 
 	})
 
-	t.Run("Test PrintEvaluationSummary with no connection warning", func(t *testing.T) {
+	t.Run("Test GetEvaluationSummaryText with no connection warning", func(t *testing.T) {
 		out = new(bytes.Buffer)
 		printer := CreateNewPrinter()
 		summary := EvaluationSummary{
@@ -200,7 +194,7 @@ func TestPrintEvaluationSummary(t *testing.T) {
 		}
 		k8sVersion := "1.2.3"
 
-		printer.PrintEvaluationSummary(summary, k8sVersion)
+		got := printer.GetEvaluationSummaryText(summary, k8sVersion)
 		expected := []byte(`(Summary)
 
 - Passing YAML validation: 4/5
@@ -211,9 +205,7 @@ func TestPrintEvaluationSummary(t *testing.T) {
 
 `)
 
-		got := out.(*bytes.Buffer).Bytes()
-
-		assert.Equal(t, string(expected), string(got))
+		assert.Equal(t, string(expected), got)
 
 	})
 }

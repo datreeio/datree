@@ -1,9 +1,7 @@
 package evaluation
 
 import (
-	"bytes"
-	"io"
-	"log"
+	"errors"
 	"os"
 	"testing"
 
@@ -22,26 +20,29 @@ type mockPrinter struct {
 	mock.Mock
 }
 
-func (m *mockPrinter) PrintWarnings(warnings []printer.Warning) {
+func (m *mockPrinter) GetWarningsText(warnings []printer.Warning) string {
 	m.Called(warnings)
+	return ""
 }
 
-func (c *mockPrinter) PrintSummaryTable(summary printer.Summary) {
+func (c *mockPrinter) GetSummaryTableText(summary printer.Summary) string {
 	c.Called(summary)
+	return ""
 }
 
-func (c *mockPrinter) PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string) {
+func (c *mockPrinter) GetEvaluationSummaryText(summary printer.EvaluationSummary, k8sVersion string) string {
 	c.Called(summary, k8sVersion)
+	return ""
 }
 
 type printResultsTestCaseArgs struct {
-	results           FormattedResults
-	rulesData         []cliClient.RuleData
-	invalidYamlFiles  []*extractor.InvalidFile
-	invalidK8sFiles   []*extractor.InvalidFile
-	evaluationSummary printer.EvaluationSummary
-	loginURL          string
-	outputFormat      string
+	results             FormattedResults
+	additionalJUnitData AdditionalJUnitData
+	invalidYamlFiles    []*extractor.InvalidFile
+	invalidK8sFiles     []*extractor.InvalidFile
+	evaluationSummary   printer.EvaluationSummary
+	loginURL            string
+	outputFormat        string
 }
 
 type printResultsTestCase struct {
@@ -60,33 +61,46 @@ type expectedOutputs struct {
 // TODO: fill missing call assertions
 func TestPrintResults(t *testing.T) {
 	tests := []*printResultsTestCase{
-		print_resultst(""),
-		print_resultst("json"),
-		print_resultst("yaml"),
-		print_resultst("xml"),
-		print_resultst("JUnit"),
+		printResults(""),
+		printResults("json"),
+		printResults("yaml"),
+		printResults("xml"),
+		printResults("JUnit"),
 	}
 	for _, tt := range tests {
 		mockedPrinter := &mockPrinter{}
-		mockedPrinter.On("PrintWarnings", mock.Anything, mock.Anything, mock.Anything)
-		mockedPrinter.On("PrintSummaryTable", mock.Anything)
-		mockedPrinter.On("PrintEvaluationSummary", mock.Anything, mock.Anything)
+		mockedPrinter.On("GetWarningsText", mock.Anything, mock.Anything, mock.Anything)
+		mockedPrinter.On("GetSummaryTableText", mock.Anything)
+		mockedPrinter.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_ = PrintResults(&PrintResultsData{tt.args.results, tt.args.rulesData, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, tt.args.evaluationSummary, tt.args.loginURL, tt.args.outputFormat, mockedPrinter, "1.18.0", false, "Default", validation.K8sValidationWarningPerValidFile{}})
+			_ = PrintResults(&PrintResultsData{
+				Results:               tt.args.results,
+				AdditionalJUnitData:   tt.args.additionalJUnitData,
+				InvalidYamlFiles:      tt.args.invalidYamlFiles,
+				InvalidK8sFiles:       tt.args.invalidK8sFiles,
+				EvaluationSummary:     tt.args.evaluationSummary,
+				LoginURL:              tt.args.loginURL,
+				OutputFormat:          tt.args.outputFormat,
+				Printer:               mockedPrinter,
+				K8sVersion:            "1.18.0",
+				Verbose:               false,
+				PolicyName:            "Default",
+				K8sValidationWarnings: validation.K8sValidationWarningPerValidFile{},
+			})
 
 			if tt.args.outputFormat == "json" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else if tt.args.outputFormat == "yaml" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else if tt.args.outputFormat == "xml" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else if tt.args.outputFormat == "JUnit" {
-				mockedPrinter.AssertNotCalled(t, "PrintWarnings")
+				mockedPrinter.AssertNotCalled(t, "GetWarningsText")
 			} else {
 				pwd, _ := os.Getwd()
 				warnings, _ := parseToPrinterWarnings(tt.args.results.EvaluationResults, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0", validation.K8sValidationWarningPerValidFile{}, false)
-				mockedPrinter.AssertCalled(t, "PrintWarnings", warnings)
+				mockedPrinter.AssertCalled(t, "GetWarningsText", warnings)
 			}
 		})
 	}
@@ -94,57 +108,32 @@ func TestPrintResults(t *testing.T) {
 
 func TestCustomOutputs(t *testing.T) {
 	formattedOutput := createFormattedOutput()
-	ruleData := createRulesData()
+	additionalJUnitData := createAdditionalJUnitData()
 	expectedOutputs := getExpectedOutputs()
 
-	jsonStdout := readOutput("json", formattedOutput, ruleData)
+	jsonStdout, _ := getJsonOutput(&formattedOutput)
 	assert.Equal(t, expectedOutputs.json, jsonStdout)
 
-	yamlStdout := readOutput("yaml", formattedOutput, ruleData)
+	yamlStdout, _ := getYamlOutput(&formattedOutput)
 	assert.Equal(t, expectedOutputs.yaml, yamlStdout)
 
-	xmlStdout := readOutput("xml", formattedOutput, ruleData)
+	xmlStdout, _ := getXmlOutput(&formattedOutput)
 	assert.Equal(t, expectedOutputs.xml, xmlStdout)
 
-	JUnitStdout := readOutput("JUnit", formattedOutput, ruleData)
+	JUnitStdout, _ := getJUnitOutput(&formattedOutput, additionalJUnitData)
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
-func readOutput(outputFormat string, formattedOutput FormattedOutput, rulesData []cliClient.RuleData) string {
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		panic(err)
-	}
-	os.Stdout = writer
-	os.Stderr = writer
-	log.SetOutput(writer)
+func TestInvalidK8sCustomOutputs(t *testing.T) {
+	formattedOutput := createInvalidK8sFileFormattedOutput()
+	additionalJUnitData := createAdditionalJUnitDataInvalidK8sFile()
+	expectedOutputs := getInvalidK8sFileExpectedOutputs()
 
-	out := make(chan string)
-	go func() {
-		var buf bytes.Buffer
-		io.Copy(&buf, reader)
-		out <- buf.String()
-	}()
-
-	switch {
-	case outputFormat == "json":
-		jsonOutput(&formattedOutput)
-	case outputFormat == "yaml":
-		yamlOutput(&formattedOutput)
-	case outputFormat == "xml":
-		xmlOutput(&formattedOutput)
-	case outputFormat == "JUnit":
-		err := jUnitOutput(&formattedOutput, rulesData)
-		if err != nil {
-			panic("unexpected error in printer_test: " + err.Error())
-		}
-	}
-
-	writer.Close()
-	return <-out
+	JUnitStdout, _ := getJUnitOutput(&formattedOutput, additionalJUnitData)
+	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
-func createRulesData() []cliClient.RuleData {
+func createAdditionalJUnitData() AdditionalJUnitData {
 	dr, err := defaultRules.GetDefaultRules()
 	if err != nil {
 		panic(err)
@@ -158,7 +147,30 @@ func createRulesData() []cliClient.RuleData {
 			})
 		}
 	}
-	return result
+	return AdditionalJUnitData{
+		AllEnabledRules:            result,
+		AllFilesThatRanPolicyCheck: []string{"File1", "File2"},
+	}
+}
+
+func createAdditionalJUnitDataInvalidK8sFile() AdditionalJUnitData {
+	dr, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+	var result []cliClient.RuleData
+	for _, r := range dr.Rules {
+		if r.EnabledByDefault {
+			result = append(result, cliClient.RuleData{
+				Identifier: r.UniqueName,
+				Name:       r.Name,
+			})
+		}
+	}
+	return AdditionalJUnitData{
+		AllEnabledRules:            result,
+		AllFilesThatRanPolicyCheck: []string{},
+	}
 }
 
 func createFormattedOutput() FormattedOutput {
@@ -231,6 +243,25 @@ func createFormattedOutput() FormattedOutput {
 	}
 }
 
+func createInvalidK8sFileFormattedOutput() FormattedOutput {
+	err := errors.New("k8s schema validation error: could not find schema for Deploymentt You can skip files with missing schemas instead of failing by using the `--ignore-missing-schemas` flag ")
+	err2 := errors.New("k8s schema validation error: For field spec.replicas: Invalid type. Expected: [integer,null], given: string ")
+	invalidK8sFile := &extractor.InvalidFile{
+		Path:             "File1",
+		ValidationErrors: []error{err, err2},
+	}
+	return FormattedOutput{
+		EvaluationSummary: NonInteractiveEvaluationSummary{
+			ConfigsCount:                0,
+			FilesCount:                  1,
+			PassedYamlValidationCount:   1,
+			K8sValidation:               "0/1",
+			PassedPolicyValidationCount: 0,
+		},
+		K8sValidationResults: []*extractor.InvalidFile{invalidK8sFile},
+	}
+}
+
 func getExpectedOutputs() expectedOutputs {
 	jsonOutput, _ := os.ReadFile("./printer_test_expected_outputs/json_output.json")
 	yamlOutput, _ := os.ReadFile("./printer_test_expected_outputs/yaml_output.yaml")
@@ -244,7 +275,14 @@ func getExpectedOutputs() expectedOutputs {
 	}
 }
 
-func print_resultst(outputFormat string) *printResultsTestCase {
+func getInvalidK8sFileExpectedOutputs() expectedOutputs {
+	jUnitOutput, _ := os.ReadFile("./printer_test_expected_outputs/JUnit_invalid_k8s_output.xml")
+	return expectedOutputs{
+		JUnit: string(jUnitOutput),
+	}
+}
+
+func printResults(outputFormat string) *printResultsTestCase {
 	return &printResultsTestCase{
 		name: "Print Results Text",
 		args: &printResultsTestCaseArgs{
@@ -268,7 +306,10 @@ func print_resultst(outputFormat string) *printResultsTestCase {
 					FormattedEvaluationResults: []*FormattedEvaluationResults{},
 				},
 			},
-			rulesData:         []cliClient.RuleData{},
+			additionalJUnitData: AdditionalJUnitData{
+				AllEnabledRules:            []cliClient.RuleData{},
+				AllFilesThatRanPolicyCheck: []string{},
+			},
 			invalidYamlFiles:  []*extractor.InvalidFile{},
 			invalidK8sFiles:   []*extractor.InvalidFile{},
 			evaluationSummary: printer.EvaluationSummary{},

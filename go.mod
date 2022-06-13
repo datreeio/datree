@@ -6,7 +6,7 @@ require (
 	github.com/bmatcuk/doublestar/v2 v2.0.4
 	github.com/briandowns/spinner v1.12.0
 	github.com/eiannone/keyboard v0.0.0-20200508000154-caf4b762e807
-	github.com/fatih/color v1.10.0
+	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/lithammer/shortuuid v3.0.0+incompatible
@@ -21,14 +21,13 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/apimachinery v0.23.5
+	sigs.k8s.io/yaml v1.2.0
 )
 
 require (
 	github.com/gogo/protobuf v1.3.2 // indirect
-	gopkg.in/inf.v0 v0.9.1 // indirect
-	github.com/kr/pretty v0.2.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	sigs.k8s.io/yaml v1.2.0 // indirect
+	gopkg.in/inf.v0 v0.9.1 // indirect
 )
 
 require (
@@ -39,8 +38,8 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.1 // indirect
-	github.com/mattn/go-colorable v0.1.8 // indirect
-	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/mattn/go-colorable v0.1.9 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/pelletier/go-toml v1.2.0 // indirect

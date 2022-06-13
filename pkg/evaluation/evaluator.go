@@ -156,17 +156,8 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 
 func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
 	skipAnnotations := extractSkipAnnotations(configuration)
-
-	configurationName, configurationKind := extractConfigurationInfo(configuration)
-
-	configurationJson, err := json.Marshal(configuration)
-	if err != nil {
-		return err
-	}
-
 	for _, rule := range policyCheckData.Policy.Rules {
-
-		failedRule, err := e.evaluateRule(rule, configurationJson, configurationName, configurationKind, skipAnnotations)
+		failedRule, err := e.evaluateRule(rule, configuration.Payload, configuration.MetadataName, configuration.Kind, skipAnnotations)
 		if err != nil {
 			return err
 		}
@@ -345,26 +336,6 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 	return results
 }
 
-func extractConfigurationInfo(configuration extractor.Configuration) (string, string) {
-	kind := ""
-	name := ""
-
-	nonStringKind := configuration["kind"]
-	if nonStringKind != nil {
-		kind = nonStringKind.(string)
-	}
-
-	nonObjectMetadata := configuration["metadata"]
-	if nonObjectMetadata != nil {
-		nonStringName := nonObjectMetadata.(map[string]interface{})["name"]
-		if nonStringName != nil {
-			name = nonStringName.(string)
-		}
-	}
-
-	return name, kind
-}
-
 type Result = gojsonschema.Result
 
 func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string, ruleIdentifier string, failedRule *cliClient.FailedRule) {
@@ -385,17 +356,11 @@ func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string
 func extractSkipAnnotations(configuration extractor.Configuration) map[string]string {
 	skipAnnotations := make(map[string]string)
 
-	configurationMetadata, ok := configuration["metadata"].(map[string]interface{})
-	if !ok {
+	if configuration.MetadataName == "" || configuration.Kind == "" {
 		return nil
 	}
 
-	annotationsMap, ok := configurationMetadata["annotations"].(map[string]interface{})
-	if !ok {
-		return nil
-	}
-
-	for annotationKey, annotationValue := range annotationsMap {
+	for annotationKey, annotationValue := range configuration.Annotations {
 		if strings.Contains(annotationKey, SKIP_RULE_PREFIX) {
 			skipAnnotations[annotationKey] = annotationValue.(string)
 		}

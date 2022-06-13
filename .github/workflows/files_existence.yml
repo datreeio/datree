@@ -1,0 +1,19 @@
+name: Files existence
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  file_existence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check if important files exist
+        id: check_files
+        uses: andstor/file-existence-action@v1.1.0
+        with:
+          files: "pkg/defaultRules/defaultRules.yaml"
+          allow_failure: true

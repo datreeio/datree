@@ -12,13 +12,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datreeio/datree/bl/evaluation"
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/evaluation"
 	"github.com/datreeio/datree/pkg/policy"
 	"github.com/pkg/errors"
 
@@ -91,11 +91,11 @@ func (flags *TestCommandFlags) Validate() error {
 }
 
 type EvaluationPrinter interface {
-	PrintWarnings(warnings []printer.Warning)
-	PrintSummaryTable(summary printer.Summary)
+	GetWarningsText(warnings []printer.Warning) string
+	GetSummaryTableText(summary printer.Summary) string
 	PrintMessage(messageText string, messageColor string)
 	PrintPromptMessage(promptMessage string)
-	PrintEvaluationSummary(evaluationSummary printer.EvaluationSummary, k8sVersion string)
+	GetEvaluationSummaryText(evaluationSummary printer.EvaluationSummary, k8sVersion string) string
 	SetTheme(theme *printer.Theme)
 }
 
@@ -378,7 +378,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 
 	err = evaluation.PrintResults(&evaluation.PrintResultsData{
 		Results:               results,
-		RulesData:             evaluationResultData.RulesData,
+		AdditionalJUnitData:   evaluationResultData.AdditionalJUnitData,
 		InvalidYamlFiles:      validationManager.InvalidYamlFiles(),
 		InvalidK8sFiles:       validationManager.InvalidK8sFiles(),
 		EvaluationSummary:     evaluationSummary,
@@ -417,11 +417,11 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 }
 
 type EvaluationResultData struct {
-	ValidationManager *ValidationManager
-	RulesCount        int
-	FormattedResults  evaluation.FormattedResults
-	RulesData         []cliClient.RuleData
-	PromptMessage     string
+	ValidationManager   *ValidationManager
+	RulesCount          int
+	FormattedResults    evaluation.FormattedResults
+	AdditionalJUnitData evaluation.AdditionalJUnitData
+	PromptMessage       string
 }
 
 func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (EvaluationResultData, error) {
@@ -480,8 +480,11 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		ValidationManager: nil,
 		RulesCount:        0,
 		FormattedResults:  evaluation.FormattedResults{},
-		RulesData:         []cliClient.RuleData{},
-		PromptMessage:     "",
+		AdditionalJUnitData: evaluation.AdditionalJUnitData{
+			AllEnabledRules:            []cliClient.RuleData{},
+			AllFilesThatRanPolicyCheck: []string{},
+		},
+		PromptMessage: "",
 	}
 
 	policyCheckResultData, err := ctx.Evaluator.Evaluate(policyCheckData)
@@ -489,13 +492,18 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		return emptyEvaluationResultData, err
 	}
 
+	additionalJUnitData := evaluation.AdditionalJUnitData{
+		AllEnabledRules:            policyCheckResultData.RulesData,
+		AllFilesThatRanPolicyCheck: utils.MapSlice[cliClient.FileData, string](policyCheckResultData.FilesData, func(fileData cliClient.FileData) string { return fileData.FilePath }),
+	}
+
 	if prerunData.NoRecord {
 		return EvaluationResultData{
-			ValidationManager: validationManager,
-			RulesCount:        policyCheckResultData.RulesCount,
-			FormattedResults:  policyCheckResultData.FormattedResults,
-			RulesData:         policyCheckResultData.RulesData,
-			PromptMessage:     "",
+			ValidationManager:   validationManager,
+			RulesCount:          policyCheckResultData.RulesCount,
+			FormattedResults:    policyCheckResultData.FormattedResults,
+			AdditionalJUnitData: additionalJUnitData,
+			PromptMessage:       "",
 		}, nil
 	}
 
@@ -538,11 +546,11 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	}
 
 	evaluationResultData := EvaluationResultData{
-		ValidationManager: validationManager,
-		RulesCount:        policyCheckResultData.RulesCount,
-		FormattedResults:  policyCheckResultData.FormattedResults,
-		RulesData:         policyCheckResultData.RulesData,
-		PromptMessage:     sendEvaluationResultsResponse.PromptMessage,
+		ValidationManager:   validationManager,
+		RulesCount:          policyCheckResultData.RulesCount,
+		FormattedResults:    policyCheckResultData.FormattedResults,
+		AdditionalJUnitData: additionalJUnitData,
+		PromptMessage:       sendEvaluationResultsResponse.PromptMessage,
 	}
 
 	return evaluationResultData, nil

@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/utils"
 )
 
 // JUnit specifications:
@@ -49,31 +50,76 @@ type failure struct {
 	Content string   `xml:",chardata"`
 }
 
-func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, rulesData []cliClient.RuleData) JUnitOutput {
-	jUnitOutput := JUnitOutput{
-		Name:       formattedOutput.PolicySummary.PolicyName,
-		Tests:      formattedOutput.PolicySummary.TotalRulesInPolicy,
-		Failures:   formattedOutput.PolicySummary.TotalRulesFailed,
-		Skipped:    formattedOutput.PolicySummary.TotalSkippedRules,
-		TestSuites: []testSuite{},
+type AdditionalJUnitData struct {
+	AllEnabledRules            []cliClient.RuleData
+	AllFilesThatRanPolicyCheck []string
+}
+
+func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUnitData AdditionalJUnitData) JUnitOutput {
+	var jUnitOutput JUnitOutput
+
+	if formattedOutput.PolicySummary != nil {
+		jUnitOutput = JUnitOutput{
+			Name:       formattedOutput.PolicySummary.PolicyName,
+			Tests:      formattedOutput.PolicySummary.TotalRulesInPolicy,
+			Failures:   formattedOutput.PolicySummary.TotalRulesFailed,
+			Skipped:    formattedOutput.PolicySummary.TotalSkippedRules,
+			TestSuites: []testSuite{},
+		}
+	} else {
+		jUnitOutput = JUnitOutput{
+			TestSuites: []testSuite{},
+		}
 	}
 
-	for _, policyValidationResult := range formattedOutput.PolicyValidationResults {
-		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, rulesData))
+	if formattedOutput.YamlValidationResults != nil && len(formattedOutput.YamlValidationResults) > 0 {
+		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getInvalidYamlFilesTestSuite(formattedOutput)...)
 	}
-	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicySummaryTestSuite(formattedOutput))
+
+	if formattedOutput.K8sValidationResults != nil && len(formattedOutput.K8sValidationResults) > 0 {
+		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getInvalidK8sFilesTestSuite(formattedOutput)...)
+	}
+
+	for _, fileThatRanPolicyCheck := range additionalJUnitData.AllFilesThatRanPolicyCheck {
+		policyValidationResult := findFileInPolicyValidationResults(fileThatRanPolicyCheck, formattedOutput.PolicyValidationResults)
+
+		if policyValidationResult != nil {
+			jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, additionalJUnitData.AllEnabledRules))
+		} else {
+			jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPassingFileTestSuite(fileThatRanPolicyCheck, additionalJUnitData.AllEnabledRules))
+		}
+	}
+
+	if formattedOutput.PolicySummary != nil {
+		jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicySummaryTestSuite(formattedOutput))
+	}
+
 	jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getEvaluationSummaryTestSuite(formattedOutput))
 
 	return jUnitOutput
 }
 
-func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults, rulesData []cliClient.RuleData) testSuite {
+func getPassingFileTestSuite(fileName string, allEnabledRules []cliClient.RuleData) testSuite {
+	return testSuite{
+		Name: fileName,
+		TestCases: utils.MapSlice[cliClient.RuleData, testCase](allEnabledRules, func(ruleData cliClient.RuleData) testCase {
+			return testCase{
+				Name:      ruleData.Name,
+				ClassName: ruleData.Identifier,
+				Skipped:   nil,
+				Failure:   nil,
+			}
+		}),
+	}
+}
+
+func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults, allEnabledRules []cliClient.RuleData) testSuite {
 	suite := testSuite{
 		Name:      policyValidationResult.FileName,
 		TestCases: []testCase{},
 	}
 
-	for _, rule := range rulesData {
+	for _, rule := range allEnabledRules {
 		testCase := testCase{
 			Name:      rule.Name,
 			ClassName: rule.Identifier,
@@ -155,7 +201,7 @@ func getContentFromOccurrencesDetails(occurrencesDetails []OccurrenceDetails) st
 	var skipLines string
 
 	for _, occurrenceDetails := range occurrencesDetails {
-		currentLine := "— metadata.name: " + occurrenceDetails.MetadataName + " (kind: " + occurrenceDetails.Kind + ")\n"
+		currentLine := "- metadata.name: " + occurrenceDetails.MetadataName + " (kind: " + occurrenceDetails.Kind + ")\n"
 
 		totalOccurrences += occurrenceDetails.Occurrences
 		occurrencesLines += currentLine
@@ -175,4 +221,64 @@ func areAllOccurrencesSkipped(occurrencesDetails []OccurrenceDetails) bool {
 		}
 	}
 	return true
+}
+
+func findFileInPolicyValidationResults(fileName string, policyValidationResults []*FormattedEvaluationResults) *FormattedEvaluationResults {
+	for _, policyValidationResult := range policyValidationResults {
+		if policyValidationResult.FileName == fileName {
+			return policyValidationResult
+		}
+	}
+	return nil
+}
+
+func getInvalidYamlFilesTestSuite(formattedOutput FormattedOutput) []testSuite {
+	var suites []testSuite
+
+	for _, invalidYamlFile := range formattedOutput.YamlValidationResults {
+		suite := testSuite{
+			Name: invalidYamlFile.Path,
+			TestCases: []testCase{
+				{
+					Name:      "invalid yaml file",
+					ClassName: "yaml validation",
+					Skipped:   nil,
+					Failure: &failure{
+						Message: "Invalid yaml file",
+						Content: invalidYamlFile.ValidationErrors[0].Error(),
+					},
+				},
+			},
+		}
+		suites = append(suites, suite)
+	}
+
+	return suites
+}
+
+func getInvalidK8sFilesTestSuite(formattedOutput FormattedOutput) []testSuite {
+	var suites []testSuite
+
+	for _, invalidK8sFile := range formattedOutput.K8sValidationResults {
+		suite := testSuite{
+			Name: invalidK8sFile.Path,
+		}
+
+		for _, k8sError := range invalidK8sFile.ValidationErrors {
+			testCase := testCase{
+				Name:      "invalid k8s file",
+				ClassName: "k8s validation",
+				Skipped:   nil,
+				Failure: &failure{
+					Message: "Invalid k8s file",
+					Content: k8sError.Error(),
+				},
+			}
+			suite.TestCases = append(suite.TestCases, testCase)
+		}
+
+		suites = append(suites, suite)
+	}
+
+	return suites
 }

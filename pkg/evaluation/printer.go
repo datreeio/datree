@@ -10,24 +10,25 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/datreeio/datree/pkg/cliClient"
-
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/fatih/color"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"gopkg.in/yaml.v2"
 )
 
+var out = color.Output
+
 type Printer interface {
-	PrintWarnings(warnings []printer.Warning)
-	PrintSummaryTable(summary printer.Summary)
-	PrintEvaluationSummary(summary printer.EvaluationSummary, k8sVersion string)
+	GetWarningsText(warnings []printer.Warning) string
+	GetSummaryTableText(summary printer.Summary) string
+	GetEvaluationSummaryText(summary printer.EvaluationSummary, k8sVersion string) string
 }
 
 type PrintResultsData struct {
 	Results               FormattedResults
-	RulesData             []cliClient.RuleData
+	AdditionalJUnitData   AdditionalJUnitData
 	InvalidYamlFiles      []*extractor.InvalidFile
 	InvalidK8sFiles       []*extractor.InvalidFile
 	EvaluationSummary     printer.EvaluationSummary
@@ -54,6 +55,19 @@ type textOutputData struct {
 }
 
 func PrintResults(resultsData *PrintResultsData) error {
+	resultsText, err := GetResultsText(resultsData)
+	if err != nil {
+		return err
+	}
+
+	_, err = out.Write([]byte(resultsText))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetResultsText(resultsData *PrintResultsData) (string, error) {
 	if IsFormattedOutputOption(resultsData.OutputFormat) {
 		nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
 		if nonInteractiveEvaluationResults == nil {
@@ -75,18 +89,18 @@ func PrintResults(resultsData *PrintResultsData) error {
 
 		switch resultsData.OutputFormat {
 		case "json":
-			return jsonOutput(&formattedOutput)
+			return getJsonOutput(&formattedOutput)
 		case "yaml":
-			return yamlOutput(&formattedOutput)
+			return getYamlOutput(&formattedOutput)
 		case "xml":
-			return xmlOutput(&formattedOutput)
+			return getXmlOutput(&formattedOutput)
 		case "JUnit":
-			return jUnitOutput(&formattedOutput, resultsData.RulesData)
+			return getJUnitOutput(&formattedOutput, resultsData.AdditionalJUnitData)
 		default:
 			panic(errors.New("invalid output format"))
 		}
 	} else {
-		return textOutput(textOutputData{
+		return getTextOutput(textOutputData{
 			results:               resultsData.Results.EvaluationResults,
 			invalidYamlFiles:      resultsData.InvalidYamlFiles,
 			invalidK8sFiles:       resultsData.InvalidK8sFiles,
@@ -101,69 +115,66 @@ func PrintResults(resultsData *PrintResultsData) error {
 	}
 }
 
-func jsonOutput(formattedOutput *FormattedOutput) error {
+func getJsonOutput(formattedOutput *FormattedOutput) (string, error) {
 	jsonOutput, err := json.Marshal(formattedOutput)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return "", err
 	}
 
-	fmt.Println(string(jsonOutput))
-	return nil
+	return fmt.Sprintln(string(jsonOutput)), nil
 }
 
-func yamlOutput(formattedOutput *FormattedOutput) error {
+func getYamlOutput(formattedOutput *FormattedOutput) (string, error) {
 	yamlOutput, err := yaml.Marshal(formattedOutput)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return "", err
 	}
 
-	fmt.Println(string(yamlOutput))
-	return nil
+	return fmt.Sprintln(string(yamlOutput)), nil
 }
 
-func xmlOutput(formattedOutput *FormattedOutput) error {
-	return printAsXml(formattedOutput)
+func getXmlOutput(formattedOutput *FormattedOutput) (string, error) {
+	return convertStructToXml(formattedOutput)
 }
 
-func jUnitOutput(formattedOutput *FormattedOutput, rulesData []cliClient.RuleData) error {
-	return printAsXml(FormattedOutputToJUnitOutput(*formattedOutput, rulesData))
+func getJUnitOutput(formattedOutput *FormattedOutput, additionalJUnitData AdditionalJUnitData) (string, error) {
+	return convertStructToXml(FormattedOutputToJUnitOutput(*formattedOutput, additionalJUnitData))
 }
 
-func printAsXml(output interface{}) error {
+func convertStructToXml(output interface{}) (string, error) {
 	xmlOutput, err := xml.MarshalIndent(output, "", "\t")
 	xmlOutput = []byte(xml.Header + string(xmlOutput))
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return "", err
 	}
 
-	fmt.Println(string(xmlOutput))
-	return nil
+	return fmt.Sprintln(string(xmlOutput)), nil
 }
 
-func textOutput(outputData textOutputData) error {
+func getTextOutput(outputData textOutputData) (string, error) {
+	sb := strings.Builder{}
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	warnings, err := parseToPrinterWarnings(outputData.results, outputData.invalidYamlFiles, outputData.invalidK8sFiles, pwd, outputData.k8sVersion, outputData.k8sValidationWarnings, outputData.Verbose)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return "", err
 	}
 
-	outputData.printer.PrintWarnings(warnings)
+	warningsText := outputData.printer.GetWarningsText(warnings)
+	sb.WriteString(warningsText)
 
 	summary := parseEvaluationResultsToSummary(outputData.results, outputData.evaluationSummary, outputData.url, outputData.policyName)
 
-	outputData.printer.PrintEvaluationSummary(outputData.evaluationSummary, outputData.k8sVersion)
+	evaluationSummaryText := outputData.printer.GetEvaluationSummaryText(outputData.evaluationSummary, outputData.k8sVersion)
+	sb.WriteString(evaluationSummaryText)
 
-	outputData.printer.PrintSummaryTable(summary)
+	summaryTableText := outputData.printer.GetSummaryTableText(summary)
+	sb.WriteString(summaryTableText)
 
-	return nil
+	return sb.String(), nil
 }
 
 func parseInvalidYamlFilesToWarnings(invalidYamlFiles []*extractor.InvalidFile) []printer.Warning {
@@ -274,10 +285,15 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 				}
 			}
 
+			title := filename
 			relativePath, _ := filepath.Rel(pwd, filename)
 
+			if relativePath != "" {
+				title = relativePath
+			}
+
 			warnings = append(warnings, printer.Warning{
-				Title:           relativePath,
+				Title:           title,
 				FailedRules:     failedRules,
 				SkippedRules:    skippedRules,
 				InvalidYamlInfo: printer.InvalidYamlInfo{},
@@ -365,7 +381,7 @@ func (t OutputTitle) String() string {
 
 func buildEnabledRulesTitle(policyName string) string {
 	var str strings.Builder
-	fmt.Fprintf(&str, "Enabled rules in policy “%s”", policyName)
+	fmt.Fprintf(&str, "Enabled rules in policy \"%s\"", policyName)
 	return str.String()
 }
 

@@ -1,12 +1,9 @@
 package cliClient
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"net/http"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/networkValidator"
@@ -17,9 +14,6 @@ import (
 
 	"github.com/datreeio/datree/bl/files"
 
-	"gopkg.in/yaml.v3"
-
-	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/httpClient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -322,42 +316,6 @@ func TestAddFlags(t *testing.T) {
 	assert.Equal(t, "", cliClient.flagsHeaders["x-cli-flags-bad-flag-key"])
 }
 
-func readMock(path string) ([]extractor.Configuration, error) {
-	var configurations []extractor.Configuration
-
-	absPath, _ := filepath.Abs(path)
-	content, err := os.ReadFile(absPath)
-
-	if err != nil {
-		return []extractor.Configuration{}, err
-	}
-
-	yamlDecoder := yaml.NewDecoder(bytes.NewReader(content))
-
-	for {
-		var doc = map[string]interface{}{}
-		err = yamlDecoder.Decode(&doc)
-		if err != nil {
-			break
-		}
-		configurations = append(configurations, doc)
-	}
-
-	return configurations, nil
-}
-
-func castPropertiesMock(fileName string, path string) []*extractor.FileConfigurations {
-	configurations, _ := readMock(path)
-
-	properties := []*extractor.FileConfigurations{
-		{
-			FileName:       fileName,
-			Configurations: configurations,
-		}}
-
-	return properties
-}
-
 func test_getVersionMessage_success() *GetVersionMessageTestCase {
 	return &GetVersionMessageTestCase{
 		name: "success - get version message",
@@ -601,7 +559,8 @@ func test_sendEvaluationResult_success() *SendEvaluationResultTestCase {
 			PlatformVersion: "1.2.3",
 			KernelVersion:   "4.5.6",
 			CIContext: &ciContext.CIContext{
-				IsCI: true,
+				IsInCluster: false,
+				IsCI:        true,
 				CIMetadata: &ciContext.CIMetadata{
 					CIEnvValue:       "travis",
 					ShouldHideEmojis: false,
@@ -682,7 +641,8 @@ func test_sendEvaluationResult_network_error(offlineMode string, expectedRespons
 			PlatformVersion: "1.2.3",
 			KernelVersion:   "4.5.6",
 			CIContext: &ciContext.CIContext{
-				IsCI: true,
+				IsCI:        true,
+				IsInCluster: false,
 				CIMetadata: &ciContext.CIMetadata{
 					CIEnvValue:       "travis",
 					ShouldHideEmojis: false,

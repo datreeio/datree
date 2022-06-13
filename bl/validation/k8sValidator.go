@@ -3,8 +3,10 @@ package validation
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/utils"
@@ -16,7 +18,9 @@ type ValidationClient interface {
 }
 
 type K8sValidator struct {
-	validationClient ValidationClient
+	validationClient              ValidationClient
+	isOffline                     bool
+	areThereCustomSchemaLocations bool
 }
 
 type K8sValidationWarningPerValidFile map[string]FileWithWarning
@@ -25,8 +29,22 @@ func New() *K8sValidator {
 	return &K8sValidator{}
 }
 
-func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) {
-	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, append(getDefaultSchemaLocations(), schemaLocations...))
+func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, userProvidedSchemaLocations []string) {
+	val.isOffline = checkIsOffline()
+	val.areThereCustomSchemaLocations = len(userProvidedSchemaLocations) > 0
+	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, getAllSchemaLocations(userProvidedSchemaLocations, val.isOffline))
+}
+
+func checkIsOffline() bool {
+	client := http.Client{
+		Timeout: 10 * time.Second,
+	}
+	resp, err := client.Get("https://www.githubstatus.com/api/v2/status.json")
+	if err == nil && resp != nil && resp.StatusCode == 200 {
+		return false
+	} else {
+		return true
+	}
 }
 
 type WarningKind int
@@ -110,9 +128,8 @@ func (val *K8sValidator) GetK8sFiles(filesConfigurationsChan chan *extractor.Fil
 
 func (val *K8sValidator) isK8sFile(fileConfigurations []extractor.Configuration) bool {
 	for _, configuration := range fileConfigurations {
-		_, has_apiVersion := configuration["apiVersion"]
-		_, has_kind := configuration["kind"]
-
+		has_apiVersion := configuration.ApiVersion != ""
+		has_kind := configuration.Kind != ""
 		if !has_apiVersion || !has_kind {
 			return false
 		}
@@ -134,6 +151,14 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 
 	defer f.Close()
 
+	if val.isOffline && !val.areThereCustomSchemaLocations {
+		var noConnectionWarning = &validationWarning{
+			WarningKind:    NetworkError,
+			WarningMessage: "k8s schema validation skipped: no internet connection",
+		}
+		return true, []error{}, noConnectionWarning, nil
+	}
+
 	results := val.validationClient.Validate(filepath, f)
 
 	// Return an error if no valid configurations found
@@ -152,22 +177,15 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 			isAtLeastOneConfigSkipped = true
 		}
 		if res.Status == kubeconformValidator.Invalid || res.Status == kubeconformValidator.Error {
-			if utils.IsNetworkError(res.Err.Error()) {
-				noConnectionWarning := &validationWarning{
-					WarningKind:    NetworkError,
-					WarningMessage: "k8s schema validation skipped: no internet connection",
-				}
-				return true, []error{}, noConnectionWarning, nil
-			}
 			isValid = false
+			errString := res.Err.Error()
 
-			errorMessages := strings.Split(res.Err.Error(), "-")
-
-			// errorMessages slice is not empty
-			if len(errorMessages) > 0 {
+			if utils.IsNetworkError(errString) {
+				validationErrors = append(validationErrors, &InvalidK8sSchemaError{errString})
+			} else {
+				errorMessages := strings.Split(errString, "-")
 				for _, errorMessage := range errorMessages {
-					msg := strings.Trim(errorMessage, " ")
-					validationErrors = append(validationErrors, &InvalidK8sSchemaError{ErrorMessage: msg})
+					validationErrors = append(validationErrors, &InvalidK8sSchemaError{ErrorMessage: strings.Trim(errorMessage, " ")})
 				}
 			}
 		}
@@ -197,6 +215,15 @@ func isEveryResultStatusEmpty(results []kubeconformValidator.Result) bool {
 	return isEveryResultStatusEmpty
 }
 
+func getAllSchemaLocations(userProvidedSchemaLocations []string, isOffline bool) []string {
+	if isOffline {
+		return userProvidedSchemaLocations
+	} else {
+		// order matters! userProvidedSchemaLocations get priority over defaultSchemaLocations
+		return append(userProvidedSchemaLocations, getDefaultSchemaLocations()...)
+	}
+}
+
 func getDefaultSchemaLocations() []string {
 	return []string{
 		"default",
@@ -208,6 +235,6 @@ func getDefaultSchemaLocations() []string {
 }
 
 func getDatreeCRDSchemaByName(crdCatalogName string) string {
-	crdCatalog := "https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/" + crdCatalogName + "/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
+	crdCatalog := "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/" + crdCatalogName + "/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
 	return crdCatalog
 }
