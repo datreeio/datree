@@ -143,7 +143,7 @@ func (p *Printer) getYamlSchemaResultsText(errorsResult []jsonschema.Detailed, e
 func (p *Printer) GetWarningsText(warnings []Warning) string {
 	var sb strings.Builder
 	for _, warning := range warnings {
-		sb.WriteString(p.GetFileNameText(warning.Title))
+		sb.WriteString(p.GetTitleText(warning.Title))
 
 		if len(warning.InvalidYamlInfo.ValidationErrors) > 0 {
 			sb.WriteString(p.getYamlValidationWarningText(warning))
@@ -241,7 +241,7 @@ type EvaluationSummary struct {
 	PassedPolicyCheckCount    int
 }
 
-func (p *Printer) GetFileNameText(title string) string {
+func (p *Printer) GetTitleText(title string) string {
 	return p.GetTextInColor(title, p.Theme.Colors.Yellow)
 }
 
