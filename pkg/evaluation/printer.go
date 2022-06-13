@@ -182,7 +182,7 @@ func parseInvalidYamlFilesToWarnings(invalidYamlFiles []*extractor.InvalidFile) 
 
 	for _, invalidFile := range invalidYamlFiles {
 		warnings = append(warnings, printer.Warning{
-			Title:       invalidFile.Path,
+			Title:       fmt.Sprintf(">>  File: %s\n\n", invalidFile.Path),
 			FailedRules: []printer.FailedRule{},
 			InvalidYamlInfo: printer.InvalidYamlInfo{
 				ValidationErrors: invalidFile.ValidationErrors,
@@ -198,7 +198,7 @@ func parseInvalidK8sFilesToWarnings(invalidK8sFiles []*extractor.InvalidFile, k8
 
 	for _, invalidFile := range invalidK8sFiles {
 		warnings = append(warnings, printer.Warning{
-			Title:       invalidFile.Path,
+			Title:       fmt.Sprintf(">>  File: %s\n\n", invalidFile.Path),
 			FailedRules: []printer.FailedRule{},
 			InvalidK8sInfo: printer.InvalidK8sInfo{
 				ValidationErrors: invalidFile.ValidationErrors,
@@ -289,7 +289,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 			relativePath, _ := filepath.Rel(pwd, filename)
 
 			if relativePath != "" {
-				title = relativePath
+				title = fmt.Sprintf(">>  File: %s\n\n", relativePath)
 			}
 
 			warnings = append(warnings, printer.Warning{

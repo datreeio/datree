@@ -242,7 +242,7 @@ type EvaluationSummary struct {
 }
 
 func (p *Printer) GetFileNameText(title string) string {
-	return p.GetTextInColor(fmt.Sprintf(">>  File: %s\n\n", title), p.Theme.Colors.Yellow)
+	return p.GetTextInColor(title, p.Theme.Colors.Yellow)
 }
 
 func (p *Printer) GetEvaluationSummaryText(summary EvaluationSummary, k8sVersion string) string {
