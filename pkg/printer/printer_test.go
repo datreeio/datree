@@ -10,9 +10,8 @@ import (
 
 func TestGetWarningsText(t *testing.T) {
 	printer := CreateNewPrinter()
-
 	warnings := []Warning{{
-		Title: "~/.datree/k8-demo.yaml",
+		Title: GetFileNameText("~/.datree/k8-demo.yaml"),
 		FailedRules: []FailedRule{
 			{
 				Name:               "Caption",
@@ -23,17 +22,17 @@ func TestGetWarningsText(t *testing.T) {
 		},
 	},
 		{
-			Title:           "/datree/datree/internal/fixtures/kube/yaml-validation-error.yaml\n",
+			Title:           GetFileNameText("/datree/datree/internal/fixtures/kube/yaml-validation-error.yaml\n"),
 			FailedRules:     []FailedRule{},
 			InvalidYamlInfo: InvalidYamlInfo{ValidationErrors: []error{fmt.Errorf("yaml validation error")}},
 		},
 		{
-			Title:          "/datree/datree/internal/fixtures/kube/k8s-validation-error.yaml\n",
+			Title:          GetFileNameText("/datree/datree/internal/fixtures/kube/k8s-validation-error.yaml\n"),
 			FailedRules:    []FailedRule{},
 			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
 		},
 		{
-			Title:          "/datree/datree/internal/fixtures/kube/Chart.yaml\n",
+			Title:          GetFileNameText("/datree/datree/internal/fixtures/kube/Chart.yaml\n"),
 			FailedRules:    []FailedRule{},
 			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
 			ExtraMessages: []ExtraMessage{{Text: "Are you trying to test a raw helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree",
