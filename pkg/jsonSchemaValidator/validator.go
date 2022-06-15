@@ -189,6 +189,9 @@ func getLeafErrors(error jsonschema.Detailed) []jsonschema.Detailed {
 	if error.Errors == nil {
 		// if no more child errors, I am a leaf, return me!
 		return []jsonschema.Detailed{error}
+	} else if strings.HasSuffix(error.KeywordLocation, "anyOf") {
+		// if I am an anyOf, return as if I am a leaf
+		return []jsonschema.Detailed{error}
 	} else {
 		// if I'm not a leaf, return the errors from all my children!
 		var errorsFromChildren []jsonschema.Detailed
