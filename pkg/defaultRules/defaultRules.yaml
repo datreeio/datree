@@ -1549,7 +1549,7 @@ rules:
         - $ref: "#/definitions/metadataNamePattern"
         - $ref: "#/definitions/metadataGenerateNamePattern"
   - id: 55
-    name: Ensure container probe has an initial delay configured
+    name: Ensure container probes have an initial delay configured
     uniqueName: CONTAINERS_INCORRECT_INITIALDELAYSECONDS_VALUE
     enabledByDefault: true
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-initial-probe-delay"
@@ -1603,7 +1603,7 @@ rules:
       items:
         $ref: "#"
   - id: 56
-    name: Ensure container probe has a configured frequency
+    name: Ensure container probes have a configured frequency
     uniqueName: CONTAINERS_INCORRECT_PERIODSECONDS_VALUE
     enabledByDefault: true
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-frequency"
@@ -1657,7 +1657,7 @@ rules:
       items:
         $ref: "#"
   - id: 57
-    name: Ensure container probe has a configured timeout
+    name: Ensure container probes have a configured timeout
     uniqueName: CONTAINERS_INCORRECT_TIMEOUTSECONDS_VALUE
     enabledByDefault: true
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-timeout"
@@ -1711,7 +1711,7 @@ rules:
       items:
         $ref: "#"
   - id: 58
-    name: Ensure container probe has a configured minimum success threshold
+    name: Ensure container probes have a configured minimum success threshold
     uniqueName: CONTAINERS_INCORRECT_SUCCESSTHRESHOLD_VALUE
     enabledByDefault: true
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-min-success-threshold"
@@ -1765,7 +1765,7 @@ rules:
       items:
         $ref: "#"
   - id: 59
-    name: Ensure container probe has a configured failure threshold
+    name: Ensure container probes have a configured failure threshold
     uniqueName: CONTAINERS_INCORRECT_FAILURETHRESHOLD_VALUE
     enabledByDefault: true
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-failure-threshold"
