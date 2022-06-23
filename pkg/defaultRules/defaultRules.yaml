@@ -1553,7 +1553,7 @@ rules:
     uniqueName: CONTAINERS_INCORRECT_INITIALDELAYSECONDS_VALUE
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-initial-probe-delay"
-    messageOnFailure: "Incorrect value for key `initialDelaySeconds` - set to prevent unwanted default initial delay behavior"
+    messageOnFailure: "Incorrect value for key `initialDelaySeconds` - set explicitly to control the start time before a probe is initiated (min 0)"
     category: Containers
     schema:
       definitions:
@@ -1607,7 +1607,7 @@ rules:
     uniqueName: CONTAINERS_INCORRECT_PERIODSECONDS_VALUE
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-frequency"
-    messageOnFailure: "Incorrect value for key `periodSeconds` - set to prevent unwanted default frequency behavior"
+    messageOnFailure: "Incorrect value for key `periodSeconds` - set explicitly to control how often a probe is performed (min 1)"
     category: Containers
     schema:
       definitions:
@@ -1661,7 +1661,7 @@ rules:
     uniqueName: CONTAINERS_INCORRECT_TIMEOUTSECONDS_VALUE
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-timeout"
-    messageOnFailure: "Incorrect value for key `timeoutSeconds` - set to prevent unwanted default timeout behavior"
+    messageOnFailure: "Incorrect value for key `timeoutSeconds` - set explicitly to control when a probe times out (min 1)"
     category: Containers
     schema:
       definitions:
@@ -1715,7 +1715,7 @@ rules:
     uniqueName: CONTAINERS_INCORRECT_SUCCESSTHRESHOLD_VALUE
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-min-success-threshold"
-    messageOnFailure: "Incorrect value for key `successThreshold` - set to prevent unwanted default success threshold behavior"
+    messageOnFailure: "Incorrect value for key `successThreshold` - set explicitly to control when a probe is considered successful after having failed"
     category: Containers
     schema:
       definitions:
@@ -1769,7 +1769,7 @@ rules:
     uniqueName: CONTAINERS_INCORRECT_FAILURETHRESHOLD_VALUE
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-failure-threshold"
-    messageOnFailure: "Incorrect value for key `failureThreshold` - set to prevent unwanted default failure threshold behavior"
+    messageOnFailure: "Incorrect value for key `failureThreshold` - set explicitly to control the number of retries after a probe fails (min 1)"
     category: Containers
     schema:
       definitions:
