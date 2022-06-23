@@ -63,11 +63,6 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				}
 			}()
 
-			err = testCommandFlags.Validate()
-			if err != nil {
-				return err
-			}
-
 			localConfigContent, err := testCtx.LocalConfig.GetLocalConfiguration()
 			if err != nil {
 				return err
