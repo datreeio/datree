@@ -314,12 +314,11 @@ func TestWrapper(ctx *TestCommandContext, args []string, testCommandFlags *TestC
 
 	ctx.CliClient.AddFlags(testCommandFlags.ToMapping())
 	evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ctx.CiContext.IsCI)
-	saveDefaultRulesAsFile(ctx, evaluationPrerunData.DefaultRulesYaml)
-
 	if err != nil {
 		return err
 	}
 
+	saveDefaultRulesAsFile(ctx, evaluationPrerunData.DefaultRulesYaml)
 	testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
 	if err != nil {
 		return err
