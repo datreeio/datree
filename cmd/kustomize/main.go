@@ -62,22 +62,6 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				}
 			}()
 
-			localConfigContent, err := testCtx.LocalConfig.GetLocalConfiguration()
-			if err != nil {
-				return err
-			}
-
-			testCtx.CliClient.AddFlags(testCommandFlags.ToMapping())
-			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, testCtx.CiContext.IsCI)
-			if err != nil {
-				return err
-			}
-
-			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
-			if err != nil {
-				return err
-			}
-
 			out, err := kustomizeCtx.CommandRunner.ExecuteKustomizeBin(args)
 			if err != nil {
 				return err
@@ -89,11 +73,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			}
 			defer os.Remove(tempFilename)
 
-			err = test.Test(testCtx, []string{tempFilename}, testCommandOptions)
-			if err != nil {
-				return err
-			}
-			return nil
+			return test.TestWrapper(testCtx, []string{tempFilename}, testCommandFlags)
 		},
 	}
 	testCommandFlags.AddFlags(kustomizeTestCommand)
