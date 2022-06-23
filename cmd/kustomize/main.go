@@ -70,6 +70,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			}
 
 			ciContext := ciContext.Extract()
+			testCtx.CliClient.AddFlags(testCommandFlags.ToMapping())
 			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ciContext.IsCI)
 			if err != nil {
 				return err
