@@ -195,11 +195,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				}
 			}()
 
-			err = TestWrapper(ctx, args, testCommandFlags)
-			if err != nil {
-				return err
-			}
-			return nil
+			return TestWrapper(ctx, args, testCommandFlags)
 		},
 	}
 	testCommandFlags.AddFlags(testCommand)
