@@ -195,25 +195,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				}
 			}()
 
-			localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
-			if err != nil {
-				return err
-			}
-
-			ctx.CliClient.AddFlags(testCommandFlags.ToMapping())
-			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ctx.CiContext.IsCI)
-			saveDefaultRulesAsFile(ctx, evaluationPrerunData.DefaultRulesYaml)
-
-			if err != nil {
-				return err
-			}
-
-			testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
-			if err != nil {
-				return err
-			}
-
-			err = Test(ctx, args, testCommandOptions)
+			err = TestWrapper(ctx, args, testCommandFlags)
 			if err != nil {
 				return err
 			}
@@ -322,6 +304,27 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 			"Make sure you are following the semantic versioning format <MAJOR>.<MINOR>.<PATCH>\n"+
 			"Read more about kubernetes versioning: https://kubernetes.io/releases/version-skew-policy/#supported-versions", k8sVersion)
 	}
+}
+
+func TestWrapper(ctx *TestCommandContext, args []string, testCommandFlags *TestCommandFlags) error {
+	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
+	if err != nil {
+		return err
+	}
+
+	ctx.CliClient.AddFlags(testCommandFlags.ToMapping())
+	evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ctx.CiContext.IsCI)
+	saveDefaultRulesAsFile(ctx, evaluationPrerunData.DefaultRulesYaml)
+
+	if err != nil {
+		return err
+	}
+
+	testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
+	if err != nil {
+		return err
+	}
+	return Test(ctx, args, testCommandOptions)
 }
 
 func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) error {
