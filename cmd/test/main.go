@@ -323,10 +323,10 @@ func TestWrapper(ctx *TestCommandContext, args []string, testCommandFlags *TestC
 	if err != nil {
 		return err
 	}
-	return Test(ctx, args, testCommandOptions)
+	return test(ctx, args, testCommandOptions)
 }
 
-func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) error {
+func test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) error {
 	if paths[0] == "-" {
 		tempFile, err := os.CreateTemp("", "datree_temp_*.yaml")
 		if err != nil {
