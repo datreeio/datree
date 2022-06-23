@@ -4,7 +4,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 
 	"github.com/datreeio/datree/cmd/test"
@@ -68,9 +67,8 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				return err
 			}
 
-			ciContext := ciContext.Extract()
 			testCtx.CliClient.AddFlags(testCommandFlags.ToMapping())
-			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ciContext.IsCI)
+			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, testCtx.CiContext.IsCI)
 			if err != nil {
 				return err
 			}
