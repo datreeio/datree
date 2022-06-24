@@ -1,52 +1,43 @@
 import json
 import os
 import sys
+import re
 
-COMMIT_TYPES = set(["build", "ci", "docs", "feat", "fix",
-                   "perf", "refactor", "test", "style"])
+COMMIT_TYPES = set(["build", "ci", "docs", "feat", "fix", "perf", "refactor", "test"])
 MAX_COMMIT_MSG_LEN = 72
-
 
 def commit_msg_len(msg):
     if len(msg) > MAX_COMMIT_MSG_LEN:
-        print(
-            f"PR title message '{msg}' too long. Max length is {MAX_COMMIT_MSG_LEN} characters.")
+        print(f"PR title message '{msg}' too long. Max length is {MAX_COMMIT_MSG_LEN} characters.")
         sys.exit(1)
-
 
 def message_format(msg):
     try:
         t = msg.split(":")[0].strip()
         m = msg.split(":")[1].strip()
     except:
-        print(
-            f"PR title format incorrect, should be 'type: message' ex: 'fix: a known issue'")
+        print(f"PR title format incorrect, should be 'type: message' ex: 'fix: a known issue'")
         sys.exit(1)
-
 
 def commit_type(msg):
     t = msg.split(":")[0].strip()
     commit_scope_regex = r"\([^()]*\)"
     t = re.sub(commit_scope_regex, "", t)
-
+    
     if t not in COMMIT_TYPES:
         print(f"PR type invalid. It needs to be one of {COMMIT_TYPES}. ")
         sys.exit(1)
 
-
 def first_letter_case(msg):
     m = msg.split(":")[1].strip()
     if m[0].isupper():
-        print(
-            f"PR title message '{msg}' starts with upper case letter: '{m[0]}'")
+        print(f"PR title message '{msg}' starts with upper case letter: '{m[0]}'")
         sys.exit(1)
-
 
 def trailing_period(msg):
     if msg[-1] == ".":
         print(f"PR title message '{msg}' ends with a period. ")
         sys.exit(1)
-
 
 def run_checks(msg):
     message_format(msg)
@@ -54,7 +45,6 @@ def run_checks(msg):
     commit_type(msg)
     first_letter_case(msg)
     trailing_period(msg)
-
 
 if __name__ == "__main__":
 
