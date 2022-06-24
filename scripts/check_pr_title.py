@@ -1,7 +1,6 @@
 import json
 import os
 import sys
-import re
 
 COMMIT_TYPES = set(["build", "ci", "docs", "feat", "fix",
                    "perf", "refactor", "test", "style"])
