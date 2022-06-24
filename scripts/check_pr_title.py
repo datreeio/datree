@@ -26,7 +26,8 @@ def commit_type(msg):
     t = re.sub(commit_scope_regex, "", t)
     
     breaking_change_regex = r"!$"
-    
+    t = re.sub(breaking_change_regex, "", t)
+
     if t not in COMMIT_TYPES:
         print(f"PR type invalid. It needs to be one of {COMMIT_TYPES}. ")
         sys.exit(1)
