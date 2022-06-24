@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/datreeio/datree/pkg/logger"
 	"gopkg.in/yaml.v3"
 	yamlConvertor "sigs.k8s.io/yaml"
 )
@@ -40,7 +41,7 @@ func ToAbsolutePath(path string) (string, error) {
 		return filepath.Abs(absolutePath)
 	}
 
-	return "", fmt.Errorf("failed parsing absolute path %s", path)
+	return "", logger.Errorf("failed parsing absolute path %s", path)
 }
 
 func ExtractConfigurationsFromYamlFile(path string) (*[]Configuration, string, *InvalidFile) {

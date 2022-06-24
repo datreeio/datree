@@ -3,12 +3,12 @@ package defaultRules
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
+	"github.com/datreeio/datree/pkg/logger"
 	"github.com/ghodss/yaml"
 	"github.com/stretchr/testify/assert"
 )
@@ -102,10 +102,10 @@ func validateYamlUsingJSONSchema(yamlFilePath string, schema string) error {
 	}
 
 	if schemaValidationResult != nil {
-		validationErrors := fmt.Errorf("Received validation errors for %s:\n", yamlFilePath)
+		validationErrors := logger.Errorf("Received validation errors for %s:\n", yamlFilePath)
 
 		for _, validationError := range schemaValidationResult {
-			validationErrors = fmt.Errorf("%s\n%s", validationErrors, validationError.Error)
+			validationErrors = logger.Errorf("%s\n%s", validationErrors, validationError.Error)
 		}
 
 		return validationErrors
@@ -138,7 +138,7 @@ func validateUniqueNameUniquenessInRules(rules []DefaultRuleDefinition) error {
 		propertyValue := item.UniqueName
 
 		if propertyValuesExistenceMap[propertyValue] {
-			return fmt.Errorf("duplicate unique name found: %s", propertyValue)
+			return logger.Errorf("duplicate unique name found: %s", propertyValue)
 		}
 
 		propertyValuesExistenceMap[propertyValue] = true
@@ -152,7 +152,7 @@ func validateIDUniquenessInRules(rules []DefaultRuleDefinition) error {
 
 	for _, item := range rules {
 		if propertyValuesExistenceMap[item.ID] {
-			return fmt.Errorf("duplicate id found: %d", item.ID)
+			return logger.Errorf("duplicate id found: %d", item.ID)
 		}
 
 		propertyValuesExistenceMap[item.ID] = true
@@ -166,7 +166,7 @@ func validateDocumentationUrlUniquenessInRules(rules []DefaultRuleDefinition) er
 
 	for _, item := range rules {
 		if propertyValuesExistenceMap[item.DocumentationUrl] {
-			return fmt.Errorf("duplicate id found: %d", item.ID)
+			return logger.Errorf("duplicate id found: %d", item.ID)
 		}
 
 		propertyValuesExistenceMap[item.DocumentationUrl] = true

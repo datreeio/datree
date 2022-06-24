@@ -1,11 +1,11 @@
 package config
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/localConfig"
+	"github.com/datreeio/datree/pkg/logger"
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -61,7 +61,7 @@ func validateKey(key string) error {
 	}
 
 	if val, ok := validKeys[key]; !ok || !val {
-		return fmt.Errorf("key must be one of: %s", reflect.ValueOf(validKeys).MapKeys())
+		return logger.Errorf("key must be one of: %s", reflect.ValueOf(validKeys).MapKeys())
 	}
 	return nil
 }

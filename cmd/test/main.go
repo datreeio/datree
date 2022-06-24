@@ -19,6 +19,7 @@ import (
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/evaluation"
+	"github.com/datreeio/datree/pkg/logger"
 	"github.com/datreeio/datree/pkg/policy"
 	"github.com/pkg/errors"
 
@@ -76,7 +77,7 @@ func (flags *TestCommandFlags) Validate() error {
 	outputValue := flags.Output
 
 	if !evaluation.IsValidOutputOption(outputValue) {
-		return fmt.Errorf("invalid --output option - %q\n"+
+		return logger.Errorf("invalid --output option - %q\n"+
 			"Valid output values are - "+evaluation.OutputFormats(), outputValue)
 	}
 
@@ -276,7 +277,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 
 	if testCommandFlags.PolicyConfig != "" {
 		if !evaluationPrerunDataResp.IsPolicyAsCodeMode {
-			return nil, fmt.Errorf("to use --policy-config flag you must first enable policy-as-code mode: https://hub.datree.io/policy-as-code")
+			return nil, logger.Errorf("to use --policy-config flag you must first enable policy-as-code mode: https://hub.datree.io/policy-as-code")
 		}
 
 		policies, err = policy.GetPoliciesFileFromPath(testCommandFlags.PolicyConfig)
@@ -318,7 +319,7 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 	if isK8sVersionInCorrectFormat {
 		return nil
 	} else {
-		return fmt.Errorf("the specified schema-version %q is not in the correct format.\n"+
+		return logger.Errorf("the specified schema-version %q is not in the correct format.\n"+
 			"Make sure you are following the semantic versioning format <MAJOR>.<MINOR>.<PATCH>\n"+
 			"Read more about kubernetes versioning: https://kubernetes.io/releases/version-skew-policy/#supported-versions", k8sVersion)
 	}
@@ -344,7 +345,7 @@ func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 	}
 	filesCount := len(filesPaths)
 	if filesCount == 0 {
-		noFilesErr := fmt.Errorf("no files detected")
+		noFilesErr := logger.Errorf("no files detected")
 		return noFilesErr
 	}
 

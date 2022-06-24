@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+
+	"github.com/datreeio/datree/pkg/logger"
 )
 
 // CommandOutput is RunCommand result object
@@ -41,7 +43,7 @@ func (c *CommandRunner) RunCommand(name string, args []string) (CommandOutput, e
 		return CommandOutput{
 			ResultOutput: commandOutputBuffer,
 			ErrorOutput:  commandErrorBuffer,
-		}, fmt.Errorf("command output:%s, err:%s", commandOutputBuffer.String(), commandErrorBuffer.String())
+		}, logger.Errorf("command output:%s, err:%s", commandOutputBuffer.String(), commandErrorBuffer.String())
 	}
 
 	return CommandOutput{
@@ -55,7 +57,7 @@ func (c *CommandRunner) ExecuteKustomizeBin(args []string) ([]byte, error) {
 
 		commandOutput, err := c.RunCommand("kustomize", append([]string{"build"}, args...))
 		if err != nil {
-			return nil, fmt.Errorf("kustomize build errored: %s",
+			return nil, logger.Errorf("kustomize build errored: %s",
 				commandOutput.ErrorOutput.String())
 		}
 
@@ -64,7 +66,7 @@ func (c *CommandRunner) ExecuteKustomizeBin(args []string) ([]byte, error) {
 
 		commandOutput, err := c.RunCommand("kubectl", append([]string{"kustomize"}, args...))
 		if err != nil {
-			return nil, fmt.Errorf("kubectl kustomize errored: %s",
+			return nil, logger.Errorf("kubectl kustomize errored: %s",
 				commandOutput.ErrorOutput.String())
 		}
 

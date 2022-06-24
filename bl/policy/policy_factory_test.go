@@ -2,12 +2,12 @@ package policy
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/defaultRules"
 	"github.com/datreeio/datree/pkg/fileReader"
+	"github.com/datreeio/datree/pkg/logger"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 
@@ -105,7 +105,7 @@ func TestCreatePolicy(t *testing.T) {
 	t.Run("Test Create Policy for anonymous user with --policy flag not default", func(t *testing.T) {
 		policy, err := CreatePolicy(nil, "my-policy", preRunData.RegistrationURL)
 
-		assert.Equal(t, fmt.Errorf("policy my-policy doesn't exist, sign in to the dashboard to customize your policies: %s", preRunData.RegistrationURL), err)
+		assert.Equal(t, logger.Errorf("policy my-policy doesn't exist, sign in to the dashboard to customize your policies: %s", preRunData.RegistrationURL), err)
 		assert.Equal(t, Policy{}, policy)
 	})
 }

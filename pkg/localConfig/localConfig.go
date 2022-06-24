@@ -1,10 +1,10 @@
 package localConfig
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/datreeio/datree/pkg/logger"
 	"github.com/datreeio/datree/pkg/networkValidator"
 
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -201,7 +201,7 @@ func setViperConfig() (string, string, string, error) {
 
 func setViperVariable(key string, value string) error {
 	if value == "" {
-		return fmt.Errorf("value is empty")
+		return logger.Errorf("value is empty")
 	}
 
 	viper.Set(key, value)
@@ -220,7 +220,7 @@ func setViperVariable(key string, value string) error {
 
 func validateKeyValueConfig(key string, value string) error {
 	if key == "offline" && value != "fail" && value != "local" {
-		return fmt.Errorf("invalid offline configuration value- %q\n"+
+		return logger.Errorf("invalid offline configuration value- %q\n"+
 			"Valid offline values are - fail, local", value)
 	}
 	return nil

@@ -2,9 +2,9 @@ package printer
 
 import (
 	"bytes"
-	"fmt"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/logger"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,17 +24,17 @@ func TestGetWarningsText(t *testing.T) {
 		{
 			Title:           GetFileNameText("/datree/datree/internal/fixtures/kube/yaml-validation-error.yaml\n"),
 			FailedRules:     []FailedRule{},
-			InvalidYamlInfo: InvalidYamlInfo{ValidationErrors: []error{fmt.Errorf("yaml validation error")}},
+			InvalidYamlInfo: InvalidYamlInfo{ValidationErrors: []error{logger.Errorf("yaml validation error")}},
 		},
 		{
 			Title:          GetFileNameText("/datree/datree/internal/fixtures/kube/k8s-validation-error.yaml\n"),
 			FailedRules:    []FailedRule{},
-			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
+			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{logger.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
 		},
 		{
 			Title:          GetFileNameText("/datree/datree/internal/fixtures/kube/Chart.yaml\n"),
 			FailedRules:    []FailedRule{},
-			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{fmt.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
+			InvalidK8sInfo: InvalidK8sInfo{ValidationErrors: []error{logger.Errorf("K8S validation error")}, K8sVersion: "1.18.0"},
 			ExtraMessages: []ExtraMessage{{Text: "Are you trying to test a raw helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree",
 				Color: "cyan"}},
 		},

@@ -3,11 +3,11 @@ package validatePoliciesYaml
 import (
 	_ "embed"
 	"encoding/json"
-	"fmt"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/defaultRules"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
+	"github.com/datreeio/datree/pkg/logger"
 	"github.com/ghodss/yaml"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -24,12 +24,12 @@ func ValidatePoliciesYaml(content []byte, policyYamlPath string) error {
 		return err
 	}
 
-	errorPrefix := fmt.Errorf("found errors in policies file %s:", policyYamlPath)
+	errorPrefix := logger.Errorf("found errors in policies file %s:", policyYamlPath)
 	if errorsResult != nil {
 		validationErrors := errorPrefix
 
 		for _, validationError := range errorsResult {
-			validationErrors = fmt.Errorf("%s\n(root)%s: %s", validationErrors, validationError.InstanceLocation, validationError.Error)
+			validationErrors = logger.Errorf("%s\n(root)%s: %s", validationErrors, validationError.InstanceLocation, validationError.Error)
 		}
 
 		return validationErrors
@@ -37,7 +37,7 @@ func ValidatePoliciesYaml(content []byte, policyYamlPath string) error {
 
 	err = validatePoliciesContent(jsonContent)
 	if err != nil {
-		return fmt.Errorf("%s\n%s", errorPrefix, err)
+		return logger.Errorf("%s\n%s", errorPrefix, err)
 	}
 	return nil
 }
@@ -119,7 +119,7 @@ func checkIdentifierExistence(policies []*cliClient.Policy, customRules []*cliCl
 				}
 			}
 			if !found {
-				return fmt.Errorf("(root)/policies/%d/rules: identifier \"%s\" is neither custom nor default", index, identifier)
+				return logger.Errorf("(root)/policies/%d/rules: identifier \"%s\" is neither custom nor default", index, identifier)
 			}
 		}
 	}
@@ -134,7 +134,7 @@ func checkIdentifierUniquenessInPolicy(policies []*cliClient.Policy) error {
 		for _, rule := range rules {
 			identifier := rule.Identifier
 			if propertyValuesExistenceMap[identifier] {
-				return fmt.Errorf("(root)/policies/%d/rules: identifier \"%s\" is used more than once in policy", index, identifier)
+				return logger.Errorf("(root)/policies/%d/rules: identifier \"%s\" is used more than once in policy", index, identifier)
 			}
 			propertyValuesExistenceMap[identifier] = true
 		}
@@ -157,12 +157,12 @@ func checkCustomRulesIdentifiersUniqueness(customRules []*cliClient.CustomRule) 
 	for index, customRule := range customRules {
 		identifier := customRule.Identifier
 		if customRulesIdentifierToExistenceMap[identifier] {
-			return fmt.Errorf("(root)/customRules: identifier \"%s\" is used in more than one custom rule", identifier)
+			return logger.Errorf("(root)/customRules: identifier \"%s\" is used in more than one custom rule", identifier)
 		}
 		customRulesIdentifierToExistenceMap[customRule.Identifier] = true
 
 		if defaultRulesIdentifierToExistenceMap[identifier] {
-			return fmt.Errorf("(root)/customRules/%d: a default rule with same identifier \"%s\" already exists", index, identifier)
+			return logger.Errorf("(root)/customRules/%d: a default rule with same identifier \"%s\" already exists", index, identifier)
 		}
 	}
 
@@ -175,14 +175,14 @@ func validateSingleDefaultPolicy(policies []*cliClient.Policy) error {
 
 		if policy.IsDefault {
 			if sawDefault {
-				return fmt.Errorf("(root)/policies: Should have exactly one policy set as default")
+				return logger.Errorf("(root)/policies: Should have exactly one policy set as default")
 			}
 			sawDefault = true
 		}
 	}
 
 	if !sawDefault {
-		return fmt.Errorf("(root)/policies: Should have exactly one policy set as default")
+		return logger.Errorf("(root)/policies: Should have exactly one policy set as default")
 	}
 	return nil
 }
@@ -192,7 +192,7 @@ func validateSchemaField(customRules []*cliClient.CustomRule) error {
 		var err error
 		var jsonContent string
 		if rule.Schema != nil && rule.JsonSchema != "" {
-			return fmt.Errorf("(root)/customRules/%d: Exactly one of [schema,jsonSchema] should be defined per custom rule", index)
+			return logger.Errorf("(root)/customRules/%d: Exactly one of [schema,jsonSchema] should be defined per custom rule", index)
 		}
 		var schemaKeyUsed string
 		if rule.Schema != nil {
@@ -200,7 +200,7 @@ func validateSchemaField(customRules []*cliClient.CustomRule) error {
 			schema := rule.Schema
 			content, err = json.Marshal(schema)
 			if err != nil {
-				return fmt.Errorf("(root)/customRules/%d: %s", index, err.Error())
+				return logger.Errorf("(root)/customRules/%d: %s", index, err.Error())
 			}
 			jsonContent = string(content)
 			schemaKeyUsed = "schema"
@@ -210,12 +210,12 @@ func validateSchemaField(customRules []*cliClient.CustomRule) error {
 		}
 
 		if jsonContent == "" {
-			return fmt.Errorf("(root)/customRules/%d: Exactly one of [schema,jsonSchema] should be defined per custom rule", index)
+			return logger.Errorf("(root)/customRules/%d: Exactly one of [schema,jsonSchema] should be defined per custom rule", index)
 		}
 		schemaLoader := gojsonschema.NewStringLoader(jsonContent)
 		_, err = gojsonschema.NewSchemaLoader().Compile(schemaLoader)
 		if err != nil {
-			return fmt.Errorf("(root)/customRules/%v/%s: %s", index, schemaKeyUsed, err.Error())
+			return logger.Errorf("(root)/customRules/%v/%s: %s", index, schemaKeyUsed, err.Error())
 		}
 	}
 	return nil

@@ -2,10 +2,10 @@ package policy
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/defaultRules"
+	"github.com/datreeio/datree/pkg/logger"
 )
 
 type Policy struct {
@@ -23,7 +23,7 @@ type RuleWithSchema struct {
 
 func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName string, registrationURL string) (Policy, error) {
 	if policies == nil && policyName != "" && policyName != "Default" {
-		return Policy{}, fmt.Errorf("policy %s doesn't exist, sign in to the dashboard to customize your policies: %s", policyName, registrationURL)
+		return Policy{}, logger.Errorf("policy %s doesn't exist, sign in to the dashboard to customize your policies: %s", policyName, registrationURL)
 	}
 
 	defaultRules, err := defaultRules.GetDefaultRules()
@@ -49,7 +49,7 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 		}
 
 		if chosenPolicy == nil {
-			return Policy{}, fmt.Errorf("policy %s doesn't exist", policyName)
+			return Policy{}, logger.Errorf("policy %s doesn't exist", policyName)
 		}
 
 		rules, err = populateRules(chosenPolicy.Rules, policies.CustomRules, defaultRules.Rules)
@@ -92,7 +92,7 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 			if defaultRule != nil {
 				rules = append(rules, RuleWithSchema{rule.Identifier, defaultRule.Name, defaultRule.DocumentationUrl, defaultRule.Schema, rule.MessageOnFailure})
 			} else {
-				rulesIsNotCustomNorDefaultErr := fmt.Errorf("rule %s is not custom nor default", rule.Identifier)
+				rulesIsNotCustomNorDefaultErr := logger.Errorf("rule %s is not custom nor default", rule.Identifier)
 				return nil, rulesIsNotCustomNorDefaultErr
 			}
 		}

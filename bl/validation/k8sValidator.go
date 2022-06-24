@@ -1,7 +1,6 @@
 package validation
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -9,6 +8,7 @@ import (
 	"time"
 
 	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/datreeio/datree/pkg/logger"
 	"github.com/datreeio/datree/pkg/utils"
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
 )
@@ -146,7 +146,7 @@ type validationWarning struct {
 func (val *K8sValidator) validateResource(filepath string) (bool, []error, *validationWarning, error) {
 	f, err := os.Open(filepath)
 	if err != nil {
-		return false, []error{}, nil, fmt.Errorf("failed opening %s: %s", filepath, &InvalidK8sSchemaError{ErrorMessage: err.Error()})
+		return false, []error{}, nil, logger.Errorf("failed opening %s: %s", filepath, &InvalidK8sSchemaError{ErrorMessage: err.Error()})
 	}
 
 	defer f.Close()

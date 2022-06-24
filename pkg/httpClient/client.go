@@ -10,6 +10,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/datreeio/datree/pkg/logger"
 )
 
 const (
@@ -73,7 +75,7 @@ func (c *Client) Request(method string, resourceURI string, body interface{}, he
 
 	if response.StatusCode > 500 {
 		responseBody.StatusCode = response.StatusCode
-		return responseBody, fmt.Errorf("network error")
+		return responseBody, logger.Errorf("network error")
 	}
 
 	if response.StatusCode > 399 {
@@ -88,7 +90,7 @@ func (c *Client) Request(method string, resourceURI string, body interface{}, he
 			Body:       b,
 		}
 
-		return responseBody, fmt.Errorf(fmt.Sprintf("%v", errorJson["message"]))
+		return responseBody, logger.Errorf(fmt.Sprintf("%v", errorJson["message"]))
 	}
 
 	if err != nil {

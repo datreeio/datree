@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"strings"
+
+	"github.com/datreeio/datree/pkg/logger"
 )
 
 func Example(s string) string {
@@ -36,12 +38,12 @@ func (s normalize) indent() normalize {
 
 func ValidateStdinPathArgument(paths []string) error {
 	if len(paths) < 1 {
-		return fmt.Errorf("requires at least 1 arg")
+		return logger.Errorf("requires at least 1 arg")
 	}
 
 	if paths[0] == "-" {
 		if len(paths) > 1 {
-			return fmt.Errorf(fmt.Sprintf("unexpected args: [%s]", strings.Join(paths[1:], ",")))
+			return logger.Errorf(fmt.Sprintf("unexpected args: [%s]", strings.Join(paths[1:], ",")))
 		}
 	}
 

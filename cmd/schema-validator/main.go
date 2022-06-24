@@ -1,11 +1,10 @@
 package schema_validator
 
 import (
-	"fmt"
-
 	"github.com/santhosh-tekuri/jsonschema/v5"
 
 	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/datreeio/datree/pkg/logger"
 	"github.com/spf13/cobra"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -51,7 +50,7 @@ func New(ctx *JSONSchemaValidatorCommandContext) *cobra.Command {
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 2 {
 				errMessage := "requires 2 args"
-				return fmt.Errorf(errMessage)
+				return logger.Errorf(errMessage)
 			}
 			return nil
 		},

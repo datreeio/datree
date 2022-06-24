@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/datreeio/datree/pkg/logger"
 	"github.com/ghodss/yaml"
 	"github.com/santhosh-tekuri/jsonschema/v5"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -87,7 +88,7 @@ func (resourceMinimumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 	if resourceMinimum, ok := m["resourceMinimum"]; ok {
 		resourceMinimumStr, validStr := resourceMinimum.(string)
 		if !validStr {
-			return nil, fmt.Errorf("resourceMinimum must be a string")
+			return nil, logger.Errorf("resourceMinimum must be a string")
 		}
 		return resourceMinimumSchema(resourceMinimumStr), nil
 	}
@@ -98,7 +99,7 @@ func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 	if resourceMaximum, ok := m["resourceMaximum"]; ok {
 		resourceMaximumStr, validStr := resourceMaximum.(string)
 		if !validStr {
-			return nil, fmt.Errorf("resourceMaximum must be a string")
+			return nil, logger.Errorf("resourceMaximum must be a string")
 		}
 		return resourceMaximumSchema(resourceMaximumStr), nil
 	}

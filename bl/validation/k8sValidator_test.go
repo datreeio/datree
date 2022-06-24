@@ -1,12 +1,12 @@
 package validation
 
 import (
-	"fmt"
 	"io"
 	"sync"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/datreeio/datree/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	kubeconformValidator "github.com/yannh/kubeconform/pkg/validator"
@@ -86,7 +86,7 @@ func test_valid_multiple_configurations_only_k8s_files(t *testing.T) {
 func test_invalid_file(t *testing.T) {
 	validationClient := &mockValidationClient{}
 	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
-		{Status: kubeconformValidator.Invalid, Err: fmt.Errorf("missing 'apiVersion' key")},
+		{Status: kubeconformValidator.Invalid, Err: logger.Errorf("missing 'apiVersion' key")},
 	})
 	k8sValidator := K8sValidator{
 		validationClient: validationClient,
@@ -110,7 +110,7 @@ func test_invalid_file(t *testing.T) {
 func test_empty_file(t *testing.T) {
 	validationClient := &mockValidationClient{}
 	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
-		{Status: kubeconformValidator.Invalid, Err: fmt.Errorf("empty file")},
+		{Status: kubeconformValidator.Invalid, Err: logger.Errorf("empty file")},
 	})
 	k8sValidator := K8sValidator{
 		validationClient: validationClient,
@@ -134,7 +134,7 @@ func test_empty_file(t *testing.T) {
 func test_offline_with_remote_custom_schema_location(t *testing.T) {
 	validationClient := &mockValidationClient{}
 	validationClient.On("Validate", mock.Anything, mock.Anything).Return([]kubeconformValidator.Result{
-		{Status: kubeconformValidator.Error, Err: fmt.Errorf("no such host")},
+		{Status: kubeconformValidator.Error, Err: logger.Errorf("no such host")},
 	})
 	k8sValidator := K8sValidator{
 		validationClient:              validationClient,
