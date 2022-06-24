@@ -22,11 +22,11 @@ def message_format(msg):
 def commit_type(msg):
     t = msg.split(":")[0].strip()
     
-    commit_scope_regex = r"\([^()]*\)"
-    t = re.sub(commit_scope_regex, "", t)
-    
     breaking_change_regex = r"!$"
     t = re.sub(breaking_change_regex, "", t)
+    
+    commit_scope_regex = r"\([^()]*\)"
+    t = re.sub(commit_scope_regex, "", t)
 
     if t not in COMMIT_TYPES:
         print(f"PR type invalid. It needs to be one of {COMMIT_TYPES}. ")
