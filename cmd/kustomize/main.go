@@ -73,7 +73,11 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			}
 			defer os.Remove(tempFilename)
 
-			return test.TestWrapper(testCtx, []string{tempFilename}, testCommandFlags)
+			err = test.TestWrapper(testCtx, []string{tempFilename}, testCommandFlags)
+			if err != nil {
+				return err
+			}
+			return nil
 		},
 	}
 	testCommandFlags.AddFlags(kustomizeTestCommand)
