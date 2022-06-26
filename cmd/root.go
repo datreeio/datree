@@ -60,6 +60,7 @@ func NewRootCommand(app *App) *cobra.Command {
 		K8sValidator:   app.Context.K8sValidator,
 		CliClient:      app.Context.CliClient,
 		FilesExtractor: app.Context.FilesExtractor,
+		CiContext:      app.Context.CiContext,
 		StartTime:      startTime,
 	}, &kustomize.KustomizeContext{CommandRunner: app.Context.CommandRunner}))
 
