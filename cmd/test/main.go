@@ -195,29 +195,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 				}
 			}()
 
-			localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
-			if err != nil {
-				return err
-			}
-
-			ctx.CliClient.AddFlags(testCommandFlags.ToMapping())
-			evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ctx.CiContext.IsCI)
-			saveDefaultRulesAsFile(ctx, evaluationPrerunData.DefaultRulesYaml)
-
-			if err != nil {
-				return err
-			}
-
-			testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
-			if err != nil {
-				return err
-			}
-
-			err = Test(ctx, args, testCommandOptions)
-			if err != nil {
-				return err
-			}
-			return nil
+			return TestWrapper(ctx, args, testCommandFlags)
 		},
 	}
 	testCommandFlags.AddFlags(testCommand)
@@ -324,7 +302,27 @@ func validateK8sVersionFormatIfProvided(k8sVersion string) error {
 	}
 }
 
-func Test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) error {
+func TestWrapper(ctx *TestCommandContext, args []string, testCommandFlags *TestCommandFlags) error {
+	localConfigContent, err := ctx.LocalConfig.GetLocalConfiguration()
+	if err != nil {
+		return err
+	}
+
+	ctx.CliClient.AddFlags(testCommandFlags.ToMapping())
+	evaluationPrerunData, err := ctx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ctx.CiContext.IsCI)
+	if err != nil {
+		return err
+	}
+
+	saveDefaultRulesAsFile(ctx, evaluationPrerunData.DefaultRulesYaml)
+	testCommandOptions, err := GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
+	if err != nil {
+		return err
+	}
+	return test(ctx, args, testCommandOptions)
+}
+
+func test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) error {
 	if paths[0] == "-" {
 		tempFile, err := os.CreateTemp("", "datree_temp_*.yaml")
 		if err != nil {
