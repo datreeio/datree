@@ -1,8 +1,9 @@
 import json
 import os
 import sys
+import re
 
-COMMIT_TYPES = set(["build", "ci", "docs", "feat", "fix", "perf", "refactor", "test", "style"])
+COMMIT_TYPES = set(["build", "ci", "docs", "feat", "fix", "perf", "refactor", "test", "style", "chore"])
 MAX_COMMIT_MSG_LEN = 72
 
 def commit_msg_len(msg):
@@ -20,6 +21,13 @@ def message_format(msg):
 
 def commit_type(msg):
     t = msg.split(":")[0].strip()
+    
+    breaking_change_regex = r"!$"
+    t = re.sub(breaking_change_regex, "", t)
+    
+    commit_scope_regex = r"\([^()]*\)"
+    t = re.sub(commit_scope_regex, "", t)
+
     if t not in COMMIT_TYPES:
         print(f"PR type invalid. It needs to be one of {COMMIT_TYPES}. ")
         sys.exit(1)
