@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-probes
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          initialDelaySeconds: 0
+          periodSeconds: 2
+          timeoutSeconds: 0
+          successThreshold: 1
+          failureThreshold: 1
+          exec:
+            command:
+            - cat
+            - /etc/nginx/nginx.conf
+        startupProbe:
+          timeoutSeconds: 1
+          failureThreshold: 2
+          initialDelaySeconds: 0
+          successThreshold: 1
+          periodSeconds: 1

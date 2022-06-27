@@ -4,7 +4,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
 
 	"github.com/datreeio/datree/cmd/test"
@@ -45,7 +44,11 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 		datree kustomize test https://github.com/kubernetes-sigs/kustomize.git/examples/helloWorld?ref=v1.0.6
 		`),
 		Args: func(cmd *cobra.Command, args []string) error {
-			return utils.ValidateStdinPathArgument(args)
+			err := utils.ValidateStdinPathArgument(args)
+			if err != nil {
+				return err
+			}
+			return testCommandFlags.Validate()
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return test.LoadVersionMessages(testCtx, args, cmd)
@@ -59,28 +62,6 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				}
 			}()
 
-			err = testCommandFlags.Validate()
-			if err != nil {
-				return err
-			}
-
-			localConfigContent, err := testCtx.LocalConfig.GetLocalConfiguration()
-			if err != nil {
-				return err
-			}
-
-			ciContext := ciContext.Extract()
-			testCtx.CliClient.AddFlags(testCommandFlags.ToMapping())
-			evaluationPrerunData, err := testCtx.CliClient.RequestEvaluationPrerunData(localConfigContent.Token, ciContext.IsCI)
-			if err != nil {
-				return err
-			}
-
-			testCommandOptions, err := test.GenerateTestCommandData(testCommandFlags, localConfigContent, evaluationPrerunData)
-			if err != nil {
-				return err
-			}
-
 			out, err := kustomizeCtx.CommandRunner.ExecuteKustomizeBin(args)
 			if err != nil {
 				return err
@@ -92,7 +73,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			}
 			defer os.Remove(tempFilename)
 
-			err = test.Test(testCtx, []string{tempFilename}, testCommandOptions)
+			err = test.TestWrapper(testCtx, []string{tempFilename}, testCommandFlags)
 			if err != nil {
 				return err
 			}
