@@ -230,7 +230,7 @@ func getDefaultSchemaLocations() []string {
 		// this is a workaround for https://github.com/yannh/kubeconform/issues/100
 		// notice: order here is important because this fallback doesn't have strict mode enabled (in contrast to "default")
 		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
-		getDatreeCRDSchemaByName("argo"),
+		getDatreeCRDSchemaByName("argoproj"),
 	}
 }
 
