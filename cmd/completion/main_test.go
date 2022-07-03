@@ -30,7 +30,7 @@ func Test_ExecuteCommand(t *testing.T) {
 		cmd.Execute()
 
 		got := out.(*bytes.Buffer).Bytes()
-		expected := []byte(`#compdef _completion completion`)
+		expected := []byte(`#compdef completion`)
 
 		assert.Equal(t, string(expected), string(got)[:len(expected)])
 	})
