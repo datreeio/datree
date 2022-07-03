@@ -21,6 +21,6 @@ COPY --from=builder /usr/local/bin/kubectl /usr/local/bin/kubectl
 
 RUN mkdir -p /root/.local/share/helm/ && cp -r /bin/plugintemp/plugins/ /root/.local/share/helm/
 
-ENV HELM_PLUGINS="/root/.local/share/helm/plugins/"
+ENV HELM_PLUGINS="/root/.local/share/helm/plugins"
 
 ENTRYPOINT ["datree"]
