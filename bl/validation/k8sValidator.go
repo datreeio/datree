@@ -180,7 +180,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 			isValid = false
 			errString := res.Err.Error()
 
-			if utils.IsNetworkError(errString) {
+			if utils.IsNetworkError(res.Err) {
 				validationErrors = append(validationErrors, &InvalidK8sSchemaError{errString})
 			} else {
 				errorMessages := strings.Split(errString, "-")

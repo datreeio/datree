@@ -125,7 +125,7 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string, isCi bool) (*Eva
 	res, err := c.httpClient.Request(http.MethodGet, "/cli/evaluation/tokens/"+tokenId+"/prerun?"+isCiQueryParam, nil, c.flagsHeaders)
 
 	if err != nil {
-		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
+		networkErr := c.networkValidator.IdentifyNetworkError(err)
 		if networkErr != nil {
 			return &EvaluationPrerunDataResponse{}, networkErr
 		}
@@ -211,7 +211,7 @@ func (c *CliClient) SendEvaluationResult(request *EvaluationResultRequest) (*Sen
 
 	httpRes, err := c.httpClient.Request(http.MethodPost, "/cli/evaluation/result", request, c.flagsHeaders)
 	if err != nil {
-		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
+		networkErr := c.networkValidator.IdentifyNetworkError(err)
 		if networkErr != nil {
 			return &SendEvaluationResultsResponse{}, networkErr
 		}

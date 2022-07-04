@@ -18,7 +18,7 @@ func (c *CliClient) CreateToken() (*CreateTokenResponse, error) {
 	res, err := c.httpClient.Request(http.MethodPost, "/cli/tokens/", nil, headers)
 
 	if err != nil {
-		networkErr := c.networkValidator.IdentifyNetworkError(err.Error())
+		networkErr := c.networkValidator.IdentifyNetworkError(err)
 		if networkErr != nil {
 			return nil, networkErr
 		}
