@@ -2,6 +2,8 @@ package cliClient
 
 import (
 	"github.com/datreeio/datree/pkg/httpClient"
+	"github.com/datreeio/datree/pkg/restyClient"
+	"github.com/go-resty/resty/v2"
 )
 
 type HTTPClient interface {
@@ -19,6 +21,7 @@ type CliClient struct {
 	httpErrors       []string
 	networkValidator NetworkValidator
 	flagsHeaders     map[string]string
+	restyClient      *resty.Client
 }
 
 func NewCliClient(url string, networkValidator NetworkValidator) *CliClient {
@@ -30,5 +33,6 @@ func NewCliClient(url string, networkValidator NetworkValidator) *CliClient {
 		httpErrors:       []string{},
 		networkValidator: networkValidator,
 		flagsHeaders:     make(map[string]string),
+		restyClient:      restyClient.New(url),
 	}
 }
