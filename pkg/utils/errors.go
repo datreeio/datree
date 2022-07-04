@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 )
 
@@ -16,9 +17,9 @@ func ParseErrorToString(err interface{}) string {
 	}
 }
 
-func IsNetworkError(errStr string) bool {
+func IsNetworkError(err error) bool {
 	networkErrors := []string{"network error", "connection refused", "no such host", "i/o timeout", "server misbehaving"}
-	return stringInSliceContains(errStr, networkErrors)
+	return stringInSliceContains(err.Error(), networkErrors) || isUrlErrorType(err)
 }
 
 func stringInSliceContains(a string, list []string) bool {
@@ -28,4 +29,9 @@ func stringInSliceContains(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func isUrlErrorType(err error) bool {
+	_, ok := err.(*url.Error)
+	return ok
 }

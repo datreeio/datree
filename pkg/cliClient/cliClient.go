@@ -8,7 +8,7 @@ type HTTPClient interface {
 	Request(method string, resourceURI string, body interface{}, headers map[string]string) (httpClient.Response, error)
 }
 type NetworkValidator interface {
-	IdentifyNetworkError(errStr string) error
+	IdentifyNetworkError(err error) error
 	IsLocalMode() bool
 }
 

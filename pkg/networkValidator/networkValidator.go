@@ -22,8 +22,8 @@ func (nv *NetworkValidator) SetOfflineMode(offlineMode string) {
 	nv.offlineMode = offlineMode
 }
 
-func (nv *NetworkValidator) IdentifyNetworkError(errStr string) error {
-	if utils.IsNetworkError(errStr) {
+func (nv *NetworkValidator) IdentifyNetworkError(err error) error {
+	if utils.IsNetworkError(err) {
 		if nv.offlineMode == "fail" {
 			return errors.New("Failed since internet connection refused, you can use the following command to set your config to run offline:\ndatree config set offline local")
 		}

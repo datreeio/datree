@@ -1,6 +1,7 @@
 package networkValidator
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -58,20 +59,20 @@ func TestNetworkValidatorOtherError(t *testing.T) {
 
 func test_identifyNetworkError_network_error(validator *NetworkValidator, offlineMode string) error {
 	validator.SetOfflineMode(offlineMode)
-	return validator.IdentifyNetworkError("network error")
+	return validator.IdentifyNetworkError(errors.New("network error"))
 }
 
 func test_identifyNoInternet_noSuchHost_network_error(validator *NetworkValidator, offlineMode string) error {
 	validator.SetOfflineMode(offlineMode)
-	return validator.IdentifyNetworkError("no such host")
+	return validator.IdentifyNetworkError(errors.New("no such host"))
 }
 
 func test_identifyNoInternet_connectionRefused_network_error(validator *NetworkValidator, offlineMode string) error {
 	validator.SetOfflineMode(offlineMode)
-	return validator.IdentifyNetworkError("tcp dial connection refused")
+	return validator.IdentifyNetworkError(errors.New("tcp dial connection refused"))
 }
 
 func test_identifyNetworkError_other_error(validator *NetworkValidator, offlineMode string) error {
 	validator.SetOfflineMode(offlineMode)
-	return validator.IdentifyNetworkError("mysql server is away")
+	return validator.IdentifyNetworkError(errors.New("mysql server is away"))
 }
