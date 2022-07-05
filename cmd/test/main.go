@@ -227,7 +227,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	}
 	cmd.Flags().StringVarP(&flags.Output, "output", "o", defaultOutputValue, "Define output format ("+evaluation.OutputFormats()+")")
 
-	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.19.0")
+	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.20.0")
 	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
 
 	cmd.Flags().StringVar(&flags.PolicyConfig, "policy-config", "", "Path for local policies configuration file")
@@ -250,7 +250,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 	}
 
 	if k8sVersion == "" {
-		k8sVersion = "1.19.0"
+		k8sVersion = "1.20.0"
 	}
 
 	var policies *cliClient.EvaluationPrerunPolicies
