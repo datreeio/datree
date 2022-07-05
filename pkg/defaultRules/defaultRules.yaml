@@ -798,6 +798,19 @@ rules:
           kind:
             enum:
               - ConfigMap
+          metadata:
+            anyOf:
+              - properties:
+                  name:
+                    enum:
+                    - nginx-config
+                    - nginx-conf
+                    - ingress-nginx-controller
+              - properties:
+                  namespace:
+                    enum:
+                    - ingress-nginx
+                    - nginx-ingress
       then:
         properties:
           data:
