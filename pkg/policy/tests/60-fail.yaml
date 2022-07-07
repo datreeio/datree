@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myDeployment
+spec:
+  replicas: 2
+  template:
+    metadata:
+      namespace: test
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: myContainer
+          image: nginx:latest
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
