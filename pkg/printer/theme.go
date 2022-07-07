@@ -13,9 +13,8 @@ type Theme struct {
 		Green     *color.Color
 		Yellow    *color.Color
 		RedBold   *color.Color
-		White     *color.Color
-		WhiteBold *color.Color
 		Error     *color.Color
+		Highlight *color.Color
 		Cyan      *color.Color
 		CyanBold  *color.Color
 	}
@@ -41,9 +40,8 @@ func createDefaultTheme() *Theme {
 			Green     *color.Color
 			Yellow    *color.Color
 			RedBold   *color.Color
-			White     *color.Color
-			WhiteBold *color.Color
 			Error     *color.Color
+			Highlight *color.Color
 			Cyan      *color.Color
 			CyanBold  *color.Color
 		}{
@@ -51,8 +49,7 @@ func createDefaultTheme() *Theme {
 			Yellow:    color.New(color.FgYellow),
 			RedBold:   color.New(color.FgHiRed, color.Bold),
 			Error:     color.New(color.FgHiRed),
-			White:     color.New(color.FgHiWhite),
-			WhiteBold: color.New(color.FgHiWhite, color.Bold),
+			Highlight: color.New(color.Bold),
 			Cyan:      color.New(color.FgCyan),
 			CyanBold:  color.New(color.FgCyan, color.Bold),
 		},
@@ -86,9 +83,8 @@ func CreateSimpleTheme() *Theme {
 			Green     *color.Color
 			Yellow    *color.Color
 			RedBold   *color.Color
-			White     *color.Color
-			WhiteBold *color.Color
 			Error     *color.Color
+			Highlight *color.Color
 			Cyan      *color.Color
 			CyanBold  *color.Color
 		}{
@@ -96,8 +92,7 @@ func CreateSimpleTheme() *Theme {
 			Yellow:    color.New(),
 			RedBold:   color.New(),
 			Error:     color.New(),
-			White:     color.New(),
-			WhiteBold: color.New(),
+			Highlight: color.New(),
 			Cyan:      color.New(),
 			CyanBold:  color.New(),
 		},
