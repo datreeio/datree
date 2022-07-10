@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myDeployment
+spec:
+  replicas: 2
+  template:
+    metadata:
+      namespace: test
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: myContainer
+          image: nginx:latest
+          lifecycle:
+            preStop:
+              exec:
+                command: [
+                # Gracefully shutdown nginx
+                "/usr/sbin/nginx", "-s", "quit"
+                ]

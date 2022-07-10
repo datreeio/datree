@@ -798,6 +798,19 @@ rules:
           kind:
             enum:
               - ConfigMap
+          metadata:
+            anyOf:
+              - properties:
+                  name:
+                    enum:
+                    - nginx-config
+                    - nginx-conf
+                    - ingress-nginx-controller
+              - properties:
+                  namespace:
+                    enum:
+                    - ingress-nginx
+                    - nginx-ingress
       then:
         properties:
           data:
@@ -1814,6 +1827,37 @@ rules:
                           - failureThreshold
       allOf:
         - $ref: "#/definitions/probePattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 60
+    name: Ensure each container has a configured pre-stop hook
+    uniqueName: CONTAINERS_MISSING_PRESTOP_KEY
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-prestop"
+    messageOnFailure: "Missing property object `preStop` - set to ensure graceful shutdown of the container"
+    category: Containers
+    schema:
+      definitions:
+        prestopPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      lifecycle:
+                        properties:
+                          preStop:
+                            type: object
+                        required:
+                          - preStop
+                    required:
+                      - lifecycle
+      allOf:
+        - $ref: "#/definitions/prestopPattern"
       additionalProperties:
         $ref: "#"
       items:
