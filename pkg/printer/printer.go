@@ -70,7 +70,7 @@ func (p *Printer) SetTheme(theme *Theme) {
 func (p *Printer) getYamlValidationWarningText(warning Warning) string {
 	sb := strings.Builder{}
 	sb.WriteString(p.GetYamlValidationErrorsText(warning.InvalidYamlInfo.ValidationErrors))
-	sb.WriteString(p.GetTextInColor("[?] Kubernetes schema validation didn't run for this file\n", p.Theme.Colors.White))
+	sb.WriteString(p.GetTextInColor("[?] Kubernetes schema validation didn't run for this file\n", p.Theme.Colors.Highlight))
 	sb.WriteString(p.getSkippedPolicyCheckText())
 	sb.WriteString("\n")
 	return sb.String()
@@ -78,7 +78,7 @@ func (p *Printer) getYamlValidationWarningText(warning Warning) string {
 
 func (p *Printer) GetYamlValidationErrorsText(yamlValidationErrors []error) string {
 	sb := strings.Builder{}
-	sb.WriteString(p.GetTextInColor("[X] YAML validation\n\n", p.Theme.Colors.White))
+	sb.WriteString(p.GetTextInColor("[X] YAML validation\n\n", p.Theme.Colors.Highlight))
 	for _, validationError := range yamlValidationErrors {
 		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
 		sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Error, validationError))
@@ -90,7 +90,7 @@ func (p *Printer) GetYamlValidationErrorsText(yamlValidationErrors []error) stri
 func (p *Printer) getK8sValidationErrorText(warning Warning) string {
 	sb := strings.Builder{}
 	sb.WriteString(p.getPassedYamlValidationText())
-	sb.WriteString(p.GetTextInColor("[X] Kubernetes schema validation\n\n", p.Theme.Colors.White))
+	sb.WriteString(p.GetTextInColor("[X] Kubernetes schema validation\n\n", p.Theme.Colors.Highlight))
 
 	for _, validationError := range warning.InvalidK8sInfo.ValidationErrors {
 		validationError := p.Theme.Colors.RedBold.Sprint(validationError.Error())
@@ -159,7 +159,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 			}
 
 			sb.WriteString("\n")
-			sb.WriteString(p.GetTextInColor("[X] Policy check\n", p.Theme.Colors.White))
+			sb.WriteString(p.GetTextInColor("[X] Policy check\n", p.Theme.Colors.Highlight))
 			sb.WriteString("\n")
 
 			if len(warning.SkippedRules) > 0 {
@@ -178,7 +178,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 
 				for _, occurrenceDetails := range skippedRule.OccurrencesDetails {
 					sb.WriteString(fmt.Sprintf("    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
-					m := p.Theme.Colors.White.Sprint(occurrenceDetails.SkipMessage)
+					m := p.Theme.Colors.Highlight.Sprint(occurrenceDetails.SkipMessage)
 					sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, m))
 				}
 
@@ -194,7 +194,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 					occurrencesPostfix = ""
 				}
 				formattedOccurrences := fmt.Sprintf(" [%d occurrence%v]", failedRule.Occurrences, occurrencesPostfix)
-				occurrences := p.Theme.Colors.White.Sprintf(formattedOccurrences)
+				occurrences := p.Theme.Colors.Highlight.Sprintf(formattedOccurrences)
 
 				ruleName := p.Theme.Colors.RedBold.Sprint(failedRule.Name)
 
@@ -251,7 +251,7 @@ func GetFileNameText(title string) string {
 
 func (p *Printer) GetEvaluationSummaryText(summary EvaluationSummary, k8sVersion string) string {
 	var sb strings.Builder
-	sb.WriteString(p.GetTextInColor("(Summary)\n\n", p.Theme.Colors.White))
+	sb.WriteString(p.GetTextInColor("(Summary)\n\n", p.Theme.Colors.Highlight))
 
 	sb.WriteString(p.GetYamlValidationSummaryText(summary.PassedYamlValidationCount, summary.FilesCount))
 
@@ -328,7 +328,7 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 	case "cyan":
 		return p.Theme.Colors.Cyan
 	default:
-		return p.Theme.Colors.White
+		return p.Theme.Colors.Highlight
 	}
 }
 
@@ -346,7 +346,7 @@ func (p *Printer) getPassedYamlValidationText() string {
 }
 
 func (p *Printer) getSkippedPolicyCheckText() string {
-	return p.GetTextInColor("[?] Policy check didn't run for this file\n", p.Theme.Colors.White)
+	return p.GetTextInColor("[?] Policy check didn't run for this file\n", p.Theme.Colors.Highlight)
 }
 
 func (p *Printer) getStringOrNotAvailableText(str string) string {

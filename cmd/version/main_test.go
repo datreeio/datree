@@ -27,7 +27,7 @@ func (m *mockMessager) LoadVersionMessages(cliVersion string) chan *messager.Ver
 		messages <- &messager.VersionMessage{
 			CliVersion:   "0.0.1",
 			MessageText:  "message text",
-			MessageColor: "White",
+			MessageColor: "Highlight",
 		}
 
 		close(messages)
