@@ -2,6 +2,7 @@ package defaultRules
 
 import (
 	_ "embed"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -49,8 +50,13 @@ func yamlToStruct(content string) (*DefaultRulesDefinitions, error) {
 func getDefaultRulesFromFile() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
+		fmt.Println("inside getDefaultRulesFromFile func - homeDir err: %s", err.Error())
 		return "", err
 	}
 	defaultRulesFileContent, err := ioutil.ReadFile(filepath.Join(homeDir, ".datree", "defaultRules.yaml"))
+	if err != nil {
+		fmt.Println("inside getDefaultRulesFromFile func - ReadFile err: %s", err.Error())
+	}
+
 	return string(defaultRulesFileContent), err
 }

@@ -571,17 +571,23 @@ func wereViolationsFound(validationManager *ValidationManager, results *evaluati
 }
 
 func saveDefaultRulesAsFile(ctx *TestCommandContext, preRunDefaultRulesYaml string) {
+	fmt.Println("inside saveDefaultRulesAsFile func")
 	if preRunDefaultRulesYaml == "" {
 		return
 	}
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
+		fmt.Println("inside saveDefaultRulesAsFile func - homeDir err: %s", err.Error())
 		return
 	}
 
 	defaultRulesFilePath := filepath.Join(homeDir, ".datree", "defaultRules.yaml")
 
 	const fileReadPermission = 0644
-	_ = ioutil.WriteFile(defaultRulesFilePath, []byte(preRunDefaultRulesYaml), os.FileMode(fileReadPermission))
+	err = ioutil.WriteFile(defaultRulesFilePath, []byte(preRunDefaultRulesYaml), os.FileMode(fileReadPermission))
+	if err != nil {
+		fmt.Println("inside saveDefaultRulesAsFile func - WriteFile err: %s", err.Error())
+		return
+	}
 }
