@@ -6,6 +6,8 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/defaultRules"
+
 	"github.com/datreeio/datree/pkg/evaluation"
 
 	"github.com/datreeio/datree/bl/files"
@@ -350,7 +352,13 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 		validK8sFilesConfigurations = append(validK8sFilesConfigurations, fileConfigurations)
 	}
 	preRunData := mockGetPreRunData()
-	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL)
+
+	defaultRules, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+
+	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL, defaultRules)
 	close(invalidFilesChan)
 
 	return &TestFlowTestCase{
@@ -482,7 +490,12 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 func test_no_k8s_resources_found() *TestFlowTestCase {
 	root := pathFromRoot("internal/fixtures/nonKube/")
 	preRunData := mockGetPreRunData()
-	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL)
+	defaultRules, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+
+	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL, defaultRules)
 	paths := []string{root + "/docker-compose-config.yaml", root + "/simple.json", root + "/simple.yaml"}
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 3)
 	go func() {
@@ -715,7 +728,12 @@ func setup() {
 		CiContext:      ciContext,
 	}
 
-	testingPolicy, _ = policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL)
+	defaultRules, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+
+	testingPolicy, _ = policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules)
 }
 
 func TestTestCommandFlagsValidation(t *testing.T) {
