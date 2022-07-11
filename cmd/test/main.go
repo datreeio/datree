@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"github.com/datreeio/datree/pkg/defaultRules"
 	"io"
 	"io/ioutil"
 	"os"
@@ -12,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/datreeio/datree/pkg/defaultRules"
 
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"

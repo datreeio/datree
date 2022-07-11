@@ -2,9 +2,10 @@ package evaluation
 
 import (
 	"encoding/json"
-	"github.com/datreeio/datree/pkg/defaultRules"
 	"path/filepath"
 	"testing"
+
+	"github.com/datreeio/datree/pkg/defaultRules"
 
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/pkg/fileReader"
