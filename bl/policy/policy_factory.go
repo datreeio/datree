@@ -21,15 +21,11 @@ type RuleWithSchema struct {
 	MessageOnFailure string
 }
 
-func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName string, registrationURL string) (Policy, error) {
+func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName string, registrationURL string, defaultRules *defaultRules.DefaultRulesDefinitions) (Policy, error) {
+	var err error
+
 	if policies == nil && policyName != "" && policyName != "Default" {
 		return Policy{}, fmt.Errorf("policy %s doesn't exist, sign in to the dashboard to customize your policies: %s", policyName, registrationURL)
-	}
-
-	defaultRules, err := defaultRules.GetDefaultRules()
-
-	if err != nil {
-		return Policy{}, err
 	}
 
 	var rules []RuleWithSchema

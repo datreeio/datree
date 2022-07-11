@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/datreeio/datree/pkg/defaultRules"
 	"io"
 	"io/ioutil"
 	"os"
@@ -269,7 +270,12 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		policies = evaluationPrerunDataResp.PoliciesJson
 	}
 
-	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName, evaluationPrerunDataResp.RegistrationURL)
+	defaultRules, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		return nil, err
+	}
+
+	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName, evaluationPrerunDataResp.RegistrationURL, defaultRules)
 	if err != nil {
 		return nil, err
 	}
