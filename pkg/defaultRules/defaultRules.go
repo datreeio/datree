@@ -31,13 +31,13 @@ type DefaultRuleDefinition struct {
 func GetDefaultRules() (*DefaultRulesDefinitions, error) {
 	configDefaultRulesYamlContent, err := getDefaultRulesFromFile()
 	if err == nil {
-		return yamlToStruct(configDefaultRulesYamlContent)
+		return YAMLToStruct(configDefaultRulesYamlContent)
 	}
 
-	return yamlToStruct(embeddedDefaultRulesYamlContent)
+	return YAMLToStruct(embeddedDefaultRulesYamlContent)
 }
 
-func yamlToStruct(content string) (*DefaultRulesDefinitions, error) {
+func YAMLToStruct(content string) (*DefaultRulesDefinitions, error) {
 	var defaultRulesDefinitions DefaultRulesDefinitions
 	err := yaml.Unmarshal([]byte(content), &defaultRulesDefinitions)
 	if err != nil {
