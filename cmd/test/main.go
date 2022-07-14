@@ -374,6 +374,10 @@ func test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 
 	validationManager := evaluationResultData.ValidationManager
 
+	if prerunData.OnlyK8sFiles {
+		filesCount -= validationManager.IgnoredFilesCount()
+	}
+
 	passedYamlValidationCount := filesCount - validationManager.InvalidYamlFilesCount()
 
 	evaluationSummary := printer.EvaluationSummary{
