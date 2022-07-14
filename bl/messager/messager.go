@@ -30,7 +30,7 @@ func (m *Messager) LoadVersionMessages(cliVersion string) chan *VersionMessage {
 	messages := make(chan *VersionMessage, 1)
 	go func() {
 		msg, _ := m.messagesClient.GetVersionMessage(cliVersion, 900)
-		if msg != nil {
+		if msg != nil && msg.MessageText != "" {
 			messages <- m.toVersionMessage(msg)
 		}
 		close(messages)
