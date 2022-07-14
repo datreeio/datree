@@ -373,7 +373,7 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 
 	validationManager := evaluationResultData.ValidationManager
 
-	if prerunData.OnlyK8sFiles {
+	if testCommandData.OnlyK8sFiles {
 		filesCount -= validationManager.IgnoredFilesCount()
 	}
 
