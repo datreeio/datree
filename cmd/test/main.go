@@ -29,7 +29,6 @@ import (
 	"github.com/datreeio/datree/pkg/printer"
 	"github.com/datreeio/datree/pkg/utils"
 
-	"github.com/briandowns/spinner"
 	"github.com/eiannone/keyboard"
 	"github.com/spf13/cobra"
 )
@@ -440,17 +439,18 @@ type EvaluationResultData struct {
 func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (EvaluationResultData, error) {
 	isInteractiveMode := !evaluation.IsFormattedOutputOption(prerunData.Output)
 
-	var _spinner *spinner.Spinner
-	if isInteractiveMode && prerunData.Output != "simple" {
-		_spinner = createSpinner(" Loading...", "cyan")
-		_spinner.Start()
-	}
+	showSpinner := shouldDisplaySpinner(ctx.CiContext.IsCI, isInteractiveMode, prerunData.Output)
 
-	defer func() {
-		if _spinner != nil {
-			_spinner.Stop()
-		}
-	}()
+	if showSpinner {
+		_spinner := createSpinner(" Loading...", "cyan")
+		_spinner.Start()
+
+		defer func() {
+			if _spinner != nil {
+				_spinner.Stop()
+			}
+		}()
+	}
 
 	validationManager := NewValidationManager()
 
@@ -595,4 +595,15 @@ func saveDefaultRulesAsFile(ctx *TestCommandContext, preRunDefaultRulesYaml stri
 
 	const fileReadPermission = 0644
 	_ = ioutil.WriteFile(defaultRulesFilePath, []byte(preRunDefaultRulesYaml), os.FileMode(fileReadPermission))
+}
+
+func shouldDisplaySpinner(IsCI bool, isInteractiveMode bool, prerunData string) bool {
+	switch {
+	case IsCI:
+		return false
+	case isInteractiveMode && prerunData != "simple":
+		return true
+	default:
+		return true
+	}
 }

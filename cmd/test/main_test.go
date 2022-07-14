@@ -821,6 +821,18 @@ func TestTestCommandOnlyK8sFiles(t *testing.T) {
 	k8sValidatorMock.AssertCalled(t, "GetK8sFiles", mock.Anything, 100)
 }
 
+func TestShouldDisplaySpinner(t *testing.T) {
+	defaultCaseSpinner := shouldDisplaySpinner(false, true, "")
+	assert.True(t, defaultCaseSpinner)
+
+	interactiveModeSpinner := shouldDisplaySpinner(true, true, "")
+	assert.False(t, interactiveModeSpinner)
+
+	nonInteractiveModeSpinner := shouldDisplaySpinner(false, false, "")
+	assert.True(t, nonInteractiveModeSpinner)
+
+}
+
 func TestTestCommandNoInternetConnection(t *testing.T) {
 	setup()
 	_ = test(ctx, []string{"valid/path"}, &TestCommandData{Policy: testingPolicy})
