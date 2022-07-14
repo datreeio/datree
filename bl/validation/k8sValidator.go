@@ -180,7 +180,7 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 			isValid = false
 			errString := res.Err.Error()
 
-			if utils.IsNetworkError(errString) {
+			if utils.IsNetworkError(res.Err) {
 				validationErrors = append(validationErrors, &InvalidK8sSchemaError{errString})
 			} else {
 				errorMessages := strings.Split(errString, "-")
@@ -230,11 +230,11 @@ func getDefaultSchemaLocations() []string {
 		// this is a workaround for https://github.com/yannh/kubeconform/issues/100
 		// notice: order here is important because this fallback doesn't have strict mode enabled (in contrast to "default")
 		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
-		getDatreeCRDSchemaByName("argo"),
+		getDatreeCRDSchemaByName("argoproj"),
 	}
 }
 
 func getDatreeCRDSchemaByName(crdCatalogName string) string {
-	crdCatalog := "https://raw.githubusercontent.com/datreeio/CRDs-catalog/master/" + crdCatalogName + "/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
+	crdCatalog := "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/" + crdCatalogName + "/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
 	return crdCatalog
 }

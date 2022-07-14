@@ -201,7 +201,7 @@ func getContentFromOccurrencesDetails(occurrencesDetails []OccurrenceDetails) st
 	var skipLines string
 
 	for _, occurrenceDetails := range occurrencesDetails {
-		currentLine := "— metadata.name: " + occurrenceDetails.MetadataName + " (kind: " + occurrenceDetails.Kind + ")\n"
+		currentLine := "- metadata.name: " + occurrenceDetails.MetadataName + " (kind: " + occurrenceDetails.Kind + ")\n"
 
 		totalOccurrences += occurrenceDetails.Occurrences
 		occurrencesLines += currentLine

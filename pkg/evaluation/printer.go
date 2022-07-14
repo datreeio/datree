@@ -12,10 +12,13 @@ import (
 
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/fatih/color"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"gopkg.in/yaml.v2"
 )
+
+var out = color.Output
 
 type Printer interface {
 	GetWarningsText(warnings []printer.Warning) string
@@ -57,7 +60,10 @@ func PrintResults(resultsData *PrintResultsData) error {
 		return err
 	}
 
-	fmt.Print(resultsText)
+	_, err = out.Write([]byte(resultsText))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -176,7 +182,7 @@ func parseInvalidYamlFilesToWarnings(invalidYamlFiles []*extractor.InvalidFile) 
 
 	for _, invalidFile := range invalidYamlFiles {
 		warnings = append(warnings, printer.Warning{
-			Title:       invalidFile.Path,
+			Title:       printer.GetFileNameText(invalidFile.Path),
 			FailedRules: []printer.FailedRule{},
 			InvalidYamlInfo: printer.InvalidYamlInfo{
 				ValidationErrors: invalidFile.ValidationErrors,
@@ -192,7 +198,7 @@ func parseInvalidK8sFilesToWarnings(invalidK8sFiles []*extractor.InvalidFile, k8
 
 	for _, invalidFile := range invalidK8sFiles {
 		warnings = append(warnings, printer.Warning{
-			Title:       invalidFile.Path,
+			Title:       printer.GetFileNameText(invalidFile.Path),
 			FailedRules: []printer.FailedRule{},
 			InvalidK8sInfo: printer.InvalidK8sInfo{
 				ValidationErrors: invalidFile.ValidationErrors,
@@ -283,7 +289,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 			relativePath, _ := filepath.Rel(pwd, filename)
 
 			if relativePath != "" {
-				title = relativePath
+				title = printer.GetFileNameText(relativePath)
 			}
 
 			warnings = append(warnings, printer.Warning{
@@ -375,7 +381,7 @@ func (t OutputTitle) String() string {
 
 func buildEnabledRulesTitle(policyName string) string {
 	var str strings.Builder
-	fmt.Fprintf(&str, "Enabled rules in policy “%s”", policyName)
+	fmt.Fprintf(&str, "Enabled rules in policy \"%s\"", policyName)
 	return str.String()
 }
 

@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   creationTimestamp: 2016-02-18T18:52:05Z
   name: game-config
-  namespace: default
+  namespace: ingress-nginx
   resourceVersion: "516"
   uid: b4952dc3-d670-11e5-8cd0-68f728db1985
 data:

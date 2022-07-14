@@ -6,6 +6,8 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/defaultRules"
+
 	"github.com/datreeio/datree/pkg/evaluation"
 
 	"github.com/datreeio/datree/bl/files"
@@ -266,7 +268,7 @@ func TestTestFlow(t *testing.T) {
 				CiContext:      ciContext,
 			}
 
-			err := Test(ctx, tt.args.path, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: tt.expected.Evaluate.evaluationData.Policy, Token: "134kh"})
+			err := test(ctx, tt.args.path, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: tt.expected.Evaluate.evaluationData.Policy, Token: "134kh"})
 			if tt.expected.err != nil {
 				assert.EqualError(t, err, tt.expected.err.Error())
 			} else {
@@ -350,7 +352,13 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 		validK8sFilesConfigurations = append(validK8sFilesConfigurations, fileConfigurations)
 	}
 	preRunData := mockGetPreRunData()
-	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL)
+
+	defaultRules, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+
+	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL, defaultRules)
 	close(invalidFilesChan)
 
 	return &TestFlowTestCase{
@@ -482,7 +490,12 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 func test_no_k8s_resources_found() *TestFlowTestCase {
 	root := pathFromRoot("internal/fixtures/nonKube/")
 	preRunData := mockGetPreRunData()
-	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL)
+	defaultRules, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+
+	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL, defaultRules)
 	paths := []string{root + "/docker-compose-config.yaml", root + "/simple.json", root + "/simple.yaml"}
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 3)
 	go func() {
@@ -715,7 +728,12 @@ func setup() {
 		CiContext:      ciContext,
 	}
 
-	testingPolicy, _ = policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL)
+	defaultRules, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+
+	testingPolicy, _ = policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules)
 }
 
 func TestTestCommandFlagsValidation(t *testing.T) {
@@ -731,13 +749,13 @@ func TestTestCommandEmptyDir(t *testing.T) {
 	emptyDirPaths := filepath.Join(emptyDir, "*.yaml")
 
 	readerMock.On("FilterFiles", []string{emptyDirPaths}).Return([]string{}, nil)
-	err := Test(ctx, []string{emptyDirPaths}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: testingPolicy, Token: "134kh"})
+	err := test(ctx, []string{emptyDirPaths}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: testingPolicy, Token: "134kh"})
 
 	assert.EqualError(t, err, "no files detected")
 }
 func TestTestCommandNoFlags(t *testing.T) {
 	setup()
-	_ = Test(ctx, []string{"8/*"}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: testingPolicy, Token: "134kh"})
+	_ = test(ctx, []string{"8/*"}, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: testingPolicy, Token: "134kh"})
 
 	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
@@ -752,7 +770,7 @@ func TestTestCommandNoFlags(t *testing.T) {
 
 func TestTestCommandJsonOutput(t *testing.T) {
 	setup()
-	_ = Test(ctx, []string{"valid/path"}, &TestCommandData{Output: "json", Policy: testingPolicy})
+	_ = test(ctx, []string{"valid/path"}, &TestCommandData{Output: "json", Policy: testingPolicy})
 
 	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
@@ -767,7 +785,7 @@ func TestTestCommandJsonOutput(t *testing.T) {
 
 func TestTestCommandYamlOutput(t *testing.T) {
 	setup()
-	_ = Test(ctx, []string{"8/*"}, &TestCommandData{Output: "yaml", Policy: testingPolicy})
+	_ = test(ctx, []string{"8/*"}, &TestCommandData{Output: "yaml", Policy: testingPolicy})
 
 	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
@@ -782,7 +800,7 @@ func TestTestCommandYamlOutput(t *testing.T) {
 
 func TestTestCommandXmlOutput(t *testing.T) {
 	setup()
-	_ = Test(ctx, []string{"valid/path"}, &TestCommandData{Output: "xml", Policy: testingPolicy})
+	_ = test(ctx, []string{"valid/path"}, &TestCommandData{Output: "xml", Policy: testingPolicy})
 
 	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,
@@ -797,15 +815,27 @@ func TestTestCommandXmlOutput(t *testing.T) {
 
 func TestTestCommandOnlyK8sFiles(t *testing.T) {
 	setup()
-	_ = Test(ctx, []string{"8/*"}, &TestCommandData{OnlyK8sFiles: true})
+	_ = test(ctx, []string{"8/*"}, &TestCommandData{OnlyK8sFiles: true})
 
 	k8sValidatorMock.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	k8sValidatorMock.AssertCalled(t, "GetK8sFiles", mock.Anything, 100)
 }
 
+func TestShouldDisplaySpinner(t *testing.T) {
+	defaultCaseSpinner := shouldDisplaySpinner(false, true, "")
+	assert.True(t, defaultCaseSpinner)
+
+	interactiveModeSpinner := shouldDisplaySpinner(true, true, "")
+	assert.False(t, interactiveModeSpinner)
+
+	nonInteractiveModeSpinner := shouldDisplaySpinner(false, false, "")
+	assert.True(t, nonInteractiveModeSpinner)
+
+}
+
 func TestTestCommandNoInternetConnection(t *testing.T) {
 	setup()
-	_ = Test(ctx, []string{"valid/path"}, &TestCommandData{Policy: testingPolicy})
+	_ = test(ctx, []string{"valid/path"}, &TestCommandData{Policy: testingPolicy})
 
 	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: filesConfigurations,

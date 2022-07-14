@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/defaultRules"
+
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/utils"
@@ -124,7 +126,12 @@ func TestEvaluate(t *testing.T) {
 	}
 
 	prerunData := mockGetPreRunData()
-	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL)
+	defaultRules, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -176,7 +183,12 @@ func request_evaluation_all_valid() *evaluateTestCase {
 	validFilePath := "internal/fixtures/kube/pass-all.yaml"
 
 	prerunData := mockGetPreRunData()
-	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL)
+	defaultRules, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules)
 
 	return &evaluateTestCase{
 		name: "should request validation without invalid files",
@@ -222,7 +234,12 @@ func request_evaluation_all_valid() *evaluateTestCase {
 
 func request_evaluation_all_invalid() *evaluateTestCase {
 	prerunData := mockGetPreRunData()
-	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL)
+	defaultRules, err := defaultRules.GetDefaultRules()
+	if err != nil {
+		panic(err)
+	}
+
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules)
 
 	return &evaluateTestCase{
 		name: "should not request validation if there are no valid files",

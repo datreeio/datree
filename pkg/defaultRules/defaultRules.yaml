@@ -271,7 +271,8 @@ rules:
           spec:
             properties:
               schedule:
-                pattern: (^((\*\/)?([1-5]?[0-9])((\,|\-|\/)\d+)*|\*)\s((\*\/)?((2[0-3]|1[0-9]|[0-9]))((\,|\-|\/)\d+)*|\*)\s((\*\/)?([1-9]|[12][0-9]|3[01])((\,|\-|\/)\d+)*|\*)\s((\*\/)?([1-9]|1[0-2])((\,|\-|\/)\d+)*|\*)\s((\*\/)?[0-6]((\,|\-|\/)\d+)*|\*)$)|@(annually|yearly|monthly|weekly|daily|hourly|reboot)
+                # use cases to test the regex - https://regex101.com/r/K4d7Ju/1
+                pattern: (^((\*\/)?([0-5]?[0-9])((\,|\-|\/)([0-5]?[0-9]))*|\*)\s+((\*\/)?((2[0-3]|1[0-9]|[0-9]|00))((\,|\-|\/)(2[0-3]|1[0-9]|[0-9]|00))*|\*)\s+((\*\/)?([1-9]|[12][0-9]|3[01])((\,|\-|\/)([1-9]|[12][0-9]|3[01]))*|\*)\s+((\*\/)?([1-9]|1[0-2])((\,|\-|\/)([1-9]|1[0-2]))*|\*|(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|des))\s+((\*\/)?[0-6]((\,|\-|\/)[0-6])*|\*|00|(sun|mon|tue|wed|thu|fri|sat))\s*$)|@(annually|yearly|monthly|weekly|daily|hourly|reboot)
   - id: 9
     name: Ensure workload has valid label values
     uniqueName: WORKLOAD_INVALID_LABELS_VALUE
@@ -798,6 +799,19 @@ rules:
           kind:
             enum:
               - ConfigMap
+          metadata:
+            anyOf:
+              - properties:
+                  name:
+                    enum:
+                    - nginx-config
+                    - nginx-conf
+                    - ingress-nginx-controller
+              - properties:
+                  namespace:
+                    enum:
+                    - ingress-nginx
+                    - nginx-ingress
       then:
         properties:
           data:
@@ -1213,9 +1227,7 @@ rules:
                         const: true
                     required:
                       - readOnlyRootFilesystem
-                required:
-                  - securityContext
-      anyOf:
+      allOf:
         - $ref: "#/definitions/containerSecurityPattern"
         - $ref: "#/definitions/podSecurityContextPattern"
       additionalProperties:
@@ -1550,4 +1562,304 @@ rules:
       anyOf:
         - $ref: "#/definitions/metadataNamePattern"
         - $ref: "#/definitions/metadataGenerateNamePattern"
-        
+  - id: 55
+    name: Ensure each container probe has an initial delay configured
+    uniqueName: CONTAINERS_INCORRECT_INITIALDELAYSECONDS_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-initial-probe-delay"
+    messageOnFailure: "Incorrect value for key `initialDelaySeconds` - set explicitly to control the start time before a probe is initiated (min 0)"
+    category: Containers
+    schema:
+      definitions:
+        probePattern:
+          if:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      anyOf:
+                        - required:
+                          - livenessProbe
+                        - required:
+                          - readinessProbe
+                        - required:
+                          - startupProbe
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      properties:
+                        livenessProbe:
+                          properties:
+                            initialDelaySeconds:
+                              minimum: 0
+                          required:
+                          - initialDelaySeconds
+                        readinessProbe:
+                          properties:
+                            initialDelaySeconds:
+                              minimum: 0
+                          required:
+                          - initialDelaySeconds
+                        startupProbe:
+                          properties:
+                            initialDelaySeconds:
+                              minimum: 0
+                          required:
+                          - initialDelaySeconds
+      allOf:
+        - $ref: "#/definitions/probePattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 56
+    name: Ensure each container probe has a configured frequency
+    uniqueName: CONTAINERS_INCORRECT_PERIODSECONDS_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-frequency"
+    messageOnFailure: "Incorrect value for key `periodSeconds` - set explicitly to control how often a probe is performed (min 1)"
+    category: Containers
+    schema:
+      definitions:
+        probePattern:
+          if:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      anyOf:
+                        - required:
+                          - livenessProbe
+                        - required:
+                          - readinessProbe
+                        - required:
+                          - startupProbe
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      properties:
+                        livenessProbe:
+                          properties:
+                            periodSeconds:
+                              minimum: 1
+                          required:
+                          - periodSeconds
+                        readinessProbe:
+                          properties:
+                            periodSeconds:
+                              minimum: 1
+                          required:
+                          - periodSeconds
+                        startupProbe:
+                          properties:
+                            periodSeconds:
+                              minimum: 1
+                          required:
+                          - periodSeconds
+      allOf:
+        - $ref: "#/definitions/probePattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 57
+    name: Ensure each container probe has a configured timeout
+    uniqueName: CONTAINERS_INCORRECT_TIMEOUTSECONDS_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-timeout"
+    messageOnFailure: "Incorrect value for key `timeoutSeconds` - set explicitly to control when a probe times out (min 1)"
+    category: Containers
+    schema:
+      definitions:
+        probePattern:
+          if:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      anyOf:
+                        - required:
+                          - livenessProbe
+                        - required:
+                          - readinessProbe
+                        - required:
+                          - startupProbe
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      properties:
+                        livenessProbe:
+                          properties:
+                            timeoutSeconds:
+                              minimum: 1
+                          required:
+                          - timeoutSeconds
+                        readinessProbe:
+                          properties:
+                            timeoutSeconds:
+                              minimum: 1
+                          required:
+                          - timeoutSeconds
+                        startupProbe:
+                          properties:
+                            timeoutSeconds:
+                              minimum: 1
+                          required:
+                          - timeoutSeconds
+      allOf:
+        - $ref: "#/definitions/probePattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 58
+    name: Ensure each container probe has a configured minimum success threshold
+    uniqueName: CONTAINERS_INCORRECT_SUCCESSTHRESHOLD_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-min-success-threshold"
+    messageOnFailure: "Incorrect value for key `successThreshold` - set explicitly to control when a probe is considered successful after having failed"
+    category: Containers
+    schema:
+      definitions:
+        probePattern:
+          if:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      anyOf:
+                        - required:
+                          - livenessProbe
+                        - required:
+                          - readinessProbe
+                        - required:
+                          - startupProbe
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      properties:
+                        livenessProbe:
+                          properties:
+                            successThreshold:
+                              const: 1
+                          required:
+                          - successThreshold
+                        readinessProbe:
+                          properties:
+                            successThreshold:
+                              minimum: 1
+                          required:
+                          - successThreshold
+                        startupProbe:
+                          properties:
+                            successThreshold:
+                              const: 1
+                          required:
+                          - successThreshold
+      allOf:
+        - $ref: "#/definitions/probePattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 59
+    name: Ensure each container probe has a configured failure threshold
+    uniqueName: CONTAINERS_INCORRECT_FAILURETHRESHOLD_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-failure-threshold"
+    messageOnFailure: "Incorrect value for key `failureThreshold` - set explicitly to control the number of retries after a probe fails (min 1)"
+    category: Containers
+    schema:
+      definitions:
+        probePattern:
+          if:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      anyOf:
+                        - required:
+                          - livenessProbe
+                        - required:
+                          - readinessProbe
+                        - required:
+                          - startupProbe
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    items:
+                      properties:
+                        livenessProbe:
+                          properties:
+                            failureThreshold:
+                              minimum: 1
+                          required:
+                          - failureThreshold
+                        readinessProbe:
+                          properties:
+                            failureThreshold:
+                              minimum: 1
+                          required:
+                          - failureThreshold
+                        startupProbe:
+                          properties:
+                            failureThreshold:
+                              minimum: 1
+                          required:
+                          - failureThreshold
+      allOf:
+        - $ref: "#/definitions/probePattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 60
+    name: Ensure each container has a configured pre-stop hook
+    uniqueName: CONTAINERS_MISSING_PRESTOP_KEY
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-prestop"
+    messageOnFailure: "Missing property object `preStop` - set to ensure graceful shutdown of the container"
+    category: Containers
+    schema:
+      definitions:
+        prestopPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      lifecycle:
+                        properties:
+                          preStop:
+                            type: object
+                        required:
+                          - preStop
+                    required:
+                      - lifecycle
+      allOf:
+        - $ref: "#/definitions/prestopPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
