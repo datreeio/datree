@@ -332,7 +332,7 @@ func TestWrapper(ctx *TestCommandContext, args []string, testCommandFlags *TestC
 	return test(ctx, args, testCommandOptions)
 }
 
-func test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) error {
+func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandData) error {
 	if paths[0] == "-" {
 		tempFile, err := os.CreateTemp("", "datree_temp_*.yaml")
 		if err != nil {
@@ -356,11 +356,11 @@ func test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 		return noFilesErr
 	}
 
-	if prerunData.Output == "simple" {
+	if testCommandData.Output == "simple" {
 		ctx.Printer.SetTheme(printer.CreateSimpleTheme())
 	}
 
-	evaluationResultData, err := evaluate(ctx, filesPaths, prerunData)
+	evaluationResultData, err := evaluate(ctx, filesPaths, testCommandData)
 	if err != nil {
 		return err
 	}
@@ -394,12 +394,12 @@ func test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 		InvalidYamlFiles:      validationManager.InvalidYamlFiles(),
 		InvalidK8sFiles:       validationManager.InvalidK8sFiles(),
 		EvaluationSummary:     evaluationSummary,
-		LoginURL:              prerunData.RegistrationURL,
-		OutputFormat:          prerunData.Output,
+		LoginURL:              testCommandData.RegistrationURL,
+		OutputFormat:          testCommandData.Output,
 		Printer:               ctx.Printer,
-		K8sVersion:            prerunData.K8sVersion,
-		Verbose:               prerunData.Verbose,
-		PolicyName:            prerunData.Policy.Name,
+		K8sVersion:            testCommandData.K8sVersion,
+		Verbose:               testCommandData.Verbose,
+		PolicyName:            testCommandData.Policy.Name,
 		K8sValidationWarnings: validationManager.k8sValidationWarningPerValidFile,
 	})
 
@@ -413,7 +413,7 @@ func test(ctx *TestCommandContext, paths []string, prerunData *TestCommandData) 
 		}
 
 		if strings.ToLower(string(answer)) != "n" {
-			openBrowser(prerunData.PromptRegistrationURL)
+			openBrowser(testCommandData.PromptRegistrationURL)
 		}
 	}
 
@@ -436,10 +436,10 @@ type EvaluationResultData struct {
 	PromptMessage       string
 }
 
-func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestCommandData) (EvaluationResultData, error) {
-	isInteractiveMode := !evaluation.IsFormattedOutputOption(prerunData.Output)
+func evaluate(ctx *TestCommandContext, filesPaths []string, testCommandData *TestCommandData) (EvaluationResultData, error) {
+	isInteractiveMode := !evaluation.IsFormattedOutputOption(testCommandData.Output)
 
-	showSpinner := shouldDisplaySpinner(ctx.CiContext.IsCI, isInteractiveMode, prerunData.Output)
+	showSpinner := shouldDisplaySpinner(ctx.CiContext.IsCI, isInteractiveMode, testCommandData.Output)
 
 	if showSpinner {
 		_spinner := createSpinner(" Loading...", "cyan")
@@ -454,7 +454,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	validationManager := NewValidationManager()
 
-	ctx.K8sValidator.InitClient(prerunData.K8sVersion, prerunData.IgnoreMissingSchemas, prerunData.SchemaLocations)
+	ctx.K8sValidator.InitClient(testCommandData.K8sVersion, testCommandData.IgnoreMissingSchemas, testCommandData.SchemaLocations)
 
 	concurrency := 100
 	var wg sync.WaitGroup
@@ -464,7 +464,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	wg.Add(1)
 	go validationManager.AggregateInvalidYamlFiles(invalidYamlFilesChan, &wg)
 
-	if prerunData.OnlyK8sFiles {
+	if testCommandData.OnlyK8sFiles {
 		var ignoredYamlFilesChan chan *extractor.FileConfigurations
 		validYamlConfigurationsChan, ignoredYamlFilesChan = ctx.K8sValidator.GetK8sFiles(validYamlConfigurationsChan, concurrency)
 		wg.Add(1)
@@ -480,13 +480,13 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 
 	wg.Wait()
 
-	policyName := prerunData.Policy.Name
+	policyName := testCommandData.Policy.Name
 
 	policyCheckData := evaluation.PolicyCheckData{
 		FilesConfigurations: validationManager.ValidK8sFilesConfigurations(),
 		IsInteractiveMode:   isInteractiveMode,
 		PolicyName:          policyName,
-		Policy:              prerunData.Policy,
+		Policy:              testCommandData.Policy,
 	}
 
 	emptyEvaluationResultData := EvaluationResultData{
@@ -510,7 +510,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 		AllFilesThatRanPolicyCheck: utils.MapSlice[cliClient.FileData, string](policyCheckResultData.FilesData, func(fileData cliClient.FileData) string { return fileData.FilePath }),
 	}
 
-	if prerunData.NoRecord {
+	if testCommandData.NoRecord {
 		return EvaluationResultData{
 			ValidationManager:   validationManager,
 			RulesCount:          policyCheckResultData.RulesCount,
@@ -538,10 +538,10 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, prerunData *TestComm
 	endEvaluationTime := time.Now()
 	EvaluationDurationSeconds := endEvaluationTime.Sub(ctx.StartTime).Seconds()
 	evaluationRequestData := evaluation.EvaluationRequestData{
-		Token:                     prerunData.Token,
-		ClientId:                  prerunData.ClientId,
+		Token:                     testCommandData.Token,
+		ClientId:                  testCommandData.ClientId,
 		CliVersion:                ctx.CliVersion,
-		K8sVersion:                prerunData.K8sVersion,
+		K8sVersion:                testCommandData.K8sVersion,
 		PolicyName:                policyName,
 		CiContext:                 ciContext,
 		RulesData:                 policyCheckResultData.RulesData,
@@ -597,11 +597,11 @@ func saveDefaultRulesAsFile(ctx *TestCommandContext, preRunDefaultRulesYaml stri
 	_ = ioutil.WriteFile(defaultRulesFilePath, []byte(preRunDefaultRulesYaml), os.FileMode(fileReadPermission))
 }
 
-func shouldDisplaySpinner(IsCI bool, isInteractiveMode bool, prerunData string) bool {
+func shouldDisplaySpinner(IsCI bool, isInteractiveMode bool, outputOption string) bool {
 	switch {
 	case IsCI:
 		return false
-	case isInteractiveMode && prerunData != "simple":
+	case isInteractiveMode && outputOption != "simple":
 		return true
 	default:
 		return true
