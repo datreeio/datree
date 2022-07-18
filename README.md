@@ -31,6 +31,23 @@
 
 It’s far more effective than manual processes, such as sending an email to a slew of developers, begging them to set various limits, which likely falls on deaf ears because developers are already overwhelmed.
 
+## ✌️ Quick-start in two steps
+
+### 1. Install the latest release on your CLI
+
+_Linux & MacOS:_ `curl https://get.datree.io | /bin/bash`  
+_Windows:_ `iwr -useb https://get.datree.io/windows_install.ps1 | iex`
+
+_Other installation options (Homebrew, Docker, etc.) can be found [here](https://hub.datree.io/#1-install-the-datree-cli)_
+
+### 2. Pass Datree a Kubernetes manifest file to scan
+
+`datree test [k8s-manifest-file]`
+
+...and voilà, you just ran your first policy check! 🥳
+
+<img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree-cli" width="70%">
+
 ## ⚙️ How it works
 
 Datree scans Kubernetes configuration changes and validates them against a centrally managed policy for rule violations and misconfigurations.
@@ -48,24 +65,6 @@ The CLI interface can be run locally, as a pre-commit hook, or in your CI, to sh
 Datree comes with dozens of battle-tested rules for you to select to create your policy. The policy rules cover a variety of Kubernetes resources such as workload security, networking availability, Argo best practices, NSA hardening guide, and [many more](https://hub.datree.io/built-in-rules). 
 
 In addition to our built-in rules, you can write [any custom rule you wish](https://hub.datree.io/custom-rules-overview) and then run it against your Kubernetes configurations to check for rule violations. The custom rule engine is based on JSON Schema.
-
-
-## ✌️ Quick-start in two steps
-
-### 1. Install the latest release on your CLI
-
-_Linux & MacOS:_ `curl https://get.datree.io | /bin/bash`  
-_Windows:_ `iwr -useb https://get.datree.io/windows_install.ps1 | iex`
-
-_Other installation options (Homebrew, Docker, etc.) can be found [here](https://hub.datree.io/#1-install-the-datree-cli)_
-
-### 2. Pass Datree a Kubernetes manifest file to scan
-
-`datree test [k8s-manifest-file]`
-
-...and voilà, you just ran your first policy check! 🥳
-
-<img src="https://clipublic.s3.amazonaws.com/live.gif" alt="Datree-cli" width="70%">
 
 ## 🔌 Helm plugin
 
