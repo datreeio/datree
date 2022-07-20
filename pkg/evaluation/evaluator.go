@@ -356,10 +356,6 @@ func addFailedRule(currentFailedRulesByFiles FailedRulesByFiles, fileName string
 func extractSkipAnnotations(configuration extractor.Configuration) map[string]string {
 	skipAnnotations := make(map[string]string)
 
-	if configuration.MetadataName == "" || configuration.Kind == "" {
-		return nil
-	}
-
 	for annotationKey, annotationValue := range configuration.Annotations {
 		if strings.Contains(annotationKey, SKIP_RULE_PREFIX) {
 			skipAnnotations[annotationKey] = annotationValue.(string)
