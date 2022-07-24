@@ -27,7 +27,6 @@ func TestValidateResources(t *testing.T) {
 	test_invalid_file(t)
 	test_get_all_schema_locations_online(t)
 	test_get_all_schema_locations_offline(t)
-	test_get_datree_crd_schema_by_name(t)
 	t.Run("test empty file", test_empty_file)
 	t.Run("test_offline_with_remote_custom_schema_location", test_offline_with_remote_custom_schema_location)
 	t.Run("test missing schema skipped", test_missing_schema_skipped)
@@ -206,7 +205,7 @@ func test_get_all_schema_locations_online(t *testing.T) {
 		"/my-local-schema-location",
 		"default",
 		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
-		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argoproj/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
+		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{ .Group }}/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
 	}
 	actual := getAllSchemaLocations([]string{"/my-local-schema-location"}, false)
 	assert.Equal(t, expectedOutput, actual)
@@ -218,16 +217,6 @@ func test_get_all_schema_locations_offline(t *testing.T) {
 	}
 	actual := getAllSchemaLocations([]string{"/my-local-schema-location"}, true)
 	assert.Equal(t, expectedOutput, actual)
-}
-
-func test_get_datree_crd_schema_by_name(t *testing.T) {
-	input := "argo"
-	expectedOutput := "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argo/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
-	actual := getDatreeCRDSchemaByName(input)
-
-	if actual != expectedOutput {
-		t.Errorf("Expected: %s, Actual: %s", expectedOutput, actual)
-	}
 }
 
 func test_validateResource_offline_with_local_schema(t *testing.T) {
