@@ -50,7 +50,7 @@ _Other installation options (Homebrew, Docker, etc.) can be found [here](https:/
 
 ## ⚙️ How it works
 
-Datree scans Kubernetes configuration changes and validates them against a centrally managed policy for rule violations and misconfigurations.
+Datree scans Kubernetes configurations and validates them against a centrally managed policy for rule violations and misconfigurations.
 
 ![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_light.png#gh-light-mode-only)  
 ![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_dark.png#gh-dark-mode-only) 
