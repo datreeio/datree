@@ -804,14 +804,18 @@ rules:
               - properties:
                   name:
                     enum:
-                    - nginx-config
-                    - nginx-conf
-                    - ingress-nginx-controller
+                      - nginx-config
+                      - nginx-conf
+                      - ingress-nginx-controller
+                required:
+                  - name
               - properties:
                   namespace:
                     enum:
-                    - ingress-nginx
-                    - nginx-ingress
+                      - ingress-nginx
+                      - nginx-ingress
+                required:
+                  - namespace
       then:
         properties:
           data:
@@ -821,6 +825,8 @@ rules:
                   - "false"
             required:
               - allow-snippet-annotations
+        required:
+          - data
   - id: 32
     name: "Prevent Ingress security vulnerability (CVE-2021-25742)"
     uniqueName: "INGRESS_CVE2021_25742_INCORRECT_SERVER_SNIPPET_KEY"
