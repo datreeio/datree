@@ -27,8 +27,8 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "datree",
-	Short: "Datree is a static code analysis tool for kubernetes files",
-	Long:  `Datree is a static code analysis tool for kubernetes files. Full code can be found at https://github.com/datreeio/datree`,
+	Short: "Datree policy management tool for your Kubernetes",
+	Long:  `Datree policy management tool for your Kubernetes. Full code can be found at https://github.com/datreeio/datree`,
 }
 
 var CliVersion string
