@@ -27,8 +27,8 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "datree",
-	Short: "Datree policy management tool for your Kubernetes",
-	Long:  `Datree policy management tool for your Kubernetes. Full code can be found at https://github.com/datreeio/datree`,
+	Short: "Datree is a policy management tool for your Kubernetes",
+	Long:  `Datree is a policy management tool for your Kubernetes. Full code can be found at https://github.com/datreeio/datree`,
 }
 
 var CliVersion string
