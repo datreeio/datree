@@ -97,6 +97,8 @@ From develop to runtime, you can use Datree in every step of your Kuberenetes pi
 * [Deploy (CD)](https://github.com/datreeio/admission-webhook-datree) - gate your cluster with the admission webhook  
 * [Runtime (production)](https://github.com/datreeio/kubectl-datree) - query deployed resources with the kubectl plugin to your know your status  
 
+![Offerings](https://github.com/datreeio/datree/blob/main/images/offerings.png)
+
 ## Contributing
 
 [Contributions](https://github.com/datreeio/datree/issues?q=is%3Aissue+is%3Aopen+label%3A%22up+for+grabs%22) are welcome!
