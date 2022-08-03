@@ -601,6 +601,8 @@ func shouldDisplaySpinner(IsCI bool, isInteractiveMode bool, outputOption string
 	switch {
 	case IsCI:
 		return false
+	case outputOption != "":
+		return false
 	case isInteractiveMode && outputOption != "simple":
 		return true
 	default:
