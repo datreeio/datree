@@ -18,7 +18,7 @@ func ParseErrorToString(err interface{}) string {
 }
 
 func IsNetworkError(err error) bool {
-	networkErrors := []string{"network error", "connection refused", "no such host", "i/o timeout", "server misbehaving"}
+	networkErrors := []string{"network error", "connection refused", "no such host", "i/o timeout", "server misbehaving", "http error"}
 	return stringInSliceContains(err.Error(), networkErrors) || isUrlErrorType(err)
 }
 

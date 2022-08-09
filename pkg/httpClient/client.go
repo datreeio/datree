@@ -60,6 +60,10 @@ func (c *Client) Request(method string, resourceURI string, body interface{}, he
 	}
 
 	response, err := c.httpClient.Do(request)
+	if response != nil {
+		responseBody.StatusCode = response.StatusCode
+	}
+
 	if err != nil {
 		return responseBody, err
 	}
@@ -67,38 +71,16 @@ func (c *Client) Request(method string, resourceURI string, body interface{}, he
 	defer response.Body.Close()
 
 	b, err := io.ReadAll(response.Body)
+	responseBody.Body = b
+
 	if err != nil {
 		return responseBody, err
-	}
-
-	if response.StatusCode > 500 {
-		responseBody.StatusCode = response.StatusCode
-		return responseBody, fmt.Errorf("network error")
 	}
 
 	if response.StatusCode > 399 {
-		var errorJson map[string]interface{}
-		err = json.Unmarshal(b, &errorJson)
-		if err != nil {
-			return responseBody, err
-		}
-
-		responseBody = Response{
-			StatusCode: response.StatusCode,
-			Body:       b,
-		}
-
-		return responseBody, fmt.Errorf(fmt.Sprintf("%v", errorJson["message"]))
+		return responseBody, fmt.Errorf("http error: %s", string(b))
 	}
 
-	if err != nil {
-		return responseBody, err
-	}
-
-	responseBody = Response{
-		StatusCode: response.StatusCode,
-		Body:       b,
-	}
 	return responseBody, nil
 }
 
