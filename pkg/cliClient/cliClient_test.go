@@ -519,7 +519,7 @@ func test_requestEvaluationPrerunData_network_error(offlineMode string, expected
 			}{
 				status: http.StatusInternalServerError,
 				body:   nil,
-				error:  errors.New("network error"),
+				error:  errors.New("http error"),
 			},
 		},
 		expected: struct {
@@ -678,7 +678,7 @@ func test_sendEvaluationResult_network_error(offlineMode string, expectedRespons
 			}{
 				status: http.StatusInternalServerError,
 				body:   nil,
-				error:  errors.New("network error"),
+				error:  errors.New("http error"),
 			},
 		},
 		expected: struct {
