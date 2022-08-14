@@ -55,15 +55,23 @@ type textOutputData struct {
 }
 
 func PrintResults(resultsData *PrintResultsData) error {
-	jsonOutput, err := GetjsonResult(resultsData)
-	file, err := os.Create("/Users/hadarco/.datree/blah.json")
+	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err
 	}
-	fmt.Println("File created successfully")
+
+	jsonOutput, err := GetjsonResult(resultsData)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(homeDir + "/.datree/lastPolicyCheck.json")
+	if err != nil {
+		return err
+	}
+
 	defer file.Close()
 
-	homeDir, err := os.UserHomeDir()
 	d1 := []byte(jsonOutput)
 	os.WriteFile(homeDir+"/.datree/blah.json", d1, 0644)
 
