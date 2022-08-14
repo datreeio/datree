@@ -55,6 +55,18 @@ type textOutputData struct {
 }
 
 func PrintResults(resultsData *PrintResultsData) error {
+	jsonOutput, err := GetjsonResult(resultsData)
+	file, err := os.Create("/Users/hadarco/.datree/blah.json")
+	if err != nil {
+		return err
+	}
+	fmt.Println("File created successfully")
+	defer file.Close()
+
+	homeDir, err := os.UserHomeDir()
+	d1 := []byte(jsonOutput)
+	os.WriteFile(homeDir+"/.datree/blah.json", d1, 0644)
+
 	resultsText, err := GetResultsText(resultsData)
 	if err != nil {
 		return err
@@ -113,6 +125,29 @@ func GetResultsText(resultsData *PrintResultsData) (string, error) {
 			k8sValidationWarnings: resultsData.K8sValidationWarnings,
 		})
 	}
+}
+func GetjsonResult(resultsData *PrintResultsData) (string, error) {
+
+	nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
+	if nonInteractiveEvaluationResults == nil {
+		nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
+	}
+	formattedOutput := FormattedOutput{
+		PolicyValidationResults: nonInteractiveEvaluationResults.FormattedEvaluationResults,
+		PolicySummary:           nonInteractiveEvaluationResults.PolicySummary,
+		EvaluationSummary: NonInteractiveEvaluationSummary{
+			ConfigsCount:                resultsData.EvaluationSummary.ConfigsCount,
+			FilesCount:                  resultsData.EvaluationSummary.FilesCount,
+			PassedYamlValidationCount:   resultsData.EvaluationSummary.PassedYamlValidationCount,
+			K8sValidation:               resultsData.EvaluationSummary.K8sValidation,
+			PassedPolicyValidationCount: resultsData.EvaluationSummary.PassedPolicyCheckCount,
+		},
+		YamlValidationResults: resultsData.InvalidYamlFiles,
+		K8sValidationResults:  resultsData.InvalidK8sFiles,
+	}
+
+	return getJsonOutput(&formattedOutput)
+
 }
 
 func getJsonOutput(formattedOutput *FormattedOutput) (string, error) {
