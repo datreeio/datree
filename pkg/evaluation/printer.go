@@ -72,8 +72,11 @@ func PrintResults(resultsData *PrintResultsData) error {
 
 	defer file.Close()
 
-	d1 := []byte(jsonOutput)
-	os.WriteFile(homeDir+"/.datree/blah.json", d1, 0644)
+	byteOutput := []byte(jsonOutput)
+	err = os.WriteFile(homeDir + "/.datree/lastPolicyCheck.json", byteOutput, 0644)
+	if err != nil {
+		return err
+	}
 
 	resultsText, err := GetResultsText(resultsData)
 	if err != nil {
