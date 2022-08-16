@@ -54,21 +54,21 @@ type textOutputData struct {
 	k8sValidationWarnings validation.K8sValidationWarningPerValidFile
 }
 
-func SaveLastResultToJson(resultsData *PrintResultsData) error {
+func SaveLastResultToJson(resultsData *PrintResultsData) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return err
+		return
 	}
 
 	jsonOutput, err := GetjsonResult(resultsData)
 	if err != nil {
-		return err
+		return
 	}
 
 	lastPolicyCheckPath := homeDir + "/.datree/lastPolicyCheck.json"
 	file, err := os.Create(lastPolicyCheckPath)
 	if err != nil {
-		return err
+		return
 	}
 
 	defer file.Close()
@@ -76,10 +76,8 @@ func SaveLastResultToJson(resultsData *PrintResultsData) error {
 	byteOutput := []byte(jsonOutput)
 	err = os.WriteFile(lastPolicyCheckPath, byteOutput, 0644)
 	if err != nil {
-		return err
+		return
 	}
-
-	return nil
 }
 
 func PrintResults(resultsData *PrintResultsData) error {
