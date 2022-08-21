@@ -39,6 +39,7 @@ type PrintResultsData struct {
 	Verbose               bool
 	PolicyName            string
 	K8sValidationWarnings validation.K8sValidationWarningPerValidFile
+	IsCI                  bool
 }
 
 type textOutputData struct {
@@ -81,7 +82,9 @@ func SaveLastResultToJson(resultsData *PrintResultsData) {
 }
 
 func PrintResults(resultsData *PrintResultsData) error {
-	SaveLastResultToJson(resultsData)
+	if resultsData.IsCI {
+		SaveLastResultToJson(resultsData)
+	}
 
 	resultsText, err := GetResultsText(resultsData)
 	if err != nil {
