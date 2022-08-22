@@ -19,7 +19,7 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0
 	github.com/yannh/kubeconform v0.4.14
 	gopkg.in/yaml.v2 v2.4.0
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apimachinery v0.23.5
 	sigs.k8s.io/yaml v1.2.0
 )
