@@ -98,25 +98,31 @@ func PrintResults(resultsData *PrintResultsData) error {
 	return nil
 }
 
+func getFormattedOutput(resultsData *PrintResultsData) FormattedOutput {
+	nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
+	if nonInteractiveEvaluationResults == nil {
+		nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
+	}
+	formattedOutput := FormattedOutput{
+		PolicyValidationResults: nonInteractiveEvaluationResults.FormattedEvaluationResults,
+		PolicySummary:           nonInteractiveEvaluationResults.PolicySummary,
+		EvaluationSummary: NonInteractiveEvaluationSummary{
+			ConfigsCount:                resultsData.EvaluationSummary.ConfigsCount,
+			FilesCount:                  resultsData.EvaluationSummary.FilesCount,
+			PassedYamlValidationCount:   resultsData.EvaluationSummary.PassedYamlValidationCount,
+			K8sValidation:               resultsData.EvaluationSummary.K8sValidation,
+			PassedPolicyValidationCount: resultsData.EvaluationSummary.PassedPolicyCheckCount,
+		},
+		YamlValidationResults: resultsData.InvalidYamlFiles,
+		K8sValidationResults:  resultsData.InvalidK8sFiles,
+	}
+
+	return formattedOutput
+}
+
 func GetResultsText(resultsData *PrintResultsData) (string, error) {
 	if IsFormattedOutputOption(resultsData.OutputFormat) {
-		nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
-		if nonInteractiveEvaluationResults == nil {
-			nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
-		}
-		formattedOutput := FormattedOutput{
-			PolicyValidationResults: nonInteractiveEvaluationResults.FormattedEvaluationResults,
-			PolicySummary:           nonInteractiveEvaluationResults.PolicySummary,
-			EvaluationSummary: NonInteractiveEvaluationSummary{
-				ConfigsCount:                resultsData.EvaluationSummary.ConfigsCount,
-				FilesCount:                  resultsData.EvaluationSummary.FilesCount,
-				PassedYamlValidationCount:   resultsData.EvaluationSummary.PassedYamlValidationCount,
-				K8sValidation:               resultsData.EvaluationSummary.K8sValidation,
-				PassedPolicyValidationCount: resultsData.EvaluationSummary.PassedPolicyCheckCount,
-			},
-			YamlValidationResults: resultsData.InvalidYamlFiles,
-			K8sValidationResults:  resultsData.InvalidK8sFiles,
-		}
+		formattedOutput := getFormattedOutput(resultsData)
 
 		switch resultsData.OutputFormat {
 		case "json":
@@ -147,26 +153,9 @@ func GetResultsText(resultsData *PrintResultsData) (string, error) {
 }
 func GetjsonResult(resultsData *PrintResultsData) (string, error) {
 
-	nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
-	if nonInteractiveEvaluationResults == nil {
-		nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
-	}
-	formattedOutput := FormattedOutput{
-		PolicyValidationResults: nonInteractiveEvaluationResults.FormattedEvaluationResults,
-		PolicySummary:           nonInteractiveEvaluationResults.PolicySummary,
-		EvaluationSummary: NonInteractiveEvaluationSummary{
-			ConfigsCount:                resultsData.EvaluationSummary.ConfigsCount,
-			FilesCount:                  resultsData.EvaluationSummary.FilesCount,
-			PassedYamlValidationCount:   resultsData.EvaluationSummary.PassedYamlValidationCount,
-			K8sValidation:               resultsData.EvaluationSummary.K8sValidation,
-			PassedPolicyValidationCount: resultsData.EvaluationSummary.PassedPolicyCheckCount,
-		},
-		YamlValidationResults: resultsData.InvalidYamlFiles,
-		K8sValidationResults:  resultsData.InvalidK8sFiles,
-	}
+	formattedOutput := getFormattedOutput(resultsData)
 
 	return getJsonOutput(&formattedOutput)
-
 }
 
 func getJsonOutput(formattedOutput *FormattedOutput) (string, error) {
