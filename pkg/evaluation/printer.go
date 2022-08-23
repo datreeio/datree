@@ -39,6 +39,7 @@ type PrintResultsData struct {
 	Verbose               bool
 	PolicyName            string
 	K8sValidationWarnings validation.K8sValidationWarningPerValidFile
+	IsCI                  bool
 }
 
 type textOutputData struct {
@@ -54,7 +55,37 @@ type textOutputData struct {
 	k8sValidationWarnings validation.K8sValidationWarningPerValidFile
 }
 
+func SaveLastResultToJson(resultsData *PrintResultsData) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return
+	}
+
+	jsonOutput, err := GetjsonResult(resultsData)
+	if err != nil {
+		return
+	}
+
+	lastPolicyCheckPath := homeDir + "/.datree/lastPolicyCheck.json"
+	file, err := os.Create(lastPolicyCheckPath)
+	if err != nil {
+		return
+	}
+
+	defer file.Close()
+
+	byteOutput := []byte(jsonOutput)
+	err = os.WriteFile(lastPolicyCheckPath, byteOutput, 0644)
+	if err != nil {
+		return
+	}
+}
+
 func PrintResults(resultsData *PrintResultsData) error {
+	if resultsData.IsCI {
+		SaveLastResultToJson(resultsData)
+	}
+
 	resultsText, err := GetResultsText(resultsData)
 	if err != nil {
 		return err
@@ -67,25 +98,31 @@ func PrintResults(resultsData *PrintResultsData) error {
 	return nil
 }
 
+func getFormattedOutput(resultsData *PrintResultsData) FormattedOutput {
+	nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
+	if nonInteractiveEvaluationResults == nil {
+		nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
+	}
+	formattedOutput := FormattedOutput{
+		PolicyValidationResults: nonInteractiveEvaluationResults.FormattedEvaluationResults,
+		PolicySummary:           nonInteractiveEvaluationResults.PolicySummary,
+		EvaluationSummary: NonInteractiveEvaluationSummary{
+			ConfigsCount:                resultsData.EvaluationSummary.ConfigsCount,
+			FilesCount:                  resultsData.EvaluationSummary.FilesCount,
+			PassedYamlValidationCount:   resultsData.EvaluationSummary.PassedYamlValidationCount,
+			K8sValidation:               resultsData.EvaluationSummary.K8sValidation,
+			PassedPolicyValidationCount: resultsData.EvaluationSummary.PassedPolicyCheckCount,
+		},
+		YamlValidationResults: resultsData.InvalidYamlFiles,
+		K8sValidationResults:  resultsData.InvalidK8sFiles,
+	}
+
+	return formattedOutput
+}
+
 func GetResultsText(resultsData *PrintResultsData) (string, error) {
 	if IsFormattedOutputOption(resultsData.OutputFormat) {
-		nonInteractiveEvaluationResults := resultsData.Results.NonInteractiveEvaluationResults
-		if nonInteractiveEvaluationResults == nil {
-			nonInteractiveEvaluationResults = &NonInteractiveEvaluationResults{}
-		}
-		formattedOutput := FormattedOutput{
-			PolicyValidationResults: nonInteractiveEvaluationResults.FormattedEvaluationResults,
-			PolicySummary:           nonInteractiveEvaluationResults.PolicySummary,
-			EvaluationSummary: NonInteractiveEvaluationSummary{
-				ConfigsCount:                resultsData.EvaluationSummary.ConfigsCount,
-				FilesCount:                  resultsData.EvaluationSummary.FilesCount,
-				PassedYamlValidationCount:   resultsData.EvaluationSummary.PassedYamlValidationCount,
-				K8sValidation:               resultsData.EvaluationSummary.K8sValidation,
-				PassedPolicyValidationCount: resultsData.EvaluationSummary.PassedPolicyCheckCount,
-			},
-			YamlValidationResults: resultsData.InvalidYamlFiles,
-			K8sValidationResults:  resultsData.InvalidK8sFiles,
-		}
+		formattedOutput := getFormattedOutput(resultsData)
 
 		switch resultsData.OutputFormat {
 		case "json":
@@ -113,6 +150,12 @@ func GetResultsText(resultsData *PrintResultsData) (string, error) {
 			k8sValidationWarnings: resultsData.K8sValidationWarnings,
 		})
 	}
+}
+func GetjsonResult(resultsData *PrintResultsData) (string, error) {
+
+	formattedOutput := getFormattedOutput(resultsData)
+
+	return getJsonOutput(&formattedOutput)
 }
 
 func getJsonOutput(formattedOutput *FormattedOutput) (string, error) {
