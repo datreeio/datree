@@ -101,7 +101,7 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 			}
 		}
 
-		yamlByteArray, err := yaml.Marshal(anyTypeStore)
+		yamlByteArray, err := yamlConvertor.Marshal(anyTypeStore)
 		if err != nil {
 			return nil, err
 		}
