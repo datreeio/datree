@@ -78,7 +78,16 @@ func (c *Client) Request(method string, resourceURI string, body interface{}, he
 	}
 
 	if response.StatusCode > 399 {
-		return responseBody, fmt.Errorf("http error: %s", string(b))
+		var errorResponse struct {
+			Message string `json:"message"`
+		}
+
+		err := json.Unmarshal(b, &errorResponse)
+		if err != nil || errorResponse.Message == "" {
+			return responseBody, fmt.Errorf("http error: %s", string(b))
+		}
+
+		return responseBody, fmt.Errorf(errorResponse.Message)
 	}
 
 	return responseBody, nil
