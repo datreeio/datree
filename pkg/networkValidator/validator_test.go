@@ -59,7 +59,7 @@ func TestNetworkValidatorOtherError(t *testing.T) {
 
 func test_identifyNetworkError_network_error(validator *NetworkValidator, offlineMode string) error {
 	validator.SetOfflineMode(offlineMode)
-	return validator.IdentifyNetworkError(errors.New("http error"))
+	return validator.IdentifyNetworkError(errors.New("connection refused"))
 }
 
 func test_identifyNoInternet_noSuchHost_network_error(validator *NetworkValidator, offlineMode string) error {
