@@ -1869,3 +1869,54 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
+  - id: 61
+    name: Ensure seccomp profile must not be explicitly set to Unconfined
+    uniqueName: CONTAINERS_INCORRECT_SECCOMP_PROFILE
+    enabledByDefault: true
+    documentationUrl: "TBD"
+    messageOnFailure: "Seccomp profile is explicitly set to Unconfined - unset it to retain the pod's or container's isolation"
+    category: Containers
+    schema:
+      definitions:
+        seccompPatternInSpec:
+          properties:
+            spec:
+              $ref: "#/$defs/securityContextSeccomp"
+        seccompPatternInContainer:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    $ref: "#/$defs/securityContextSeccomp"
+                initContainers:
+                  type: array
+                  items:
+                    $ref: "#/$defs/securityContextSeccomp"
+                ephemeralContainers:
+                  type: array
+                  items:
+                    $ref: "#/$defs/securityContextSeccomp"
+
+      allOf:
+        - $ref: "#/definitions/seccompPatternInSpec"
+        - $ref: "#/definitions/seccompPatternInContainer"
+
+      $defs:
+        securityContextSeccomp:
+          properties:
+            securityContext:
+              type: object
+              properties:
+                seccompProfile:
+                  type: object
+                  properties:
+                    type:
+                      not:
+                        enum:
+                          - "unconfined"
+                          - "Unconfined"
+
+
+
