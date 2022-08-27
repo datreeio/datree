@@ -30,6 +30,7 @@
 		<testcase name="Prevent containers from having root access capabilities" classname="CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE"></testcase>
 		<testcase name="Prevent CronJob from executing jobs concurrently" classname="CRONJOB_MISSING_CONCURRENCYPOLICY_KEY"></testcase>
 		<testcase name="Ensure resource has a configured name" classname="RESOURCE_MISSING_NAME"></testcase>
+		<testcase name="Ensure seccomp profile must not be explicitly set to Unconfined" classname="CONTAINERS_INCORRECT_SECCOMP_PROFILE"></testcase>
 	</testsuite>
 	<testsuite name="File2">
 		<testcase name="Ensure each container image has a pinned (tag) version" classname="CONTAINERS_MISSING_IMAGE_VALUE_VERSION"></testcase>
@@ -53,6 +54,7 @@
 		<testcase name="Prevent containers from having root access capabilities" classname="CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE"></testcase>
 		<testcase name="Prevent CronJob from executing jobs concurrently" classname="CRONJOB_MISSING_CONCURRENCYPOLICY_KEY"></testcase>
 		<testcase name="Ensure resource has a configured name" classname="RESOURCE_MISSING_NAME"></testcase>
+		<testcase name="Ensure seccomp profile must not be explicitly set to Unconfined" classname="CONTAINERS_INCORRECT_SECCOMP_PROFILE"></testcase>
 	</testsuite>
 	<testsuite name="policySummary">
 		<properties>
