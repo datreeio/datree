@@ -1879,25 +1879,29 @@ rules:
     schema:
       definitions:
         seccompPatternInSpec:
-          properties:
-            spec:
-              $ref: "#/$defs/securityContextSeccomp"
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                $ref: "#/$defs/securityContextSeccomp"
         seccompPatternInContainer:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    $ref: "#/$defs/securityContextSeccomp"
-                initContainers:
-                  type: array
-                  items:
-                    $ref: "#/$defs/securityContextSeccomp"
-                ephemeralContainers:
-                  type: array
-                  items:
-                    $ref: "#/$defs/securityContextSeccomp"
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      $ref: "#/$defs/securityContextSeccomp"
+                  initContainers:
+                    type: array
+                    items:
+                      $ref: "#/$defs/securityContextSeccomp"
+                  ephemeralContainers:
+                    type: array
+                    items:
+                      $ref: "#/$defs/securityContextSeccomp"
 
       allOf:
         - $ref: "#/definitions/seccompPatternInSpec"
