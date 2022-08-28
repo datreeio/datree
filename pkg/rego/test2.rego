@@ -1,5 +1,5 @@
-package example
+package example2
 
-datreeTest2 {
+deny[msg] {
     input.kind == "Deployment"
 }

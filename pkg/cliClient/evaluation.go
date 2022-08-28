@@ -101,9 +101,10 @@ type Policy struct {
 }
 
 type EvaluationPrerunPolicies struct {
-	ApiVersion  string        `json:"apiVersion"`
-	CustomRules []*CustomRule `json:"customRules"`
-	Policies    []*Policy     `json:"policies"`
+	ApiVersion    string        `json:"apiVersion"`
+	RegoRulesPath string        `json:"regoRulesPath"`
+	CustomRules   []*CustomRule `json:"customRules"`
+	Policies      []*Policy     `json:"policies"`
 }
 
 type EvaluationPrerunDataResponse struct {

@@ -8,6 +8,9 @@
         "v1"
       ]
     },
+    "regoFiles": {
+      "type": "string"
+    },
     "policies": {
       "type": "array",
       "minItems": 1,

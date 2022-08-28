@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"encoding/json"
+	"github.com/datreeio/datree/pkg/rego"
 	"strings"
 
 	"github.com/xeipuuv/gojsonschema"
@@ -103,6 +104,7 @@ type PolicyCheckData struct {
 	IsInteractiveMode   bool
 	PolicyName          string
 	Policy              policy_factory.Policy
+	RegoRulesFiles      *rego.FilesAsStruct
 }
 
 type PolicyCheckResultData struct {
@@ -153,9 +155,12 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 }
 
 func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
+
+	rego.GetRegoDenyArray(policyCheckData.RegoRulesFiles, string(configuration.Payload))
+
 	skipAnnotations := extractSkipAnnotations(configuration)
 	for _, rule := range policyCheckData.Policy.Rules {
-		failedRule, err := e.evaluateRule(rule, configuration.Payload, configuration.MetadataName, configuration.Kind, skipAnnotations)
+		failedRule, err := e.evaluateRule(rule, string(configuration.Payload), configuration.MetadataName, configuration.Kind, skipAnnotations)
 		if err != nil {
 			return err
 		}
@@ -170,13 +175,13 @@ func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles,
 	return nil
 }
 
-func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurationJson []byte, configurationName string, configurationKind string, skipAnnotations map[string]string) (*cliClient.FailedRule, error) {
+func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurationJson string, configurationName string, configurationKind string, skipAnnotations map[string]string) (*cliClient.FailedRule, error) {
 	ruleSchemaJson, err := json.Marshal(rule.Schema)
 	if err != nil {
 		return nil, err
 	}
 
-	validationResult, err := e.jsonSchemaValidator.ValidateYamlSchema(string(ruleSchemaJson), string(configurationJson))
+	validationResult, err := e.jsonSchemaValidator.ValidateYamlSchema(string(ruleSchemaJson), configurationJson)
 
 	if err != nil {
 		return nil, err

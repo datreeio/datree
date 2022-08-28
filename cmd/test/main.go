@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/datreeio/datree/pkg/rego"
 	"io"
 	"io/ioutil"
 	"os"
@@ -128,6 +129,7 @@ type TestCommandData struct {
 	RegistrationURL       string
 	PromptRegistrationURL string
 	ClientId              string
+	RegoRulesFiles        *rego.FilesAsStruct
 }
 
 type TestCommandContext struct {
@@ -257,6 +259,8 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 	var policies *cliClient.EvaluationPrerunPolicies
 	var err error
 
+	var regoRulesFiles *rego.FilesAsStruct
+
 	if testCommandFlags.PolicyConfig != "" {
 		if !evaluationPrerunDataResp.IsPolicyAsCodeMode {
 			return nil, fmt.Errorf("to use --policy-config flag you must first enable policy-as-code mode: https://hub.datree.io/policy-as-code")
@@ -266,6 +270,12 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		if err != nil {
 			return nil, err
 		}
+
+		if policies.RegoRulesPath != "" {
+			res := rego.GlobToFilesStruct(policies.RegoRulesPath)
+			regoRulesFiles = &res
+		}
+
 	} else {
 		policies = evaluationPrerunDataResp.PoliciesJson
 	}
@@ -292,6 +302,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		ClientId:              localConfigContent.ClientId,
 		RegistrationURL:       evaluationPrerunDataResp.RegistrationURL,
 		PromptRegistrationURL: evaluationPrerunDataResp.PromptRegistrationURL,
+		RegoRulesFiles:        regoRulesFiles,
 	}
 
 	return testCommandOptions, nil
@@ -488,6 +499,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, testCommandData *Tes
 		IsInteractiveMode:   isInteractiveMode,
 		PolicyName:          policyName,
 		Policy:              testCommandData.Policy,
+		RegoRulesFiles:      testCommandData.RegoRulesFiles,
 	}
 
 	emptyEvaluationResultData := EvaluationResultData{
