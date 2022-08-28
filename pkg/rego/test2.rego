@@ -1,6 +1,5 @@
 package example
-import test2
 
-allow[msg] {
+datreeTest2 {
     input.kind == "Deployment"
 }
