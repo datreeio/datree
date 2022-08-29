@@ -1,4 +1,4 @@
-#### This is a demo/POC for Rego support in Datree.
+## This is a demo/POC for Rego support in Datree.
 
 # specs:
 
