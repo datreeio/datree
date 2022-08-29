@@ -19,6 +19,7 @@ type RuleWithSchema struct {
 	DocumentationUrl string
 	Schema           interface{}
 	MessageOnFailure string
+	IsRegoRule       bool
 }
 
 func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName string, registrationURL string, defaultRules *defaultRules.DefaultRulesDefinitions) (Policy, error) {
@@ -70,6 +71,14 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 
 	for _, rule := range policyRules {
 		if rule.IsRegoRule {
+			rules = append(rules, RuleWithSchema{
+				RuleIdentifier:   rule.Identifier,
+				RuleName:         rule.Identifier,
+				DocumentationUrl: "",
+				Schema:           nil,
+				MessageOnFailure: rule.MessageOnFailure,
+				IsRegoRule:       true,
+			})
 			continue
 		}
 		customRule := getCustomRuleByIdentifier(customRules, rule.Identifier)
@@ -81,15 +90,15 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 				if err != nil {
 					return nil, err
 				}
-				rules = append(rules, RuleWithSchema{rule.Identifier, customRule.Name, "", schema, rule.MessageOnFailure})
+				rules = append(rules, RuleWithSchema{rule.Identifier, customRule.Name, "", schema, rule.MessageOnFailure, rule.IsRegoRule})
 			} else {
-				rules = append(rules, RuleWithSchema{rule.Identifier, customRule.Name, "", customRule.Schema, rule.MessageOnFailure})
+				rules = append(rules, RuleWithSchema{rule.Identifier, customRule.Name, "", customRule.Schema, rule.MessageOnFailure, rule.IsRegoRule})
 			}
 		} else {
 			defaultRule := getDefaultRuleByIdentifier(defaultRules, rule.Identifier)
 
 			if defaultRule != nil {
-				rules = append(rules, RuleWithSchema{rule.Identifier, defaultRule.Name, defaultRule.DocumentationUrl, defaultRule.Schema, rule.MessageOnFailure})
+				rules = append(rules, RuleWithSchema{rule.Identifier, defaultRule.Name, defaultRule.DocumentationUrl, defaultRule.Schema, rule.MessageOnFailure, rule.IsRegoRule})
 			} else {
 				rulesIsNotCustomNorDefaultErr := fmt.Errorf("rule %s is not custom nor default", rule.Identifier)
 				return nil, rulesIsNotCustomNorDefaultErr
@@ -125,7 +134,7 @@ func createDefaultPolicy(defaultRules *defaultRules.DefaultRulesDefinitions) Pol
 
 	for _, defaultRule := range defaultRules.Rules {
 		if defaultRule.EnabledByDefault {
-			rules = append(rules, RuleWithSchema{defaultRule.UniqueName, defaultRule.Name, defaultRule.DocumentationUrl, defaultRule.Schema, defaultRule.MessageOnFailure})
+			rules = append(rules, RuleWithSchema{defaultRule.UniqueName, defaultRule.Name, defaultRule.DocumentationUrl, defaultRule.Schema, defaultRule.MessageOnFailure, false})
 		}
 	}
 

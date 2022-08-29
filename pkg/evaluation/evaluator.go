@@ -158,10 +158,37 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
 	regoRulesResults := rego.GetRegoDenyArray(policyCheckData.RegoRulesFiles, string(configuration.Payload))
 
-	fmt.Println("regoRulesResults: ", regoRulesResults)
+	//fmt.Println("regoRulesResults: ", regoRulesResults)
 
 	skipAnnotations := extractSkipAnnotations(configuration)
 	for _, rule := range policyCheckData.Policy.Rules {
+		if rule.IsRegoRule {
+			if regoRulesResults[rule.RuleIdentifier] != "" {
+				messageOnFailure := regoRulesResults[rule.RuleIdentifier]
+				if messageOnFailure == "" {
+					messageOnFailure = rule.MessageOnFailure
+				}
+
+				addFailedRule(failedRulesByFiles, fileName, rule.RuleIdentifier, &cliClient.FailedRule{
+					Name:             rule.RuleName,
+					DocumentationUrl: "",
+					MessageOnFailure: messageOnFailure,
+					Configurations: []cliClient.Configuration{
+						{
+							Name:        configuration.MetadataName,
+							Kind:        configuration.Kind,
+							Occurrences: 1,     // TODO add occurrences count
+							IsSkipped:   false, // TODO add skip support
+							SkipMessage: ""},
+					},
+				})
+
+				// add to failed rules
+				fmt.Println("rule.RuleIdentifier: ", rule.RuleIdentifier)
+			}
+			continue
+		}
+
 		failedRule, err := e.evaluateRule(rule, string(configuration.Payload), configuration.MetadataName, configuration.Kind, skipAnnotations)
 		if err != nil {
 			return err

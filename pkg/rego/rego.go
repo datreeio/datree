@@ -81,6 +81,7 @@ func runRegoRule(regoFilePaths []string, yamlFileToTest string) DenyArray {
 			log.Fatal("Error: could not convert result to DenyItem")
 		}
 
+		// TODO support optional message
 		itemMessage, ok1 := denyItemConverted["message"].(string)
 		itemRuleID, ok2 := denyItemConverted["ruleID"].(string)
 
