@@ -11,11 +11,11 @@ make run-rego-demo
 
 ## Specs:
 
-- user should supply a glob pattern for its Rego files, inside PaC config.
-- user should supply the PaC config **only** via the `--policy-config` flag.
-- user should add the Rego rules to the policy rules array, along side `isRegoRule: true`.
+- Supply a glob pattern for the Rego files, inside PaC config.
+- Supply the PaC config **only** via the `--policy-config` flag.
+- Add the Rego rules to the policy rules array, alongside `isRegoRule: true`.
   rules that are not explicitly added to the policy will be ignored
-- user should export the Rego errors only in `package main` by pushing to the `deny` array (similar
+- Export the Rego errors only in `package main` by pushing to the `deny` array (similar
   to [Conftest](https://www.conftest.dev/))
 - deny errors should be of this type:
 
@@ -29,7 +29,7 @@ interface DenyError {
 - if a ruleID appears multiple times, the messages are concatenated
   and the number of occurrences is taken into account
 - if a rule fails with no message, the messageOnFailure from PaC is used as a fallback
-- is the `deny` array is empty, the test passes.
+- if the `deny` array is empty, the test passes.
 
 ### policies.yaml
 
