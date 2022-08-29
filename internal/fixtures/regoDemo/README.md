@@ -6,8 +6,8 @@
 - user should supply the PaC config **only** via the `--policy-config` flag.
 - user should add the Rego rules to the policy rules array, along side `isRegoRule: true`.
   rules that are not explicitly added to the policy will be ignored
-- user should export the Rego errors only in `package main`
-- Rego errors should be pushed to the `deny` array (similar to [Conftest](https://www.conftest.dev/))
+- user should export the Rego errors only in `package main` by pushing to the `deny` array (similar
+  to [Conftest](https://www.conftest.dev/))
 - deny errors should be of this type:
 
 ```typescript
