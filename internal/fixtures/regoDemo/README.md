@@ -1,5 +1,7 @@
 # This is a demo/POC for Rego support in Datree.
 
+![Open Policy Agent logo](https://cncf-branding.netlify.app/img/projects/opa/horizontal/color/opa-horizontal-color.svg)
+
 ## To run the demo:
 
 ```bash
