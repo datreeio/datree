@@ -1,3 +1,5 @@
+#### This is a demo/POC for Rego support in Datree.
+
 # specs:
 
 - user should supply a glob pattern for its Rego files, inside PaC config.
