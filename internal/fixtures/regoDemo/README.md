@@ -31,6 +31,8 @@ interface DenyError {
 - if a rule fails with no message, the messageOnFailure from PaC is used as a fallback
 - is the `deny` array is empty, the test passes.
 
+#### policies.yaml
+
 ```yaml
 regoRules: ./path-to-rego-rules/**.rego
 policies:
@@ -40,6 +42,8 @@ policies:
           messageOnFailure: fallback message on failure for rule 1
           isRegoRule: true
 ```
+
+#### main.rego
 
 ```rego
 package main
