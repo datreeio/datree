@@ -51,4 +51,4 @@ deny[error] {
 2. validate the rego configuration on publish
 3. support skip
 4. make the "message" optional
-5. better error handling for execution errors (instead of log.Fatal)
+5. better error handling for execution errors (instead of log.Fatal, for example)
