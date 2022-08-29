@@ -64,3 +64,4 @@ deny[error] {
 3. support skip
 4. error handling for execution errors (a lot of work!)
 5. think of more edge cases (technical/product)
+6. Refactors, cleanups, testing
