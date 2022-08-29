@@ -1,6 +1,6 @@
 # This is a PoC/Demo for Rego support in Datree.
 
-<div style="display:flex; justify-content: center"><img src="https://cncf-branding.netlify.app/img/projects/opa/horizontal/color/opa-horizontal-color.svg" alt="Open Policy Agent logo" style="width:60%;margin:auto;"/></div>
+<div style="display:flex;justify-content:center;align-items:center"><img src="https://cncf-branding.netlify.app/img/projects/opa/horizontal/color/opa-horizontal-color.svg" alt="Open Policy Agent logo" style="width:60%;"/></div>
 
 ## To run the demo:
 
