@@ -1,6 +1,14 @@
 ## This is a demo/POC for Rego support in Datree.
 
-# specs:
+### To run the demo:
+
+```bash
+git fetch
+git checkout add_rego_support
+make run-rego-demo
+```
+
+### specs:
 
 - user should supply a glob pattern for its Rego files, inside PaC config.
 - user should supply the PaC config **only** via the `--policy-config` flag.
@@ -43,13 +51,12 @@ deny[error] {
 
 ![Rego rules output](../../../internal/fixtures/regoDemo/regoOutput.png)
 
-## resources:
+### resources:
 
 - /pkg/rego - most of the implementation
 - /internal/fixtures/regoDemo - the files needed for the demo
-- Run demo: ```make run-rego-demo```
 
-# Stuff still left to implement:
+### Stuff still left to implement:
 
 1. support rego with publish (not just with `--policy-config` flag)
 2. validate the rego configuration on publish
