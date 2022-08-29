@@ -1873,7 +1873,7 @@ rules:
     name: Ensure seccomp profile must not be explicitly set to Unconfined
     uniqueName: CONTAINERS_INCORRECT_SECCOMP_PROFILE
     enabledByDefault: true
-    documentationUrl: "TBD"
+    documentationUrl: "https://www.datree.io/resources/eks-best-practices-you-should-know"
     messageOnFailure: "Seccomp profile is explicitly set to Unconfined - unset it to retain the pod's or container's isolation"
     category: Containers
     schema:
