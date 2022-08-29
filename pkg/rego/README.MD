@@ -43,7 +43,7 @@ deny[error] {
 
 - /pkg/rego - most of the implementation
 - /internal/fixtures/regoDemo - the files needed for the demo
-- Run demo: ```make run-with-rego-rules```
+- Run demo: ```make run-rego-demo```
 
 # Stuff still left to implement:
 
