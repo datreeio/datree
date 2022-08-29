@@ -2,8 +2,9 @@ package evaluation
 
 import (
 	"encoding/json"
-	"github.com/datreeio/datree/pkg/rego"
 	"strings"
+
+	"github.com/datreeio/datree/pkg/rego"
 
 	"github.com/xeipuuv/gojsonschema"
 

@@ -1,8 +1,9 @@
 package rego
 
 import (
-	"github.com/datreeio/datree/pkg/extractor"
 	"path/filepath"
+
+	"github.com/datreeio/datree/pkg/extractor"
 )
 
 type FilesAsStruct map[string]string

@@ -3,16 +3,17 @@ package rego
 import (
 	"context"
 	_ "embed"
+	"log"
+
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/ghodss/yaml"
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/open-policy-agent/opa/util/test"
-	"log"
 )
 
 type DenyItem struct {
-	message string `json:"message"`
-	ruleID  string `json:"ruleID"`
+	message string
+	ruleID  string
 }
 
 type DenyArray []DenyItem
