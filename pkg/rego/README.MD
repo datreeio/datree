@@ -35,7 +35,7 @@ package main
 
 deny[error] {
     input.kind == "Deployment"
-    error := {"ruleID": "THIS_IS_THE_RULE_ID_1", "message":"message on failure for this rule, optional"}
+    error := { "ruleID": "THIS_IS_THE_RULE_ID_1", "message":"message on failure for this rule, optional" }
 }
 ```
 
