@@ -160,10 +160,12 @@ func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles,
 	skipAnnotations := extractSkipAnnotations(configuration)
 	for _, rule := range policyCheckData.Policy.Rules {
 		if rule.IsRegoRule {
-			if regoRulesResults[rule.RuleIdentifier] != "" {
-
-				messageOnFailure := regoRulesResults[rule.RuleIdentifier]
-				if messageOnFailure == "" {
+			currentRegoRuleFailure := regoRulesResults[rule.RuleIdentifier]
+			if currentRegoRuleFailure != nil {
+				var messageOnFailure string
+				if currentRegoRuleFailure.Message != "" {
+					messageOnFailure = currentRegoRuleFailure.Message
+				} else {
 					messageOnFailure = rule.MessageOnFailure
 				}
 
@@ -171,15 +173,13 @@ func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles,
 					Name:             rule.RuleName,
 					DocumentationUrl: "",
 					MessageOnFailure: messageOnFailure,
-					Configurations: []cliClient.Configuration{
-						{
-							Name:        configuration.MetadataName,
-							Kind:        configuration.Kind,
-							Occurrences: 1,     // TODO add occurrences count
-							IsSkipped:   false, // TODO add skip support
-							SkipMessage: "",
-						},
-					},
+					Configurations: []cliClient.Configuration{{
+						Name:        configuration.MetadataName,
+						Kind:        configuration.Kind,
+						Occurrences: currentRegoRuleFailure.Occurrences,
+						IsSkipped:   false, // TODO add skip support
+						SkipMessage: "",
+					}},
 				})
 			}
 			continue

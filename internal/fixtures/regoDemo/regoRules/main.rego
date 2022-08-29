@@ -13,5 +13,5 @@ deny[error] {
 
 deny[error] {
     compute.isKindDeployment
-    error := { "ruleID": "REGO_RULE_3", "message": "this rule failed, here is why 3" }
+    error := { "ruleID": "REGO_RULE_3" }
 }

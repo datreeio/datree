@@ -17,9 +17,15 @@ type DenyItem struct {
 
 type DenyArray []DenyItem
 
-type RegoRulesResults map[string]string
+type RegoRuleFailure struct {
+	RuleID      string
+	Message     string
+	Occurrences int
+}
 
-func GetRegoRulesFailures(regoRulesFiles *FilesAsStruct, configurationJson string) (regoRulesResults RegoRulesResults) {
+type RegoRulesFailures map[string]*RegoRuleFailure
+
+func GetRegoRulesFailures(regoRulesFiles *FilesAsStruct, configurationJson string) (regoRulesResults RegoRulesFailures) {
 	var paths []string
 	for k := range *regoRulesFiles {
 		paths = append(paths, k)
@@ -30,12 +36,22 @@ func GetRegoRulesFailures(regoRulesFiles *FilesAsStruct, configurationJson strin
 		denyArray = runRegoRule(paths, configurationJson)
 	})
 
-	regoRulesResults = make(RegoRulesResults)
+	regoRulesResults = make(RegoRulesFailures)
 	for _, denyItem := range denyArray {
-		if regoRulesResults[denyItem.ruleID] == "" {
-			regoRulesResults[denyItem.ruleID] = denyItem.message
+		currentRuleFailure := regoRulesResults[denyItem.ruleID]
+		if currentRuleFailure == nil {
+			regoRulesResults[denyItem.ruleID] = &RegoRuleFailure{
+				RuleID:      denyItem.ruleID,
+				Message:     denyItem.message,
+				Occurrences: 1,
+			}
 		} else {
-			regoRulesResults[denyItem.ruleID] = regoRulesResults[denyItem.ruleID] + ", " + denyItem.message
+			currentRuleFailure.Occurrences++
+			if currentRuleFailure.Message != "" && denyItem.message != "" {
+				currentRuleFailure.Message = currentRuleFailure.Message + ", " + denyItem.message
+			} else if denyItem.message != "" {
+				currentRuleFailure.Message = denyItem.message
+			}
 		}
 	}
 
@@ -81,16 +97,21 @@ func runRegoRule(regoFilePaths []string, yamlFileToTest string) DenyArray {
 			log.Fatal("Error: could not convert result to DenyItem")
 		}
 
-		// TODO support optional message
-		itemMessage, ok1 := denyItemConverted["message"].(string)
-		itemRuleID, ok2 := denyItemConverted["ruleID"].(string)
+		optionalMessage := denyItemConverted["message"]
+		var optionalMessageAsString string
+		if optionalMessage != nil {
+			optionalMessageAsString = optionalMessage.(string)
+		} else {
+			optionalMessageAsString = ""
+		}
 
-		if !ok1 || !ok2 {
+		itemRuleID, ok := denyItemConverted["ruleID"].(string)
+		if !ok {
 			log.Fatal("Error: could not convert result to DenyItem")
 		}
 
 		return DenyItem{
-			message: itemMessage,
+			message: optionalMessageAsString,
 			ruleID:  itemRuleID,
 		}
 	})
