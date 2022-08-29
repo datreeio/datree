@@ -3,6 +3,7 @@ package rego
 import (
 	"context"
 	_ "embed"
+	"fmt"
 	"github.com/ghodss/yaml"
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/open-policy-agent/opa/util/test"
@@ -30,7 +31,7 @@ func GetRegoDenyArray(regoRulesFiles *FilesAsStruct, configurationJson string) (
 
 	test.WithTempFS(*regoRulesFiles, func(rootDir string) {
 		denyArray = runRegoRule(paths, configurationJson)
-	}
+	})
 	return denyArray
 }
 
@@ -61,14 +62,14 @@ func runRegoRule(regoFilePaths []string, yamlFileToTest string) DenyArray {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
-	s, ok := rs.(any)
-	if s.deny != nil {
-		return s.deny
-	} else {
-		return DenyArray{}
-	}
+
+	fmt.Println(rs)
+	return DenyArray{}
 }
+
+//type MyResult struct {
+//	deny *DenyArray `json:"deny"`
+//}
 
 func YAMLToStruct(content string) (res any, err error) {
 	var result any
