@@ -8,8 +8,10 @@ policies:
     rules:
       - identifier: THIS_IS_THE_RULE_ID_1
         messageOnFailure: fallback message on failure for rule 1
+        isRegoRule: true
       - identifier: THIS_IS_THE_RULE_ID_2
         messageOnFailure: fallback message on failure for rule 2
+        isRegoRule: true
       - identifier: INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE
         messageOnFailure: Incorrect value for key `host` - specify host instead of using a wildcard character ("*")
       - identifier: CONTAINERS_MISSING_IMAGE_VALUE_VERSION

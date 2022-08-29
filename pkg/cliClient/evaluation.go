@@ -92,6 +92,7 @@ type CustomRule struct {
 type Rule struct {
 	Identifier       string `json:"identifier"`
 	MessageOnFailure string `json:"messageOnFailure"`
+	IsRegoRule       bool   `json:"isRegoRule"`
 }
 
 type Policy struct {

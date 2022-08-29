@@ -1,5 +1,5 @@
 package main
-import compute
+import data.compute
 
 deny[msg] {
     input.kind != "Deployment"

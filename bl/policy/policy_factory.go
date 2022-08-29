@@ -69,6 +69,9 @@ func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.Custom
 	}
 
 	for _, rule := range policyRules {
+		if rule.IsRegoRule {
+			continue
+		}
 		customRule := getCustomRuleByIdentifier(customRules, rule.Identifier)
 
 		if customRule != nil {

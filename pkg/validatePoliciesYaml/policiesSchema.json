@@ -43,6 +43,9 @@
                 },
                 "messageOnFailure": {
                   "type": "string"
+                },
+                "isRegoRule": {
+                  "type": "boolean"
                 }
               },
               "required": [

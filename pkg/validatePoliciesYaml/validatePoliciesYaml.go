@@ -102,6 +102,13 @@ func checkIdentifierExistence(policies []*cliClient.Policy, customRules []*cliCl
 
 		for _, rule := range rules {
 			found := false
+
+			// rego rules
+			if rule.IsRegoRule {
+				continue
+			}
+
+			// custom rules
 			identifier := rule.Identifier
 			for _, customRule := range customRules {
 				if identifier == customRule.Identifier {
@@ -112,6 +119,8 @@ func checkIdentifierExistence(policies []*cliClient.Policy, customRules []*cliCl
 			if found {
 				continue
 			}
+
+			// default rules
 			for _, defaultRule := range defaultRules.Rules {
 				if identifier == defaultRule.UniqueName {
 					found = true
