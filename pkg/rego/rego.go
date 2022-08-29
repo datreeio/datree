@@ -45,7 +45,6 @@ func GetRegoDenyArray(regoRulesFiles *FilesAsStruct, configurationJson string) (
 var pathToQuery = "data.main.deny"
 
 func runRegoRule(regoFilePaths []string, yamlFileToTest string) DenyArray {
-
 	ctx := context.Background()
 
 	// Construct a Rego object that can be prepared or evaluated.
@@ -77,10 +76,21 @@ func runRegoRule(regoFilePaths []string, yamlFileToTest string) DenyArray {
 	}
 
 	denyArray := utils.MapSlice(rawDenyArray, func(denyItem any) DenyItem {
-		denyItemConverted := denyItem.(map[string]any)
+		denyItemConverted, ok := denyItem.(map[string]any)
+		if !ok {
+			log.Fatal("Error: could not convert result to DenyItem")
+		}
+
+		itemMessage, ok1 := denyItemConverted["message"].(string)
+		itemRuleID, ok2 := denyItemConverted["ruleID"].(string)
+
+		if !ok1 || !ok2 {
+			log.Fatal("Error: could not convert result to DenyItem")
+		}
+
 		return DenyItem{
-			message: denyItemConverted["message"].(string),
-			ruleID:  denyItemConverted["ruleID"].(string),
+			message: itemMessage,
+			ruleID:  itemRuleID,
 		}
 	})
 
