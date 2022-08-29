@@ -1,7 +1,7 @@
 # for autocompletion in VS Code
 # yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/datree/main/pkg/validatePoliciesYaml/policiesSchema.json
 apiVersion: v1
-regoRulesPath: ./internal/fixtures/regoRules/**.rego
+regoRulesPath: ./internal/fixtures/regoDemo/regoRules/**.rego
 policies:
   - name: Default
     isDefault: true

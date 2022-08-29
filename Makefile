@@ -41,4 +41,4 @@ lint: # install golangci-lint first: https://golangci-lint.run/usage/install/#lo
 	golangci-lint run
 
 run-with-rego-rules:
-	make build && ./datree test ~/.datree/k8s-demo.yaml --policy-config ./internal/fixtures/policyAsCode/policyWithRegoRules.yaml
+	make build && ./datree test ./internal/fixtures/regoDemo/k8s-file-for-rego-demo.yaml --policy-config ./internal/fixtures/regoDemo/policyWithRegoRules.yaml
