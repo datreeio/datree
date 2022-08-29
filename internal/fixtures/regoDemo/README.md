@@ -63,9 +63,9 @@ deny[error] {
 
 ## Stuff still left to implement:
 
-1. support rego with publish (not just with `--policy-config` flag)
-2. validate the rego configuration on publish
-3. support skip
-4. error handling for test execution errors (a lot of work!)
-5. think of more edge cases (technical/product)
+1. Support rego with publish (not just with `--policy-config` flag)
+2. Validate the rego configuration on publish
+3. Support skip annotations
+4. Error handling for test execution errors (a lot of work!)
+5. Think of more edge cases (technical/product)
 6. Refactors, cleanups, testing
