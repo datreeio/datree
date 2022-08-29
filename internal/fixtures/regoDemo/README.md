@@ -5,7 +5,6 @@
 ## To run the demo:
 
 ```bash
-git fetch
 git checkout add_rego_support
 make run-rego-demo
 ```
