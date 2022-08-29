@@ -9,7 +9,7 @@ git checkout add_rego_support
 make run-rego-demo
 ```
 
-## specs:
+## Specs:
 
 - user should supply a glob pattern for its Rego files, inside PaC config.
 - user should supply the PaC config **only** via the `--policy-config` flag.
@@ -56,7 +56,7 @@ deny[error] {
 
 ![Rego rules output](../../../internal/fixtures/regoDemo/regoOutput.png)
 
-## resources:
+## Resources:
 
 - /pkg/rego - most of the implementation
 - /internal/fixtures/regoDemo - the files needed for the demo
