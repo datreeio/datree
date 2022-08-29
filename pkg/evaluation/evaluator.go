@@ -2,7 +2,6 @@ package evaluation
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/datreeio/datree/pkg/rego"
 	"strings"
 
@@ -164,6 +163,7 @@ func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles,
 	for _, rule := range policyCheckData.Policy.Rules {
 		if rule.IsRegoRule {
 			if regoRulesResults[rule.RuleIdentifier] != "" {
+
 				messageOnFailure := regoRulesResults[rule.RuleIdentifier]
 				if messageOnFailure == "" {
 					messageOnFailure = rule.MessageOnFailure
@@ -179,12 +179,10 @@ func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles,
 							Kind:        configuration.Kind,
 							Occurrences: 1,     // TODO add occurrences count
 							IsSkipped:   false, // TODO add skip support
-							SkipMessage: ""},
+							SkipMessage: "",
+						},
 					},
 				})
-
-				// add to failed rules
-				fmt.Println("rule.RuleIdentifier: ", rule.RuleIdentifier)
 			}
 			continue
 		}
