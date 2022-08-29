@@ -41,6 +41,8 @@ deny[error] {
 }
 ```
 
+![Rego rules output](../../../internal/fixtures/regoDemo/regoOutput.png)
+
 ## resources:
 
 - /pkg/rego - most of the implementation
