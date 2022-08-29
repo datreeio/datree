@@ -19,7 +19,7 @@ type DenyArray []DenyItem
 
 type RegoRulesResults map[string]string
 
-func GetRegoDenyArray(regoRulesFiles *FilesAsStruct, configurationJson string) (regoRulesResults RegoRulesResults) {
+func GetRegoRulesFailures(regoRulesFiles *FilesAsStruct, configurationJson string) (regoRulesResults RegoRulesResults) {
 	var paths []string
 	for k := range *regoRulesFiles {
 		paths = append(paths, k)

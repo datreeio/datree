@@ -155,9 +155,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 }
 
 func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
-	regoRulesResults := rego.GetRegoDenyArray(policyCheckData.RegoRulesFiles, string(configuration.Payload))
-
-	//fmt.Println("regoRulesResults: ", regoRulesResults)
+	regoRulesResults := rego.GetRegoRulesFailures(policyCheckData.RegoRulesFiles, string(configuration.Payload))
 
 	skipAnnotations := extractSkipAnnotations(configuration)
 	for _, rule := range policyCheckData.Policy.Rules {
