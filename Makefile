@@ -39,3 +39,6 @@ datree_test_to_JUnit_report: # install junit2html first: https://github.com/inor
 
 lint: # install golangci-lint first: https://golangci-lint.run/usage/install/#local-installation
 	golangci-lint run
+
+run-with-rego-rules:
+	make build && ./datree test ~/.datree/k8s-demo.yaml --policy-config ./internal/fixtures/policyAsCode/policyWithRegoRules.yaml

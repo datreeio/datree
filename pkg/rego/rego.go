@@ -3,18 +3,12 @@ package rego
 import (
 	"context"
 	_ "embed"
-	"fmt"
+	"github.com/datreeio/datree/pkg/utils"
 	"github.com/ghodss/yaml"
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/open-policy-agent/opa/util/test"
 	"log"
 )
-
-//go:embed k8s-demo.yaml
-var k8sDemoFileContent string
-
-//go:embed test.rego
-var rule1RegoFileContent string
 
 type DenyItem struct {
 	message string `json:"message"`
@@ -23,16 +17,29 @@ type DenyItem struct {
 
 type DenyArray []DenyItem
 
-func GetRegoDenyArray(regoRulesFiles *FilesAsStruct, configurationJson string) (denyArray DenyArray) {
+type RegoRulesResults map[string]string
+
+func GetRegoDenyArray(regoRulesFiles *FilesAsStruct, configurationJson string) (regoRulesResults RegoRulesResults) {
 	var paths []string
 	for k := range *regoRulesFiles {
 		paths = append(paths, k)
 	}
 
+	denyArray := make(DenyArray, 0)
 	test.WithTempFS(*regoRulesFiles, func(rootDir string) {
 		denyArray = runRegoRule(paths, configurationJson)
 	})
-	return denyArray
+
+	regoRulesResults = make(RegoRulesResults)
+	for _, denyItem := range denyArray {
+		if regoRulesResults[denyItem.ruleID] == "" {
+			regoRulesResults[denyItem.ruleID] = denyItem.message
+		} else {
+			regoRulesResults[denyItem.ruleID] = regoRulesResults[denyItem.ruleID] + ", " + denyItem.message
+		}
+	}
+
+	return regoRulesResults
 }
 
 var pathToQuery = "data.main.deny"
@@ -63,13 +70,22 @@ func runRegoRule(regoFilePaths []string, yamlFileToTest string) DenyArray {
 		log.Fatal(err)
 	}
 
-	fmt.Println(rs)
-	return DenyArray{}
-}
+	actualResult := rs[0].Expressions[0].Value
+	rawDenyArray, ok := actualResult.([]any)
+	if !ok {
+		log.Fatal("Error: could not convert result to DenyArray")
+	}
 
-//type MyResult struct {
-//	deny *DenyArray `json:"deny"`
-//}
+	denyArray := utils.MapSlice(rawDenyArray, func(denyItem any) DenyItem {
+		denyItemConverted := denyItem.(map[string]any)
+		return DenyItem{
+			message: denyItemConverted["message"].(string),
+			ruleID:  denyItemConverted["ruleID"].(string),
+		}
+	})
+
+	return denyArray
+}
 
 func YAMLToStruct(content string) (res any, err error) {
 	var result any

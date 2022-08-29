@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/datreeio/datree/pkg/rego"
 	"strings"
 
@@ -155,7 +156,9 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 }
 
 func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
-	rego.GetRegoDenyArray(policyCheckData.RegoRulesFiles, string(configuration.Payload))
+	regoRulesResults := rego.GetRegoDenyArray(policyCheckData.RegoRulesFiles, string(configuration.Payload))
+
+	fmt.Println("regoRulesResults: ", regoRulesResults)
 
 	skipAnnotations := extractSkipAnnotations(configuration)
 	for _, rule := range policyCheckData.Policy.Rules {
