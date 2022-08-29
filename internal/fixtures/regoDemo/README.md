@@ -1,4 +1,4 @@
-# This is a PoC/Demo for Rego support in Datree.
+# This is a PoC/Demo for [Rego](https://www.openpolicyagent.org/docs/latest/policy-language/#what-is-rego) support in Datree.
 
 <img alt="Open Policy Agent logo" style="width:60%;" src="https://cncf-branding.netlify.app/img/projects/opa/horizontal/color/opa-horizontal-color.svg"/>
 
