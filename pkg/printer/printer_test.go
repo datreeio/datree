@@ -22,7 +22,7 @@ func TestGetWarningsText(t *testing.T) {
 					Kind:              "Pod",
 					FailedErrorLine:   0,
 					FailedErrorColumn: 0,
-					SchemaPath:        "",
+					SchemaPath:        ".spec.containers[0].name",
 				}},
 			},
 		},
@@ -62,6 +62,8 @@ func TestGetWarningsText(t *testing.T) {
 
 ❌  Caption  [1 occurrence]
     - metadata.name: yishay (kind: Pod)
+      > key: .spec.containers[0].name (line: 0:0)
+
 💡  Suggestion
 
 >>  File: /datree/datree/internal/fixtures/kube/yaml-validation-error.yaml
@@ -118,6 +120,8 @@ https://github.com/datreeio/helm-datree
 
 [X]  Caption  [1 occurrence]
     - metadata.name: yishay (kind: Pod)
+      > key: .spec.containers[0].name (line: 0:0)
+
 [*]  Suggestion
 
 >>  File: /datree/datree/internal/fixtures/kube/yaml-validation-error.yaml

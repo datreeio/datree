@@ -210,7 +210,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 
 				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
 					sb.WriteString(fmt.Sprintf("    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
-					errorPath := fmt.Sprintf("%v (line: %d:%d)\n", occurrenceDetails.SchemaPath[1:], occurrenceDetails.FailedErrorLine, occurrenceDetails.FailedErrorColumn)
+					errorPath := fmt.Sprintf("%v (line: %d:%d)\n", occurrenceDetails.SchemaPath, occurrenceDetails.FailedErrorLine, occurrenceDetails.FailedErrorColumn)
 					sb.WriteString(fmt.Sprintf("      > key: %v\n", errorPath))
 				}
 				sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion))
