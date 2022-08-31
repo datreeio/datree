@@ -8,6 +8,7 @@ import (
 
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/extractor"
+	"github.com/santhosh-tekuri/jsonschema/v5"
 )
 
 type TestCommandFlags struct {
@@ -156,11 +157,14 @@ type FileData struct {
 }
 
 type Configuration struct {
-	Name        string `json:"metadataName"`
-	Kind        string `json:"kind"`
-	Occurrences int    `json:"occurrences"`
-	IsSkipped   bool   `json:"isSkipped"`
-	SkipMessage string `json:"skipMessage"`
+	Name              string                `json:"metadataName"`
+	Kind              string                `json:"kind"`
+	Occurrences       int                   `json:"occurrences"`
+	IsSkipped         bool                  `json:"isSkipped"`
+	SkipMessage       string                `json:"skipMessage"`
+	FailedErrorLine   int                   `json:"failedErrorLine"`
+	FailedErrorColumn int                   `json:"FailedErrorColumn"`
+	ValidationResult  []jsonschema.Detailed `json:"validationResult"`
 }
 
 type FailedRule struct {

@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
-	yamlConvertor "sigs.k8s.io/yaml"
+	k8sSigsYaml "sigs.k8s.io/yaml"
 )
 
 type InvalidFile struct {
@@ -68,6 +68,7 @@ type Configuration struct {
 	ApiVersion   string
 	Annotations  map[string]interface{}
 	Payload      []byte
+	YamlNode     yaml.Node
 }
 
 type FileConfigurations struct {
@@ -91,8 +92,8 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 
 	var err error
 	for {
-		var anyTypeStore interface{}
-		err = yamlDecoder.Decode(&anyTypeStore)
+		var yamlNode yaml.Node
+		err = yamlDecoder.Decode(&yamlNode)
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -101,23 +102,23 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 			}
 		}
 
-		yamlByteArray, err := yamlConvertor.Marshal(anyTypeStore)
+		yamlByteArray, err := yaml.Marshal(&yamlNode)
 		if err != nil {
 			return nil, err
 		}
 
-		jsonByte, err := yamlConvertor.YAMLToJSON(yamlByteArray)
+		jsonByte, err := k8sSigsYaml.YAMLToJSON(yamlByteArray)
 		if err != nil {
 			return nil, err
 		}
 
-		configurations = append(configurations, extractConfigurationK8sData(jsonByte))
+		configurations = append(configurations, extractConfigurationK8sData(jsonByte, yamlNode))
 	}
 
 	return &configurations, nil
 }
 
-func extractConfigurationK8sData(content []byte) Configuration {
+func extractConfigurationK8sData(content []byte, yamlNode yaml.Node) Configuration {
 	var configuration Configuration
 	var jsonObject map[string]interface{}
 	configuration.Payload = content
@@ -144,7 +145,7 @@ func extractConfigurationK8sData(content []byte) Configuration {
 	if kind := jsonObject["kind"]; kind != nil {
 		configuration.Kind = kind.(string)
 	}
-
+	configuration.YamlNode = yamlNode
 	return configuration
 }
 

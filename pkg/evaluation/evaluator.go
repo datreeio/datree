@@ -2,9 +2,9 @@ package evaluation
 
 import (
 	"encoding/json"
+	"os"
+	"regexp"
 	"strings"
-
-	"github.com/xeipuuv/gojsonschema"
 
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/pkg/ciContext"
@@ -12,6 +12,10 @@ import (
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/datreeio/datree/pkg/utils"
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
+	"github.com/xeipuuv/gojsonschema"
+	"gopkg.in/op/go-logging.v1"
+	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -154,6 +158,7 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 
 func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
 	skipAnnotations := extractSkipAnnotations(configuration)
+
 	for _, rule := range policyCheckData.Policy.Rules {
 		failedRule, err := e.evaluateRule(rule, configuration.Payload, configuration.MetadataName, configuration.Kind, skipAnnotations)
 		if err != nil {
@@ -163,7 +168,7 @@ func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles,
 		if failedRule == nil {
 			continue
 		}
-
+		updateFailedRuleLine(failedRule, configuration.YamlNode)
 		addFailedRule(failedRulesByFiles, fileName, rule.RuleIdentifier, failedRule)
 	}
 
@@ -190,11 +195,14 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 	}
 
 	configuration := cliClient.Configuration{
-		Name:        configurationName,
-		Kind:        configurationKind,
-		Occurrences: occurrences,
-		IsSkipped:   false,
-		SkipMessage: "",
+		Name:              configurationName,
+		Kind:              configurationKind,
+		Occurrences:       occurrences,
+		IsSkipped:         false,
+		SkipMessage:       "",
+		FailedErrorLine:   0,
+		FailedErrorColumn: 0,
+		ValidationResult:  validationResult,
 	}
 
 	if skipRuleExists {
@@ -281,11 +289,14 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 				mapper[filePath][ruleIdentifier].OccurrencesDetails = append(
 					mapper[filePath][ruleIdentifier].OccurrencesDetails,
 					OccurrenceDetails{
-						MetadataName: configuration.Name,
-						Kind:         configuration.Kind,
-						Occurrences:  configuration.Occurrences,
-						IsSkipped:    configuration.IsSkipped,
-						SkipMessage:  configuration.SkipMessage,
+						MetadataName:      configuration.Name,
+						Kind:              configuration.Kind,
+						Occurrences:       configuration.Occurrences,
+						IsSkipped:         configuration.IsSkipped,
+						SkipMessage:       configuration.SkipMessage,
+						FailedErrorLine:   configuration.FailedErrorLine,
+						FailedErrorColumn: configuration.FailedErrorColumn,
+						SchemaPath:        configuration.ValidationResult[0].InstanceLocation,
 					},
 				)
 			}
@@ -361,4 +372,31 @@ func extractSkipAnnotations(configuration extractor.Configuration) map[string]st
 	}
 
 	return skipAnnotations
+}
+
+func updateFailedRuleLine(failedRule *cliClient.FailedRule, yamlNode yaml.Node) {
+	instanceLocationYqPath := strings.Replace(failedRule.Configurations[0].ValidationResult[0].InstanceLocation, "/", ".", -1)
+	failedRule.Configurations[0].ValidationResult[0].InstanceLocation = instanceLocationYqPath
+	instanceLocationYqPath = regexp.MustCompile(`\d+`).ReplaceAllString(instanceLocationYqPath, `[$0]`)
+
+	evaluator := yqlib.NewAllAtOnceEvaluator()
+	yqlibLoggerHandler()
+
+	nodeList, err := evaluator.EvaluateNodes(instanceLocationYqPath, &yamlNode)
+	if err != nil {
+		return
+	}
+
+	candidateNode := nodeList.Back().Value.(*yqlib.CandidateNode).Node
+
+	failedRule.Configurations[0].FailedErrorLine = candidateNode.Line
+	failedRule.Configurations[0].FailedErrorColumn = candidateNode.Column
+}
+
+func yqlibLoggerHandler() {
+	logger := yqlib.GetLogger()
+	backendLogger := logging.NewLogBackend(os.Stderr, "", 0)
+	backendLoggerLeveled := logging.AddModuleLevel(backendLogger)
+	backendLoggerLeveled.SetLevel(logging.ERROR, "")
+	logger.SetBackend(backendLoggerLeveled)
 }

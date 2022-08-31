@@ -34,9 +34,12 @@ type FailedRule struct {
 }
 
 type OccurrenceDetails struct {
-	MetadataName string
-	Kind         string
-	SkipMessage  string
+	MetadataName      string
+	Kind              string
+	SkipMessage       string
+	FailedErrorLine   int
+	FailedErrorColumn int
+	SchemaPath        string
 }
 
 type InvalidYamlInfo struct {
@@ -140,6 +143,10 @@ func (p *Printer) getYamlSchemaResultsText(errorsResult []jsonschema.Detailed, e
 	return sb.String()
 }
 
+func (p *Printer) CreateUrlColorText(url string) string {
+	return p.GetTextInColor(url, p.Theme.Colors.Cyan)
+}
+
 func (p *Printer) GetWarningsText(warnings []Warning) string {
 	var sb strings.Builder
 	for _, warning := range warnings {
@@ -207,6 +214,8 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 
 				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
 					sb.WriteString(fmt.Sprintf("    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
+					errorPath := fmt.Sprintf("%v (line: %d:%d)\n", occurrenceDetails.SchemaPath[1:], occurrenceDetails.FailedErrorLine, occurrenceDetails.FailedErrorColumn)
+					sb.WriteString(fmt.Sprintf("      > key: %v\n", errorPath))
 				}
 				sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion))
 
