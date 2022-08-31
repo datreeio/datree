@@ -143,10 +143,6 @@ func (p *Printer) getYamlSchemaResultsText(errorsResult []jsonschema.Detailed, e
 	return sb.String()
 }
 
-func (p *Printer) CreateUrlColorText(url string) string {
-	return p.GetTextInColor(url, p.Theme.Colors.Cyan)
-}
-
 func (p *Printer) GetWarningsText(warnings []Warning) string {
 	var sb strings.Builder
 	for _, warning := range warnings {
