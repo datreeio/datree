@@ -17,8 +17,6 @@ type Theme struct {
 		Highlight *color.Color
 		Cyan      *color.Color
 		CyanBold  *color.Color
-		UrlBlue   *color.Color
-		Magenta   *color.Color
 	}
 	ColorsAttributes struct {
 		Cyan  color.Attribute
@@ -46,8 +44,6 @@ func createDefaultTheme() *Theme {
 			Highlight *color.Color
 			Cyan      *color.Color
 			CyanBold  *color.Color
-			UrlBlue   *color.Color
-			Magenta   *color.Color
 		}{
 			Green:     color.New(color.FgGreen),
 			Yellow:    color.New(color.FgYellow),
@@ -56,8 +52,6 @@ func createDefaultTheme() *Theme {
 			Highlight: color.New(color.Bold),
 			Cyan:      color.New(color.FgCyan),
 			CyanBold:  color.New(color.FgCyan, color.Bold),
-			UrlBlue:   color.New(color.FgBlue).Add(color.Underline),
-			Magenta:   color.New(color.FgHiMagenta),
 		},
 		ColorsAttributes: struct {
 			Cyan  color.Attribute
@@ -93,8 +87,6 @@ func CreateSimpleTheme() *Theme {
 			Highlight *color.Color
 			Cyan      *color.Color
 			CyanBold  *color.Color
-			UrlBlue   *color.Color
-			Magenta   *color.Color
 		}{
 			Green:     color.New(),
 			Yellow:    color.New(),
@@ -103,7 +95,6 @@ func CreateSimpleTheme() *Theme {
 			Highlight: color.New(),
 			Cyan:      color.New(),
 			CyanBold:  color.New(),
-			UrlBlue:   color.New(),
 		},
 		ColorsAttributes: struct {
 			Cyan  color.Attribute
