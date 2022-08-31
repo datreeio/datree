@@ -14,10 +14,16 @@ func TestGetWarningsText(t *testing.T) {
 		Title: GetFileNameText("~/.datree/k8-demo.yaml"),
 		FailedRules: []FailedRule{
 			{
-				Name:               "Caption",
-				Occurrences:        1,
-				Suggestion:         "Suggestion",
-				OccurrencesDetails: []OccurrenceDetails{{MetadataName: "yishay", Kind: "Pod"}},
+				Name:        "Caption",
+				Occurrences: 1,
+				Suggestion:  "Suggestion",
+				OccurrencesDetails: []OccurrenceDetails{{
+					MetadataName:      "yishay",
+					Kind:              "Pod",
+					FailedErrorLine:   0,
+					FailedErrorColumn: 0,
+					SchemaPath:        "",
+				}},
 			},
 		},
 	},

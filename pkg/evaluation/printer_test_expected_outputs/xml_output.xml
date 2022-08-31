@@ -12,6 +12,9 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
+				<failedErrorLine>0</failedErrorLine>
+				<failedErrorColumn>0</failedErrorColumn>
+				<schemaPath></schemaPath>
 			</occurrencesDetails>
 		</ruleResults>
 		<ruleResults>
@@ -24,6 +27,9 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
+				<failedErrorLine>0</failedErrorLine>
+				<failedErrorColumn>0</failedErrorColumn>
+				<schemaPath></schemaPath>
 			</occurrencesDetails>
 		</ruleResults>
 		<ruleResults>
@@ -36,6 +42,9 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
+				<failedErrorLine>0</failedErrorLine>
+				<failedErrorColumn>0</failedErrorColumn>
+				<schemaPath></schemaPath>
 			</occurrencesDetails>
 		</ruleResults>
 		<ruleResults>
@@ -48,6 +57,9 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
+				<failedErrorLine>0</failedErrorLine>
+				<failedErrorColumn>0</failedErrorColumn>
+				<schemaPath></schemaPath>
 			</occurrencesDetails>
 		</ruleResults>
 	</policyValidationResults>
