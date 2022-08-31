@@ -16,6 +16,8 @@ import (
 
 	"github.com/datreeio/datree/pkg/printer"
 	"gopkg.in/yaml.v2"
+
+	"github.com/owenrumney/go-sarif/v2/sarif"
 )
 
 var out = color.Output
@@ -39,6 +41,7 @@ type PrintResultsData struct {
 	Verbose               bool
 	PolicyName            string
 	K8sValidationWarnings validation.K8sValidationWarningPerValidFile
+	CliVersion            string
 }
 
 type textOutputData struct {
@@ -91,11 +94,14 @@ func GetResultsText(resultsData *PrintResultsData) (string, error) {
 		case "json":
 			return getJsonOutput(&formattedOutput)
 		case "yaml":
-			return getYamlOutput(&formattedOutput)
+			//YAML
+			return getSarifOutput(&formattedOutput, resultsData.CliVersion)
 		case "xml":
 			return getXmlOutput(&formattedOutput)
 		case "JUnit":
 			return getJUnitOutput(&formattedOutput, resultsData.AdditionalJUnitData)
+		case "sarif":
+			return getSarifOutput(&formattedOutput, resultsData.CliVersion)
 		default:
 			panic(errors.New("invalid output format"))
 		}
@@ -139,6 +145,55 @@ func getXmlOutput(formattedOutput *FormattedOutput) (string, error) {
 
 func getJUnitOutput(formattedOutput *FormattedOutput, additionalJUnitData AdditionalJUnitData) (string, error) {
 	return convertStructToXml(FormattedOutputToJUnitOutput(*formattedOutput, additionalJUnitData))
+}
+
+func getSarifOutput(formattedOutput *FormattedOutput, cliVersion string) (string, error) {
+	// create a new report object
+	report, err := sarif.New(sarif.Version210)
+	if err != nil {
+		return "", err
+	}
+
+	const repoURL = "https://github.com/datreeio/datree"
+
+	// create a run for kubeaudit
+	run := sarif.NewRunWithInformationURI("datree", repoURL)
+	run.Tool.Driver.WithSemanticVersion(cliVersion)
+
+	for _, result := range formattedOutput.PolicyValidationResults {
+		for _, res := range result.RuleResults {
+			propBag := sarif.NewPropertyBag()
+			propBag.Add("metadata.name", res.OccurrencesDetails[0].MetadataName)
+			propBag.Add("kind", res.OccurrencesDetails[0].Kind)
+
+			run.AddRule(res.Identifier).
+				WithHelpURI("https://hub.datree.io/built-in-rules").
+				WithDescription(res.Name).
+				WithFullDescription(sarif.NewMultiformatMessageString(res.MessageOnFailure)).
+				WithProperties(propBag.Properties).WithHelp(sarif.NewMultiformatMessageString("https://hub.datree.io/built-in-rules"))
+
+			// add each of the results with the details of where the issue occurred
+			run.CreateResultForRule(res.Identifier).
+				WithMessage(sarif.NewTextMessage(res.MessageOnFailure)).
+				AddLocation(
+					sarif.NewLocationWithPhysicalLocation(
+						sarif.NewPhysicalLocation().
+							WithArtifactLocation(
+								sarif.NewSimpleArtifactLocation(result.FileName),
+							),
+					),
+				)
+		}
+	}
+
+	report.AddRun(run)
+
+	marshal, err := json.MarshalIndent(report, "", "  ")
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintln(string(marshal)), nil
 }
 
 func convertStructToXml(output interface{}) (string, error) {

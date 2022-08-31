@@ -26,6 +26,7 @@ require (
 
 require (
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/owenrumney/go-sarif/v2 v2.1.2 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 )
