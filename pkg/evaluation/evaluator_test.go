@@ -1,8 +1,10 @@
 package evaluation
 
 import (
+	"bytes"
 	_ "embed"
 	"encoding/json"
+	"io"
 	"path/filepath"
 	"testing"
 
@@ -166,15 +168,25 @@ func TestEvaluate(t *testing.T) {
 }
 
 //go:embed test_fixtures/FailureLocations.yaml
-var FailureLocations string
+var FailureLocationsStr string
 
-func (e *Evaluator) TestGetFailedRuleLineAndColumn(t *testing.T) {
-	var testCaseYamlNode *yaml.Node
-	yaml.Unmarshal([]byte(FailureLocations), testCaseYamlNode)
+func TestGetFailedRuleLineAndColumn(t *testing.T) {
+	failedLocationSchemaPath := "/spec/template/spec/containers/0/image"
+	FailureLocationsByteArray := []byte(FailureLocationsStr)
+	yamlDecoder := yaml.NewDecoder(bytes.NewReader(FailureLocationsByteArray))
+	var testCaseYamlNode yaml.Node
+	err := yamlDecoder.Decode(&testCaseYamlNode)
+	if err != nil {
+		if err != io.EOF {
+			panic(err)
+		}
+	}
+	mockedCliClient := &mockCliClient{}
+	evaluator := New(mockedCliClient, nil)
 
-	line, column := e.getFailedRuleLineAndColumn("", *testCaseYamlNode)
-	assert.Equal(t, 1, line)
-	assert.Equal(t, 1, column)
+	line, column := evaluator.getFailedRuleLineAndColumn(failedLocationSchemaPath, testCaseYamlNode)
+	assert.Equal(t, 23, line)
+	assert.Equal(t, 18, column)
 }
 
 type evaluateArgs struct {
