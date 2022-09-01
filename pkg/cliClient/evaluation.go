@@ -158,7 +158,7 @@ type FileData struct {
 type FailureLocation struct {
 	SchemaPath        string `json:"schemaPath"`
 	FailedErrorLine   int    `json:"failedErrorLine"`
-	FailedErrorColumn int    `json:"FailedErrorColumn"`
+	FailedErrorColumn int    `json:"failedErrorColumn"`
 }
 
 type Configuration struct {
@@ -167,7 +167,7 @@ type Configuration struct {
 	Occurrences      int               `json:"occurrences"`
 	IsSkipped        bool              `json:"isSkipped"`
 	SkipMessage      string            `json:"skipMessage"`
-	FailureLocations []FailureLocation `json:"FailureLocation"`
+	FailureLocations []FailureLocation `json:"failureLocation"`
 }
 
 type FailedRule struct {
