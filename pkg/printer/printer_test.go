@@ -22,7 +22,7 @@ func TestGetWarningsText(t *testing.T) {
 					MetadataName: "yishay",
 					Kind:         "Pod",
 					ValidationResults: []cliClient.ValidationResult{{
-						SchemaPath:        "spec.template.spec.containers.0.image",
+						SchemaPath:        ".spec.template.spec.containers.0.image",
 						FailedErrorLine:   10,
 						FailedErrorColumn: 20,
 					}},

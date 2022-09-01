@@ -1,11 +1,13 @@
 package evaluation
 
 import (
+	_ "embed"
 	"encoding/json"
 	"path/filepath"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/defaultRules"
+	"gopkg.in/yaml.v3"
 
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/pkg/fileReader"
@@ -161,6 +163,20 @@ func TestEvaluate(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetFailedRuleLineAndColumn(t *testing.T) {
+	yamlNode := yaml.Node{
+		Kind:   yaml.ScalarNode,
+		Tag:    "!!str",
+		Value:  "test",
+		Line:   1,
+		Column: 1,
+	}
+
+	line, column := getFailedRuleLineAndColumn("", yamlNode)
+	assert.Equal(t, 1, line)
+	assert.Equal(t, 1, column)
 }
 
 type evaluateArgs struct {
