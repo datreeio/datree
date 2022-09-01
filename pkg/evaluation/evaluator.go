@@ -160,7 +160,7 @@ func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles,
 	skipAnnotations := extractSkipAnnotations(configuration)
 
 	for _, rule := range policyCheckData.Policy.Rules {
-		failedRule, err := e.evaluateRule(rule, configuration.Payload, configuration.MetadataName, configuration.Kind, skipAnnotations)
+		failedRule, err := e.evaluateRule(rule, configuration.Payload, configuration.MetadataName, configuration.Kind, skipAnnotations, configuration.YamlNode)
 		if err != nil {
 			return err
 		}
@@ -168,14 +168,13 @@ func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles,
 		if failedRule == nil {
 			continue
 		}
-		updateFailedRuleLine(failedRule, configuration.YamlNode)
 		addFailedRule(failedRulesByFiles, fileName, rule.RuleIdentifier, failedRule)
 	}
 
 	return nil
 }
 
-func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurationJson []byte, configurationName string, configurationKind string, skipAnnotations map[string]string) (*cliClient.FailedRule, error) {
+func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurationJson []byte, configurationName string, configurationKind string, skipAnnotations map[string]string, yamlNode yaml.Node) (*cliClient.FailedRule, error) {
 	ruleSchemaJson, err := json.Marshal(rule.Schema)
 	if err != nil {
 		return nil, err
@@ -204,11 +203,14 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 	}
 
 	for _, detailedResult := range validationResult {
+		failedErrorLine, failedErrorColumn := updateFailedRuleLine(detailedResult.InstanceLocation, yamlNode)
+
 		validationResult := cliClient.ValidationResult{
 			SchemaPath:        detailedResult.InstanceLocation,
-			FailedErrorLine:   0,
-			FailedErrorColumn: 0,
+			FailedErrorLine:   failedErrorLine,
+			FailedErrorColumn: failedErrorColumn,
 		}
+
 		configuration.ValidationResults = append(configuration.ValidationResults, validationResult)
 	}
 
@@ -379,25 +381,22 @@ func extractSkipAnnotations(configuration extractor.Configuration) map[string]st
 	return skipAnnotations
 }
 
-func updateFailedRuleLine(failedRule *cliClient.FailedRule, yamlNode yaml.Node) {
-	for index, validationResult := range failedRule.Configurations[0].ValidationResults {
-		instanceLocationYqPath := strings.Replace(validationResult.SchemaPath, "/", ".", -1)
-		failedRule.Configurations[0].ValidationResults[index].SchemaPath = instanceLocationYqPath
+func updateFailedRuleLine(schemaPath string, yamlNode yaml.Node) (failedErrorLine int, failedErrorColumn int) {
 
-		instanceLocationYqPath = regexp.MustCompile(`\d+`).ReplaceAllString(instanceLocationYqPath, `[$0]`)
-		evaluator := yqlib.NewAllAtOnceEvaluator()
-		yqlibLoggerHandler()
+	instanceLocationYqPath := strings.Replace(schemaPath, "/", ".", -1)
+	instanceLocationYqPath = regexp.MustCompile(`\d+`).ReplaceAllString(instanceLocationYqPath, `[$0]`)
 
-		nodeList, err := evaluator.EvaluateNodes(instanceLocationYqPath, &yamlNode)
-		if err != nil {
-			return
-		}
+	evaluator := yqlib.NewAllAtOnceEvaluator()
+	yqlibLoggerHandler()
 
-		candidateNode := nodeList.Back().Value.(*yqlib.CandidateNode).Node
-
-		failedRule.Configurations[0].ValidationResults[index].FailedErrorLine = candidateNode.Line
-		failedRule.Configurations[0].ValidationResults[index].FailedErrorColumn = candidateNode.Column
+	nodeList, err := evaluator.EvaluateNodes(instanceLocationYqPath, &yamlNode)
+	if err != nil {
+		return
 	}
+
+	candidateNode := nodeList.Back().Value.(*yqlib.CandidateNode).Node
+
+	return candidateNode.Line, candidateNode.Column
 }
 
 func yqlibLoggerHandler() {
