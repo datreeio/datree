@@ -2,9 +2,9 @@ package evaluation
 
 import (
 	"encoding/json"
+	"os"
+	"regexp"
 	"strings"
-
-	"github.com/xeipuuv/gojsonschema"
 
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/pkg/ciContext"
@@ -12,6 +12,11 @@ import (
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/datreeio/datree/pkg/utils"
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
+
+	"github.com/xeipuuv/gojsonschema"
+	"gopkg.in/op/go-logging.v1"
+	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -26,6 +31,7 @@ type Evaluator struct {
 	cliClient           CLIClient
 	ciContext           *ciContext.CIContext
 	jsonSchemaValidator *jsonSchemaValidator.JSONSchemaValidator
+	yqlibEvaluator      yqlib.Evaluator
 }
 
 func New(c CLIClient, ciContext *ciContext.CIContext) *Evaluator {
@@ -33,7 +39,18 @@ func New(c CLIClient, ciContext *ciContext.CIContext) *Evaluator {
 		cliClient:           c,
 		ciContext:           ciContext,
 		jsonSchemaValidator: jsonSchemaValidator.New(),
+		yqlibEvaluator:      newYqEvaluator(),
 	}
+}
+
+func newYqEvaluator() yqlib.Evaluator {
+	yqEvaluator := yqlib.NewAllAtOnceEvaluator()
+	logger := yqlib.GetLogger()
+	backendLogger := logging.NewLogBackend(os.Stderr, "", 0)
+	backendLoggerLeveled := logging.AddModuleLevel(backendLogger)
+	backendLoggerLeveled.SetLevel(logging.ERROR, "")
+	logger.SetBackend(backendLoggerLeveled)
+	return yqEvaluator
 }
 
 type FileNameRuleMapper map[string]map[string]*Rule
@@ -154,8 +171,9 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 
 func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles, policyCheckData PolicyCheckData, fileName string, configuration extractor.Configuration) error {
 	skipAnnotations := extractSkipAnnotations(configuration)
+
 	for _, rule := range policyCheckData.Policy.Rules {
-		failedRule, err := e.evaluateRule(rule, configuration.Payload, configuration.MetadataName, configuration.Kind, skipAnnotations)
+		failedRule, err := e.evaluateRule(rule, configuration.Payload, configuration.MetadataName, configuration.Kind, skipAnnotations, configuration.YamlNode)
 		if err != nil {
 			return err
 		}
@@ -163,14 +181,13 @@ func (e *Evaluator) evaluateConfiguration(failedRulesByFiles FailedRulesByFiles,
 		if failedRule == nil {
 			continue
 		}
-
 		addFailedRule(failedRulesByFiles, fileName, rule.RuleIdentifier, failedRule)
 	}
 
 	return nil
 }
 
-func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurationJson []byte, configurationName string, configurationKind string, skipAnnotations map[string]string) (*cliClient.FailedRule, error) {
+func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurationJson []byte, configurationName string, configurationKind string, skipAnnotations map[string]string, yamlNode yaml.Node) (*cliClient.FailedRule, error) {
 	ruleSchemaJson, err := json.Marshal(rule.Schema)
 	if err != nil {
 		return nil, err
@@ -190,11 +207,24 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 	}
 
 	configuration := cliClient.Configuration{
-		Name:        configurationName,
-		Kind:        configurationKind,
-		Occurrences: occurrences,
-		IsSkipped:   false,
-		SkipMessage: "",
+		Name:             configurationName,
+		Kind:             configurationKind,
+		Occurrences:      occurrences,
+		IsSkipped:        false,
+		SkipMessage:      "",
+		FailureLocations: []cliClient.FailureLocation{},
+	}
+
+	for _, detailedResult := range validationResult {
+		failedErrorLine, failedErrorColumn := e.getFailedRuleLineAndColumn(detailedResult.InstanceLocation, yamlNode)
+
+		failureLocation := cliClient.FailureLocation{
+			SchemaPath:        detailedResult.InstanceLocation,
+			FailedErrorLine:   failedErrorLine,
+			FailedErrorColumn: failedErrorColumn,
+		}
+
+		configuration.FailureLocations = append(configuration.FailureLocations, failureLocation)
 	}
 
 	if skipRuleExists {
@@ -281,11 +311,12 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 				mapper[filePath][ruleIdentifier].OccurrencesDetails = append(
 					mapper[filePath][ruleIdentifier].OccurrencesDetails,
 					OccurrenceDetails{
-						MetadataName: configuration.Name,
-						Kind:         configuration.Kind,
-						Occurrences:  configuration.Occurrences,
-						IsSkipped:    configuration.IsSkipped,
-						SkipMessage:  configuration.SkipMessage,
+						MetadataName:     configuration.Name,
+						Kind:             configuration.Kind,
+						Occurrences:      configuration.Occurrences,
+						IsSkipped:        configuration.IsSkipped,
+						SkipMessage:      configuration.SkipMessage,
+						FailureLocations: configuration.FailureLocations,
 					},
 				)
 			}
@@ -361,4 +392,19 @@ func extractSkipAnnotations(configuration extractor.Configuration) map[string]st
 	}
 
 	return skipAnnotations
+}
+
+func (e *Evaluator) getFailedRuleLineAndColumn(schemaPath string, yamlNode yaml.Node) (failedErrorLine int, failedErrorColumn int) {
+
+	instanceLocationYqPath := strings.Replace(schemaPath, "/", ".", -1)
+	instanceLocationYqPath = regexp.MustCompile(`\d+`).ReplaceAllString(instanceLocationYqPath, `[$0]`)
+
+	nodeList, err := e.yqlibEvaluator.EvaluateNodes(instanceLocationYqPath, &yamlNode)
+	if err != nil {
+		return
+	}
+
+	candidateNode := nodeList.Back().Value.(*yqlib.CandidateNode).Node
+
+	return candidateNode.Line, candidateNode.Column
 }

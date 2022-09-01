@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/santhosh-tekuri/jsonschema/v5"
 
 	"github.com/xeipuuv/gojsonschema"
@@ -34,9 +35,10 @@ type FailedRule struct {
 }
 
 type OccurrenceDetails struct {
-	MetadataName string
-	Kind         string
-	SkipMessage  string
+	MetadataName     string
+	Kind             string
+	SkipMessage      string
+	FailureLocations []cliClient.FailureLocation
 }
 
 type InvalidYamlInfo struct {
@@ -207,6 +209,12 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 
 				for _, occurrenceDetails := range failedRule.OccurrencesDetails {
 					sb.WriteString(fmt.Sprintf("    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
+					for _, validationResult := range occurrenceDetails.FailureLocations {
+						failurePath := fmt.Sprintf("%v (line: %d:%d)\n", strings.Replace(validationResult.SchemaPath, "/", ".", -1)[1:], validationResult.FailedErrorLine, validationResult.FailedErrorColumn)
+						sb.WriteString(fmt.Sprintf("      > key: %v", failurePath))
+					}
+					sb.WriteString("\n")
+
 				}
 				sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion))
 

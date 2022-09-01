@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,10 +15,18 @@ func TestGetWarningsText(t *testing.T) {
 		Title: GetFileNameText("~/.datree/k8-demo.yaml"),
 		FailedRules: []FailedRule{
 			{
-				Name:               "Caption",
-				Occurrences:        1,
-				Suggestion:         "Suggestion",
-				OccurrencesDetails: []OccurrenceDetails{{MetadataName: "yishay", Kind: "Pod"}},
+				Name:        "Caption",
+				Occurrences: 1,
+				Suggestion:  "Suggestion",
+				OccurrencesDetails: []OccurrenceDetails{{
+					MetadataName: "yishay",
+					Kind:         "Pod",
+					FailureLocations: []cliClient.FailureLocation{{
+						SchemaPath:        ".spec.template.spec.containers.0.image",
+						FailedErrorLine:   10,
+						FailedErrorColumn: 20,
+					}},
+				}},
 			},
 		},
 	},
@@ -56,6 +65,8 @@ func TestGetWarningsText(t *testing.T) {
 
 ❌  Caption  [1 occurrence]
     - metadata.name: yishay (kind: Pod)
+      > key: spec.template.spec.containers.0.image (line: 10:20)
+
 💡  Suggestion
 
 >>  File: /datree/datree/internal/fixtures/kube/yaml-validation-error.yaml
@@ -112,6 +123,8 @@ https://github.com/datreeio/helm-datree
 
 [X]  Caption  [1 occurrence]
     - metadata.name: yishay (kind: Pod)
+      > key: spec.template.spec.containers.0.image (line: 10:20)
+
 [*]  Suggestion
 
 >>  File: /datree/datree/internal/fixtures/kube/yaml-validation-error.yaml

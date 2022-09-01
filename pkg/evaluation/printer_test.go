@@ -193,6 +193,11 @@ func createFormattedOutput() FormattedOutput {
 							MetadataName: "rss-site",
 							Kind:         "Deployment",
 							Occurrences:  1,
+							FailureLocations: []cliClient.FailureLocation{{
+								SchemaPath:        "spec.template.spec.containers.0.image",
+								FailedErrorLine:   10,
+								FailedErrorColumn: 20,
+							}},
 						}},
 					},
 					{
@@ -203,6 +208,11 @@ func createFormattedOutput() FormattedOutput {
 							MetadataName: "rss-site",
 							Kind:         "Deployment",
 							Occurrences:  1,
+							FailureLocations: []cliClient.FailureLocation{{
+								SchemaPath:        "spec.template.spec.containers.0.resources.limits",
+								FailedErrorLine:   95,
+								FailedErrorColumn: 15,
+							}},
 						}},
 					},
 					{
@@ -213,6 +223,11 @@ func createFormattedOutput() FormattedOutput {
 							MetadataName: "rss-site",
 							Kind:         "Deployment",
 							Occurrences:  1,
+							FailureLocations: []cliClient.FailureLocation{{
+								SchemaPath:        "metadata.labels.owner",
+								FailedErrorLine:   7,
+								FailedErrorColumn: 12,
+							}},
 						}},
 					},
 					{
@@ -223,6 +238,11 @@ func createFormattedOutput() FormattedOutput {
 							MetadataName: "rss-site",
 							Kind:         "Deployment",
 							Occurrences:  1,
+							FailureLocations: []cliClient.FailureLocation{{
+								SchemaPath:        "spec.template.spec.containers.0",
+								FailedErrorLine:   22,
+								FailedErrorColumn: 11,
+							}},
 						}},
 					},
 				},
@@ -244,7 +264,7 @@ func createFormattedOutput() FormattedOutput {
 }
 
 func createInvalidK8sFileFormattedOutput() FormattedOutput {
-	err := errors.New("k8s schema validation error: could not find schema for Deploymentt You can skip files with missing schemas instead of failing by using the `--ignore-missing-schemas` flag ")
+	err := errors.New("k8s schema validation error: could not find schema for Deployment You can skip files with missing schemas instead of failing by using the `--ignore-missing-schemas` flag ")
 	err2 := errors.New("k8s schema validation error: For field spec.replicas: Invalid type. Expected: [integer,null], given: string ")
 	invalidK8sFile := &extractor.InvalidFile{
 		Path:             "File1",

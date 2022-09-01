@@ -1,5 +1,7 @@
 package evaluation
 
+import "github.com/datreeio/datree/pkg/cliClient"
+
 type Rule struct {
 	Identifier         string
 	Name               string
@@ -19,9 +21,10 @@ func (rp *Rule) GetFailedOccurrencesCount() int {
 }
 
 type OccurrenceDetails struct {
-	MetadataName string `yaml:"metadataName" json:"metadataName" xml:"metadataName"`
-	Kind         string `yaml:"kind" json:"kind" xml:"kind"`
-	SkipMessage  string `yaml:"skipMessage" json:"skipMessage" xml:"skipMessage"`
-	Occurrences  int    `yaml:"occurrences" json:"occurrences" xml:"occurrences"`
-	IsSkipped    bool   `yaml:"isSkipped" json:"isSkipped" xml:"isSkipped"`
+	MetadataName     string                      `yaml:"metadataName" json:"metadataName" xml:"metadataName"`
+	Kind             string                      `yaml:"kind" json:"kind" xml:"kind"`
+	SkipMessage      string                      `yaml:"skipMessage" json:"skipMessage" xml:"skipMessage"`
+	Occurrences      int                         `yaml:"occurrences" json:"occurrences" xml:"occurrences"`
+	IsSkipped        bool                        `yaml:"isSkipped" json:"isSkipped" xml:"isSkipped"`
+	FailureLocations []cliClient.FailureLocation `yaml:"failureLocations" json:"failureLocations" xml:"failureLocations"`
 }
