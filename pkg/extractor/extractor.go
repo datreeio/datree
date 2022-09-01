@@ -101,13 +101,16 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 				return nil, err
 			}
 		}
+		var yamlByteArray bytes.Buffer
 
-		yamlByteArray, err := yaml.Marshal(&yamlNode)
+		enc := yaml.NewEncoder(&yamlByteArray)
+		enc.SetIndent(2)
+		err = enc.Encode(&yamlNode)
 		if err != nil {
 			return nil, err
 		}
 
-		jsonByte, err := k8sSigsYaml.YAMLToJSON(yamlByteArray)
+		jsonByte, err := k8sSigsYaml.YAMLToJSON(yamlByteArray.Bytes())
 		if err != nil {
 			return nil, err
 		}

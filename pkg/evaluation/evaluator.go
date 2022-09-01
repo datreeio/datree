@@ -13,6 +13,7 @@ import (
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
+
 	"github.com/xeipuuv/gojsonschema"
 	"gopkg.in/op/go-logging.v1"
 	"gopkg.in/yaml.v3"
@@ -30,6 +31,7 @@ type Evaluator struct {
 	cliClient           CLIClient
 	ciContext           *ciContext.CIContext
 	jsonSchemaValidator *jsonSchemaValidator.JSONSchemaValidator
+	yqlibEvaluator      yqlib.Evaluator
 }
 
 func New(c CLIClient, ciContext *ciContext.CIContext) *Evaluator {
@@ -37,7 +39,18 @@ func New(c CLIClient, ciContext *ciContext.CIContext) *Evaluator {
 		cliClient:           c,
 		ciContext:           ciContext,
 		jsonSchemaValidator: jsonSchemaValidator.New(),
+		yqlibEvaluator:      newYqEvaluator(),
 	}
+}
+
+func newYqEvaluator() yqlib.Evaluator {
+	yqEvaluator := yqlib.NewAllAtOnceEvaluator()
+	logger := yqlib.GetLogger()
+	backendLogger := logging.NewLogBackend(os.Stderr, "", 0)
+	backendLoggerLeveled := logging.AddModuleLevel(backendLogger)
+	backendLoggerLeveled.SetLevel(logging.ERROR, "")
+	logger.SetBackend(backendLoggerLeveled)
+	return yqEvaluator
 }
 
 type FileNameRuleMapper map[string]map[string]*Rule
@@ -203,7 +216,7 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 	}
 
 	for _, detailedResult := range validationResult {
-		failedErrorLine, failedErrorColumn := getFailedRuleLineAndColumn(detailedResult.InstanceLocation, yamlNode)
+		failedErrorLine, failedErrorColumn := e.getFailedRuleLineAndColumn(detailedResult.InstanceLocation, yamlNode)
 
 		failureLocation := cliClient.FailureLocation{
 			SchemaPath:        detailedResult.InstanceLocation,
@@ -381,15 +394,12 @@ func extractSkipAnnotations(configuration extractor.Configuration) map[string]st
 	return skipAnnotations
 }
 
-func getFailedRuleLineAndColumn(schemaPath string, yamlNode yaml.Node) (failedErrorLine int, failedErrorColumn int) {
+func (e *Evaluator) getFailedRuleLineAndColumn(schemaPath string, yamlNode yaml.Node) (failedErrorLine int, failedErrorColumn int) {
 
 	instanceLocationYqPath := strings.Replace(schemaPath, "/", ".", -1)
 	instanceLocationYqPath = regexp.MustCompile(`\d+`).ReplaceAllString(instanceLocationYqPath, `[$0]`)
 
-	evaluator := yqlib.NewAllAtOnceEvaluator()
-	yqlibLoggerHandler()
-
-	nodeList, err := evaluator.EvaluateNodes(instanceLocationYqPath, &yamlNode)
+	nodeList, err := e.yqlibEvaluator.EvaluateNodes(instanceLocationYqPath, &yamlNode)
 	if err != nil {
 		return
 	}
@@ -397,12 +407,4 @@ func getFailedRuleLineAndColumn(schemaPath string, yamlNode yaml.Node) (failedEr
 	candidateNode := nodeList.Back().Value.(*yqlib.CandidateNode).Node
 
 	return candidateNode.Line, candidateNode.Column
-}
-
-func yqlibLoggerHandler() {
-	logger := yqlib.GetLogger()
-	backendLogger := logging.NewLogBackend(os.Stderr, "", 0)
-	backendLoggerLeveled := logging.AddModuleLevel(backendLogger)
-	backendLoggerLeveled.SetLevel(logging.ERROR, "")
-	logger.SetBackend(backendLoggerLeveled)
 }

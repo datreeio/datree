@@ -165,16 +165,14 @@ func TestEvaluate(t *testing.T) {
 	}
 }
 
-func TestGetFailedRuleLineAndColumn(t *testing.T) {
-	yamlNode := yaml.Node{
-		Kind:   yaml.ScalarNode,
-		Tag:    "!!str",
-		Value:  "test",
-		Line:   1,
-		Column: 1,
-	}
+//go:embed test_fixtures/FailureLocations.yaml
+var FailureLocations string
 
-	line, column := getFailedRuleLineAndColumn("", yamlNode)
+func (e *Evaluator) TestGetFailedRuleLineAndColumn(t *testing.T) {
+	var testCaseYamlNode *yaml.Node
+	yaml.Unmarshal([]byte(FailureLocations), testCaseYamlNode)
+
+	line, column := e.getFailedRuleLineAndColumn("", *testCaseYamlNode)
 	assert.Equal(t, 1, line)
 	assert.Equal(t, 1, column)
 }
