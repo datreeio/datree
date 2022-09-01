@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,11 +19,13 @@ func TestGetWarningsText(t *testing.T) {
 				Occurrences: 1,
 				Suggestion:  "Suggestion",
 				OccurrencesDetails: []OccurrenceDetails{{
-					MetadataName:      "yishay",
-					Kind:              "Pod",
-					FailedErrorLine:   0,
-					FailedErrorColumn: 0,
-					SchemaPath:        ".spec.containers[0].name",
+					MetadataName: "yishay",
+					Kind:         "Pod",
+					ValidationResults: []cliClient.ValidationResult{{
+						SchemaPath:        "spec.template.spec.containers.0.image",
+						FailedErrorLine:   10,
+						FailedErrorColumn: 20,
+					}},
 				}},
 			},
 		},
@@ -62,7 +65,7 @@ func TestGetWarningsText(t *testing.T) {
 
 ❌  Caption  [1 occurrence]
     - metadata.name: yishay (kind: Pod)
-      > key: .spec.containers[0].name (line: 0:0)
+      > key: spec.template.spec.containers.0.image (line: 10:20)
 
 💡  Suggestion
 
@@ -120,7 +123,7 @@ https://github.com/datreeio/helm-datree
 
 [X]  Caption  [1 occurrence]
     - metadata.name: yishay (kind: Pod)
-      > key: .spec.containers[0].name (line: 0:0)
+      > key: spec.template.spec.containers.0.image (line: 10:20)
 
 [*]  Suggestion
 

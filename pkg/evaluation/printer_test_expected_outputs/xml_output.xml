@@ -12,9 +12,11 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
-				<failedErrorLine>0</failedErrorLine>
-				<failedErrorColumn>0</failedErrorColumn>
-				<schemaPath></schemaPath>
+				<validationResults>
+					<SchemaPath>spec.template.spec.containers.0.image</SchemaPath>
+					<FailedErrorLine>10</FailedErrorLine>
+					<FailedErrorColumn>20</FailedErrorColumn>
+				</validationResults>
 			</occurrencesDetails>
 		</ruleResults>
 		<ruleResults>
@@ -27,9 +29,11 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
-				<failedErrorLine>0</failedErrorLine>
-				<failedErrorColumn>0</failedErrorColumn>
-				<schemaPath></schemaPath>
+				<validationResults>
+					<SchemaPath>spec.template.spec.containers.0.resources.limits</SchemaPath>
+					<FailedErrorLine>95</FailedErrorLine>
+					<FailedErrorColumn>15</FailedErrorColumn>
+				</validationResults>
 			</occurrencesDetails>
 		</ruleResults>
 		<ruleResults>
@@ -42,9 +46,11 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
-				<failedErrorLine>0</failedErrorLine>
-				<failedErrorColumn>0</failedErrorColumn>
-				<schemaPath></schemaPath>
+				<validationResults>
+					<SchemaPath>metadata.labels.owner</SchemaPath>
+					<FailedErrorLine>7</FailedErrorLine>
+					<FailedErrorColumn>12</FailedErrorColumn>
+				</validationResults>
 			</occurrencesDetails>
 		</ruleResults>
 		<ruleResults>
@@ -57,9 +63,11 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
-				<failedErrorLine>0</failedErrorLine>
-				<failedErrorColumn>0</failedErrorColumn>
-				<schemaPath></schemaPath>
+				<validationResults>
+					<SchemaPath>spec.template.spec.containers.0</SchemaPath>
+					<FailedErrorLine>22</FailedErrorLine>
+					<FailedErrorColumn>11</FailedErrorColumn>
+				</validationResults>
 			</occurrencesDetails>
 		</ruleResults>
 	</policyValidationResults>

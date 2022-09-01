@@ -203,7 +203,7 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 	}
 
 	for _, detailedResult := range validationResult {
-		failedErrorLine, failedErrorColumn := updateFailedRuleLine(detailedResult.InstanceLocation, yamlNode)
+		failedErrorLine, failedErrorColumn := getFailedRuleLineAndColumn(detailedResult.InstanceLocation, yamlNode)
 
 		validationResult := cliClient.ValidationResult{
 			SchemaPath:        detailedResult.InstanceLocation,
@@ -381,7 +381,7 @@ func extractSkipAnnotations(configuration extractor.Configuration) map[string]st
 	return skipAnnotations
 }
 
-func updateFailedRuleLine(schemaPath string, yamlNode yaml.Node) (failedErrorLine int, failedErrorColumn int) {
+func getFailedRuleLineAndColumn(schemaPath string, yamlNode yaml.Node) (failedErrorLine int, failedErrorColumn int) {
 
 	instanceLocationYqPath := strings.Replace(schemaPath, "/", ".", -1)
 	instanceLocationYqPath = regexp.MustCompile(`\d+`).ReplaceAllString(instanceLocationYqPath, `[$0]`)
