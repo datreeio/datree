@@ -21,7 +21,7 @@ func TestGetWarningsText(t *testing.T) {
 				OccurrencesDetails: []OccurrenceDetails{{
 					MetadataName: "yishay",
 					Kind:         "Pod",
-					ValidationResults: []cliClient.ValidationResult{{
+					FailureLocations: []cliClient.FailureLocation{{
 						SchemaPath:        ".spec.template.spec.containers.0.image",
 						FailedErrorLine:   10,
 						FailedErrorColumn: 20,

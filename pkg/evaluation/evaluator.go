@@ -194,24 +194,24 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 	}
 
 	configuration := cliClient.Configuration{
-		Name:              configurationName,
-		Kind:              configurationKind,
-		Occurrences:       occurrences,
-		IsSkipped:         false,
-		SkipMessage:       "",
-		ValidationResults: []cliClient.ValidationResult{},
+		Name:             configurationName,
+		Kind:             configurationKind,
+		Occurrences:      occurrences,
+		IsSkipped:        false,
+		SkipMessage:      "",
+		FailureLocations: []cliClient.FailureLocation{},
 	}
 
 	for _, detailedResult := range validationResult {
 		failedErrorLine, failedErrorColumn := getFailedRuleLineAndColumn(detailedResult.InstanceLocation, yamlNode)
 
-		validationResult := cliClient.ValidationResult{
+		failureLocation := cliClient.FailureLocation{
 			SchemaPath:        detailedResult.InstanceLocation,
 			FailedErrorLine:   failedErrorLine,
 			FailedErrorColumn: failedErrorColumn,
 		}
 
-		configuration.ValidationResults = append(configuration.ValidationResults, validationResult)
+		configuration.FailureLocations = append(configuration.FailureLocations, failureLocation)
 	}
 
 	if skipRuleExists {
@@ -298,12 +298,12 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 				mapper[filePath][ruleIdentifier].OccurrencesDetails = append(
 					mapper[filePath][ruleIdentifier].OccurrencesDetails,
 					OccurrenceDetails{
-						MetadataName:      configuration.Name,
-						Kind:              configuration.Kind,
-						Occurrences:       configuration.Occurrences,
-						IsSkipped:         configuration.IsSkipped,
-						SkipMessage:       configuration.SkipMessage,
-						ValidationResults: configuration.ValidationResults,
+						MetadataName:     configuration.Name,
+						Kind:             configuration.Kind,
+						Occurrences:      configuration.Occurrences,
+						IsSkipped:        configuration.IsSkipped,
+						SkipMessage:      configuration.SkipMessage,
+						FailureLocations: configuration.FailureLocations,
 					},
 				)
 			}

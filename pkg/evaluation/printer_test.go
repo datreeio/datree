@@ -193,7 +193,7 @@ func createFormattedOutput() FormattedOutput {
 							MetadataName: "rss-site",
 							Kind:         "Deployment",
 							Occurrences:  1,
-							ValidationResults: []cliClient.ValidationResult{{
+							FailureLocations: []cliClient.FailureLocation{{
 								SchemaPath:        "spec.template.spec.containers.0.image",
 								FailedErrorLine:   10,
 								FailedErrorColumn: 20,
@@ -208,7 +208,7 @@ func createFormattedOutput() FormattedOutput {
 							MetadataName: "rss-site",
 							Kind:         "Deployment",
 							Occurrences:  1,
-							ValidationResults: []cliClient.ValidationResult{{
+							FailureLocations: []cliClient.FailureLocation{{
 								SchemaPath:        "spec.template.spec.containers.0.resources.limits",
 								FailedErrorLine:   95,
 								FailedErrorColumn: 15,
@@ -223,7 +223,7 @@ func createFormattedOutput() FormattedOutput {
 							MetadataName: "rss-site",
 							Kind:         "Deployment",
 							Occurrences:  1,
-							ValidationResults: []cliClient.ValidationResult{{
+							FailureLocations: []cliClient.FailureLocation{{
 								SchemaPath:        "metadata.labels.owner",
 								FailedErrorLine:   7,
 								FailedErrorColumn: 12,
@@ -238,7 +238,7 @@ func createFormattedOutput() FormattedOutput {
 							MetadataName: "rss-site",
 							Kind:         "Deployment",
 							Occurrences:  1,
-							ValidationResults: []cliClient.ValidationResult{{
+							FailureLocations: []cliClient.FailureLocation{{
 								SchemaPath:        "spec.template.spec.containers.0",
 								FailedErrorLine:   22,
 								FailedErrorColumn: 11,

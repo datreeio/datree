@@ -12,11 +12,11 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
-				<validationResults>
+				<failureLocations>
 					<SchemaPath>spec.template.spec.containers.0.image</SchemaPath>
 					<FailedErrorLine>10</FailedErrorLine>
 					<FailedErrorColumn>20</FailedErrorColumn>
-				</validationResults>
+				</failureLocations>
 			</occurrencesDetails>
 		</ruleResults>
 		<ruleResults>
@@ -29,11 +29,11 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
-				<validationResults>
+				<failureLocations>
 					<SchemaPath>spec.template.spec.containers.0.resources.limits</SchemaPath>
 					<FailedErrorLine>95</FailedErrorLine>
 					<FailedErrorColumn>15</FailedErrorColumn>
-				</validationResults>
+				</failureLocations>
 			</occurrencesDetails>
 		</ruleResults>
 		<ruleResults>
@@ -46,11 +46,11 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
-				<validationResults>
+				<failureLocations>
 					<SchemaPath>metadata.labels.owner</SchemaPath>
 					<FailedErrorLine>7</FailedErrorLine>
 					<FailedErrorColumn>12</FailedErrorColumn>
-				</validationResults>
+				</failureLocations>
 			</occurrencesDetails>
 		</ruleResults>
 		<ruleResults>
@@ -63,11 +63,11 @@
 				<skipMessage></skipMessage>
 				<occurrences>1</occurrences>
 				<isSkipped>false</isSkipped>
-				<validationResults>
+				<failureLocations>
 					<SchemaPath>spec.template.spec.containers.0</SchemaPath>
 					<FailedErrorLine>22</FailedErrorLine>
 					<FailedErrorColumn>11</FailedErrorColumn>
-				</validationResults>
+				</failureLocations>
 			</occurrencesDetails>
 		</ruleResults>
 	</policyValidationResults>
