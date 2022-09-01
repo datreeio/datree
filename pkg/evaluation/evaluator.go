@@ -200,9 +200,16 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 		Occurrences:       occurrences,
 		IsSkipped:         false,
 		SkipMessage:       "",
-		FailedErrorLine:   0,
-		FailedErrorColumn: 0,
-		ValidationResult:  validationResult,
+		ValidationResults: []cliClient.ValidationResult{},
+	}
+
+	for _, detailedResult := range validationResult {
+		validationResult := cliClient.ValidationResult{
+			SchemaPath:        detailedResult.InstanceLocation,
+			FailedErrorLine:   0,
+			FailedErrorColumn: 0,
+		}
+		configuration.ValidationResults = append(configuration.ValidationResults, validationResult)
 	}
 
 	if skipRuleExists {
@@ -294,9 +301,7 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 						Occurrences:       configuration.Occurrences,
 						IsSkipped:         configuration.IsSkipped,
 						SkipMessage:       configuration.SkipMessage,
-						FailedErrorLine:   configuration.FailedErrorLine,
-						FailedErrorColumn: configuration.FailedErrorColumn,
-						SchemaPath:        configuration.ValidationResult[0].InstanceLocation,
+						ValidationResults: configuration.ValidationResults,
 					},
 				)
 			}
@@ -375,22 +380,24 @@ func extractSkipAnnotations(configuration extractor.Configuration) map[string]st
 }
 
 func updateFailedRuleLine(failedRule *cliClient.FailedRule, yamlNode yaml.Node) {
-	instanceLocationYqPath := strings.Replace(failedRule.Configurations[0].ValidationResult[0].InstanceLocation, "/", ".", -1)
-	failedRule.Configurations[0].ValidationResult[0].InstanceLocation = instanceLocationYqPath
-	instanceLocationYqPath = regexp.MustCompile(`\d+`).ReplaceAllString(instanceLocationYqPath, `[$0]`)
+	for index, validationResult := range failedRule.Configurations[0].ValidationResults {
+		instanceLocationYqPath := strings.Replace(validationResult.SchemaPath, "/", ".", -1)
+		failedRule.Configurations[0].ValidationResults[index].SchemaPath = instanceLocationYqPath
 
-	evaluator := yqlib.NewAllAtOnceEvaluator()
-	yqlibLoggerHandler()
+		instanceLocationYqPath = regexp.MustCompile(`\d+`).ReplaceAllString(instanceLocationYqPath, `[$0]`)
+		evaluator := yqlib.NewAllAtOnceEvaluator()
+		yqlibLoggerHandler()
 
-	nodeList, err := evaluator.EvaluateNodes(instanceLocationYqPath, &yamlNode)
-	if err != nil {
-		return
+		nodeList, err := evaluator.EvaluateNodes(instanceLocationYqPath, &yamlNode)
+		if err != nil {
+			return
+		}
+
+		candidateNode := nodeList.Back().Value.(*yqlib.CandidateNode).Node
+
+		failedRule.Configurations[0].ValidationResults[index].FailedErrorLine = candidateNode.Line
+		failedRule.Configurations[0].ValidationResults[index].FailedErrorColumn = candidateNode.Column
 	}
-
-	candidateNode := nodeList.Back().Value.(*yqlib.CandidateNode).Node
-
-	failedRule.Configurations[0].FailedErrorLine = candidateNode.Line
-	failedRule.Configurations[0].FailedErrorColumn = candidateNode.Column
 }
 
 func yqlibLoggerHandler() {

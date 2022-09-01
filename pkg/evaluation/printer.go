@@ -314,9 +314,7 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 							printer.OccurrenceDetails{
 								MetadataName:      occurrenceDetails.MetadataName,
 								Kind:              occurrenceDetails.Kind,
-								FailedErrorLine:   occurrenceDetails.FailedErrorLine,
-								FailedErrorColumn: occurrenceDetails.FailedErrorColumn,
-								SchemaPath:        occurrenceDetails.SchemaPath,
+								ValidationResults: occurrenceDetails.ValidationResults,
 							},
 						)
 					}
