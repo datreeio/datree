@@ -401,11 +401,8 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 		Verbose:               testCommandData.Verbose,
 		PolicyName:            testCommandData.Policy.Name,
 		K8sValidationWarnings: validationManager.k8sValidationWarningPerValidFile,
-<<<<<<< HEAD
 		CliVersion:            ctx.CliVersion,
-=======
 		IsCI:                  ctx.CiContext.IsCI,
->>>>>>> main
 	})
 
 	if evaluationResultData.PromptMessage != "" {
