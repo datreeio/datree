@@ -211,7 +211,7 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 					sb.WriteString(fmt.Sprintf("    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
 					for _, validationResult := range occurrenceDetails.FailureLocations {
 						if validationResult.SchemaPath != "" {
-							failurePath := fmt.Sprintf("%v (line: %d:%d)\n", strings.Replace(validationResult.SchemaPath, "/", ".", -1), validationResult.FailedErrorLine, validationResult.FailedErrorColumn)
+							failurePath := fmt.Sprintf("%v (line: %d:%d)\n", strings.Replace(validationResult.SchemaPath, "/", ".", -1)[1:], validationResult.FailedErrorLine, validationResult.FailedErrorColumn)
 							sb.WriteString(fmt.Sprintf("      > key: %v", failurePath))
 						}
 					}
