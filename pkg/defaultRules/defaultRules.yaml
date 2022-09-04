@@ -1874,7 +1874,7 @@ rules:
     uniqueName: CONTAINERS_INCORRECT_SECCOMP_PROFILE
     enabledByDefault: true
     documentationUrl: "https://www.datree.io/resources/eks-best-practices-you-should-know"
-    messageOnFailure: "Seccomp profile is explicitly set to Unconfined - unset it to retain the pod's or container's isolation"
+    messageOnFailure: "Prevent setting 'Unconfined' as seccomp profile - unset it to retain the pod's or container's isolation"
     category: Containers
     schema:
       definitions:
