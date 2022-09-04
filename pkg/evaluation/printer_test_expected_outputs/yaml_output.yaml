@@ -11,6 +11,10 @@ policyValidationResults:
       skipMessage: ""
       occurrences: 1
       isSkipped: false
+      failureLocations:
+      - schemapath: spec.template.spec.containers.0.image
+        failederrorline: 10
+        failederrorcolumn: 20
   - identifier: CONTAINERS_MISSING_MEMORY_LIMIT_KEY
     name: Ensure each container has a configured memory limit
     messageOnFailure: Missing property object `limits.memory` - value should be within
@@ -21,6 +25,10 @@ policyValidationResults:
       skipMessage: ""
       occurrences: 1
       isSkipped: false
+      failureLocations:
+      - schemapath: spec.template.spec.containers.0.resources.limits
+        failederrorline: 95
+        failederrorcolumn: 15
   - identifier: WORKLOAD_INVALID_LABELS_VALUE
     name: Ensure workload has valid label values
     messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax
@@ -31,6 +39,10 @@ policyValidationResults:
       skipMessage: ""
       occurrences: 1
       isSkipped: false
+      failureLocations:
+      - schemapath: metadata.labels.owner
+        failederrorline: 7
+        failederrorcolumn: 12
   - identifier: CONTAINERS_MISSING_LIVENESSPROBE_KEY
     name: Ensure each container has a configured liveness probe
     messageOnFailure: Missing property object `livenessProbe` - add a properly configured
@@ -41,6 +53,10 @@ policyValidationResults:
       skipMessage: ""
       occurrences: 1
       isSkipped: false
+      failureLocations:
+      - schemapath: spec.template.spec.containers.0
+        failederrorline: 22
+        failederrorcolumn: 11
 policySummary:
   policyName: Default
   totalRulesInPolicy: 21

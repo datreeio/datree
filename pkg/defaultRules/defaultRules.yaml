@@ -1565,9 +1565,16 @@ rules:
                 - generateName
           required:
             - metadata
-      anyOf:
-        - $ref: "#/definitions/metadataNamePattern"
-        - $ref: "#/definitions/metadataGenerateNamePattern"
+      if:
+        properties:
+          kind:
+            not:
+              enum:
+                - Kustomization
+      then:
+        anyOf:
+          - $ref: "#/definitions/metadataNamePattern"
+          - $ref: "#/definitions/metadataGenerateNamePattern"
   - id: 55
     name: Ensure each container probe has an initial delay configured
     uniqueName: CONTAINERS_INCORRECT_INITIALDELAYSECONDS_VALUE

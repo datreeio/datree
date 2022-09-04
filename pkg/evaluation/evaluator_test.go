@@ -1,11 +1,15 @@
 package evaluation
 
 import (
+	"bytes"
+	_ "embed"
 	"encoding/json"
+	"io"
 	"path/filepath"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/defaultRules"
+	"gopkg.in/yaml.v3"
 
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/pkg/fileReader"
@@ -161,6 +165,28 @@ func TestEvaluate(t *testing.T) {
 			}
 		})
 	}
+}
+
+//go:embed test_fixtures/FailureLocations.yaml
+var FailureLocationsStr string
+
+func TestGetFailedRuleLineAndColumn(t *testing.T) {
+	failedLocationSchemaPath := "/spec/template/spec/containers/0/image"
+	FailureLocationsByteArray := []byte(FailureLocationsStr)
+	yamlDecoder := yaml.NewDecoder(bytes.NewReader(FailureLocationsByteArray))
+	var testCaseYamlNode yaml.Node
+	err := yamlDecoder.Decode(&testCaseYamlNode)
+	if err != nil {
+		if err != io.EOF {
+			panic(err)
+		}
+	}
+	mockedCliClient := &mockCliClient{}
+	evaluator := New(mockedCliClient, nil)
+
+	line, column := evaluator.getFailedRuleLineAndColumn(failedLocationSchemaPath, testCaseYamlNode)
+	assert.Equal(t, 23, line)
+	assert.Equal(t, 18, column)
 }
 
 type evaluateArgs struct {

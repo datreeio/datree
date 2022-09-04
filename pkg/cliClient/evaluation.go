@@ -155,12 +155,19 @@ type FileData struct {
 	ConfigurationsCount int    `json:"configurationsCount"`
 }
 
+type FailureLocation struct {
+	SchemaPath        string `json:"schemaPath"`
+	FailedErrorLine   int    `json:"failedErrorLine"`
+	FailedErrorColumn int    `json:"failedErrorColumn"`
+}
+
 type Configuration struct {
-	Name        string `json:"metadataName"`
-	Kind        string `json:"kind"`
-	Occurrences int    `json:"occurrences"`
-	IsSkipped   bool   `json:"isSkipped"`
-	SkipMessage string `json:"skipMessage"`
+	Name             string            `json:"metadataName"`
+	Kind             string            `json:"kind"`
+	Occurrences      int               `json:"occurrences"`
+	IsSkipped        bool              `json:"isSkipped"`
+	SkipMessage      string            `json:"skipMessage"`
+	FailureLocations []FailureLocation `json:"failureLocation"`
 }
 
 type FailedRule struct {
