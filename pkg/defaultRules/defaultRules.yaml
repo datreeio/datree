@@ -1872,7 +1872,7 @@ rules:
   - id: 61
     name: Ensure seccomp profile must not be explicitly set to Unconfined
     uniqueName: CONTAINERS_INCORRECT_SECCOMP_PROFILE
-    enabledByDefault: true
+    enabledByDefault: false
     documentationUrl: "https://www.datree.io/resources/eks-best-practices-you-should-know"
     messageOnFailure: "Prevent setting 'Unconfined' as seccomp profile - unset it to retain the pod's or container's isolation"
     category: Containers
