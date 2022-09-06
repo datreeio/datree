@@ -120,7 +120,7 @@ func TestCustomOutputs(t *testing.T) {
 	xmlStdout, _ := getXmlOutput(&formattedOutput)
 	assert.Equal(t, expectedOutputs.xml, xmlStdout)
 
-	JUnitStdout, _ := getJUnitOutput(&formattedOutput, additionalJUnitData)
+	JUnitStdout, _ := getJUnitOutput(&formattedOutput, additionalJUnitData, false)
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
@@ -129,7 +129,7 @@ func TestInvalidK8sCustomOutputs(t *testing.T) {
 	additionalJUnitData := createAdditionalJUnitDataInvalidK8sFile()
 	expectedOutputs := getInvalidK8sFileExpectedOutputs()
 
-	JUnitStdout, _ := getJUnitOutput(&formattedOutput, additionalJUnitData)
+	JUnitStdout, _ := getJUnitOutput(&formattedOutput, additionalJUnitData, false)
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 

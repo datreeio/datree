@@ -132,7 +132,7 @@ func GetResultsText(resultsData *PrintResultsData) (string, error) {
 		case "xml":
 			return getXmlOutput(&formattedOutput)
 		case "JUnit":
-			return getJUnitOutput(&formattedOutput, resultsData.AdditionalJUnitData)
+			return getJUnitOutput(&formattedOutput, resultsData.AdditionalJUnitData, resultsData.Verbose)
 		default:
 			panic(errors.New("invalid output format"))
 		}
@@ -180,8 +180,8 @@ func getXmlOutput(formattedOutput *FormattedOutput) (string, error) {
 	return convertStructToXml(formattedOutput)
 }
 
-func getJUnitOutput(formattedOutput *FormattedOutput, additionalJUnitData AdditionalJUnitData) (string, error) {
-	return convertStructToXml(FormattedOutputToJUnitOutput(*formattedOutput, additionalJUnitData))
+func getJUnitOutput(formattedOutput *FormattedOutput, additionalJUnitData AdditionalJUnitData, verbose bool) (string, error) {
+	return convertStructToXml(FormattedOutputToJUnitOutput(*formattedOutput, additionalJUnitData, verbose))
 }
 
 func convertStructToXml(output interface{}) (string, error) {
