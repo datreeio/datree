@@ -34,7 +34,7 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate(policyCheckData evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error)
+	Evaluate(evaluateData evaluation.EvaluateData) (evaluation.PolicyCheckResultData, error)
 	SendEvaluationResult(evaluationRequestData evaluation.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error)
 }
 
@@ -501,7 +501,12 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, testCommandData *Tes
 		PromptMessage: "",
 	}
 
-	policyCheckResultData, err := ctx.Evaluator.Evaluate(policyCheckData)
+	evaluateData := evaluation.EvaluateData{
+		PolicyCheckData: policyCheckData,
+		Verbose:         testCommandData.Verbose,
+	}
+
+	policyCheckResultData, err := ctx.Evaluator.Evaluate(evaluateData)
 	if err != nil {
 		return emptyEvaluationResultData, err
 	}

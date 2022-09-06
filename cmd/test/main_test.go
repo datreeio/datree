@@ -61,7 +61,7 @@ type TestFlowTestCase struct {
 			filesConfigurationsChan chan *extractor.FileConfigurations
 		}
 		Evaluate struct {
-			evaluationData evaluation.PolicyCheckData
+			evaluationData evaluation.EvaluateData
 		}
 		SendEvaluationResult struct {
 			evaluationRequestData evaluation.EvaluationRequestData
@@ -72,7 +72,7 @@ type TestFlowTestCase struct {
 	}
 }
 
-func (m *mockEvaluator) Evaluate(evaluationData evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error) {
+func (m *mockEvaluator) Evaluate(evaluationData evaluation.EvaluateData) (evaluation.PolicyCheckResultData, error) {
 	args := m.Called(evaluationData)
 	return args.Get(0).(evaluation.PolicyCheckResultData), args.Error(1)
 }
@@ -243,7 +243,7 @@ func TestTestFlow(t *testing.T) {
 			filesExtractorMock.On("ExtractFilesConfigurations", mock.Anything, 100).Return(tt.mock.ExtractFilesConfigurations.filesConfigurationsChan, tt.mock.ExtractFilesConfigurations.invalidFilesChan)
 			k8sValidatorMock.On("ValidateResources", mock.Anything, 100).Return(tt.mock.ValidateResources.k8sFilesConfigurationsChan, tt.mock.ValidateResources.k8sInvalidFilesChan, tt.mock.ValidateResources.filesWithWarningsChan)
 			k8sValidatorMock.On("InitClient", mock.Anything, mock.Anything, mock.Anything).Return()
-			evaluatorMock.On("Evaluate", mock.Anything, mock.Anything, mock.Anything).Return(tt.mock.Evaluate.policyCheckResultData, tt.mock.Evaluate.err)
+			evaluatorMock.On("Evaluate", mock.Anything, mock.Anything).Return(tt.mock.Evaluate.policyCheckResultData, tt.mock.Evaluate.err)
 			evaluatorMock.On("SendEvaluationResult", mock.Anything).Return(tt.mock.SendEvaluationResult.sendEvaluationResultsResponse, tt.mock.SendEvaluationResult.err)
 
 			printerMock.On("GetWarningsText", mock.Anything)
@@ -268,7 +268,7 @@ func TestTestFlow(t *testing.T) {
 				CiContext:      ciContext,
 			}
 
-			err := test(ctx, tt.args.path, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: tt.expected.Evaluate.evaluationData.Policy, Token: "134kh"})
+			err := test(ctx, tt.args.path, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: tt.expected.Evaluate.evaluationData.PolicyCheckData.Policy, Token: "134kh"})
 			if tt.expected.err != nil {
 				assert.EqualError(t, err, tt.expected.err.Error())
 			} else {
@@ -278,11 +278,11 @@ func TestTestFlow(t *testing.T) {
 			printerMock.AssertNotCalled(t, "SetTheme", mock.Anything)
 			filesExtractorMock.AssertCalled(t, "ExtractFilesConfigurations", tt.args.path, 100)
 			k8sValidatorMock.AssertCalled(t, "ValidateResources", tt.expected.ValidateResources.filesConfigurationsChan, 100)
-			evaluatorMock.AssertCalled(t, "Evaluate", mock.MatchedBy(func(policyCheckData evaluation.PolicyCheckData) bool {
+			evaluatorMock.AssertCalled(t, "Evaluate", mock.MatchedBy(func(evaluateData evaluation.EvaluateData) bool {
 				expectedPolicyCheckData := tt.expected.Evaluate.evaluationData
-				if len(policyCheckData.FilesConfigurations) == len(expectedPolicyCheckData.FilesConfigurations) {
-					for index, validK8sFilesConfiguration := range policyCheckData.FilesConfigurations {
-						if validK8sFilesConfiguration.FileName != expectedPolicyCheckData.FilesConfigurations[index].FileName {
+				if len(evaluateData.PolicyCheckData.FilesConfigurations) == len(expectedPolicyCheckData.PolicyCheckData.FilesConfigurations) {
+					for index, validK8sFilesConfiguration := range evaluateData.PolicyCheckData.FilesConfigurations {
+						if validK8sFilesConfiguration.FileName != expectedPolicyCheckData.PolicyCheckData.FilesConfigurations[index].FileName {
 							return false
 						}
 					}
@@ -290,8 +290,8 @@ func TestTestFlow(t *testing.T) {
 					return false
 				}
 
-				if (policyCheckData.IsInteractiveMode != expectedPolicyCheckData.IsInteractiveMode) ||
-					(policyCheckData.PolicyName != expectedPolicyCheckData.PolicyName) {
+				if (evaluateData.PolicyCheckData.IsInteractiveMode != expectedPolicyCheckData.PolicyCheckData.IsInteractiveMode) ||
+					(evaluateData.PolicyCheckData.PolicyName != expectedPolicyCheckData.PolicyCheckData.PolicyName) {
 					return false
 				}
 				return true
@@ -441,7 +441,7 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 				filesConfigurationsChan chan *extractor.FileConfigurations
 			}
 			Evaluate struct {
-				evaluationData evaluation.PolicyCheckData
+				evaluationData evaluation.EvaluateData
 			}
 			SendEvaluationResult struct {
 				evaluationRequestData evaluation.EvaluationRequestData
@@ -456,13 +456,15 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 				filesConfigurationsChan: filesConfigurationsChan,
 			},
 			Evaluate: struct {
-				evaluationData evaluation.PolicyCheckData
+				evaluationData evaluation.EvaluateData
 			}{
-				evaluationData: evaluation.PolicyCheckData{
-					FilesConfigurations: validK8sFilesConfigurations,
-					IsInteractiveMode:   true,
-					PolicyName:          policy.Name,
-					Policy:              policy,
+				evaluationData: evaluation.EvaluateData{
+					PolicyCheckData: evaluation.PolicyCheckData{
+						FilesConfigurations: validK8sFilesConfigurations,
+						IsInteractiveMode:   true,
+						PolicyName:          policy.Name,
+						Policy:              policy,
+					},
 				},
 			},
 			SendEvaluationResult: struct {
@@ -591,7 +593,7 @@ func test_no_k8s_resources_found() *TestFlowTestCase {
 				filesConfigurationsChan chan *extractor.FileConfigurations
 			}
 			Evaluate struct {
-				evaluationData evaluation.PolicyCheckData
+				evaluationData evaluation.EvaluateData
 			}
 			SendEvaluationResult struct {
 				evaluationRequestData evaluation.EvaluationRequestData
@@ -606,13 +608,15 @@ func test_no_k8s_resources_found() *TestFlowTestCase {
 				filesConfigurationsChan: filesConfigurationsChan,
 			},
 			Evaluate: struct {
-				evaluationData evaluation.PolicyCheckData
+				evaluationData evaluation.EvaluateData
 			}{
-				evaluationData: evaluation.PolicyCheckData{
-					FilesConfigurations: []*extractor.FileConfigurations{},
-					IsInteractiveMode:   true,
-					PolicyName:          policy.Name,
-					Policy:              policy,
+				evaluationData: evaluation.EvaluateData{
+					PolicyCheckData: evaluation.PolicyCheckData{
+						FilesConfigurations: []*extractor.FileConfigurations{},
+						IsInteractiveMode:   true,
+						PolicyName:          policy.Name,
+						Policy:              policy,
+					},
 				},
 			},
 			GetWarningsText: make([]printer.Warning, 3),
@@ -764,8 +768,12 @@ func TestTestCommandNoFlags(t *testing.T) {
 		Policy:              testingPolicy,
 	}
 
+	evaluationData := evaluation.EvaluateData{
+		PolicyCheckData: policyCheckData,
+	}
+
 	k8sValidatorMock.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	mockedEvaluator.AssertCalled(t, "Evaluate", policyCheckData)
+	mockedEvaluator.AssertCalled(t, "Evaluate", evaluationData)
 }
 
 func TestTestCommandJsonOutput(t *testing.T) {
@@ -779,8 +787,12 @@ func TestTestCommandJsonOutput(t *testing.T) {
 		Policy:              testingPolicy,
 	}
 
+	evaluationData := evaluation.EvaluateData{
+		PolicyCheckData: policyCheckData,
+	}
+
 	k8sValidatorMock.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	mockedEvaluator.AssertCalled(t, "Evaluate", policyCheckData)
+	mockedEvaluator.AssertCalled(t, "Evaluate", evaluationData)
 }
 
 func TestTestCommandYamlOutput(t *testing.T) {
@@ -794,8 +806,12 @@ func TestTestCommandYamlOutput(t *testing.T) {
 		Policy:              testingPolicy,
 	}
 
+	evaluationData := evaluation.EvaluateData{
+		PolicyCheckData: policyCheckData,
+	}
+
 	k8sValidatorMock.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	mockedEvaluator.AssertCalled(t, "Evaluate", policyCheckData)
+	mockedEvaluator.AssertCalled(t, "Evaluate", evaluationData)
 }
 
 func TestTestCommandXmlOutput(t *testing.T) {
@@ -809,8 +825,12 @@ func TestTestCommandXmlOutput(t *testing.T) {
 		Policy:              testingPolicy,
 	}
 
+	evaluationData := evaluation.EvaluateData{
+		PolicyCheckData: policyCheckData,
+	}
+
 	k8sValidatorMock.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	mockedEvaluator.AssertCalled(t, "Evaluate", policyCheckData)
+	mockedEvaluator.AssertCalled(t, "Evaluate", evaluationData)
 }
 
 func TestTestCommandOnlyK8sFiles(t *testing.T) {
@@ -844,6 +864,10 @@ func TestTestCommandNoInternetConnection(t *testing.T) {
 		Policy:              testingPolicy,
 	}
 
+	evaluationData := evaluation.EvaluateData{
+		PolicyCheckData: policyCheckData,
+	}
+
 	path := "valid/path"
 	filesConfigurationsChan := newFilesConfigurationsChan(path)
 	invalidK8sFilesChan := newInvalidK8sFilesChan()
@@ -856,7 +880,7 @@ func TestTestCommandNoInternetConnection(t *testing.T) {
 	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidK8sFilesChan, K8sValidationWarnings, newErrorsChan())
 
 	k8sValidatorMock.AssertCalled(t, "ValidateResources", mock.Anything, 100)
-	mockedEvaluator.AssertCalled(t, "Evaluate", policyCheckData)
+	mockedEvaluator.AssertCalled(t, "Evaluate", evaluationData)
 }
 
 func executeTestCommand(ctx *TestCommandContext, args []string) error {

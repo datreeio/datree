@@ -152,7 +152,11 @@ func TestEvaluate(t *testing.T) {
 				Policy:              policy,
 			}
 
-			policyCheckResultData, err := evaluator.Evaluate(policyCheckData)
+			evaluateData := EvaluateData{
+				PolicyCheckData: policyCheckData,
+			}
+
+			policyCheckResultData, err := evaluator.Evaluate(evaluateData)
 			if err != nil {
 				panic(err)
 			}
