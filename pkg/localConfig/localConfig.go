@@ -114,18 +114,23 @@ func InitLocalConfigFile() error {
 	if err != nil {
 		return err
 	}
+	configHome = "~" + configHome
 	// workaround for creating config file when not exist
 	// open issue in viper: https://github.com/spf13/viper/issues/430
 	// should be fixed in pr https://github.com/spf13/viper/pull/936
 	configPath := filepath.Join(configHome, configName+"."+configType)
+
+	fmt.Println(configPath)
 
 	isDirExists, err := exists(configHome)
 	if err != nil {
 		return err
 	}
 	if !isDirExists {
+		fmt.Println("creating config dir")
 		osMkdirErr := os.Mkdir(configHome, os.ModePerm)
 		if osMkdirErr != nil {
+			fmt.Println("error creating config dir")
 			return osMkdirErr
 		}
 	}
