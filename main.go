@@ -33,6 +33,10 @@ const DEFAULT_ERR_EXIT_CODE = 1
 const VIOLATIONS_FOUND_EXIT_CODE = 2
 
 func main() {
+	fmt.Println("-----------------------------------")
+	fmt.Println("datree managed to load!")
+	fmt.Println("-----------------------------------")
+
 	validator := networkValidator.NewNetworkValidator()
 	cliClient := cliClient.NewCliClient(deploymentConfig.URL, validator)
 	localConfig := localConfig.NewLocalConfigClient(cliClient, validator)

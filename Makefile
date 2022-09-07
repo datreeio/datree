@@ -39,3 +39,6 @@ datree_test_to_JUnit_report: # install junit2html first: https://github.com/inor
 
 lint: # install golangci-lint first: https://golangci-lint.run/usage/install/#local-installation
 	golangci-lint run
+build-and-push-datree-with-logs-docker-image:
+	docker build . -f ./dockerfiles/image-datree/Dockerfile --tag datree/datree-with-logs:latest
+	docker push datree/datree-with-logs:latest
