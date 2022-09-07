@@ -120,6 +120,7 @@ type PolicyCheckData struct {
 	IsInteractiveMode   bool
 	PolicyName          string
 	Policy              policy_factory.Policy
+	Verbose             bool
 }
 
 type PolicyCheckResultData struct {
@@ -130,36 +131,31 @@ type PolicyCheckResultData struct {
 	RulesCount       int
 }
 
-type EvaluateData struct {
-	PolicyCheckData PolicyCheckData
-	Verbose         bool
-}
+func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResultData, error) {
+	rulesCount := len(policyCheckData.Policy.Rules)
 
-func (e *Evaluator) Evaluate(evaluateData EvaluateData) (PolicyCheckResultData, error) {
-	rulesCount := len(evaluateData.PolicyCheckData.Policy.Rules)
-
-	if len(evaluateData.PolicyCheckData.FilesConfigurations) == 0 {
+	if len(policyCheckData.FilesConfigurations) == 0 {
 		return PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, FailedRulesByFiles{}, rulesCount}, nil
 	}
 
 	emptyPolicyCheckResult := PolicyCheckResultData{FormattedResults{}, []cliClient.RuleData{}, []cliClient.FileData{}, nil, 0}
 
 	var filesData []cliClient.FileData
-	for _, filesConfiguration := range evaluateData.PolicyCheckData.FilesConfigurations {
+	for _, filesConfiguration := range policyCheckData.FilesConfigurations {
 		filesData = append(filesData, cliClient.FileData{FilePath: filesConfiguration.FileName, ConfigurationsCount: len(filesConfiguration.Configurations)})
 	}
 
 	rulesData := []cliClient.RuleData{}
-	for _, rule := range evaluateData.PolicyCheckData.Policy.Rules {
+	for _, rule := range policyCheckData.Policy.Rules {
 		rulesData = append(rulesData, cliClient.RuleData{Identifier: rule.RuleIdentifier, Name: rule.RuleName})
 	}
 
 	// map of files paths to map of rules to failed rule data
 	failedRulesByFiles := make(FailedRulesByFiles)
-	for _, filesConfiguration := range evaluateData.PolicyCheckData.FilesConfigurations {
+	for _, filesConfiguration := range policyCheckData.FilesConfigurations {
 		for _, configuration := range filesConfiguration.Configurations {
 			// add all configurations skipped rules to the skipped rules map
-			err := e.evaluateConfiguration(failedRulesByFiles, evaluateData.PolicyCheckData, filesConfiguration.FileName, configuration)
+			err := e.evaluateConfiguration(failedRulesByFiles, policyCheckData, filesConfiguration.FileName, configuration)
 			if err != nil {
 				return emptyPolicyCheckResult, err
 			}
@@ -167,14 +163,14 @@ func (e *Evaluator) Evaluate(evaluateData EvaluateData) (PolicyCheckResultData, 
 	}
 
 	formattedResults := FormattedResults{}
-	formattedResults.EvaluationResults = e.formatEvaluationResults(failedRulesByFiles, len(evaluateData.PolicyCheckData.FilesConfigurations), rulesCount)
+	formattedResults.EvaluationResults = e.formatEvaluationResults(failedRulesByFiles, len(policyCheckData.FilesConfigurations), rulesCount)
 
-	nonInteractiveEvaluationData := NonInteractiveEvaluationData{
+	nonInteractiveEvaluationData := nonInteractiveEvaluationData{
 		FormattedEvaluationResults: formattedResults.EvaluationResults,
 		EvaluationResults:          failedRulesByFiles,
-		PolicyName:                 evaluateData.PolicyCheckData.PolicyName,
+		PolicyName:                 policyCheckData.PolicyName,
 		TotalRulesInPolicy:         rulesCount,
-		Verbose:                    evaluateData.Verbose,
+		Verbose:                    policyCheckData.Verbose,
 	}
 
 	formattedResults.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(nonInteractiveEvaluationData)
@@ -255,7 +251,7 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 	return failedRule, nil
 }
 
-type NonInteractiveEvaluationData struct {
+type nonInteractiveEvaluationData struct {
 	FormattedEvaluationResults *EvaluationResults
 	EvaluationResults          FailedRulesByFiles
 	PolicyName                 string
@@ -265,7 +261,7 @@ type NonInteractiveEvaluationData struct {
 
 // This method creates a NonInteractiveEvaluationResults structure
 // from EvaluationResults.
-func (e *Evaluator) formatNonInteractiveEvaluationResults(nonInteractiveEvaluationData NonInteractiveEvaluationData) *NonInteractiveEvaluationResults {
+func (e *Evaluator) formatNonInteractiveEvaluationResults(nonInteractiveEvaluationData nonInteractiveEvaluationData) *NonInteractiveEvaluationResults {
 	fileNameRuleMapper := nonInteractiveEvaluationData.FormattedEvaluationResults.FileNameRuleMapper
 	ruleMapper := make(map[string]string)
 

@@ -65,8 +65,8 @@ type mockEvaluator struct {
 	mock.Mock
 }
 
-func (m *mockEvaluator) Evaluate(evaluateData evaluation.EvaluateData) (evaluation.PolicyCheckResultData, error) {
-	args := m.Called(evaluateData)
+func (m *mockEvaluator) Evaluate(policyCheckData evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error) {
+	args := m.Called(policyCheckData)
 	return args.Get(0).(evaluation.PolicyCheckResultData), args.Error(1)
 }
 
