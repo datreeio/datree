@@ -33,14 +33,20 @@ type property struct {
 }
 
 type testCase struct {
-	Name      string `xml:"name,attr"`
-	ClassName string `xml:"classname,attr"`
-	Skipped   *skipped
-	Failure   *failure
+	Name             string `xml:"name,attr"`
+	ClassName        string `xml:"classname,attr"`
+	Skipped          *skipped
+	Failure          *failure
+	DocumentationUrl *documentationUrl
 }
 
 type skipped struct {
 	XMLName xml.Name `xml:"skipped,omitempty"`
+	Message string   `xml:"message,attr"`
+}
+
+type documentationUrl struct {
+	XMLName xml.Name `xml:"documentationUrl,omitempty"`
 	Message string   `xml:"message,attr"`
 }
 
@@ -55,7 +61,7 @@ type AdditionalJUnitData struct {
 	AllFilesThatRanPolicyCheck []string
 }
 
-func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUnitData AdditionalJUnitData) JUnitOutput {
+func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUnitData AdditionalJUnitData, verbose bool) JUnitOutput {
 	var jUnitOutput JUnitOutput
 
 	if formattedOutput.PolicySummary != nil {
@@ -84,7 +90,7 @@ func FormattedOutputToJUnitOutput(formattedOutput FormattedOutput, additionalJUn
 		policyValidationResult := findFileInPolicyValidationResults(fileThatRanPolicyCheck, formattedOutput.PolicyValidationResults)
 
 		if policyValidationResult != nil {
-			jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, additionalJUnitData.AllEnabledRules))
+			jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPolicyValidationResultTestSuite(policyValidationResult, additionalJUnitData.AllEnabledRules, verbose))
 		} else {
 			jUnitOutput.TestSuites = append(jUnitOutput.TestSuites, getPassingFileTestSuite(fileThatRanPolicyCheck, additionalJUnitData.AllEnabledRules))
 		}
@@ -113,7 +119,7 @@ func getPassingFileTestSuite(fileName string, allEnabledRules []cliClient.RuleDa
 	}
 }
 
-func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults, allEnabledRules []cliClient.RuleData) testSuite {
+func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluationResults, allEnabledRules []cliClient.RuleData, verbose bool) testSuite {
 	suite := testSuite{
 		Name:      policyValidationResult.FileName,
 		TestCases: []testCase{},
@@ -124,6 +130,7 @@ func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluat
 			Name:      rule.Name,
 			ClassName: rule.Identifier,
 		}
+
 		ruleResult := findRuleResult(rule, policyValidationResult.RuleResults)
 
 		if ruleResult != nil {
@@ -131,6 +138,13 @@ func getPolicyValidationResultTestSuite(policyValidationResult *FormattedEvaluat
 				Message: ruleResult.MessageOnFailure,
 				Content: getContentFromOccurrencesDetails(ruleResult.OccurrencesDetails),
 			}
+
+			if verbose {
+				testCase.DocumentationUrl = &documentationUrl{
+					Message: ruleResult.DocumentationUrl,
+				}
+			}
+
 			if areAllOccurrencesSkipped(ruleResult.OccurrencesDetails) {
 				testCase.Skipped = &skipped{Message: "All failing configs skipped"}
 			}

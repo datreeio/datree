@@ -488,6 +488,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, testCommandData *Tes
 		IsInteractiveMode:   isInteractiveMode,
 		PolicyName:          policyName,
 		Policy:              testCommandData.Policy,
+		Verbose:             testCommandData.Verbose,
 	}
 
 	emptyEvaluationResultData := EvaluationResultData{

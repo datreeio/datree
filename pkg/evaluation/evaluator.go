@@ -120,6 +120,7 @@ type PolicyCheckData struct {
 	IsInteractiveMode   bool
 	PolicyName          string
 	Policy              policy_factory.Policy
+	Verbose             bool
 }
 
 type PolicyCheckResultData struct {
@@ -164,7 +165,15 @@ func (e *Evaluator) Evaluate(policyCheckData PolicyCheckData) (PolicyCheckResult
 	formattedResults := FormattedResults{}
 	formattedResults.EvaluationResults = e.formatEvaluationResults(failedRulesByFiles, len(policyCheckData.FilesConfigurations), rulesCount)
 
-	formattedResults.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(formattedResults.EvaluationResults, failedRulesByFiles, policyCheckData.PolicyName, rulesCount)
+	nonInteractiveEvaluationData := nonInteractiveEvaluationData{
+		FormattedEvaluationResults: formattedResults.EvaluationResults,
+		EvaluationResults:          failedRulesByFiles,
+		PolicyName:                 policyCheckData.PolicyName,
+		TotalRulesInPolicy:         rulesCount,
+		Verbose:                    policyCheckData.Verbose,
+	}
+
+	formattedResults.NonInteractiveEvaluationResults = e.formatNonInteractiveEvaluationResults(nonInteractiveEvaluationData)
 
 	return PolicyCheckResultData{formattedResults, rulesData, filesData, failedRulesByFiles, rulesCount}, nil
 }
@@ -242,14 +251,22 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 	return failedRule, nil
 }
 
+type nonInteractiveEvaluationData struct {
+	FormattedEvaluationResults *EvaluationResults
+	EvaluationResults          FailedRulesByFiles
+	PolicyName                 string
+	TotalRulesInPolicy         int
+	Verbose                    bool
+}
+
 // This method creates a NonInteractiveEvaluationResults structure
 // from EvaluationResults.
-func (e *Evaluator) formatNonInteractiveEvaluationResults(formattedEvaluationResults *EvaluationResults, evaluationResults FailedRulesByFiles, policyName string, totalRulesInPolicy int) *NonInteractiveEvaluationResults {
-	fileNameRuleMapper := formattedEvaluationResults.FileNameRuleMapper
+func (e *Evaluator) formatNonInteractiveEvaluationResults(nonInteractiveEvaluationData nonInteractiveEvaluationData) *NonInteractiveEvaluationResults {
+	fileNameRuleMapper := nonInteractiveEvaluationData.FormattedEvaluationResults.FileNameRuleMapper
 	ruleMapper := make(map[string]string)
 
-	for filePath := range evaluationResults {
-		for ruleIdentifier := range evaluationResults[filePath] {
+	for filePath := range nonInteractiveEvaluationData.EvaluationResults {
+		for ruleIdentifier := range nonInteractiveEvaluationData.EvaluationResults[filePath] {
 			ruleMapper[ruleIdentifier] = ruleIdentifier
 		}
 	}
@@ -262,6 +279,10 @@ func (e *Evaluator) formatNonInteractiveEvaluationResults(formattedEvaluationRes
 
 		for _, rule := range rules {
 			ruleResult := RuleResult{Identifier: ruleMapper[rule.Identifier], Name: rule.Name, MessageOnFailure: rule.MessageOnFailure, OccurrencesDetails: rule.OccurrencesDetails}
+			if nonInteractiveEvaluationData.Verbose {
+				ruleResult.DocumentationUrl = rule.DocumentationUrl
+			}
+
 			formattedEvaluationResults.RuleResults = append(
 				formattedEvaluationResults.RuleResults,
 				&ruleResult,
@@ -273,11 +294,11 @@ func (e *Evaluator) formatNonInteractiveEvaluationResults(formattedEvaluationRes
 		)
 	}
 	nonInteractiveEvaluationResults.PolicySummary = &PolicySummary{
-		PolicyName:         policyName,
-		TotalRulesInPolicy: totalRulesInPolicy,
-		TotalRulesFailed:   formattedEvaluationResults.Summary.TotalFailedRules,
-		TotalSkippedRules:  formattedEvaluationResults.Summary.TotalSkippedRules,
-		TotalPassedCount:   formattedEvaluationResults.Summary.TotalPassedRules,
+		PolicyName:         nonInteractiveEvaluationData.PolicyName,
+		TotalRulesInPolicy: nonInteractiveEvaluationData.TotalRulesInPolicy,
+		TotalRulesFailed:   nonInteractiveEvaluationData.FormattedEvaluationResults.Summary.TotalFailedRules,
+		TotalSkippedRules:  nonInteractiveEvaluationData.FormattedEvaluationResults.Summary.TotalSkippedRules,
+		TotalPassedCount:   nonInteractiveEvaluationData.FormattedEvaluationResults.Summary.TotalPassedRules,
 	}
 
 	return &nonInteractiveEvaluationResults

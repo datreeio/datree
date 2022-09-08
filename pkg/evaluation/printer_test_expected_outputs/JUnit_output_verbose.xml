@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Default" tests="21" failures="4" skipped="0">
+	<testsuite name="File1">
+		<testcase name="Ensure each container image has a pinned (tag) version" classname="CONTAINERS_MISSING_IMAGE_VALUE_VERSION">
+			<failure message="Incorrect value for key `image` - specify an image version to avoid unpleasant &#34;version surprises&#34; in the future">1 occurrences&#xA;- metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+			<documentationUrl message="https://hub.datree.io/ensure-image-pinned-version"></documentationUrl>
+		</testcase>
+		<testcase name="Ensure each container has a configured memory request" classname="CONTAINERS_MISSING_MEMORY_REQUEST_KEY"></testcase>
+		<testcase name="Ensure each container has a configured CPU request" classname="CONTAINERS_MISSING_CPU_REQUEST_KEY"></testcase>
+		<testcase name="Ensure each container has a configured memory limit" classname="CONTAINERS_MISSING_MEMORY_LIMIT_KEY">
+			<failure message="Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization">1 occurrences&#xA;- metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+			<documentationUrl message="https://hub.datree.io/ensure-memory-limit"></documentationUrl>
+		</testcase>
+		<testcase name="Ensure each container has a configured CPU limit" classname="CONTAINERS_MISSING_CPU_LIMIT_KEY"></testcase>
+		<testcase name="Prevent Ingress from forwarding all traffic to a single container" classname="INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE"></testcase>
+		<testcase name="Prevent Service from exposing node port" classname="SERVICE_INCORRECT_TYPE_VALUE_NODEPORT"></testcase>
+		<testcase name="Ensure CronJob scheduler is valid" classname="CRONJOB_INVALID_SCHEDULE_VALUE"></testcase>
+		<testcase name="Ensure workload has valid label values" classname="WORKLOAD_INVALID_LABELS_VALUE">
+			<failure message="Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it">1 occurrences&#xA;- metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+			<documentationUrl message="https://hub.datree.io/ensure-labels-value-valid"></documentationUrl>
+		</testcase>
+		<testcase name="Ensure deployment-like resource is using a valid restart policy" classname="WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS"></testcase>
+		<testcase name="Ensure each container has a configured liveness probe" classname="CONTAINERS_MISSING_LIVENESSPROBE_KEY">
+			<failure message="Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks">1 occurrences&#xA;- metadata.name: rss-site (kind: Deployment)&#xA;0 skipped&#xA;</failure>
+			<documentationUrl message="https://hub.datree.io/ensure-liveness-probe"></documentationUrl>
+		</testcase>
+		<testcase name="Ensure each container has a configured readiness probe" classname="CONTAINERS_MISSING_READINESSPROBE_KEY"></testcase>
+		<testcase name="Ensure HPA has minimum replicas configured" classname="HPA_MISSING_MINREPLICAS_KEY"></testcase>
+		<testcase name="Prevent workload from using the default namespace" classname="WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT"></testcase>
+		<testcase name="Ensure Deployment has more than one replica configured" classname="DEPLOYMENT_INCORRECT_REPLICAS_VALUE"></testcase>
+		<testcase name="Ensure CronJob has a configured deadline" classname="CRONJOB_MISSING_STARTINGDEADLINESECOND_KEY"></testcase>
+		<testcase name="Prevent deprecated APIs in Kubernetes v1.16" classname="K8S_DEPRECATED_APIVERSION_1.16"></testcase>
+		<testcase name="Prevent deprecated APIs in Kubernetes v1.17" classname="K8S_DEPRECATED_APIVERSION_1.17"></testcase>
+		<testcase name="Prevent containers from having root access capabilities" classname="CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE"></testcase>
+		<testcase name="Prevent CronJob from executing jobs concurrently" classname="CRONJOB_MISSING_CONCURRENCYPOLICY_KEY"></testcase>
+		<testcase name="Ensure resource has a configured name" classname="RESOURCE_MISSING_NAME"></testcase>
+	</testsuite>
+	<testsuite name="File2">
+		<testcase name="Ensure each container image has a pinned (tag) version" classname="CONTAINERS_MISSING_IMAGE_VALUE_VERSION"></testcase>
+		<testcase name="Ensure each container has a configured memory request" classname="CONTAINERS_MISSING_MEMORY_REQUEST_KEY"></testcase>
+		<testcase name="Ensure each container has a configured CPU request" classname="CONTAINERS_MISSING_CPU_REQUEST_KEY"></testcase>
+		<testcase name="Ensure each container has a configured memory limit" classname="CONTAINERS_MISSING_MEMORY_LIMIT_KEY"></testcase>
+		<testcase name="Ensure each container has a configured CPU limit" classname="CONTAINERS_MISSING_CPU_LIMIT_KEY"></testcase>
+		<testcase name="Prevent Ingress from forwarding all traffic to a single container" classname="INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE"></testcase>
+		<testcase name="Prevent Service from exposing node port" classname="SERVICE_INCORRECT_TYPE_VALUE_NODEPORT"></testcase>
+		<testcase name="Ensure CronJob scheduler is valid" classname="CRONJOB_INVALID_SCHEDULE_VALUE"></testcase>
+		<testcase name="Ensure workload has valid label values" classname="WORKLOAD_INVALID_LABELS_VALUE"></testcase>
+		<testcase name="Ensure deployment-like resource is using a valid restart policy" classname="WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS"></testcase>
+		<testcase name="Ensure each container has a configured liveness probe" classname="CONTAINERS_MISSING_LIVENESSPROBE_KEY"></testcase>
+		<testcase name="Ensure each container has a configured readiness probe" classname="CONTAINERS_MISSING_READINESSPROBE_KEY"></testcase>
+		<testcase name="Ensure HPA has minimum replicas configured" classname="HPA_MISSING_MINREPLICAS_KEY"></testcase>
+		<testcase name="Prevent workload from using the default namespace" classname="WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT"></testcase>
+		<testcase name="Ensure Deployment has more than one replica configured" classname="DEPLOYMENT_INCORRECT_REPLICAS_VALUE"></testcase>
+		<testcase name="Ensure CronJob has a configured deadline" classname="CRONJOB_MISSING_STARTINGDEADLINESECOND_KEY"></testcase>
+		<testcase name="Prevent deprecated APIs in Kubernetes v1.16" classname="K8S_DEPRECATED_APIVERSION_1.16"></testcase>
+		<testcase name="Prevent deprecated APIs in Kubernetes v1.17" classname="K8S_DEPRECATED_APIVERSION_1.17"></testcase>
+		<testcase name="Prevent containers from having root access capabilities" classname="CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE"></testcase>
+		<testcase name="Prevent CronJob from executing jobs concurrently" classname="CRONJOB_MISSING_CONCURRENCYPOLICY_KEY"></testcase>
+		<testcase name="Ensure resource has a configured name" classname="RESOURCE_MISSING_NAME"></testcase>
+	</testsuite>
+	<testsuite name="policySummary">
+		<properties>
+			<property name="policyName" value="Default"></property>
+			<property name="totalRulesInPolicy" value="21"></property>
+			<property name="totalSkippedRules" value="0"></property>
+			<property name="totalRulesFailed" value="4"></property>
+			<property name="totalPassedCount" value="0"></property>
+		</properties>
+	</testsuite>
+	<testsuite name="evaluationSummary">
+		<properties>
+			<property name="configsCount" value="1"></property>
+			<property name="filesCount" value="1"></property>
+			<property name="passedYamlValidationCount" value="1"></property>
+			<property name="k8sValidation" value="1/1"></property>
+			<property name="passedPolicyValidationCount" value="0"></property>
+		</properties>
+	</testsuite>
+</testsuites>

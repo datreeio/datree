@@ -150,6 +150,7 @@ func TestEvaluate(t *testing.T) {
 				IsInteractiveMode:   tt.args.policyCheckData.IsInteractiveMode,
 				PolicyName:          policy.Name,
 				Policy:              policy,
+				Verbose:             tt.args.policyCheckData.Verbose,
 			}
 
 			policyCheckResultData, err := evaluator.Evaluate(policyCheckData)

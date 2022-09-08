@@ -27,6 +27,7 @@ type RuleResult struct {
 	Name               string              `yaml:"name" json:"name" xml:"name"`
 	MessageOnFailure   string              `yaml:"messageOnFailure" json:"messageOnFailure" xml:"messageOnFailure"`
 	OccurrencesDetails []OccurrenceDetails `yaml:"occurrencesDetails" json:"occurrencesDetails" xml:"occurrencesDetails"`
+	DocumentationUrl   string              `yaml:"documentationUrl,omitempty" json:"documentationUrl,omitempty" xml:"documentationUrl,omitempty"`
 }
 
 type NonInteractiveEvaluationSummary struct {
