@@ -5,4 +5,4 @@
   language: docker_image
   pass_filenames: true
   args: [ 'test', '--only-k8s-files' ]
-  entry: datree/datree-with-logs:latest
+  entry: datree/datree-with-logs:latest --user root

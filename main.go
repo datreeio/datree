@@ -34,7 +34,7 @@ const VIOLATIONS_FOUND_EXIT_CODE = 2
 
 func main() {
 	fmt.Println("-----------------------------------")
-	fmt.Println("datree managed to load!")
+	fmt.Println("datree managed to load!3")
 	fmt.Println("-----------------------------------")
 
 	validator := networkValidator.NewNetworkValidator()
