@@ -402,13 +402,9 @@ func getExpectedOutputs() expectedOutputs {
 
 func getExpectedOutputsWithVerbose() expectedOutputs {
 	jsonOutputVerbose, _ := os.ReadFile("./printer_test_expected_outputs/json_output_verbose.json")
-	yamlOutputVerbose, _ := os.ReadFile("./printer_test_expected_outputs/yaml_output_test.yaml")
-	xmlOutputVerbose, _ := os.ReadFile("./printer_test_expected_outputs/xml_output_verbose.xml")
 	jUnitOutputVerbose, _ := os.ReadFile("./printer_test_expected_outputs/JUnit_output_verbose.xml")
 	return expectedOutputs{
 		json:  string(jsonOutputVerbose),
-		yaml:  string(yamlOutputVerbose),
-		xml:   string(xmlOutputVerbose),
 		JUnit: string(jUnitOutputVerbose),
 	}
 }
