@@ -2,13 +2,12 @@ package evaluation
 
 import (
 	"errors"
+	"github.com/datreeio/datree/bl/validation"
 	"os"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/defaultRules"
-
-	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 
 	"github.com/datreeio/datree/pkg/printer"
@@ -121,6 +120,18 @@ func TestCustomOutputs(t *testing.T) {
 	assert.Equal(t, expectedOutputs.xml, xmlStdout)
 
 	JUnitStdout, _ := getJUnitOutput(&formattedOutput, additionalJUnitData, false)
+	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
+}
+
+func TestCustomOutputsWithVerbose(t *testing.T) {
+	formattedOutput := createFormattedOutputWithDocumentationUrl()
+	additionalJUnitData := createAdditionalJUnitData()
+	expectedOutputs := getExpectedOutputsWithVerbose()
+
+	jsonStdout, _ := getJsonOutput(&formattedOutput)
+	assert.Equal(t, expectedOutputs.json, jsonStdout)
+
+	JUnitStdout, _ := getJUnitOutput(&formattedOutput, additionalJUnitData, true)
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
@@ -263,6 +274,100 @@ func createFormattedOutput() FormattedOutput {
 	}
 }
 
+func createFormattedOutputWithDocumentationUrl() FormattedOutput {
+	evaluationResults := &NonInteractiveEvaluationResults{
+		PolicySummary: &PolicySummary{
+			PolicyName:         "Default",
+			TotalRulesInPolicy: 21,
+			TotalRulesFailed:   4,
+			TotalPassedCount:   0,
+		},
+		FormattedEvaluationResults: []*FormattedEvaluationResults{
+			{
+				FileName: "File1",
+				RuleResults: []*RuleResult{
+					{
+						Identifier:       "CONTAINERS_MISSING_IMAGE_VALUE_VERSION",
+						Name:             "Ensure each container image has a pinned (tag) version",
+						MessageOnFailure: "Incorrect value for key `image` - specify an image version to avoid unpleasant \"version surprises\" in the future",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+							Occurrences:  1,
+							FailureLocations: []cliClient.FailureLocation{{
+								SchemaPath:        "spec.template.spec.containers.0.image",
+								FailedErrorLine:   10,
+								FailedErrorColumn: 20,
+							}},
+						}},
+						DocumentationUrl: "https://hub.datree.io/ensure-image-pinned-version",
+					},
+					{
+						Identifier:       "CONTAINERS_MISSING_MEMORY_LIMIT_KEY",
+						Name:             "Ensure each container has a configured memory limit",
+						MessageOnFailure: "Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+							Occurrences:  1,
+							FailureLocations: []cliClient.FailureLocation{{
+								SchemaPath:        "spec.template.spec.containers.0.resources.limits",
+								FailedErrorLine:   95,
+								FailedErrorColumn: 15,
+							}},
+						}},
+						DocumentationUrl: "https://hub.datree.io/ensure-memory-limit",
+					},
+					{
+						Identifier:       "WORKLOAD_INVALID_LABELS_VALUE",
+						Name:             "Ensure workload has valid label values",
+						MessageOnFailure: "Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+							Occurrences:  1,
+							FailureLocations: []cliClient.FailureLocation{{
+								SchemaPath:        "metadata.labels.owner",
+								FailedErrorLine:   7,
+								FailedErrorColumn: 12,
+							}},
+						}},
+						DocumentationUrl: "https://hub.datree.io/ensure-labels-value-valid",
+					},
+					{
+						Identifier:       "CONTAINERS_MISSING_LIVENESSPROBE_KEY",
+						Name:             "Ensure each container has a configured liveness probe",
+						MessageOnFailure: "Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks",
+						OccurrencesDetails: []OccurrenceDetails{{
+							MetadataName: "rss-site",
+							Kind:         "Deployment",
+							Occurrences:  1,
+							FailureLocations: []cliClient.FailureLocation{{
+								SchemaPath:        "spec.template.spec.containers.0",
+								FailedErrorLine:   22,
+								FailedErrorColumn: 11,
+							}},
+						}},
+						DocumentationUrl: "https://hub.datree.io/ensure-liveness-probe",
+					},
+				},
+			},
+		},
+	}
+
+	return FormattedOutput{
+		PolicyValidationResults: evaluationResults.FormattedEvaluationResults,
+		PolicySummary:           evaluationResults.PolicySummary,
+		EvaluationSummary: NonInteractiveEvaluationSummary{
+			ConfigsCount:                1,
+			FilesCount:                  1,
+			PassedYamlValidationCount:   1,
+			K8sValidation:               "1/1",
+			PassedPolicyValidationCount: 0,
+		},
+	}
+}
+
 func createInvalidK8sFileFormattedOutput() FormattedOutput {
 	err := errors.New("k8s schema validation error: could not find schema for Deployment You can skip files with missing schemas instead of failing by using the `--ignore-missing-schemas` flag ")
 	err2 := errors.New("k8s schema validation error: For field spec.replicas: Invalid type. Expected: [integer,null], given: string ")
@@ -292,6 +397,19 @@ func getExpectedOutputs() expectedOutputs {
 		yaml:  string(yamlOutput),
 		xml:   string(xmlOutput),
 		JUnit: string(jUnitOutput),
+	}
+}
+
+func getExpectedOutputsWithVerbose() expectedOutputs {
+	jsonOutputVerbose, _ := os.ReadFile("./printer_test_expected_outputs/json_output_verbose.json")
+	yamlOutputVerbose, _ := os.ReadFile("./printer_test_expected_outputs/yaml_output_test.yaml")
+	xmlOutputVerbose, _ := os.ReadFile("./printer_test_expected_outputs/xml_output_verbose.xml")
+	jUnitOutputVerbose, _ := os.ReadFile("./printer_test_expected_outputs/JUnit_output_verbose.xml")
+	return expectedOutputs{
+		json:  string(jsonOutputVerbose),
+		yaml:  string(yamlOutputVerbose),
+		xml:   string(xmlOutputVerbose),
+		JUnit: string(jUnitOutputVerbose),
 	}
 }
 
