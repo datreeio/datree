@@ -158,10 +158,6 @@ func TestEvaluate(t *testing.T) {
 				panic(err)
 			}
 
-			if policyCheckData.Verbose {
-				assert.NotNil(t, policyCheckResultData.FormattedResults.NonInteractiveEvaluationResults.FormattedEvaluationResults[0].RuleResults[0].DocumentationUrl)
-			}
-
 			if len(policyCheckData.FilesConfigurations) > 0 {
 				assert.Equal(t, tt.expected.policyCheckResultData.FormattedResults.EvaluationResults.Summary, policyCheckResultData.FormattedResults.EvaluationResults.Summary)
 				assert.Equal(t, tt.expected.policyCheckResultData.FormattedResults.EvaluationResults.FileNameRuleMapper, policyCheckResultData.FormattedResults.EvaluationResults.FileNameRuleMapper)
@@ -229,60 +225,6 @@ func request_evaluation_all_valid() *evaluateTestCase {
 				IsInteractiveMode:   true,
 				PolicyName:          "Default",
 				Policy:              policy,
-			},
-		},
-		mock: &evaluatorMock{
-			cliClient: &cliClientMockTestCase{
-				getVersionMessage: struct {
-					response *cliClient.VersionMessage
-					err      error
-				}{
-					response: nil,
-					err:      nil,
-				},
-			},
-		},
-		expected: &evaluateExpected{
-			policyCheckResultData: PolicyCheckResultData{
-				FormattedResults: FormattedResults{
-					EvaluationResults: &EvaluationResults{
-						FileNameRuleMapper: make(map[string]map[string]*Rule),
-						Summary: EvaluationResultsSummery{
-							TotalFailedRules:  0,
-							TotalSkippedRules: 0,
-							TotalPassedRules:  3,
-							FilesCount:        1,
-							FilesPassedCount:  1,
-						},
-					},
-					NonInteractiveEvaluationResults: nil,
-				},
-			},
-			err: nil,
-		},
-	}
-}
-
-func request_evaluation_all_valid_verbose() *evaluateTestCase {
-	validFilePath := "internal/fixtures/kube/pass-all.yaml"
-
-	prerunData := mockGetPreRunData()
-	defaultRules, err := defaultRules.GetDefaultRules()
-	if err != nil {
-		panic(err)
-	}
-
-	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules)
-
-	return &evaluateTestCase{
-		name: "should request validation without invalid files",
-		args: &evaluateArgs{
-			policyCheckData: PolicyCheckData{
-				FilesConfigurations: newFilesConfigurations(validFilePath),
-				IsInteractiveMode:   false,
-				PolicyName:          "Default",
-				Policy:              policy,
-				Verbose:             true,
 			},
 		},
 		mock: &evaluatorMock{
