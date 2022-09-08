@@ -1,8 +1,8 @@
 - id: datree-docker
   name: datree test, run within docker
   description: Prevent Kubernetes misconfigurations from reaching production
-  types: [file, yaml]
+  types: [ file, yaml ]
   language: docker_image
   pass_filenames: true
-  args: ['test', '--only-k8s-files']
-  entry: datree/datree:latest
+  args: [ 'test', '--only-k8s-files' ]
+  entry: --user root datree/datree-with-logs:latest
