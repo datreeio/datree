@@ -4,5 +4,5 @@
   types: [ file, yaml ]
   language: docker_image
   pass_filenames: true
-  args: [ 'test', '--only-k8s-files' ]
+  args: [ 'test', '--only-k8s-files', '--output', 'yaml' ]
   entry: --user root datree/datree:latest
