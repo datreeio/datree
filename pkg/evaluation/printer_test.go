@@ -2,9 +2,10 @@ package evaluation
 
 import (
 	"errors"
-	"github.com/datreeio/datree/bl/validation"
 	"os"
 	"testing"
+
+	"github.com/datreeio/datree/bl/validation"
 
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/defaultRules"
