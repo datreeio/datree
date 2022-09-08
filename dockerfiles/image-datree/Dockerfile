@@ -10,4 +10,4 @@ RUN go build -tags main -ldflags="-extldflags '-static' -X github.com/datreeio/d
 
 FROM alpine:3.14
 COPY --from=builder /go/src/app/datree /
-ENTRYPOINT ["/"]
+ENTRYPOINT ["/datree"]

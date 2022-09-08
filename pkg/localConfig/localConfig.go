@@ -114,7 +114,6 @@ func InitLocalConfigFile() error {
 	if err != nil {
 		return err
 	}
-	configHome = "~" + configHome
 	// workaround for creating config file when not exist
 	// open issue in viper: https://github.com/spf13/viper/issues/430
 	// should be fixed in pr https://github.com/spf13/viper/pull/936
