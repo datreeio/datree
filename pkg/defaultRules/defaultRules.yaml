@@ -1874,10 +1874,34 @@ rules:
     uniqueName: CONTAINERS_INCORRECT_SECCOMP_PROFILE
     enabledByDefault: false
     documentationUrl: "https://www.datree.io/resources/eks-best-practices-you-should-know"
-    messageOnFailure: "seccompProfile was set to 'Unconfined' - unset it to retain the pod's or container's isolation"
+    messageOnFailure: "seccompProfile was omitted or was explicitly set to 'Unconfined' - set an explicit value to increase the pod or container's isolation"
     category: Containers
     schema:
       definitions:
+        seccompExplicit:
+          if: *standardKinds
+          then:
+            properties: 
+              spec:
+                oneOf:
+                  - $ref: "#/$defs/securityContextSeccompReq"
+                  - $ref: "#/definitions/seccompExplicitInContainer"
+        seccompExplicitInContainer:
+          if: *standardKinds
+          then:
+            properties:
+              containers:
+                type: array
+                items:
+                  $ref: "#/$defs/securityContextSeccompReq"
+              initContainers:
+                type: array
+                items:
+                  $ref: "#/$defs/securityContextSeccompReq"
+              ephemeralContainers:
+                type: array
+                items:
+                  $ref: "#/$defs/securityContextSeccompReq"
         seccompPatternInSpec:
           if: *standardKinds
           then:
@@ -1904,10 +1928,24 @@ rules:
                       $ref: "#/$defs/securityContextSeccomp"
 
       allOf:
+        - $ref: "#/definitions/seccompExplicit"
         - $ref: "#/definitions/seccompPatternInSpec"
         - $ref: "#/definitions/seccompPatternInContainer"
 
       $defs:
+        securityContextSeccompReq:
+          required:
+            - securityContext
+          properties:
+            securityContext:
+              type: object
+              required:
+                - seccompProfile
+              properties:
+                seccompProfile:
+                  type: object
+                  required:
+                    - type
         securityContextSeccomp:
           properties:
             securityContext:
