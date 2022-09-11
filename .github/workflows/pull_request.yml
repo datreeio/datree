@@ -17,9 +17,13 @@ jobs:
         with:
           go-version: 1.18
       - run: echo $RELEASE_DATREE_PROD
+        shell: bash
       - run: echo "Hi"
+        shell: bash
       - run: export GO_BUILD_TAG=$(bash ./scripts/define_build_tag.sh)
+        shell: bash
       - run: echo $GO_BUILD_TAG
+        shell: bash
       - name: Go Build With Tags
         run: go build -tags $GO_BUILD_TAG
       - name: Go Test
