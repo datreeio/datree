@@ -1,0 +1,24 @@
+name: Release Candidate Workflow
+
+#on:
+#  pull_request:
+
+on:
+  push:
+    branches: ['DAT-4405-remove-travis-cicd-impl']
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.4
+        with:
+          go-version: 1.18
+      - run: echo $RELEASE_DATREE_PROD
+      - run: export GO_BUILD_TAG=$(bash ./scripts/define_build_tag.sh)
+      - name: Go Build With Tags
+        run: go build -tags $GO_BUILD_TAG
+      - name: Go Test
+        run: go test ./...
