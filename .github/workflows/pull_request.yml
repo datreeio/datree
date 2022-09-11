@@ -16,9 +16,10 @@ jobs:
         uses: actions/setup-go@v2.1.4
         with:
           go-version: 1.18
-      - run: echo "$RELEASE_DATREE_PROD"
+      - run: echo $RELEASE_DATREE_PROD
+      - run: echo "Hi"
       - run: export GO_BUILD_TAG=$(bash ./scripts/define_build_tag.sh)
-      - run: echo "$GO_BUILD_TAG"
+      - run: echo $GO_BUILD_TAG
       - name: Go Build With Tags
         run: go build -tags $GO_BUILD_TAG
       - name: Go Test
