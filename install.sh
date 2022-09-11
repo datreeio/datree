@@ -1,8 +1,10 @@
 #!/bin/bash
 
+DATREE_HOME="$HOME/.datree"
+
 create_uninstall_script()
 {
-    UNINSTALL_SCRIPT="$HOME/.datree/uninstall.sh"
+    UNINSTALL_SCRIPT="$DATREE_HOME/uninstall.sh"
     touch $UNINSTALL_SCRIPT && chmod +x $UNINSTALL_SCRIPT
 
     cat >> $UNINSTALL_SCRIPT << 'END'
@@ -10,9 +12,9 @@ create_uninstall_script()
     echo "This script must be executed with root privileges." && exit 1
     fi
     rm -f /usr/local/bin/datree
-    rm -rf $HOME/.datree
-    echo "Datree was successfully uninstalled."
 END
+    echo "    rm -rf $DATREE_HOME" >> $UNINSTALL_SCRIPT
+    echo "    echo \"Datree was successfully uninstalled.\"" >> $UNINSTALL_SCRIPT
 }
 
 
@@ -53,7 +55,7 @@ fi
 
 unzip -qq $OUTPUT_BASENAME_WITH_POSTFIX -d $OUTPUT_BASENAME
 
-mkdir -p ~/.datree
+mkdir -p $DATREE_HOME
 
 rm -f /usr/local/bin/datree 2> /dev/null || sudo rm -f /usr/local/bin/datree
 cp $OUTPUT_BASENAME/datree /usr/local/bin 2> /dev/null || sudo cp $OUTPUT_BASENAME/datree /usr/local/bin
@@ -62,7 +64,7 @@ rm $OUTPUT_BASENAME_WITH_POSTFIX
 rm -rf $OUTPUT_BASENAME
 
 # download and save demo file
-curl -s https://get.datree.io/k8s-demo.yaml > ~/.datree/k8s-demo.yaml
+curl -s https://get.datree.io/k8s-demo.yaml > $DATREE_HOME/k8s-demo.yaml
 
 # create uninstall script
 create_uninstall_script
@@ -71,7 +73,7 @@ echo -e "\033[32m[V] Finished Installation\033[0m"
 
 echo
 
-echo -e "\033[35m Usage: $ datree test ~/.datree/k8s-demo.yaml \033[0m"
+echo -e "\033[35m Usage: $ datree test $DATREE_HOME/k8s-demo.yaml \033[0m"
 
 echo -e "\033[35m Using Helm? => https://github.com/datreeio/helm-datree \033[0m"
 
