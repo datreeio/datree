@@ -6,8 +6,7 @@ MINOR_VERSION=6
 
 git fetch --prune --unshallow --tags
 latestRcTag=$(git tag --sort=-version:refname | grep -E "^${MAJOR_VERSION}\.${MINOR_VERSION}.[0-9]+-rc" | head -n 1 | grep --only-matching "^${MAJOR_VERSION}\.${MINOR_VERSION}.[0-9]\+" || true)
-test=$(git tag --sort=-version:refname)
-echo $test
+
 if [ "$latestRcTag" == "" ]; then
     nextVersion=$MAJOR_VERSION.$MINOR_VERSION.0
 else
