@@ -21,4 +21,4 @@ jobs:
         run: |
           chmod +x ././scripts/deploy_release_candidate.sh
           ././scripts/deploy_release_candidate.sh
-        shell: bas
+        shell: bash
