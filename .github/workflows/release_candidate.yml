@@ -20,10 +20,10 @@ jobs:
     needs: [go_build_and_test]
     steps:
       - uses: actions/checkout@v3
-      - name: GitHub Tag Name example
+      - name: GitHub Config Identity
         run: |
-          echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
-          echo "Tag name from github.ref_name: ${{  github.ref_name }}"
+          git config --global user.email "ci@datree.io"
+          git config --global user.name "datree-ci"
       - name: Run deploy release candidate file
         run: |
           chmod +x ./scripts/deploy_release_candidate.sh
