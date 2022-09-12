@@ -10,3 +10,5 @@ on:
 jobs:
   go_build_and_test:
     uses: ./.github/workflows/reusable_go_build.yml
+    with:
+      goBuildTag: staging
