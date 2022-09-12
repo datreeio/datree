@@ -9,16 +9,20 @@ env:
   GITHUB_ACTION_RUN_ID: ${{ github.run_id }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
-  go_build_and_test:
-    uses: ./.github/workflows/reusable_go_build.yml
-    with:
-      goBuildTag: staging
+#  go_build_and_test:
+#    uses: ./.github/workflows/reusable_go_build.yml
+#    with:
+#      goBuildTag: staging
 
   release_candidate:
     name: Release candidate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: GitHub Tag Name example
+        run: |
+          echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
+          echo "Tag name from github.ref_name: ${{  github.ref_name }}"
       - name: Run deploy release candidate file
         run: |
           chmod +x ./scripts/deploy_release_candidate.sh
