@@ -1,0 +1,23 @@
+name: Reusable Go Build Workflow
+
+on:
+  workflow_call:
+    inputs:
+      goBuildTag:
+        required: true
+        type: string
+
+jobs:
+  go_build_and_test:
+    name: Go build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.4
+        with:
+          go-version: 1.18
+      - name: Go Build With Tags
+        run: go build -tags ${{ inputs.goBuildTag }}
+      - name: Go Test
+        run: go test ./...
