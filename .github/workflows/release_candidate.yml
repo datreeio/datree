@@ -8,6 +8,7 @@ on:
 env:
   GITHUB_ACTION_RUN_ID: ${{ github.run_id }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GORELEASER_VERSION: 0.155.1
 jobs:
   go_build_and_test:
     uses: ./.github/workflows/reusable_go_build.yml
