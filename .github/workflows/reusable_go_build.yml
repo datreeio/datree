@@ -2,6 +2,10 @@ name: Reusable Go Build Workflow
 
 on:
   workflow_call:
+    inputs:
+      goBuildTag:
+        required: true
+        type: string
 
 jobs:
   go_build_and_test:
@@ -14,6 +18,6 @@ jobs:
         with:
           go-version: 1.18
       - name: Go Build With Tags
-        run: go build -tags staging
+        run: go build -tags ${{ inputs.goBuildTag }}
       - name: Go Test
         run: go test ./...
