@@ -1,4 +1,4 @@
-name: Release Candidate Workflow
+name: Pull Request Workflow
 
 #on:
 #  pull_request:
@@ -8,15 +8,5 @@ on:
     branches: ['DAT-4405-remove-travis-cicd-impl']
 
 jobs:
-  go:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Go environment
-        uses: actions/setup-go@v2.1.4
-        with:
-          go-version: 1.18
-      - name: Go Build With Tags
-        run: go build -tags staging
-      - name: Go Test
-        run: go test ./...
+  go_build_and_test:
+    uses: ./.github/workflows/reusable_go_build.yml
