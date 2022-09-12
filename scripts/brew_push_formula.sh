@@ -19,7 +19,7 @@ else
   exit
 fi
 
-BREW_REPO_URL="https://${GIT_TOKEN}@github.com/datreeio/${BREW_REPO_NAME}.git"
+BREW_REPO_URL="https://${GITHUB_TOKEN}@github.com/datreeio/${BREW_REPO_NAME}.git"
 
 git clone $BREW_REPO_URL
 bash ./scripts/brew_formula_generator.sh $VERSION $BREW_REPO_NAME
