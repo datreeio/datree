@@ -1,0 +1,24 @@
+name: Release Candidate Workflow
+
+#on:
+#  workflow_dispatch:
+on:
+  push:
+    branches: ['DAT-4405-remove-travis-cicd-impl']
+
+jobs:
+  go_build_and_test:
+    uses: ./.github/workflows/reusable_go_build.yml
+    with:
+      goBuildTag: staging
+
+  release_candidate:
+    name: Release candidate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run deploy release candidate file
+        run: |
+          chmod +x ././scripts/deploy_release_candidate.sh
+          ././scripts/deploy_release_candidate.sh
+        shell: bas

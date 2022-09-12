@@ -1,11 +1,7 @@
 name: Pull Request Workflow
 
-#on:
-#  pull_request:
-
 on:
-  push:
-    branches: ['DAT-4405-remove-travis-cicd-impl']
+  pull_request:
 
 jobs:
   go_build_and_test:
