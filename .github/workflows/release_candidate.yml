@@ -7,7 +7,7 @@ on:
     branches: ['DAT-4405-remove-travis-cicd-impl']
 env:
   GITHUB_ACTION_RUN_ID: ${{ github.run_id }}
-  GITHUB_ACTION_RUN_NUNBER: ${{ github.run_number }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   go_build_and_test:
     uses: ./.github/workflows/reusable_go_build.yml

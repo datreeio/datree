@@ -5,7 +5,7 @@ MAJOR_VERSION=1
 MINOR_VERSION=6
 
 latestRcTag=$(git tag --sort=-version:refname | grep -E "^${MAJOR_VERSION}\.${MINOR_VERSION}.[0-9]+-rc" | head -n 1 | grep --only-matching "^${MAJOR_VERSION}\.${MINOR_VERSION}.[0-9]\+" || true)
-
+echo $latestRcTag
 if [ "$latestRcTag" == "" ]; then
     nextVersion=$MAJOR_VERSION.$MINOR_VERSION.0
 else
@@ -16,8 +16,7 @@ export DATREE_BUILD_VERSION=$nextVersion-rc
 echo $DATREE_BUILD_VERSION
 
 v_release_tag=v$DATREE_BUILD_VERSION
-echo $GITHUB_ACTION_RUN_ID
-echo $GITHUB_ACTION_RUN_NUNBER
+
 #git tag $DATREE_BUILD_VERSION -a -m "Generated tag from GH action for build $GITHUB_ACTION_RUN_ID"
 #git tag $v_release_tag -a -m "Generated tag with v from GH action for build $GITHUB_ACTION_RUN_ID"
 #git push --tags
