@@ -37,6 +37,7 @@ func CreatePolicy(policies *defaultPolicies.EvaluationPrerunPolicies, policyName
 		for _, policy := range policies.Policies {
 			if policy.IsDefault {
 				chosenPolicy = policy
+				policyName = chosenPolicy.Name
 				break
 			}
 		}
@@ -44,11 +45,11 @@ func CreatePolicy(policies *defaultPolicies.EvaluationPrerunPolicies, policyName
 		for _, policy := range policies.Policies {
 			if policy.Name == policyName {
 				chosenPolicy = policy
+				policyName = chosenPolicy.Name
 				break
 			}
 		}
 	}
-	policyName = chosenPolicy.Name
 
 	if chosenPolicy == nil {
 		if isAnonymous {
