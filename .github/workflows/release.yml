@@ -33,7 +33,7 @@ jobs:
       GORELEASER_VERSION: 0.155.1
       CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
     runs-on: ubuntu-latest
-    needs: define_version_job
+    needs: [ go_build_and_test, define_version_job ]
     steps:
       - uses: actions/checkout@v2
       - name: Extract branch name
@@ -64,12 +64,11 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      - name: Run deploy release candidate file
+      - name: Run deploy prod release file
         env:
           RELEASE_VERSION: ${{ needs.define_version_job.outputs.version }}
         run: |
-          chmod +x ./scripts/release.sh
-          ./scripts/release.sh
+          bash ./scripts/release.sh
         shell: bash
   release-docker:
     env:

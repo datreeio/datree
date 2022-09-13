@@ -2,6 +2,7 @@
 set -e
 
 if test -z "$1"; then
+    # needed for getting list of tags
     git fetch --prune --unshallow --tags
     latestRcTag=$(git tag --sort=-version:refname | grep "\-rc$" | head -n 1)
 else
