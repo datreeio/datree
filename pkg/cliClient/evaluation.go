@@ -2,12 +2,12 @@ package cliClient
 
 import (
 	"encoding/json"
-	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/datreeio/datree/pkg/ciContext"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"github.com/datreeio/datree/pkg/extractor"
 )
 
