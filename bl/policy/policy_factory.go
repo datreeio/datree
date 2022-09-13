@@ -48,6 +48,7 @@ func CreatePolicy(policies *defaultPolicies.EvaluationPrerunPolicies, policyName
 			}
 		}
 	}
+	policyName = chosenPolicy.Name
 
 	if chosenPolicy == nil {
 		if isAnonymous {
