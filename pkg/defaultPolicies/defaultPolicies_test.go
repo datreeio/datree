@@ -2,8 +2,9 @@ package defaultPolicies_test
 
 import (
 	_ "embed"
-	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"testing"
+
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 
 	"github.com/datreeio/datree/pkg/validatePoliciesYaml"
 )
