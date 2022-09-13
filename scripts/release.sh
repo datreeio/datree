@@ -18,8 +18,7 @@ echo $DATREE_BUILD_VERSION
 
 bash ./scripts/custom_changelog.sh
 
-#maybe will be needed as in deploy rc
-#git restore ./scripts/release.sh
+git restore ./scripts/release.sh
 curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash -s -- --rm-dist --release-notes=changelog.txt
 
 bash ./scripts/upload_install_scripts.sh
