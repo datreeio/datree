@@ -29,6 +29,5 @@ jobs:
           git config --global user.name "datree-ci"
       - name: Run deploy release candidate file
         run: |
-          chmod +x ./scripts/deploy_release_candidate.sh
-          ./scripts/deploy_release_candidate.sh
+          bash ./scripts/deploy_release_candidate.sh
         shell: bash

@@ -7,8 +7,14 @@ on:
         required: true
 
 jobs:
+  go_build_and_test:
+    uses: ./.github/workflows/reusable_go_build.yml
+    with:
+      goBuildTag: main
+
   define_version_job:
     runs-on: ubuntu-latest
+    needs: [go_build_and_test]
     steps:
       - uses: actions/checkout@v2
       - id: define_version
@@ -21,17 +27,20 @@ jobs:
       version: ${{ steps.define_version.outputs.version }}
 
   release:
+    env:
+      GITHUB_ACTION_RUN_ID: ${{ github.run_id }}
+      GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+      GORELEASER_VERSION: 0.155.1
+      CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
     runs-on: ubuntu-latest
-    needs: define_version_job
+    needs: [ go_build_and_test, define_version_job ]
     steps:
       - uses: actions/checkout@v2
       - name: Extract branch name
         shell: bash
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
-      - env:
-          TRAVIS_API_TOKEN: ${{ secrets.TRAVIS_API_TOKEN }}
-        run: |
+      - run: |
           echo "Triggered by: ${{ github.actor }}!"
           branch_name=${{ steps.extract_branch.outputs.branch }}
           commit_sha=${{ github.sha }}
@@ -41,30 +50,37 @@ jobs:
               echo "Release should build only from main branch"
               exit 1
           fi
-          if [ -z "$TRAVIS_API_TOKEN" ]; then
-              echo "TRAVIS_API_TOKEN is empty"
-              exit 1
-          fi
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.4
+        with:
+          go-version: 1.18
+      - name: GitHub Config Identity
+        run: |
+          git config --global user.email "ci@datree.io"
+          git config --global user.name "datree-ci"
+      - name: Set AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Run deploy prod release file
+        env:
+          RELEASE_VERSION: ${{ needs.define_version_job.outputs.version }}
+        run: |
+          bash ./scripts/release.sh
+        shell: bash
 
-          REQUEST_BUILD_BODY="
-          {
-            \"request\": {
-              \"branch\": \"$branch_name\",
-              \"sha\": \"$commit_sha\",
-              \"merge_mode\": \"deep_merge_append\",
-              \"config\": {
-                \"env\": {
-                  \"global\": [
-                    \"RELEASE_DATREE_PROD=true\",
-                    \"RELEASE_VERSION=${{ needs.define_version_job.outputs.version }}\"
-                  ]
-                }
-              }
-            }
-          }
-          "
+  brew_push_formula:
+    name: Brew push formula
+    runs-on: ubuntu-latest
+    needs: [ release, define_version_job ]
+    env:
+      RELEASE_VERSION: ${{ needs.define_version_job.outputs.version }}
+    steps:
+      - run: bash ./scripts/brew_push_formula.sh production ${{ env.RELEASE_VERSION }}
+        shell: bash
 
-          REQUEST_BUILD_BODY=$REQUEST_BUILD_BODY ./.github/workflows/request-travis-build-and-wait-until-finished.sh
   release-docker:
     env:
       REPO_NAME: datree
