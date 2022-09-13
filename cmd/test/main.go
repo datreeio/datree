@@ -12,14 +12,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datreeio/datree/pkg/defaultRules"
-
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	policy_factory "github.com/datreeio/datree/bl/policy"
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
+	"github.com/datreeio/datree/pkg/defaultRules"
 	"github.com/datreeio/datree/pkg/evaluation"
 	"github.com/datreeio/datree/pkg/policy"
 	"github.com/pkg/errors"
@@ -254,7 +254,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		k8sVersion = "1.20.0"
 	}
 
-	var policies *cliClient.EvaluationPrerunPolicies
+	var policies *defaultPolicies.EvaluationPrerunPolicies
 	var err error
 
 	if testCommandFlags.PolicyConfig != "" {
@@ -275,7 +275,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		return nil, err
 	}
 
-	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName, evaluationPrerunDataResp.RegistrationURL, defaultRules)
+	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName, evaluationPrerunDataResp.RegistrationURL, defaultRules, evaluationPrerunDataResp.IsAnonymous)
 	if err != nil {
 		return nil, err
 	}

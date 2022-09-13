@@ -358,7 +358,7 @@ func test_all_k8s_resources_tested() *TestFlowTestCase {
 		panic(err)
 	}
 
-	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL, defaultRules)
+	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL, defaultRules, preRunData.IsAnonymous)
 	close(invalidFilesChan)
 
 	return &TestFlowTestCase{
@@ -495,7 +495,7 @@ func test_no_k8s_resources_found() *TestFlowTestCase {
 		panic(err)
 	}
 
-	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL, defaultRules)
+	policy, _ := policy_factory.CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL, defaultRules, preRunData.IsAnonymous)
 	paths := []string{root + "/docker-compose-config.yaml", root + "/simple.json", root + "/simple.yaml"}
 	filesConfigurationsChan := make(chan *extractor.FileConfigurations, 3)
 	go func() {
@@ -733,7 +733,7 @@ func setup() {
 		panic(err)
 	}
 
-	testingPolicy, _ = policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules)
+	testingPolicy, _ = policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules, prerunData.IsAnonymous)
 }
 
 func TestTestCommandFlagsValidation(t *testing.T) {

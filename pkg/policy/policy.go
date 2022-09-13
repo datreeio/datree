@@ -1,14 +1,14 @@
 package policy
 
 import (
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"github.com/datreeio/datree/pkg/validatePoliciesYaml"
 
-	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/ghodss/yaml"
 )
 
-func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, error) {
+func GetPoliciesFileFromPath(path string) (*defaultPolicies.EvaluationPrerunPolicies, error) {
 	fileReader := fileReader.CreateFileReader(nil)
 	policiesStr, err := fileReader.ReadFileContent(path)
 	if err != nil {
@@ -22,7 +22,7 @@ func GetPoliciesFileFromPath(path string) (*cliClient.EvaluationPrerunPolicies, 
 		return nil, err
 	}
 
-	var policies *cliClient.EvaluationPrerunPolicies
+	var policies *defaultPolicies.EvaluationPrerunPolicies
 	policiesBytes, err := yaml.YAMLToJSON(policiesStrBytes)
 	if err != nil {
 		return nil, err
