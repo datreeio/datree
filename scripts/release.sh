@@ -24,7 +24,5 @@ curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSIO
 
 bash ./scripts/upload_install_scripts.sh
 
-bash ./scripts/brew_push_formula.sh production $DATREE_BUILD_VERSION
-
 git checkout -b "release/${release_tag}"
 git push origin "release/${release_tag}"

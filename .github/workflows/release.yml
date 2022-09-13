@@ -70,6 +70,17 @@ jobs:
         run: |
           bash ./scripts/release.sh
         shell: bash
+
+  brew_push_formula:
+    name: Brew push formula
+    runs-on: ubuntu-latest
+    needs: [ release, define_version_job ]
+    env:
+      RELEASE_VERSION: ${{ needs.define_version_job.outputs.version }}
+    steps:
+      - run: bash ./scripts/brew_push_formula.sh production ${{ env.RELEASE_VERSION }}
+        shell: bash
+
   release-docker:
     env:
       REPO_NAME: datree
