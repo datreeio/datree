@@ -92,5 +92,6 @@
   },
   "isPolicyAsCodeMode": false,
   "registrationURL": "https://app.datree.io/login?t=gfdgdsteasgfsdgfdsfsd",
-  "promptRegistrationURL": "https://app.datree.io/promptLogin?t=gfdgdsteasgfsdgfdsfsd"
+  "promptRegistrationURL": "https://app.datree.io/promptLogin?t=gfdgdsteasgfsdgfdsfsd",
+  "isAnonymous": false
 }

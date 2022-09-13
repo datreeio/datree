@@ -275,7 +275,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		return nil, err
 	}
 
-	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName, evaluationPrerunDataResp.RegistrationURL, defaultRules)
+	policy, err := policy_factory.CreatePolicy(policies, testCommandFlags.PolicyName, evaluationPrerunDataResp.RegistrationURL, defaultRules, evaluationPrerunDataResp.IsAnonymous)
 	if err != nil {
 		return nil, err
 	}

@@ -135,7 +135,7 @@ func TestEvaluate(t *testing.T) {
 		panic(err)
 	}
 
-	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules)
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules, prerunData.IsAnonymous)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -215,7 +215,7 @@ func request_evaluation_all_valid() *evaluateTestCase {
 		panic(err)
 	}
 
-	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules)
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules, prerunData.IsAnonymous)
 
 	return &evaluateTestCase{
 		name: "should request validation without invalid files",
@@ -266,7 +266,7 @@ func request_evaluation_all_invalid() *evaluateTestCase {
 		panic(err)
 	}
 
-	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules)
+	policy, _ := policy_factory.CreatePolicy(prerunData.PoliciesJson, "", prerunData.RegistrationURL, defaultRules, prerunData.IsAnonymous)
 
 	return &evaluateTestCase{
 		name: "should not request validation if there are no valid files",

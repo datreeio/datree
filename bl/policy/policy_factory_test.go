@@ -3,6 +3,7 @@ package policy
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"os"
 	"testing"
 
@@ -30,7 +31,7 @@ func TestCreatePolicy(t *testing.T) {
 			panic(err)
 		}
 
-		policy, _ := CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL, defaultRules)
+		policy, _ := CreatePolicy(preRunData.PoliciesJson, "", preRunData.RegistrationURL, defaultRules, preRunData.IsAnonymous)
 		var expectedRules []RuleWithSchema
 
 		for _, defaultRule := range defaultRules.Rules {
@@ -62,7 +63,7 @@ func TestCreatePolicy(t *testing.T) {
 			panic(err)
 		}
 
-		policy, err := CreatePolicy(preRunData.PoliciesJson, "labels_best_practices2", preRunData.RegistrationURL, defaultRules)
+		policy, err := CreatePolicy(preRunData.PoliciesJson, "labels_best_practices2", preRunData.RegistrationURL, defaultRules, preRunData.IsAnonymous)
 		var expectedRules []RuleWithSchema
 
 		if err != nil {
@@ -89,7 +90,7 @@ func TestCreatePolicy(t *testing.T) {
 			panic(err)
 		}
 
-		policy, err := CreatePolicy(preRunData.PoliciesJson, "labels_best_practices3", preRunData.RegistrationURL, defaultRules)
+		policy, err := CreatePolicy(preRunData.PoliciesJson, "labels_best_practices3", preRunData.RegistrationURL, defaultRules, preRunData.IsAnonymous)
 		var expectedRules []RuleWithSchema
 		if err != nil {
 			panic(err)
@@ -108,21 +109,23 @@ func TestCreatePolicy(t *testing.T) {
 	})
 	t.Run("Test Create Policy for anonymous user with --policy flag Default", func(t *testing.T) {
 		defaultRules, err := defaultRules.GetDefaultRules()
+		defaultPolicies := defaultPolicies.GetDefaultPoliciesStruct()
 		if err != nil {
 			panic(err)
 		}
 
-		_, err = CreatePolicy(nil, "Default", preRunData.RegistrationURL, defaultRules)
+		_, err = CreatePolicy(defaultPolicies, "Default", preRunData.RegistrationURL, defaultRules, true)
 
 		assert.Equal(t, nil, err)
 	})
 	t.Run("Test Create Policy for anonymous user with --policy flag not default", func(t *testing.T) {
 		defaultRules, err := defaultRules.GetDefaultRules()
+		defaultPolicies := defaultPolicies.GetDefaultPoliciesStruct()
 		if err != nil {
 			panic(err)
 		}
 
-		policy, err := CreatePolicy(nil, "my-policy", preRunData.RegistrationURL, defaultRules)
+		policy, err := CreatePolicy(defaultPolicies, "my-policy", preRunData.RegistrationURL, defaultRules, true)
 
 		assert.Equal(t, fmt.Errorf("policy my-policy doesn't exist, sign in to the dashboard to customize your policies: %s", preRunData.RegistrationURL), err)
 		assert.Equal(t, Policy{}, policy)

@@ -2,6 +2,7 @@ package cliClient
 
 import (
 	"encoding/json"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"net/http"
 	"strconv"
 	"strings"
@@ -113,6 +114,7 @@ type EvaluationPrerunDataResponse struct {
 	PromptRegistrationURL string                    `json:"promptRegistrationURL"`
 	IsPolicyAsCodeMode    bool                      `json:"isPolicyAsCodeMode"`
 	DefaultRulesYaml      string                    `json:"defaultRulesYaml"`
+	IsAnonymous           bool                      `json:"isAnonymous"`
 }
 
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string, isCi bool) (*EvaluationPrerunDataResponse, error) {
@@ -137,9 +139,15 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string, isCi bool) (*Eva
 	}
 
 	var evaluationPrerunDataResponse = &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true}
+
 	err = json.Unmarshal(res.Body, &evaluationPrerunDataResponse)
 	if err != nil {
 		return &EvaluationPrerunDataResponse{}, err
+	}
+
+	// for anonymous invocations, use the embedded defaultPolicies.yaml file
+	if evaluationPrerunDataResponse.PoliciesJson == nil {
+		evaluationPrerunDataResponse.PoliciesJson = defaultPolicies.GetDefaultPoliciesStruct()
 	}
 
 	return evaluationPrerunDataResponse, nil
