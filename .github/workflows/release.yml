@@ -67,8 +67,7 @@ jobs:
       - name: Run deploy prod release file
         env:
           RELEASE_VERSION: ${{ needs.define_version_job.outputs.version }}
-        run: |
-          bash ./scripts/release.sh
+        run: bash ./scripts/release.sh
         shell: bash
 
   brew_push_formula:

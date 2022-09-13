@@ -4,8 +4,8 @@ set -ex
 release_tag=$RELEASE_VERSION
 v_release_tag=v$release_tag
 
+git fetch
 git checkout "$release_tag-rc"
-
 
 git tag $release_tag -a -m "Generated tag from manual GH action production build $GITHUB_ACTION_RUN_ID"
 git tag $v_release_tag -a -m "Generated tag with v from manual GH action for production build $GITHUB_ACTION_RUN_ID"
