@@ -3,6 +3,7 @@ package cliClient
 import (
 	"encoding/json"
 	"errors"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"net/http"
 	"testing"
 
@@ -132,6 +133,7 @@ type PublishPoliciesTestCase struct {
 func TestRequestEvaluationPrerunDataSuccess(t *testing.T) {
 	tests := []*RequestEvaluationPrerunDataTestCase{
 		test_requestEvaluationPrerunData_success(),
+		test_requestEvaluationPrerunData_anonymousSuccess(),
 	}
 
 	httpClientMock := mockHTTPClient{}
@@ -433,6 +435,65 @@ func test_requestEvaluationPrerunData_success() *RequestEvaluationPrerunDataTest
 				headers: nil,
 			},
 			response: preRunData,
+		},
+	}
+}
+
+func test_requestEvaluationPrerunData_anonymousSuccess() *RequestEvaluationPrerunDataTestCase {
+	preRunDataServerResponse := mockGetPreRunData()
+	preRunDataServerResponse.IsAnonymous = true
+	preRunDataServerResponse.PoliciesJson = nil
+
+	preRunDataExpectedOutput := mockGetPreRunData()
+	preRunDataExpectedOutput.IsAnonymous = true
+	preRunDataExpectedOutput.PoliciesJson = defaultPolicies.GetDefaultPoliciesStruct()
+
+	return &RequestEvaluationPrerunDataTestCase{
+		name: "success - get prerun data for anonymous evaluation",
+		args: struct {
+			token   string
+			offline string
+		}{
+			token: "internal_test_token",
+		},
+		mock: struct {
+			response struct {
+				status int
+				body   *EvaluationPrerunDataResponse
+				error  error
+			}
+		}{
+			response: struct {
+				status int
+				body   *EvaluationPrerunDataResponse
+				error  error
+			}{
+				status: http.StatusOK,
+				body:   preRunDataServerResponse,
+			},
+		},
+		expected: struct {
+			request struct {
+				method  string
+				uri     string
+				body    interface{}
+				headers map[string]string
+			}
+			responseErr error
+			response    *EvaluationPrerunDataResponse
+		}{
+			request: struct {
+				method  string
+				uri     string
+				body    interface{}
+				headers map[string]string
+			}{
+				method:  http.MethodGet,
+				uri:     "/cli/evaluation/tokens/internal_test_token/prerun?isCi=false",
+				body:    nil,
+				headers: nil,
+			},
+			response: preRunDataExpectedOutput,
 		},
 	}
 }
