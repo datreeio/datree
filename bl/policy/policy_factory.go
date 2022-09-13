@@ -3,8 +3,8 @@ package policy
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 
-	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/defaultRules"
 )
 
@@ -21,7 +21,7 @@ type RuleWithSchema struct {
 	MessageOnFailure string
 }
 
-func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName string, registrationURL string, defaultRules *defaultRules.DefaultRulesDefinitions, isAnonymous bool) (Policy, error) {
+func CreatePolicy(policies *defaultPolicies.EvaluationPrerunPolicies, policyName string, registrationURL string, defaultRules *defaultRules.DefaultRulesDefinitions, isAnonymous bool) (Policy, error) {
 	if policies == nil {
 		panic("policies is nil")
 	}
@@ -31,7 +31,7 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 	var rules []RuleWithSchema
 
 	if policies != nil {
-		var chosenPolicy *cliClient.Policy
+		var chosenPolicy *defaultPolicies.Policy
 
 		for _, policy := range policies.Policies {
 			if policyName == "" && policy.IsDefault {
@@ -65,7 +65,7 @@ func CreatePolicy(policies *cliClient.EvaluationPrerunPolicies, policyName strin
 	return Policy{policyName, rules}, nil
 }
 
-func populateRules(policyRules []cliClient.Rule, customRules []*cliClient.CustomRule, defaultRules []*defaultRules.DefaultRuleDefinition) ([]RuleWithSchema, error) {
+func populateRules(policyRules []defaultPolicies.Rule, customRules []*defaultPolicies.CustomRule, defaultRules []*defaultRules.DefaultRuleDefinition) ([]RuleWithSchema, error) {
 	var rules = []RuleWithSchema{}
 
 	if policyRules == nil {
@@ -111,7 +111,7 @@ func getDefaultRuleByIdentifier(defaultRules []*defaultRules.DefaultRuleDefiniti
 	return nil
 }
 
-func getCustomRuleByIdentifier(customRules []*cliClient.CustomRule, identifier string) *cliClient.CustomRule {
+func getCustomRuleByIdentifier(customRules []*defaultPolicies.CustomRule, identifier string) *defaultPolicies.CustomRule {
 	for _, customRule := range customRules {
 		if identifier == customRule.Identifier {
 			return customRule

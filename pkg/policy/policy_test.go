@@ -3,13 +3,13 @@ package policy
 import (
 	"errors"
 	"fmt"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
 	"testing"
 
-	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/defaultRules"
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
@@ -128,11 +128,11 @@ func getFileData(filename string) (int, bool) {
 	return id, isPass
 }
 
-func expectedPoliciesContent(t *testing.T, path string) *cliClient.EvaluationPrerunPolicies {
+func expectedPoliciesContent(t *testing.T, path string) *defaultPolicies.EvaluationPrerunPolicies {
 	fileReader := fileReader.CreateFileReader(nil)
 	policiesStr, _ := fileReader.ReadFileContent(path)
 
-	var policiesJson *cliClient.EvaluationPrerunPolicies
+	var policiesJson *defaultPolicies.EvaluationPrerunPolicies
 	policiesBytes, _ := yaml.YAMLToJSON([]byte(policiesStr))
 
 	err := yaml.Unmarshal(policiesBytes, &policiesJson)

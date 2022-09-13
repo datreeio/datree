@@ -4,8 +4,8 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 
-	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/defaultRules"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"github.com/ghodss/yaml"
@@ -44,7 +44,7 @@ func ValidatePoliciesYaml(content []byte, policyYamlPath string) error {
 
 func validatePoliciesContent(content []byte) error {
 	// unmarshal the content
-	var schema *cliClient.EvaluationPrerunPolicies
+	var schema *defaultPolicies.EvaluationPrerunPolicies
 	err := json.Unmarshal(content, &schema)
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func validatePoliciesContent(content []byte) error {
 	return err
 }
 
-func validateIdentifier(policies []*cliClient.Policy, customRules []*cliClient.CustomRule) error {
+func validateIdentifier(policies []*defaultPolicies.Policy, customRules []*defaultPolicies.CustomRule) error {
 
 	err := checkIdentifierInPolicy(policies, customRules)
 	if err != nil {
@@ -78,7 +78,7 @@ func validateIdentifier(policies []*cliClient.Policy, customRules []*cliClient.C
 	return err
 }
 
-func checkIdentifierInPolicy(policies []*cliClient.Policy, customRules []*cliClient.CustomRule) error {
+func checkIdentifierInPolicy(policies []*defaultPolicies.Policy, customRules []*defaultPolicies.CustomRule) error {
 	err := checkIdentifierUniquenessInPolicy(policies)
 	if err != nil {
 		return err
@@ -91,7 +91,7 @@ func checkIdentifierInPolicy(policies []*cliClient.Policy, customRules []*cliCli
 	return nil
 }
 
-func checkIdentifierExistence(policies []*cliClient.Policy, customRules []*cliClient.CustomRule) error {
+func checkIdentifierExistence(policies []*defaultPolicies.Policy, customRules []*defaultPolicies.CustomRule) error {
 	defaultRules, err := defaultRules.GetDefaultRules()
 	if err != nil {
 		return err
@@ -127,7 +127,7 @@ func checkIdentifierExistence(policies []*cliClient.Policy, customRules []*cliCl
 	return nil
 }
 
-func checkIdentifierUniquenessInPolicy(policies []*cliClient.Policy) error {
+func checkIdentifierUniquenessInPolicy(policies []*defaultPolicies.Policy) error {
 	for index, policy := range policies {
 		propertyValuesExistenceMap := make(map[string]bool)
 		rules := policy.Rules
@@ -142,7 +142,7 @@ func checkIdentifierUniquenessInPolicy(policies []*cliClient.Policy) error {
 	return nil
 }
 
-func checkCustomRulesIdentifiersUniqueness(customRules []*cliClient.CustomRule) error {
+func checkCustomRulesIdentifiersUniqueness(customRules []*defaultPolicies.CustomRule) error {
 	defaultRules, err := defaultRules.GetDefaultRules()
 	if err != nil {
 		return err
@@ -169,7 +169,7 @@ func checkCustomRulesIdentifiersUniqueness(customRules []*cliClient.CustomRule) 
 	return nil
 }
 
-func validateSingleDefaultPolicy(policies []*cliClient.Policy) error {
+func validateSingleDefaultPolicy(policies []*defaultPolicies.Policy) error {
 	sawDefault := false
 	for _, policy := range policies {
 
@@ -187,7 +187,7 @@ func validateSingleDefaultPolicy(policies []*cliClient.Policy) error {
 	return nil
 }
 
-func validateSchemaField(customRules []*cliClient.CustomRule) error {
+func validateSchemaField(customRules []*defaultPolicies.CustomRule) error {
 	for index, rule := range customRules {
 		var err error
 		var jsonContent string

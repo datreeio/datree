@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"io"
 	"io/ioutil"
 	"os"
@@ -254,7 +255,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		k8sVersion = "1.20.0"
 	}
 
-	var policies *cliClient.EvaluationPrerunPolicies
+	var policies *defaultPolicies.EvaluationPrerunPolicies
 	var err error
 
 	if testCommandFlags.PolicyConfig != "" {

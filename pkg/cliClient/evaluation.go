@@ -82,39 +82,14 @@ type EvaluationRequest struct {
 	Files        []*extractor.FileConfigurations `json:"files"`
 }
 
-type CustomRule struct {
-	Identifier              string      `json:"identifier"`
-	Name                    string      `json:"name"`
-	DefaultMessageOnFailure string      `json:"defaultMessageOnFailure"`
-	Schema                  interface{} `json:"schema"`
-	JsonSchema              string      `json:"jsonSchema"`
-}
-
-type Rule struct {
-	Identifier       string `json:"identifier"`
-	MessageOnFailure string `json:"messageOnFailure"`
-}
-
-type Policy struct {
-	Name      string `json:"name"`
-	IsDefault bool   `json:"isDefault,omitempty"`
-	Rules     []Rule `json:"rules"`
-}
-
-type EvaluationPrerunPolicies struct {
-	ApiVersion  string        `json:"apiVersion"`
-	CustomRules []*CustomRule `json:"customRules"`
-	Policies    []*Policy     `json:"policies"`
-}
-
 type EvaluationPrerunDataResponse struct {
-	PoliciesJson          *EvaluationPrerunPolicies `json:"policiesJson"`
-	DefaultK8sVersion     string                    `json:"defaultK8sVersion"`
-	RegistrationURL       string                    `json:"registrationURL"`
-	PromptRegistrationURL string                    `json:"promptRegistrationURL"`
-	IsPolicyAsCodeMode    bool                      `json:"isPolicyAsCodeMode"`
-	DefaultRulesYaml      string                    `json:"defaultRulesYaml"`
-	IsAnonymous           bool                      `json:"isAnonymous"`
+	PoliciesJson          *defaultPolicies.EvaluationPrerunPolicies `json:"policiesJson"`
+	DefaultK8sVersion     string                                    `json:"defaultK8sVersion"`
+	RegistrationURL       string                                    `json:"registrationURL"`
+	PromptRegistrationURL string                                    `json:"promptRegistrationURL"`
+	IsPolicyAsCodeMode    bool                                      `json:"isPolicyAsCodeMode"`
+	DefaultRulesYaml      string                                    `json:"defaultRulesYaml"`
+	IsAnonymous           bool                                      `json:"isAnonymous"`
 }
 
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string, isCi bool) (*EvaluationPrerunDataResponse, error) {
