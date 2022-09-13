@@ -19,11 +19,11 @@ echo $DATREE_BUILD_VERSION
 
 v_release_tag=v$DATREE_BUILD_VERSION
 
-git tag $DATREE_BUILD_VERSION -a -m "Generated tag from GH action for build $GITHUB_ACTION_RUN_ID"
-git tag $v_release_tag -a -m "Generated tag with v from GH action for build $GITHUB_ACTION_RUN_ID"
-git push --tags
-
-git restore ./scripts/deploy_release_candidate.sh
-curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging VERSION=v$GORELEASER_VERSION bash
-
-bash ./scripts/brew_push_formula.sh staging $DATREE_BUILD_VERSION
+#git tag $DATREE_BUILD_VERSION -a -m "Generated tag from GH action for build $GITHUB_ACTION_RUN_ID"
+#git tag $v_release_tag -a -m "Generated tag with v from GH action for build $GITHUB_ACTION_RUN_ID"
+#git push --tags
+#
+#git restore ./scripts/deploy_release_candidate.sh
+#curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=staging VERSION=v$GORELEASER_VERSION bash
+#
+#bash ./scripts/brew_push_formula.sh staging $DATREE_BUILD_VERSION
