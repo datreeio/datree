@@ -2,25 +2,8 @@ package defaultPolicies
 
 import (
 	_ "embed"
-
 	yamlConvertor "github.com/ghodss/yaml"
 )
-
-//go:embed defaultPolicies.yaml
-var defaultPoliciesFileContent string
-
-func GetDefaultPoliciesYamlContent() string {
-	return defaultPoliciesFileContent
-}
-
-func GetDefaultPoliciesStruct() *EvaluationPrerunPolicies {
-	var defaultPolicies EvaluationPrerunPolicies
-	err := yamlConvertor.Unmarshal([]byte(GetDefaultPoliciesYamlContent()), &defaultPolicies)
-	if err != nil {
-		panic(err)
-	}
-	return &defaultPolicies
-}
 
 type EvaluationPrerunPolicies struct {
 	ApiVersion  string        `json:"apiVersion"`
@@ -45,4 +28,16 @@ type Policy struct {
 	Name      string `json:"name"`
 	IsDefault bool   `json:"isDefault,omitempty"`
 	Rules     []Rule `json:"rules"`
+}
+
+//go:embed defaultPolicies.yaml
+var DefaultPoliciesFileContent string
+
+func GetDefaultPoliciesStruct() *EvaluationPrerunPolicies {
+	var defaultPolicies EvaluationPrerunPolicies
+	err := yamlConvertor.Unmarshal([]byte(DefaultPoliciesFileContent), &defaultPolicies)
+	if err != nil {
+		panic(err)
+	}
+	return &defaultPolicies
 }
