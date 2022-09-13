@@ -45,6 +45,7 @@ $k8sDemoPath = Join-Path "$dotDatreePath" "k8s-demo.yaml"
 
 Invoke-WebRequest -Uri "https://get.datree.io/k8s-demo.yaml" -OutFile $k8sDemoPath -UseBasicParsing
 
+
 Write-Host "[V] Finished Installation" -ForegroundColor DarkGreen
 Write-Host ""
 Write-Host "To run datree globally, please follow these steps:" -ForegroundColor Cyan
