@@ -33,23 +33,19 @@ func CreatePolicy(policies *defaultPolicies.EvaluationPrerunPolicies, policyName
 
 	var chosenPolicy *defaultPolicies.Policy
 
-	// if policyName is empty, we will use the default policy
 	if policyName == "" {
 		for _, policy := range policies.Policies {
 			if policy.IsDefault {
-				policyName = policy.Name
+				chosenPolicy = policy
 				break
 			}
 		}
-	}
-	if policyName == "" {
-		panic("no default policy found")
-	}
-
-	for _, policy := range policies.Policies {
-		if policy.Name == policyName {
-			chosenPolicy = policy
-			break
+	} else {
+		for _, policy := range policies.Policies {
+			if policy.Name == policyName {
+				chosenPolicy = policy
+				break
+			}
 		}
 	}
 
