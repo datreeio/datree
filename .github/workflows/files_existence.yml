@@ -15,5 +15,5 @@ jobs:
         id: check_files
         uses: andstor/file-existence-action@v1.1.0
         with:
-          files: "pkg/defaultRules/defaultRules.yaml, pkg/defaultPolicies/defaultPoliciess.yaml"
-          allow_failure: false
+          files: "pkg/defaultRules/defaultRules.yaml, pkg/defaultPolicies/defaultPolicies.yaml"
+          allow_failure: true
