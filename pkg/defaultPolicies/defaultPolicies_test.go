@@ -1,9 +1,10 @@
 package defaultPolicies_test
 
 import (
+	"testing"
+
 	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"github.com/datreeio/datree/pkg/validatePoliciesYaml"
-	"testing"
 )
 
 func TestMain(m *testing.M) {
