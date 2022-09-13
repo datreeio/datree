@@ -78,6 +78,10 @@ jobs:
       RELEASE_VERSION: ${{ needs.define_version_job.outputs.version }}
     steps:
       - uses: actions/checkout@v2
+      - name: GitHub Config Identity
+        run: |
+          git config --global user.email "ci@datree.io"
+          git config --global user.name "datree-ci"
       - run: bash ./scripts/brew_push_formula.sh production ${{ env.RELEASE_VERSION }}
         shell: bash
 
