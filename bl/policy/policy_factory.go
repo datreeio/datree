@@ -23,6 +23,7 @@ type RuleWithSchema struct {
 
 func CreatePolicy(policies *defaultPolicies.EvaluationPrerunPolicies, policyName string, registrationURL string, defaultRules *defaultRules.DefaultRulesDefinitions, isAnonymous bool) (Policy, error) {
 	if policies == nil {
+		// policies should never be nil because of the fallback of defaultPolicies.yaml
 		panic("policies is nil")
 	}
 
@@ -30,36 +31,40 @@ func CreatePolicy(policies *defaultPolicies.EvaluationPrerunPolicies, policyName
 
 	var rules []RuleWithSchema
 
-	if policies != nil {
-		var chosenPolicy *defaultPolicies.Policy
+	var chosenPolicy *defaultPolicies.Policy
 
+	// if policyName is empty, we will use the default policy
+	if policyName == "" {
 		for _, policy := range policies.Policies {
-			if policyName == "" && policy.IsDefault {
-				chosenPolicy = policy
-				policyName = chosenPolicy.Name
-				break
-			} else if policy.Name == policyName {
-				chosenPolicy = policy
+			if policy.IsDefault {
+				policyName = policy.Name
 				break
 			}
 		}
+	}
+	if policyName == "" {
+		panic("no default policy found")
+	}
 
-		if chosenPolicy == nil {
-			if isAnonymous {
-				return Policy{}, fmt.Errorf("policy %s doesn't exist, sign in to the dashboard to customize your policies: %s", policyName, registrationURL)
-			} else {
-				return Policy{}, fmt.Errorf("policy %s doesn't exist", policyName)
-			}
+	for _, policy := range policies.Policies {
+		if policy.Name == policyName {
+			chosenPolicy = policy
+			break
 		}
+	}
 
-		rules, err = populateRules(chosenPolicy.Rules, policies.CustomRules, defaultRules.Rules)
-
-		if err != nil {
-			return Policy{}, err
+	if chosenPolicy == nil {
+		if isAnonymous {
+			return Policy{}, fmt.Errorf("policy %s doesn't exist, sign in to the dashboard to customize your policies: %s", policyName, registrationURL)
+		} else {
+			return Policy{}, fmt.Errorf("policy %s doesn't exist", policyName)
 		}
-	} else {
-		policy := createDefaultPolicy(defaultRules)
-		return policy, nil
+	}
+
+	rules, err = populateRules(chosenPolicy.Rules, policies.CustomRules, defaultRules.Rules)
+
+	if err != nil {
+		return Policy{}, err
 	}
 
 	return Policy{policyName, rules}, nil
@@ -119,16 +124,4 @@ func getCustomRuleByIdentifier(customRules []*defaultPolicies.CustomRule, identi
 	}
 
 	return nil
-}
-
-func createDefaultPolicy(defaultRules *defaultRules.DefaultRulesDefinitions) Policy {
-	var rules []RuleWithSchema
-
-	for _, defaultRule := range defaultRules.Rules {
-		if defaultRule.EnabledByDefault {
-			rules = append(rules, RuleWithSchema{defaultRule.UniqueName, defaultRule.Name, defaultRule.DocumentationUrl, defaultRule.Schema, defaultRule.MessageOnFailure})
-		}
-	}
-
-	return Policy{"Default", rules}
 }
