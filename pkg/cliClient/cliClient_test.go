@@ -3,19 +3,15 @@ package cliClient
 import (
 	"encoding/json"
 	"errors"
-	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"net/http"
 	"testing"
 
-	"github.com/datreeio/datree/pkg/networkValidator"
-
-	"github.com/datreeio/datree/pkg/ciContext"
-
-	"github.com/datreeio/datree/pkg/fileReader"
-
 	"github.com/datreeio/datree/bl/files"
-
+	"github.com/datreeio/datree/pkg/ciContext"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
+	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/httpClient"
+	"github.com/datreeio/datree/pkg/networkValidator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
