@@ -45,7 +45,6 @@ func CreatePolicy(policies *defaultPolicies.EvaluationPrerunPolicies, policyName
 		for _, policy := range policies.Policies {
 			if policy.Name == policyName {
 				chosenPolicy = policy
-				policyName = chosenPolicy.Name
 				break
 			}
 		}
