@@ -73,7 +73,7 @@ echo -e "\033[32m[V] Finished Installation\033[0m"
 
 echo
 
-echo -e "\033[35m Usage: $ datree test $DATREE_HOME/k8s-demo.yaml \033[0m"
+echo -e "\033[35m Usage: $ datree test ~/.datree/k8s-demo.yaml \033[0m"
 
 echo -e "\033[35m Using Helm? => https://github.com/datreeio/helm-datree \033[0m"
 
