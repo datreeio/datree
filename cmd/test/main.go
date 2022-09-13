@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"io"
 	"io/ioutil"
 	"os"
@@ -19,6 +18,7 @@ import (
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"github.com/datreeio/datree/pkg/defaultRules"
 	"github.com/datreeio/datree/pkg/evaluation"
 	"github.com/datreeio/datree/pkg/policy"
