@@ -4,7 +4,7 @@ metadata:
   name: rss-site
   namespace: test
   labels:
-    owner: yoda-at-datree.io
+    owner: yoda@datree.io
     environment: prod
     app: web
 spec:
