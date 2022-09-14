@@ -4,17 +4,17 @@ DATREE_HOME="$HOME/.datree"
 
 create_uninstall_script()
 {
-    UNINSTALL_SCRIPT="$DATREE_HOME/uninstall.sh"
+    UNINSTALL_SCRIPT="$HOME/.datree/uninstall.sh"
     touch $UNINSTALL_SCRIPT && chmod +x $UNINSTALL_SCRIPT
 
-    cat >> $UNINSTALL_SCRIPT << 'END'
-    if [ "$(id -u)" -ne 0 ] ; then
+    cat > $UNINSTALL_SCRIPT << END
+    if [ "\$(id -u)" -ne 0 ] ; then
     echo "This script must be executed with root privileges." && exit 1
     fi
     rm -f /usr/local/bin/datree
+    rm -rf $HOME/.datree
+    echo "Datree was successfully uninstalled."
 END
-    echo "    rm -rf $DATREE_HOME" >> $UNINSTALL_SCRIPT
-    echo "    echo \"Datree was successfully uninstalled.\"" >> $UNINSTALL_SCRIPT
 }
 
 
