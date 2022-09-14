@@ -1,7 +1,5 @@
 #!/bin/bash
 
-DATREE_HOME="$HOME/.datree"
-
 create_uninstall_script()
 {
     UNINSTALL_SCRIPT="$HOME/.datree/uninstall.sh"
@@ -55,7 +53,7 @@ fi
 
 unzip -qq $OUTPUT_BASENAME_WITH_POSTFIX -d $OUTPUT_BASENAME
 
-mkdir -p $DATREE_HOME
+mkdir -p ~/.datree
 
 rm -f /usr/local/bin/datree 2> /dev/null || sudo rm -f /usr/local/bin/datree
 cp $OUTPUT_BASENAME/datree /usr/local/bin 2> /dev/null || sudo cp $OUTPUT_BASENAME/datree /usr/local/bin
@@ -64,7 +62,7 @@ rm $OUTPUT_BASENAME_WITH_POSTFIX
 rm -rf $OUTPUT_BASENAME
 
 # download and save demo file
-curl -s https://get.datree.io/k8s-demo.yaml > $DATREE_HOME/k8s-demo.yaml
+curl -s https://get.datree.io/k8s-demo.yaml > ~/.datree/k8s-demo.yaml
 
 # create uninstall script
 create_uninstall_script
