@@ -43,7 +43,7 @@ type Messager interface {
 }
 
 type K8sValidator interface {
-	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *validation.FileWithWarning)
+	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int, skipSchemaValidation bool) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *validation.FileWithWarning)
 	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
 	GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations)
 }
@@ -58,6 +58,7 @@ type TestCommandFlags struct {
 	SchemaLocations      []string
 	PolicyConfig         string
 	NoRecord             bool
+	SkipValidation       string
 }
 
 // TestCommandFlags constructor
@@ -70,7 +71,17 @@ func NewTestCommandFlags() *TestCommandFlags {
 		Verbose:              false,
 		PolicyName:           "",
 		SchemaLocations:      make([]string, 0),
+		SkipValidation:       "",
 	}
+}
+
+func validateSkipValidationFlag(flags *TestCommandFlags) error {
+	if flags.SkipValidation != "" && flags.SkipValidation != "schema" {
+		return fmt.Errorf("invalid --skip-validation option - %q\n"+
+			"Valid values are - schema", flags.SkipValidation)
+
+	}
+	return nil
 }
 
 func (flags *TestCommandFlags) Validate() error {
@@ -83,6 +94,11 @@ func (flags *TestCommandFlags) Validate() error {
 
 	err := validateK8sVersionFormatIfProvided(flags.K8sVersion)
 
+	if err != nil {
+		return err
+	}
+
+	err = validateSkipValidationFlag(flags)
 	if err != nil {
 		return err
 	}
@@ -128,6 +144,7 @@ type TestCommandData struct {
 	RegistrationURL       string
 	PromptRegistrationURL string
 	ClientId              string
+	SkipSchemaValidation  bool
 }
 
 type TestCommandContext struct {
@@ -236,6 +253,8 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&flags.Verbose, "verbose", false, "Display 'How to Fix' link")
 	cmd.Flags().BoolVar(&flags.NoRecord, "no-record", false, "Don’t send policy checks metadata to the backend")
 
+	cmd.Flags().StringVar(&flags.SkipValidation, "skip-validation", "", "Skip validation step. Possible values: 'schema'")
+
 	// kubeconform flag
 	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
@@ -292,6 +311,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		ClientId:              localConfigContent.ClientId,
 		RegistrationURL:       evaluationPrerunDataResp.RegistrationURL,
 		PromptRegistrationURL: evaluationPrerunDataResp.PromptRegistrationURL,
+		SkipSchemaValidation:  testCommandFlags.SkipValidation == "schema",
 	}
 
 	return testCommandOptions, nil
@@ -472,8 +492,13 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, testCommandData *Tes
 		go validationManager.AggregateIgnoredYamlFiles(ignoredYamlFilesChan, &wg)
 	}
 
-	validK8sFilesConfigurationsChan, invalidK8sFilesChan, filesWithWarningsChan := ctx.K8sValidator.ValidateResources(validYamlConfigurationsChan, concurrency)
+	var validK8sFilesConfigurationsChan chan *extractor.FileConfigurations
+	var invalidK8sFilesChan chan *extractor.InvalidFile
+	var filesWithWarningsChan chan *validation.FileWithWarning
 
+	validK8sFilesConfigurationsChan, invalidK8sFilesChan, filesWithWarningsChan = ctx.K8sValidator.ValidateResources(
+		validYamlConfigurationsChan, concurrency, testCommandData.SkipSchemaValidation,
+	)
 	wg.Add(3)
 	go validationManager.AggregateValidK8sFiles(validK8sFilesConfigurationsChan, &wg)
 	go validationManager.AggregateInvalidK8sFiles(invalidK8sFilesChan, &wg)
@@ -484,7 +509,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, testCommandData *Tes
 	policyName := testCommandData.Policy.Name
 
 	policyCheckData := evaluation.PolicyCheckData{
-		FilesConfigurations: validationManager.ValidK8sFilesConfigurations(),
+		FilesConfigurations: validationManager.K8sFilesConfigurationsForPolicyCheck(),
 		IsInteractiveMode:   isInteractiveMode,
 		PolicyName:          policyName,
 		Policy:              testCommandData.Policy,

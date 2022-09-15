@@ -127,7 +127,7 @@ type K8sValidatorMock struct {
 	mock.Mock
 }
 
-func (kv *K8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *validation.FileWithWarning) {
+func (kv *K8sValidatorMock) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int, skipSchemaValidation bool) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *validation.FileWithWarning) {
 	args := kv.Called(filesConfigurationsChan, concurrency)
 	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *extractor.InvalidFile), args.Get(2).(chan *validation.FileWithWarning)
 }
@@ -687,7 +687,7 @@ func setup() {
 	ignoredFilesChan := newIgnoredYamlFilesChan()
 	k8sValidationWarningsChan := newK8sValidationWarningsChan()
 
-	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidK8sFilesChan, k8sValidationWarningsChan, newErrorsChan())
+	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidK8sFilesChan, k8sValidationWarningsChan, newErrorsChan())
 	k8sValidatorMock.On("GetK8sFiles", mock.Anything, mock.Anything).Return(filesConfigurationsChan, ignoredFilesChan, newErrorsChan())
 	k8sValidatorMock.On("InitClient", mock.Anything, mock.Anything, mock.Anything).Return()
 
@@ -853,7 +853,7 @@ func TestTestCommandNoInternetConnection(t *testing.T) {
 		WarningKind: validation.NetworkError,
 	}}
 
-	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidK8sFilesChan, K8sValidationWarnings, newErrorsChan())
+	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidK8sFilesChan, K8sValidationWarnings, newErrorsChan())
 
 	k8sValidatorMock.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	mockedEvaluator.AssertCalled(t, "Evaluate", policyCheckData)
