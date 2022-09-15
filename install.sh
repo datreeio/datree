@@ -5,8 +5,8 @@ create_uninstall_script()
     UNINSTALL_SCRIPT="$HOME/.datree/uninstall.sh"
     touch $UNINSTALL_SCRIPT && chmod +x $UNINSTALL_SCRIPT
 
-    cat >> $UNINSTALL_SCRIPT << 'END'
-    if [ "$(id -u)" -ne 0 ] ; then
+    cat > $UNINSTALL_SCRIPT << END
+    if [ "\$(id -u)" -ne 0 ] ; then
     echo "This script must be executed with root privileges." && exit 1
     fi
     rm -f /usr/local/bin/datree
