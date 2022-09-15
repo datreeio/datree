@@ -551,10 +551,11 @@ func test_requestEvaluationPrerunData_network_error(offlineMode string, expected
 	emptyRes := &EvaluationPrerunDataResponse{}
 	if offlineMode == "local" {
 		emptyRes.IsPolicyAsCodeMode = true
+		emptyRes.PoliciesJson = defaultPolicies.GetDefaultPoliciesStruct()
 	}
 
 	return &RequestEvaluationPrerunDataTestCase{
-		name: "fail - get prerun data for evaluation",
+		name: "fail - get prerun data for evaluation network error",
 		args: struct {
 			token   string
 			offline string

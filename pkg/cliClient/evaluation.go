@@ -107,7 +107,7 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string, isCi bool) (*Eva
 		}
 
 		if c.networkValidator.IsLocalMode() {
-			return &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true}, nil
+			return &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true, PoliciesJson: defaultPolicies.GetDefaultPoliciesStruct()}, nil
 		}
 
 		return &EvaluationPrerunDataResponse{}, err
