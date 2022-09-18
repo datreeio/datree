@@ -79,12 +79,11 @@ func NewTestCommandFlags() *TestCommandFlags {
 func validateSkipValidationFlag(flags *TestCommandFlags) error {
 	supportedSkipValidation := []string{"schema"}
 
-	if flags.SkipValidation != "" {
-		if !slices.Contains(supportedSkipValidation, flags.SkipValidation) {
-			return fmt.Errorf("invalid --skip-validation option - %q\n"+
-				"Valid values are: %v", flags.SkipValidation, supportedSkipValidation)
-		}
+	if flags.SkipValidation != "" && !slices.Contains(supportedSkipValidation, flags.SkipValidation) {
+		return fmt.Errorf("invalid --skip-validation option - %q\n"+
+			"Valid values are: %v", flags.SkipValidation, supportedSkipValidation)
 	}
+
 	return nil
 }
 
