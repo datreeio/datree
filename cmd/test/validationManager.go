@@ -9,11 +9,11 @@ import (
 )
 
 type ValidationManager struct {
-	invalidYamlFiles                 []*extractor.InvalidFile
-	invalidK8sFiles                  []*extractor.InvalidFile
-	validK8sFilesConfigurations      []*extractor.FileConfigurations
-	k8sValidationWarningPerValidFile validation.K8sValidationWarningPerValidFile
-	ignoredFiles                     []extractor.FileConfigurations
+	invalidYamlFiles                              []*extractor.InvalidFile
+	invalidK8sFiles                               []*extractor.InvalidFile
+	validAndSkippedSchemaValidationConfigurations []*extractor.FileConfigurations
+	k8sValidationWarningPerValidFile              validation.K8sValidationWarningPerValidFile
+	ignoredFiles                                  []extractor.FileConfigurations
 }
 
 func NewValidationManager() *ValidationManager {
@@ -54,13 +54,13 @@ func (v *ValidationManager) InvalidK8sFilesCount() int {
 
 func (v *ValidationManager) AggregateValidK8sFiles(validK8sFilesConfigurationsChan chan *extractor.FileConfigurations, wg *sync.WaitGroup) {
 	for fileConfigurations := range validK8sFilesConfigurationsChan {
-		v.validK8sFilesConfigurations = append(v.validK8sFilesConfigurations, fileConfigurations)
+		v.validAndSkippedSchemaValidationConfigurations = append(v.validAndSkippedSchemaValidationConfigurations, fileConfigurations)
 	}
 	wg.Done()
 }
 
-func (v *ValidationManager) ValidK8sFilesConfigurations() []*extractor.FileConfigurations {
-	return v.validK8sFilesConfigurations
+func (v *ValidationManager) ValidOrSkippedK8sFilesConfigurations() []*extractor.FileConfigurations {
+	return v.validAndSkippedSchemaValidationConfigurations
 }
 
 func (v *ValidationManager) GetK8sValidationSummaryStr(filesCount int) string {
@@ -91,13 +91,13 @@ func (v *ValidationManager) countFilesWithWarningsOfKind(warningKind validation.
 }
 
 func (v *ValidationManager) ValidK8sFilesConfigurationsCount() int {
-	return len(v.validK8sFilesConfigurations)
+	return len(v.validAndSkippedSchemaValidationConfigurations)
 }
 
 func (v *ValidationManager) ValidK8sConfigurationsCount() int {
 	totalConfigs := 0
 
-	for _, fileConfiguration := range v.validK8sFilesConfigurations {
+	for _, fileConfiguration := range v.validAndSkippedSchemaValidationConfigurations {
 		totalConfigs += len(fileConfiguration.Configurations)
 	}
 
@@ -125,7 +125,7 @@ func (v *ValidationManager) AggregateIgnoredYamlFiles(ignoredFilesChan chan *ext
 }
 
 func (v *ValidationManager) IgnoredFiles() []*extractor.FileConfigurations {
-	return v.validK8sFilesConfigurations
+	return v.validAndSkippedSchemaValidationConfigurations
 }
 
 func (v *ValidationManager) IgnoredFilesCount() int {

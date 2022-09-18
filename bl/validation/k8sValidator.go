@@ -61,8 +61,8 @@ type FileWithWarning struct {
 	WarningKind WarningKind
 }
 
-func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *FileWithWarning) {
-	validK8sFilesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
+func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int, skipSchemaValidation bool) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *FileWithWarning) {
+	validOrSkippedK8sFilesConfigurationsChan := make(chan *extractor.FileConfigurations, concurrency)
 	invalidK8sFilesChan := make(chan *extractor.InvalidFile, concurrency)
 	k8sValidationWarningPerValidFileChan := make(chan *FileWithWarning, concurrency)
 
@@ -70,9 +70,21 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 
 		defer func() {
 			close(invalidK8sFilesChan)
-			close(validK8sFilesConfigurationsChan)
+			close(validOrSkippedK8sFilesConfigurationsChan)
 			close(k8sValidationWarningPerValidFileChan)
 		}()
+
+		if skipSchemaValidation {
+			for fileConfigurations := range filesConfigurationsChan {
+				validOrSkippedK8sFilesConfigurationsChan <- fileConfigurations
+				k8sValidationWarningPerValidFileChan <- &FileWithWarning{
+					Filename:    fileConfigurations.FileName,
+					Warning:     "Skipped schema validation",
+					WarningKind: Skipped,
+				}
+			}
+			return
+		}
 
 		for fileConfigurations := range filesConfigurationsChan {
 
@@ -84,7 +96,7 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 				}
 			}
 			if isValid {
-				validK8sFilesConfigurationsChan <- fileConfigurations
+				validOrSkippedK8sFilesConfigurationsChan <- fileConfigurations
 				if validationWarning != nil {
 					k8sValidationWarningPerValidFileChan <- &FileWithWarning{
 						Filename:    fileConfigurations.FileName,
@@ -101,7 +113,7 @@ func (val *K8sValidator) ValidateResources(filesConfigurationsChan chan *extract
 		}
 	}()
 
-	return validK8sFilesConfigurationsChan, invalidK8sFilesChan, k8sValidationWarningPerValidFileChan
+	return validOrSkippedK8sFilesConfigurationsChan, invalidK8sFilesChan, k8sValidationWarningPerValidFileChan
 }
 
 func (val *K8sValidator) GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations) {

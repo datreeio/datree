@@ -51,7 +51,7 @@ func test_valid_multiple_configurations(t *testing.T) {
 		Configurations: []extractor.Configuration{},
 	}
 	close(filesConfigurationsChan)
-	validConfigurationsChan, _, _ := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	validConfigurationsChan, _, _ := k8sValidator.ValidateResources(filesConfigurationsChan, 1, false)
 
 	for p := range validConfigurationsChan {
 		assert.Equal(t, path, p.FileName)
@@ -99,7 +99,7 @@ func test_invalid_file(t *testing.T) {
 		Configurations: []extractor.Configuration{},
 	}
 	close(filesConfigurationsChan)
-	_, invalidFilesChan, _ := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	_, invalidFilesChan, _ := k8sValidator.ValidateResources(filesConfigurationsChan, 1, false)
 
 	for p := range invalidFilesChan {
 		assert.Equal(t, path, p.Path)
@@ -123,7 +123,7 @@ func test_empty_file(t *testing.T) {
 		Configurations: []extractor.Configuration{},
 	}
 	close(filesConfigurationsChan)
-	_, invalidFilesChan, _ := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	_, invalidFilesChan, _ := k8sValidator.ValidateResources(filesConfigurationsChan, 1, false)
 
 	for p := range invalidFilesChan {
 		assert.Equal(t, path, p.Path)
@@ -150,7 +150,7 @@ func test_offline_with_remote_custom_schema_location(t *testing.T) {
 	}
 	close(filesConfigurationsChan)
 
-	_, invalidFilesChan, filesWithWarningsChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	_, invalidFilesChan, filesWithWarningsChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1, false)
 	for p := range invalidFilesChan {
 		assert.Equal(t, 1, len(p.ValidationErrors))
 		assert.Equal(t, "k8s schema validation error: no such host\n", p.ValidationErrors[0].Error())
@@ -180,7 +180,7 @@ func test_missing_schema_skipped(t *testing.T) {
 	k8sValidationWarningPerValidFile := make(K8sValidationWarningPerValidFile)
 
 	var wg sync.WaitGroup
-	filesConfigurationsChanRes, invalidFilesChan, filesWithWarningsChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1)
+	filesConfigurationsChanRes, invalidFilesChan, filesWithWarningsChan := k8sValidator.ValidateResources(filesConfigurationsChan, 1, false)
 	wg.Add(1)
 	go func() {
 		for p := range filesConfigurationsChanRes {
