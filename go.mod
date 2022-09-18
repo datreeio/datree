@@ -1,6 +1,6 @@
 module github.com/datreeio/datree
 
-go 1.18
+go 1.19
 
 require (
 	github.com/bmatcuk/doublestar/v2 v2.0.4
