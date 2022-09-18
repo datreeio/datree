@@ -85,4 +85,5 @@
 		<k8sValidation>1/1</k8sValidation>
 		<passedPolicyValidationCount>0</passedPolicyValidationCount>
 	</evaluationSummary>
+	<loginUrl></loginUrl>
 </FormattedOutput>
