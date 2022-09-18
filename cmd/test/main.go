@@ -512,7 +512,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, testCommandData *Tes
 	policyName := testCommandData.Policy.Name
 
 	policyCheckData := evaluation.PolicyCheckData{
-		FilesConfigurations: validationManager.K8sFilesConfigurationsForPolicyCheck(),
+		FilesConfigurations: validationManager.ValidOrSkippedK8sFilesConfigurations(),
 		IsInteractiveMode:   isInteractiveMode,
 		PolicyName:          policyName,
 		Policy:              testCommandData.Policy,

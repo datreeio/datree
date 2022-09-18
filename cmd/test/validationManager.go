@@ -59,7 +59,7 @@ func (v *ValidationManager) AggregateValidK8sFiles(validK8sFilesConfigurationsCh
 	wg.Done()
 }
 
-func (v *ValidationManager) K8sFilesConfigurationsForPolicyCheck() []*extractor.FileConfigurations {
+func (v *ValidationManager) ValidOrSkippedK8sFilesConfigurations() []*extractor.FileConfigurations {
 	return v.validAndSkippedSchemaValidationConfigurations
 }
 
