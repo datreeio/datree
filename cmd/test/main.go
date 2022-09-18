@@ -23,6 +23,7 @@ import (
 	"github.com/datreeio/datree/pkg/evaluation"
 	"github.com/datreeio/datree/pkg/policy"
 	"github.com/pkg/errors"
+	"golang.org/x/exp/slices"
 
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
@@ -76,10 +77,13 @@ func NewTestCommandFlags() *TestCommandFlags {
 }
 
 func validateSkipValidationFlag(flags *TestCommandFlags) error {
-	if flags.SkipValidation != "" && flags.SkipValidation != "schema" {
-		return fmt.Errorf("invalid --skip-validation option - %q\n"+
-			"Valid values are - schema", flags.SkipValidation)
+	supportedSkipValidation := []string{"schema"}
 
+	if flags.SkipValidation != "" {
+		if !slices.Contains(supportedSkipValidation, flags.SkipValidation) {
+			return fmt.Errorf("invalid --skip-validation option - %q\n"+
+				"Valid values are: %v", flags.SkipValidation, supportedSkipValidation)
+		}
 	}
 	return nil
 }
