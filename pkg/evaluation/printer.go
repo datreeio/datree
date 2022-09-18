@@ -115,8 +115,8 @@ func getFormattedOutput(resultsData *PrintResultsData) FormattedOutput {
 		},
 		YamlValidationResults: resultsData.InvalidYamlFiles,
 		K8sValidationResults:  resultsData.InvalidK8sFiles,
+		LoginUrl:              resultsData.LoginURL,
 	}
-
 	return formattedOutput
 }
 

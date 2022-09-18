@@ -71,4 +71,5 @@ evaluationSummary:
   passedPolicyValidationCount: 0
 yamlValidationResults: []
 k8sValidationResults: []
+loginUrl: https://app.datree.io/login?t=tDJhAU478UTDeSwxGAy99y
 
