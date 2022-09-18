@@ -10,6 +10,7 @@ type FormattedOutput struct {
 	EvaluationSummary       NonInteractiveEvaluationSummary `yaml:"evaluationSummary" json:"evaluationSummary" xml:"evaluationSummary"`
 	YamlValidationResults   []*extractor.InvalidFile        `yaml:"yamlValidationResults" json:"yamlValidationResults" xml:"yamlValidationResults"`
 	K8sValidationResults    []*extractor.InvalidFile        `yaml:"k8sValidationResults" json:"k8sValidationResults" xml:"k8sValidationResults"`
+	LoginUrl                string                          `yaml:"loginUrl" json:"loginUrl" xml:"loginUrl"`
 }
 
 type NonInteractiveEvaluationResults struct {
