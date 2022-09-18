@@ -23,7 +23,7 @@ import (
 	"github.com/datreeio/datree/pkg/evaluation"
 	"github.com/datreeio/datree/pkg/policy"
 	"github.com/pkg/errors"
-	"golang.org/x/exp/slices"
+	"k8s.io/utils/strings/slices"
 
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
