@@ -272,6 +272,7 @@ func createFormattedOutput() FormattedOutput {
 			K8sValidation:               "1/1",
 			PassedPolicyValidationCount: 0,
 		},
+		LoginUrl: "https://app.datree.io/login?t=tDJhAU478UTDeSwxGAy99y",
 	}
 }
 
@@ -366,6 +367,7 @@ func createFormattedOutputWithDocumentationUrl() FormattedOutput {
 			K8sValidation:               "1/1",
 			PassedPolicyValidationCount: 0,
 		},
+		LoginUrl: "https://app.datree.io/login?t=tDJhAU478UTDeSwxGAy99y",
 	}
 }
 
@@ -448,7 +450,7 @@ func printResults(outputFormat string) *printResultsTestCase {
 			invalidYamlFiles:  []*extractor.InvalidFile{},
 			invalidK8sFiles:   []*extractor.InvalidFile{},
 			evaluationSummary: printer.EvaluationSummary{},
-			loginURL:          "login/url",
+			loginURL:          "https://app.datree.io/login?t=tDJhAU478UTDeSwxGAy99y",
 			outputFormat:      outputFormat,
 		},
 		expected: nil,

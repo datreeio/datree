@@ -85,5 +85,5 @@
 		<k8sValidation>1/1</k8sValidation>
 		<passedPolicyValidationCount>0</passedPolicyValidationCount>
 	</evaluationSummary>
-	<loginUrl></loginUrl>
+	<loginUrl>https://app.datree.io/login?t=tDJhAU478UTDeSwxGAy99y</loginUrl>
 </FormattedOutput>
