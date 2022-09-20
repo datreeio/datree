@@ -243,11 +243,12 @@ func getDefaultSchemaLocations() []string {
 		// notice: order here is important because this fallback doesn't have strict mode enabled (in contrast to "default")
 		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
 		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{ .Group }}/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
-		GetExtractedSchemasDir(),
+		getExtractedSchemasDir(),
 	}
 }
 
-func GetExtractedSchemasDir() string {
+// when using the crd-extractor(https://github.com/datreeio/CRDs-catalog#crd-extractor) extracted schemas are saved to a local dir, which should be used as a schema-location by default
+func getExtractedSchemasDir() string {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return ""
