@@ -243,5 +243,15 @@ func getDefaultSchemaLocations() []string {
 		// notice: order here is important because this fallback doesn't have strict mode enabled (in contrast to "default")
 		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
 		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{ .Group }}/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
+		GetExtractedSchemasDir(),
 	}
+}
+
+func GetExtractedSchemasDir() string {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+
+	return (homeDir + "/.datree/crdSchemas/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json")
 }
