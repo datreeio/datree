@@ -17,8 +17,13 @@ type ValidationClient interface {
 	Validate(filename string, r io.ReadCloser) []kubeconformValidator.Result
 }
 
+type LocalConfig interface {
+	GetConfigHome() (string, error)
+}
+
 type K8sValidator struct {
 	validationClient              ValidationClient
+	localConfig                   LocalConfig
 	isOffline                     bool
 	areThereCustomSchemaLocations bool
 }
@@ -29,10 +34,11 @@ func New() *K8sValidator {
 	return &K8sValidator{}
 }
 
-func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, userProvidedSchemaLocations []string) {
+func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, userProvidedSchemaLocations []string, localConfig LocalConfig) {
 	val.isOffline = checkIsOffline()
 	val.areThereCustomSchemaLocations = len(userProvidedSchemaLocations) > 0
-	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, getAllSchemaLocations(userProvidedSchemaLocations, val.isOffline))
+	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, val.getAllSchemaLocations(userProvidedSchemaLocations, val.isOffline))
+	val.localConfig = localConfig
 }
 
 func checkIsOffline() bool {
@@ -227,32 +233,32 @@ func isEveryResultStatusEmpty(results []kubeconformValidator.Result) bool {
 	return isEveryResultStatusEmpty
 }
 
-func getAllSchemaLocations(userProvidedSchemaLocations []string, isOffline bool) []string {
+func (val *K8sValidator) getAllSchemaLocations(userProvidedSchemaLocations []string, isOffline bool) []string {
 	if isOffline {
 		return userProvidedSchemaLocations
 	} else {
 		// order matters! userProvidedSchemaLocations get priority over defaultSchemaLocations
-		return append(userProvidedSchemaLocations, getDefaultSchemaLocations()...)
+		return append(userProvidedSchemaLocations, val.getDefaultSchemaLocations()...)
 	}
 }
 
-func getDefaultSchemaLocations() []string {
+func (val *K8sValidator) getDefaultSchemaLocations() []string {
 	return []string{
 		"default",
 		// this is a workaround for https://github.com/yannh/kubeconform/issues/100
 		// notice: order here is important because this fallback doesn't have strict mode enabled (in contrast to "default")
 		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
 		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{ .Group }}/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
-		getExtractedSchemasDir(),
+		val.getExtractedSchemasDir(),
 	}
 }
 
 // when using the crd-extractor(https://github.com/datreeio/CRDs-catalog#crd-extractor) extracted schemas are saved to a local dir, which should be used as a schema-location by default
-func getExtractedSchemasDir() string {
-	homeDir, err := os.UserHomeDir()
+func (val *K8sValidator) getExtractedSchemasDir() string {
+	configHome, err := val.localConfig.GetConfigHome()
 	if err != nil {
 		return ""
 	}
 
-	return (homeDir + "/.datree/crdSchemas/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json")
+	return configHome + "/crdSchemas/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
 }

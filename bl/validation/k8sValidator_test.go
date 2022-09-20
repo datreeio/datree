@@ -21,6 +21,14 @@ func (m *mockValidationClient) Validate(filename string, r io.ReadCloser) []kube
 	return args.Get(0).([]kubeconformValidator.Result)
 }
 
+type mockLocalConfig struct {
+	mock.Mock
+}
+
+func (m *mockLocalConfig) GetConfigHome() (string, error) {
+	return "/Users/user/.datree", nil
+}
+
 func TestValidateResources(t *testing.T) {
 	test_valid_multiple_configurations(t)
 	test_valid_multiple_configurations_only_k8s_files(t)
@@ -201,32 +209,44 @@ func test_missing_schema_skipped(t *testing.T) {
 }
 
 func test_get_all_schema_locations_online(t *testing.T) {
+	k8sValidator := &K8sValidator{
+		isOffline:                     true,
+		areThereCustomSchemaLocations: false,
+		localConfig:                   &mockLocalConfig{},
+	}
+
 	expectedOutput := []string{
 		"/my-local-schema-location",
 		"default",
 		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
 		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{ .Group }}/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
+		"/Users/user/.datree/crdSchemas/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
 	}
-	actual := getAllSchemaLocations([]string{"/my-local-schema-location"}, false)
+	actual := k8sValidator.getAllSchemaLocations([]string{"/my-local-schema-location"}, false)
 	assert.Equal(t, expectedOutput, actual)
 }
 
 func test_get_all_schema_locations_offline(t *testing.T) {
+	k8sValidator := &K8sValidator{
+		isOffline:                     true,
+		areThereCustomSchemaLocations: true,
+	}
+
 	expectedOutput := []string{
 		"/my-local-schema-location",
 	}
-	actual := getAllSchemaLocations([]string{"/my-local-schema-location"}, true)
+	actual := k8sValidator.getAllSchemaLocations([]string{"/my-local-schema-location"}, true)
 	assert.Equal(t, expectedOutput, actual)
 }
 
 func test_validateResource_offline_with_local_schema(t *testing.T) {
 	k8sValidator := &K8sValidator{
-		validationClient: newKubeconformValidator("1.21.0", false, getAllSchemaLocations([]string{
-			"some-path-to-non-existing-file-to-get-404.yaml",
-		}, true)),
 		isOffline:                     true,
 		areThereCustomSchemaLocations: true,
 	}
+	k8sValidator.validationClient = newKubeconformValidator("1.21.0", false, k8sValidator.getAllSchemaLocations([]string{
+		"some-path-to-non-existing-file-to-get-404.yaml",
+	}, true))
 
 	isValid, validationErrors, validationWarningResult, err := k8sValidator.validateResource("../../internal/fixtures/kube/pass-all.yaml")
 	var nilValidationWarning *validationWarning
@@ -238,10 +258,10 @@ func test_validateResource_offline_with_local_schema(t *testing.T) {
 
 func test_validateResource_offline_without_custom_schema_location(t *testing.T) {
 	k8sValidator := &K8sValidator{
-		validationClient:              newKubeconformValidator("1.21.0", false, getAllSchemaLocations([]string{}, true)),
 		isOffline:                     true,
 		areThereCustomSchemaLocations: false,
 	}
+	k8sValidator.validationClient = newKubeconformValidator("1.21.0", false, k8sValidator.getAllSchemaLocations([]string{}, true))
 
 	isValid, validationErrors, validationWarningResult, err := k8sValidator.validateResource("../../internal/fixtures/kube/pass-all.yaml")
 	assert.Equal(t, nil, err)

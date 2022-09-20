@@ -46,7 +46,7 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 	viper.SetEnvPrefix("datree")
 	viper.AutomaticEnv()
 
-	initConfigFileErr := InitLocalConfigFile()
+	initConfigFileErr := lc.initLocalConfigFile()
 	if initConfigFileErr != nil {
 		return nil, initConfigFileErr
 	}
@@ -91,7 +91,7 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 }
 
 func (lc *LocalConfigClient) Set(key string, value string) error {
-	initConfigFileErr := InitLocalConfigFile()
+	initConfigFileErr := lc.initLocalConfigFile()
 	if initConfigFileErr != nil {
 		return initConfigFileErr
 	}
@@ -109,8 +109,8 @@ func (lc *LocalConfigClient) Set(key string, value string) error {
 	return nil
 }
 
-func InitLocalConfigFile() error {
-	configHome, configName, configType, err := setViperConfig()
+func (lc *LocalConfigClient) initLocalConfigFile() error {
+	configHome, configName, configType, err := lc.setViperConfig()
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,7 @@ func (lc *LocalConfigClient) Get(key string) string {
 	return viper.GetString(key)
 }
 
-func getConfigHome() (string, error) {
+func (lc *LocalConfigClient) GetConfigHome() (string, error) {
 	homedir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -183,8 +183,8 @@ func getConfigType() string {
 	return "yaml"
 }
 
-func setViperConfig() (string, string, string, error) {
-	configHome, err := getConfigHome()
+func (lc *LocalConfigClient) setViperConfig() (string, string, string, error) {
+	configHome, err := lc.GetConfigHome()
 	if err != nil {
 		return "", "", "", err
 	}

@@ -132,7 +132,7 @@ func (kv *k8sValidatorMock) GetK8sFiles(filesConfigurationsChan chan *extractor.
 	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *extractor.FileConfigurations)
 }
 
-func (kv *k8sValidatorMock) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) {
+func (kv *k8sValidatorMock) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string, localConfig test.LocalConfig) {
 }
 
 type PrinterMock struct {

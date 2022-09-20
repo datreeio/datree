@@ -45,7 +45,7 @@ type Messager interface {
 
 type K8sValidator interface {
 	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int, skipSchemaValidation bool) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *validation.FileWithWarning)
-	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
+	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string, localConfig LocalConfig)
 	GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations)
 }
 
@@ -125,6 +125,7 @@ type Reader interface {
 
 type LocalConfig interface {
 	GetLocalConfiguration() (*localConfig.LocalConfig, error)
+	GetConfigHome() (string, error)
 }
 
 var ViolationsFoundError = errors.New("")
@@ -478,7 +479,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, testCommandData *Tes
 
 	validationManager := NewValidationManager()
 
-	ctx.K8sValidator.InitClient(testCommandData.K8sVersion, testCommandData.IgnoreMissingSchemas, testCommandData.SchemaLocations)
+	ctx.K8sValidator.InitClient(testCommandData.K8sVersion, testCommandData.IgnoreMissingSchemas, testCommandData.SchemaLocations, ctx.LocalConfig)
 
 	concurrency := 100
 	var wg sync.WaitGroup
