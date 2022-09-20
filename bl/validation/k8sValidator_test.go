@@ -3,6 +3,7 @@ package validation
 import (
 	"fmt"
 	"io"
+	"strings"
 	"sync"
 	"testing"
 
@@ -208,7 +209,8 @@ func test_get_all_schema_locations_online(t *testing.T) {
 		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{ .Group }}/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
 	}
 	actual := getAllSchemaLocations([]string{"/my-local-schema-location"}, false)
-	assert.Equal(t, expectedOutput, actual)
+	assert.Equal(t, expectedOutput, actual[0:4])
+	assert.Equal(t, true, strings.HasSuffix(actual[4], "/.datree/crdSchemas/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"))
 }
 
 func test_get_all_schema_locations_offline(t *testing.T) {
