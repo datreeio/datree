@@ -3,6 +3,7 @@ package validation
 import (
 	"fmt"
 	"io"
+	"os"
 	"sync"
 	"testing"
 
@@ -201,11 +202,13 @@ func test_missing_schema_skipped(t *testing.T) {
 }
 
 func test_get_all_schema_locations_online(t *testing.T) {
+	homeDir, _ := os.UserHomeDir()
 	expectedOutput := []string{
 		"/my-local-schema-location",
 		"default",
 		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json",
 		"https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{ .Group }}/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
+		homeDir + "/.datree/crdSchemas/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json",
 	}
 	actual := getAllSchemaLocations([]string{"/my-local-schema-location"}, false)
 	assert.Equal(t, expectedOutput, actual)
