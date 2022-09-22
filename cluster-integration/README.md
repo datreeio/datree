@@ -1,7 +1,7 @@
 # Datree Admission Webhook
 
 <p align="center">
-<img src="/cluster-integration/admission-webhook-datree/internal/images/diagram.png" width="80%" />
+<img src="https://github.com/datreeio/admission-webhook-datree/blob/main/internal/images/diagram.png" width="80%" />
 </p>
   
 # Overview
