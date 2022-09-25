@@ -490,7 +490,7 @@ policies:
       #   messageOnFailure: Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization
       - identifier: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
         messageOnFailure: Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges
-  - name: All_Rules
+  - name: Strict
     rules:
       - identifier: CONTAINERS_MISSING_IMAGE_VALUE_VERSION
         messageOnFailure: Incorrect value for key `image` - specify an image version to avoid unpleasant "version surprises" in the future
