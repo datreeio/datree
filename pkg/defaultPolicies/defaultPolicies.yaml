@@ -19,7 +19,7 @@ policies:
       - identifier: SERVICE_INCORRECT_TYPE_VALUE_NODEPORT
         messageOnFailure: Incorrect value for key `type` - `NodePort` will open a port on all nodes where it can be reached by the network external to the cluster
       - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
-        messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected'
+        messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
       - identifier: WORKLOAD_INVALID_LABELS_VALUE
         messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it
       - identifier: WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS
@@ -195,17 +195,17 @@ policies:
       # - identifier: ENDPOINTSLICE_CVE2021_25373_INCORRECT_ADDRESSES_VALUE
       #   messageOnFailure: Incorrect value for key `addresses` - IP address is within vulnerable ranges (127.0.0.0/8 and 169.254.0.0/16)
       - identifier: ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE
-        messageOnFailure: 'Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches'
+        messageOnFailure: "Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches"
       - identifier: ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT
         messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
       - identifier: ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD
-        messageOnFailure: 'Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won''t recognize this resource'
+        messageOnFailure: "Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won't recognize this resource"
       - identifier: ARGO_ROLLOUT_MISSING_PAUSE_DURATION
         messageOnFailure: Missing the key `duration` - prevent the rollout from waiting indefinitely for the pause condition
       - identifier: ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE
         messageOnFailure: Incorrect value for property `namespace` - Application and AppProject have to be installed on the argocd namespace
       - identifier: ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY
-        messageOnFailure: 'Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues'
+        messageOnFailure: "Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues"
       - identifier: ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0
         messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
       - identifier: ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30
@@ -483,10 +483,132 @@ policies:
       # - identifier: CONTAINERS_MISSING_LIVENESSPROBE_KEY
       #   messageOnFailure: Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks
       - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
-        messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected'
+        messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
       # - identifier: CRONJOB_MISSING_CONCURRENCYPOLICY_KEY
       #   messageOnFailure: Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently
       # - identifier: CONTAINERS_MISSING_MEMORY_LIMIT_KEY
       #   messageOnFailure: Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization
       - identifier: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
         messageOnFailure: Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges
+  - name: All_Rules
+    rules:
+      - identifier: CONTAINERS_MISSING_IMAGE_VALUE_VERSION
+        messageOnFailure: Incorrect value for key `image` - specify an image version to avoid unpleasant "version surprises" in the future
+      - identifier: CONTAINERS_MISSING_MEMORY_REQUEST_KEY
+        messageOnFailure: Missing property object `requests.memory` - value should be within the accepted boundaries recommended by the organization
+      - identifier: CONTAINERS_MISSING_CPU_REQUEST_KEY
+        messageOnFailure: Missing property object `requests.cpu` - value should be within the accepted boundaries recommended by the organization
+      - identifier: CONTAINERS_MISSING_MEMORY_LIMIT_KEY
+        messageOnFailure: Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization
+      - identifier: CONTAINERS_MISSING_CPU_LIMIT_KEY
+        messageOnFailure: Missing property object `limits.cpu` - value should be within the accepted boundaries recommended by the organization
+      - identifier: INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE
+        messageOnFailure: Incorrect value for key `host` - specify host instead of using a wildcard character ("*")
+      - identifier: SERVICE_INCORRECT_TYPE_VALUE_NODEPORT
+        messageOnFailure: Incorrect value for key `type` - `NodePort` will open a port on all nodes where it can be reached by the network external to the cluster
+      - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
+        messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
+      - identifier: WORKLOAD_INVALID_LABELS_VALUE
+        messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it
+      - identifier: WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS
+        messageOnFailure: Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource
+      - identifier: CONTAINERS_MISSING_LIVENESSPROBE_KEY
+        messageOnFailure: Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks
+      - identifier: CONTAINERS_MISSING_READINESSPROBE_KEY
+        messageOnFailure: Missing property object `readinessProbe` - add a properly configured readinessProbe to notify kubelet your Pods are ready for traffic
+      - identifier: HPA_MISSING_MINREPLICAS_KEY
+        messageOnFailure: Missing property object `minReplicas` - the value should be within the accepted boundaries recommended by the organization
+      - identifier: HPA_MISSING_MAXREPLICAS_KEY
+        messageOnFailure: Missing property object `maxReplicas` - the value should be within the accepted boundaries recommended by the organization
+      - identifier: WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT
+        messageOnFailure: Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)
+      - identifier: DEPLOYMENT_INCORRECT_REPLICAS_VALUE
+        messageOnFailure: Incorrect value for key `replicas` - running 2 or more replicas will increase the availability of the service
+      - identifier: CRONJOB_MISSING_STARTINGDEADLINESECOND_KEY
+        messageOnFailure: Missing property object `startingDeadlineSeconds` - set a time limit to the cron execution to allow killing it if exceeded
+      - identifier: K8S_DEPRECATED_APIVERSION_1.16
+        messageOnFailure: Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.16)
+      - identifier: K8S_DEPRECATED_APIVERSION_1.17
+        messageOnFailure: Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.17)
+      - identifier: CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE
+        messageOnFailure: Incorrect value for key `privileged` - this mode will allow the container the same access as processes running on the host
+      - identifier: WORKLOAD_MISSING_LABEL_OWNER_VALUE
+        messageOnFailure: Missing label object `owner` - add a proper owner label to know which person/team to ping when needed
+      - identifier: DEPLOYMENT_MISSING_LABEL_ENV_VALUE
+        messageOnFailure: 'Missing label object `env` - add a proper environment description (e.g. "prod", "testing", etc.) to the Deployment config'
+      - identifier: CONTAINERS_MISSING_IMAGE_VALUE_DIGEST
+        messageOnFailure: "Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image"
+      - identifier: CRONJOB_MISSING_CONCURRENCYPOLICY_KEY
+        messageOnFailure: Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently
+      - identifier: K8S_INCORRECT_KIND_VALUE_POD
+        messageOnFailure: Incorrect value for key `kind` - raw pod won't be rescheduled in the event of a node failure
+      - identifier: CONTAINERS_INCORRECT_HOSTPID_VALUE_TRUE
+        messageOnFailure: Incorrect value for key `hostPID` - running on the host's PID namespace enables access to sensitive information from processes running outside the container
+      - identifier: CONTAINERS_INCORRECT_HOSTIPC_VALUE_TRUE
+        messageOnFailure: Incorrect value for key `hostIPC` - running on the host`s IPC namespace can be (maliciously) used to interact with other processes running outside the container
+      - identifier: CONTAINERS_INCORRECT_HOSTNETWORK_VALUE_TRUE
+        messageOnFailure: Incorrect value for key `hostNetwork` - running on the host's network namespace can allow a compromised container to sniff network traffic
+      - identifier: CONTAINERS_INCORRECT_RUNASUSER_VALUE_LOWUID
+        messageOnFailure: Incorrect value for key `runAsUser` - value should be above 9999 to reduce the likelihood that the UID is already taken
+      - identifier: CONTAINERS_INCORRECT_PATH_VALUE_DOCKERSOCKET
+        messageOnFailure: Incorrect value for key `path` - avoid mounting the docker.socket becasue it can allow container breakout
+      - identifier: CONFIGMAP_CVE2021_25742_INCORRECT_SNIPPET_ANNOTATIONS_VALUE
+        messageOnFailure: Missing property object `allow-snippet-annotations` - set it to "false" to override default behaviour
+      - identifier: INGRESS_CVE2021_25742_INCORRECT_SERVER_SNIPPET_KEY
+        messageOnFailure: Forbidden property object `server-snippet` - ingress-nginx custom snippets are not allowed
+      - identifier: CONTAINER_CVE2021_25741_INCORRECT_SUBPATH_KEY
+        messageOnFailure: Forbidden property object `subPath` - malicious users can gain access to files & directories outside of the volume
+      - identifier: ENDPOINTSLICE_CVE2021_25373_INCORRECT_ADDRESSES_VALUE
+        messageOnFailure: Incorrect value for key `addresses` - IP address is within vulnerable ranges (127.0.0.0/8 and 169.254.0.0/16)
+      - identifier: ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE
+        messageOnFailure: "Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches"
+      - identifier: ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT
+        messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
+      - identifier: ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD
+        messageOnFailure: "Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won't recognize this resource"
+      - identifier: ARGO_ROLLOUT_MISSING_PAUSE_DURATION
+        messageOnFailure: Missing the key `duration` - prevent the rollout from waiting indefinitely for the pause condition
+      - identifier: ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE
+        messageOnFailure: Incorrect value for property `namespace` - Application and AppProject have to be installed on the argocd namespace
+      - identifier: ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY
+        messageOnFailure: "Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues"
+      - identifier: ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0
+        messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
+      - identifier: ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30
+        messageOnFailure: Incorrect value for key `scaleDownDelaySeconds` - value should be at least 30 to prevent packets from being sent to a node that killed the pod
+      - identifier: ARGO_ROLLOUT_INCORRECT_PROGRESS_DEADLINE_ABORT_VALUE_FALSE
+        messageOnFailure: Incorrect value for key `progressDeadlineAbort` - value should be `true` to prevent the rollout pod from retrying indefinitely
+      - identifier: ARGO_WORKFLOW_ENSURE_RETRY_ON_BOTH_ERROR_AND_TRANSIENT_ERROR
+        messageOnFailure: Incorrect value for key `retryPolicy` - the expression should include retry on steps that failed either on transient or Argo controller errors
+      - identifier: CONTAINERS_INCORRECT_READONLYROOTFILESYSTEM_VALUE
+        messageOnFailure: Incorrect value for key `readOnlyRootFilesystem` - set to 'true' to protect filesystem from potential attacks
+      - identifier: CONTAINERS_INCORRECT_KEY_HOSTPATH
+        messageOnFailure: Invalid key `hostPath` - refrain from using this mount to prevent an attack on the underlying host
+      - identifier: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
+        messageOnFailure: Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges
+      - identifier: CONTAINERS_INCORRECT_RESOURCES_VERBS_VALUE
+        messageOnFailure: Incorrect value for key `resources` and/or `verbs` - allowing containers to run the exec command can be exploited by attackers
+      - identifier: CONTAINERS_INVALID_CAPABILITIES_VALUE
+        messageOnFailure: Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components
+      - identifier: CONTAINERS_INCORRECT_KEY_HOSTPORT
+        messageOnFailure: Incorrect key `hostPort` - refrain from using this key to prevent insecurely exposing your workload
+      - identifier: CONTAINERS_INCORRECT_RUNASGROUP_VALUE_LOWGID
+        messageOnFailure: Invalid value for key `runAsGroup` - must be greater than 999 to ensure container is running with non-root group membership
+      - identifier: CONTAINERS_INCORRECT_RUNASNONROOT_VALUE
+        messageOnFailure: Invalid value for key `runAsNonRoot` - must be set to `true` to prevent unnecessary privileges
+      - identifier: SRVACC_INCORRECT_AUTOMOUNTSERVICEACCOUNTTOKEN_VALUE
+        messageOnFailure: Invalid value for key `automountServiceAccountToken` - must be set to `false` to prevent granting unnecessary access to the service account
+      - identifier: RESOURCE_MISSING_NAME
+        messageOnFailure: Missing key `name` or `generateName` - one of them must be set to apply resource to a cluster
+      - identifier: CONTAINERS_INCORRECT_INITIALDELAYSECONDS_VALUE
+        messageOnFailure: Incorrect value for key `initialDelaySeconds` - set explicitly to control the start time before a probe is initiated (min 0)
+      - identifier: CONTAINERS_INCORRECT_PERIODSECONDS_VALUE
+        messageOnFailure: Incorrect value for key `periodSeconds` - set explicitly to control how often a probe is performed (min 1)
+      - identifier: CONTAINERS_INCORRECT_TIMEOUTSECONDS_VALUE
+        messageOnFailure: Incorrect value for key `timeoutSeconds` - set explicitly to control when a probe times out (min 1)
+      - identifier: CONTAINERS_INCORRECT_SUCCESSTHRESHOLD_VALUE
+        messageOnFailure: Incorrect value for key `successThreshold` - set explicitly to control when a probe is considered successful after having failed
+      - identifier: CONTAINERS_INCORRECT_FAILURETHRESHOLD_VALUE
+        messageOnFailure: Incorrect value for key `failureThreshold` - set explicitly to control the number of retries after a probe fails (min 1)
+      - identifier: CONTAINERS_MISSING_PRESTOP_KEY
+        messageOnFailure: Missing property object `preStop` - set to ensure graceful shutdown of the container
