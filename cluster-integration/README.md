@@ -66,7 +66,7 @@ The following applications must be installed on the machine:
 Once the webhook is installed, every hooked operation will trigger a Datree policy check. If no misconfigurations were found, the resource will be applied/updated.
 For any misconfigurations that were found the following output will be displayed:
 
-![image](/internal/images/deny-example.png)
+![deny-example](https://raw.githubusercontent.com/datreeio/admission-webhook-datree/main/internal/images/deny-example.png)
 
 ## Behavior
 
