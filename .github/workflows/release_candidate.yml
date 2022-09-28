@@ -3,6 +3,8 @@ name: Release Candidate Workflow
 on:
   push:
     branches: ['main']
+    paths-ignore:
+      - "cluster-integration/**"
 env:
   GITHUB_ACTION_RUN_ID: ${{ github.run_id }}
   GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}

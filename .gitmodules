@@ -1,0 +1,3 @@
+[submodule "cluster-integration/admission-webhook-datree"]
+	path = cluster-integration/admission-webhook-datree
+	url = https://github.com/datreeio/admission-webhook-datree
