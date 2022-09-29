@@ -19,7 +19,7 @@ policies:
       - identifier: SERVICE_INCORRECT_TYPE_VALUE_NODEPORT
         messageOnFailure: Incorrect value for key `type` - `NodePort` will open a port on all nodes where it can be reached by the network external to the cluster
       - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
-        messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
+        messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected'
       - identifier: WORKLOAD_INVALID_LABELS_VALUE
         messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it
       - identifier: WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS
@@ -195,7 +195,7 @@ policies:
       # - identifier: ENDPOINTSLICE_CVE2021_25373_INCORRECT_ADDRESSES_VALUE
       #   messageOnFailure: Incorrect value for key `addresses` - IP address is within vulnerable ranges (127.0.0.0/8 and 169.254.0.0/16)
       - identifier: ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE
-        messageOnFailure: "Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches"
+        messageOnFailure: 'Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches'
       - identifier: ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT
         messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
       - identifier: ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD
@@ -205,7 +205,7 @@ policies:
       - identifier: ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE
         messageOnFailure: Incorrect value for property `namespace` - Application and AppProject have to be installed on the argocd namespace
       - identifier: ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY
-        messageOnFailure: "Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues"
+        messageOnFailure: 'Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues'
       - identifier: ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0
         messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
       - identifier: ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30
@@ -483,7 +483,7 @@ policies:
       # - identifier: CONTAINERS_MISSING_LIVENESSPROBE_KEY
       #   messageOnFailure: Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks
       - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
-        messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
+        messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected'
       # - identifier: CRONJOB_MISSING_CONCURRENCYPOLICY_KEY
       #   messageOnFailure: Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently
       # - identifier: CONTAINERS_MISSING_MEMORY_LIMIT_KEY
@@ -507,7 +507,7 @@ policies:
       - identifier: SERVICE_INCORRECT_TYPE_VALUE_NODEPORT
         messageOnFailure: Incorrect value for key `type` - `NodePort` will open a port on all nodes where it can be reached by the network external to the cluster
       - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
-        messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
+        messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected'
       - identifier: WORKLOAD_INVALID_LABELS_VALUE
         messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it
       - identifier: WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS
@@ -537,7 +537,7 @@ policies:
       - identifier: DEPLOYMENT_MISSING_LABEL_ENV_VALUE
         messageOnFailure: 'Missing label object `env` - add a proper environment description (e.g. "prod", "testing", etc.) to the Deployment config'
       - identifier: CONTAINERS_MISSING_IMAGE_VALUE_DIGEST
-        messageOnFailure: "Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image"
+        messageOnFailure: 'Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image'
       - identifier: CRONJOB_MISSING_CONCURRENCYPOLICY_KEY
         messageOnFailure: Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently
       - identifier: K8S_INCORRECT_KIND_VALUE_POD
@@ -561,7 +561,7 @@ policies:
       - identifier: ENDPOINTSLICE_CVE2021_25373_INCORRECT_ADDRESSES_VALUE
         messageOnFailure: Incorrect value for key `addresses` - IP address is within vulnerable ranges (127.0.0.0/8 and 169.254.0.0/16)
       - identifier: ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE
-        messageOnFailure: "Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches"
+        messageOnFailure: 'Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches'
       - identifier: ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT
         messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
       - identifier: ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD
@@ -571,7 +571,7 @@ policies:
       - identifier: ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE
         messageOnFailure: Incorrect value for property `namespace` - Application and AppProject have to be installed on the argocd namespace
       - identifier: ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY
-        messageOnFailure: "Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues"
+        messageOnFailure: 'Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues'
       - identifier: ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0
         messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
       - identifier: ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30
