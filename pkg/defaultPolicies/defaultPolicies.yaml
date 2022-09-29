@@ -199,7 +199,7 @@ policies:
       - identifier: ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT
         messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
       - identifier: ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD
-        messageOnFailure: "Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won't recognize this resource"
+        messageOnFailure: 'Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won''t recognize this resource'
       - identifier: ARGO_ROLLOUT_MISSING_PAUSE_DURATION
         messageOnFailure: Missing the key `duration` - prevent the rollout from waiting indefinitely for the pause condition
       - identifier: ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE
