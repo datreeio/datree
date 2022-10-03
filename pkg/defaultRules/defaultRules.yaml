@@ -1217,25 +1217,8 @@ rules:
                           - readOnlyRootFilesystem
                     required:
                       - securityContext
-        podSecurityContextPattern:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Pod
-          then:
-            properties:
-              spec:
-                properties:
-                  securityContext:
-                    properties:
-                      readOnlyRootFilesystem:
-                        const: true
-                    required:
-                      - readOnlyRootFilesystem
       allOf:
         - $ref: "#/definitions/containerSecurityPattern"
-        - $ref: "#/definitions/podSecurityContextPattern"
       additionalProperties:
         $ref: "#"
       items:
