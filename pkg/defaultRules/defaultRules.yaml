@@ -1870,11 +1870,11 @@ rules:
       items:
         $ref: "#"
   - id: 61
-    name: "Prevent setting 'Unconfined' as seccomp profile"
+    name: "Prevent containers from having unnecessary system call privileges"
     uniqueName: CONTAINERS_INCORRECT_SECCOMP_PROFILE
     enabledByDefault: false
-    documentationUrl: "https://www.datree.io/resources/eks-best-practices-you-should-know"
-    messageOnFailure: "seccompProfile was omitted or was explicitly set to 'Unconfined' - set an explicit value to increase the pod or container's isolation"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-system-call-privileges"
+    messageOnFailure: "Incorrect value for key seccompProfile - set an explicit value to prevent malicious use of system calls within the container"
     category: Containers
     schema:
       definitions:
