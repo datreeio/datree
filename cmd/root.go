@@ -14,6 +14,7 @@ import (
 	"github.com/datreeio/datree/cmd/publish"
 	schemaValidator "github.com/datreeio/datree/cmd/schema-validator"
 	"github.com/datreeio/datree/cmd/test"
+	"github.com/datreeio/datree/cmd/upgrade"
 	"github.com/datreeio/datree/cmd/version"
 	"github.com/datreeio/datree/pkg/ciContext"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -68,6 +69,12 @@ func NewRootCommand(app *App) *cobra.Command {
 		CliVersion: CliVersion,
 		Messager:   app.Context.Messager,
 		Printer:    app.Context.Printer,
+	}))
+
+	rootCmd.AddCommand(upgrade.New(&upgrade.UpgradeCommandContext{
+		CliVersion:       CliVersion,
+		Printer:          app.Context.Printer,
+		UpgradeCliClient: app.Context.CliClient,
 	}))
 
 	rootCmd.AddCommand(config.New(&config.ConfigCommandContext{
