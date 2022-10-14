@@ -3,7 +3,6 @@ package policy
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/datreeio/datree/pkg/defaultPolicies"
 
 	"github.com/datreeio/datree/pkg/defaultRules"
