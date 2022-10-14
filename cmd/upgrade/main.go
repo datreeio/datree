@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/datreeio/datree/pkg/cliClient"
-	"github.com/datreeio/datree/pkg/upgradeManager"
+	upgrademanager "github.com/datreeio/datree/pkg/upgradeManager"
 	"github.com/spf13/cobra"
 )
 

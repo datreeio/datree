@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+
 	"github.com/datreeio/datree/pkg/defaultPolicies"
 
 	"github.com/datreeio/datree/pkg/defaultRules"
