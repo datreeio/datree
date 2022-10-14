@@ -3,13 +3,14 @@ package upgrademanager
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/datreeio/datree/pkg/httpClient"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
-
-	"github.com/datreeio/datree/pkg/httpClient"
 )
 
 type UpgradeManager struct {
@@ -33,7 +34,7 @@ func NewUpgradeManager() *UpgradeManager {
 			if runtime.GOARCH == "amd64" {
 				arch = "x86_64"
 			}
-			return fmt.Sprintf("%s_%s", strings.Title(runtime.GOOS), arch)
+			return fmt.Sprintf("%s_%s", cases.Title(language.English, cases.Compact).String(runtime.GOOS), arch)
 		},
 		newCommand: exec.Command,
 		client:     httpClient.NewClient("https://api.github.com", nil),
@@ -42,10 +43,10 @@ func NewUpgradeManager() *UpgradeManager {
 
 func (m *UpgradeManager) CheckIfDatreeInstalledUsingBrew() bool {
 	output, _ := m.newCommand("brew", "list", "datree").CombinedOutput()
-	if strings.Contains(string(output), "Error: No such keg") {
-		return false
+	if !strings.Contains(string(output), "Error: No such keg") {
+		return true
 	}
-	return true
+	return false
 }
 
 func (m *UpgradeManager) Upgrade() error {
@@ -66,6 +67,9 @@ func (m *UpgradeManager) Upgrade() error {
 			// download the binary in the temp dir
 			// we're doing slicing from 18 bytes because length of  "https://github.com" is 18
 			err = m.downloadAsset(body.Assets[i].BrowserDownloadUrl[18:], "/tmp/datree-latest.zip")
+			if err != nil {
+				return err
+			}
 			break
 		}
 	}
