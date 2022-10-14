@@ -2,15 +2,17 @@ package upgrademanager
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/datreeio/datree/pkg/httpClient"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+
+	"github.com/datreeio/datree/pkg/httpClient"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type UpgradeManager struct {
@@ -43,10 +45,10 @@ func NewUpgradeManager() *UpgradeManager {
 
 func (m *UpgradeManager) CheckIfDatreeInstalledUsingBrew() bool {
 	output, _ := m.newCommand("brew", "list", "datree").CombinedOutput()
-	if !strings.Contains(string(output), "Error: No such keg") {
-		return true
+	if strings.Contains(string(output), "Error: No such keg") {
+		return false
 	}
-	return false
+	return true
 }
 
 func (m *UpgradeManager) Upgrade() error {
@@ -59,47 +61,54 @@ func (m *UpgradeManager) Upgrade() error {
 		return err
 	}
 
-	json.Unmarshal(response.Body, &body)
+	err = json.Unmarshal(response.Body, &body)
+	if err != nil {
+		return err
+	}
 
 	for i := range body.Assets {
-		// fmt.Println(i, body.Assets[i].BrowserDownloadUrl, m.platform())
 		if strings.Contains(body.Assets[i].BrowserDownloadUrl, m.platform()) {
 			// download the binary in the temp dir
-			// we're doing slicing from 18 bytes because length of  "https://github.com" is 18
-			err = m.downloadAsset(body.Assets[i].BrowserDownloadUrl[18:], "/tmp/datree-latest.zip")
+			destPath, err := os.CreateTemp(os.TempDir(), "datree-latest-*.zip")
+			defer os.RemoveAll(destPath.Name())
 			if err != nil {
 				return err
 			}
-			break
+			// we're doing slicing from 18 bytes because length of  "https://github.com" is 18
+			err = m.downloadAsset(body.Assets[i].BrowserDownloadUrl[18:], destPath)
+			if err != nil {
+				return err
+			}
+
+			// unzip the asset file and extract the zip content
+			output, err := m.newCommand("unzip", "-d", "/usr/local/bin", "-o", destPath.Name(), "datree").CombinedOutput()
+			if err != nil {
+				return errors.New(string(output))
+			}
+
+			return nil
 		}
 	}
 
-	return nil
+	return errors.New("Looks like nothing happened, weird! Reach out to datree for support")
 }
 
-func (m *UpgradeManager) downloadAsset(url string, destPath string) error {
+func (m *UpgradeManager) downloadAsset(url string, destPath *os.File) error {
 	client := httpClient.NewClient("https://github.com", nil)
 	header := map[string]string{
 		"Accept": "application/octect-stream",
 	}
+
 	response, err := client.Request(http.MethodGet, url, nil, header)
 	if err != nil {
 		return err
 	}
 
-	f, err := os.OpenFile(destPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+	defer destPath.Close()
+
+	_, err = destPath.Write(response.Body)
 	if err != nil {
 		return err
-	}
-	defer f.Close()
-
-	n, err := f.Write(response.Body)
-	if err != nil {
-		return err
-	}
-
-	if n > 0 {
-		fmt.Println("Datree file downlaoded successfully, file location is /tmp/datree-latest.zip")
 	}
 
 	return nil
