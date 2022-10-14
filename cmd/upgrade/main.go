@@ -17,10 +17,6 @@ type UpgradeCommandContext struct {
 	UpgradeCliClient *cliClient.CliClient
 }
 
-func upgrade(ctx *UpgradeCommandContext) {
-	fmt.Println(ctx.CliVersion)
-}
-
 func New(ctx *UpgradeCommandContext) *cobra.Command {
 	m := upgrademanager.NewUpgradeManager()
 	var upgradeCmd = &cobra.Command{
