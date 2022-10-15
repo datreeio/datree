@@ -32,8 +32,8 @@ type LatestReleaseAssetList struct {
 func NewUpgradeManager() *UpgradeManager {
 	return &UpgradeManager{
 		platform: func() string {
-			var arch string
-			if runtime.GOARCH == "amd64" {
+			arch := runtime.GOARCH
+			if arch == "amd64" {
 				arch = "x86_64"
 			}
 			return fmt.Sprintf("%s_%s", cases.Title(language.English, cases.Compact).String(runtime.GOOS), arch)
