@@ -45,10 +45,7 @@ func NewUpgradeManager() *UpgradeManager {
 
 func (m *UpgradeManager) CheckIfDatreeInstalledUsingBrew() bool {
 	_, err := m.newCommand("brew", "list", "datree").CombinedOutput()
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func (m *UpgradeManager) Upgrade() error {
