@@ -44,8 +44,8 @@ func NewUpgradeManager() *UpgradeManager {
 }
 
 func (m *UpgradeManager) CheckIfDatreeInstalledUsingBrew() bool {
-	output, _ := m.newCommand("brew", "list", "datree").CombinedOutput()
-	if strings.Contains(string(output), "Error: No such keg") {
+	_, err := m.newCommand("brew", "list", "datree").CombinedOutput()
+	if err != nil {
 		return false
 	}
 	return true
