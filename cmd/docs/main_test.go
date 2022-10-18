@@ -2,7 +2,7 @@ package docs
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,7 +25,7 @@ func Test_DocsCommand(t *testing.T) {
 			cmd.SetOut(out)
 			cmd.Execute()
 
-			got, err := ioutil.ReadAll(out)
+			got, err := io.ReadAll(out)
 			if err != nil {
 				t.Fatal(err)
 			}
