@@ -50,7 +50,11 @@ func ValidateStdinPathArgument(paths []string) error {
 	return nil
 }
 
-func OpenBrowser(url string) {
+func OpenBrowser(url string) error {
 	fmt.Printf("Opening %s in your browser.\n", url)
-	browser.OpenURL(url)
+	err := browser.OpenURL(url)
+	if err != nil {
+		return fmt.Errorf("error opening url: %v", err)
+	}
+	return nil
 }

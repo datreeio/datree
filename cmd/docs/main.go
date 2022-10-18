@@ -1,6 +1,8 @@
 package docs
 
 import (
+	"fmt"
+
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -20,7 +22,10 @@ func New() *cobra.Command {
 		`),
 		Run: func(cmd *cobra.Command, args []string) {
 			url := "https://hub.datree.io"
-			utils.OpenBrowser(url)
+			err := utils.OpenBrowser(url)
+			if err != nil {
+				fmt.Println(err)
+			}
 		},
 	}
 

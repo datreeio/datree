@@ -23,7 +23,10 @@ func Test_DocsCommand(t *testing.T) {
 			cmd := New()
 			out := bytes.NewBufferString("Opening https://hub.datree.io in your browser.")
 			cmd.SetOut(out)
-			cmd.Execute()
+			err := cmd.Execute()
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			got, err := io.ReadAll(out)
 			if err != nil {
