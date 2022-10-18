@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: glpat-37HjBcYY9Qb7RNnqm6wJ
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80

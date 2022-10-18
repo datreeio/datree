@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: oktarqg:='"sup=nlgfr=d4iaqpsghn-hzy1od=39f1s60b0j-_qg
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80

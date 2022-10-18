@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: new-relic3pp1u.pd3spt9ylr4||:NRAK-znt937p38jzna42mcdk8l1gczhm
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80

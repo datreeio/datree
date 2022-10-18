@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: qoy9xh5sm50tue.atlasv1.b4udif2t66iyk_1cjpvpktac9j4awk9wwrh=pc_3cxc4wl1txvdwfyryyo_d
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80

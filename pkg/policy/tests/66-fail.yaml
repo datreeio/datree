@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: gho_fq2Umv92EQx02Gdc7Haias0UqKmq8xIeeund
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
