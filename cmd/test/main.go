@@ -437,7 +437,7 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 		}
 
 		if strings.ToLower(string(answer)) != "n" {
-			openBrowser(testCommandData.PromptRegistrationURL)
+			utils.OpenBrowser(testCommandData.PromptRegistrationURL)
 		}
 	}
 

@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"strings"
+
+	"github.com/pkg/browser"
 )
 
 func Example(s string) string {
@@ -46,4 +48,9 @@ func ValidateStdinPathArgument(paths []string) error {
 	}
 
 	return nil
+}
+
+func OpenBrowser(url string) {
+	fmt.Printf("Opening %s in your browser.\n", url)
+	browser.OpenURL(url)
 }

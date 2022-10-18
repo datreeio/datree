@@ -10,6 +10,7 @@ import (
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/cmd/completion"
 	"github.com/datreeio/datree/cmd/config"
+	"github.com/datreeio/datree/cmd/docs"
 	"github.com/datreeio/datree/cmd/kustomize"
 	"github.com/datreeio/datree/cmd/publish"
 	schemaValidator "github.com/datreeio/datree/cmd/schema-validator"
@@ -92,6 +93,8 @@ func NewRootCommand(app *App) *cobra.Command {
 		JSONSchemaValidator: app.Context.JSONSchemaValidator,
 		Printer:             app.Context.Printer,
 	}))
+
+	rootCmd.AddCommand(docs.New())
 
 	return rootCmd
 }
