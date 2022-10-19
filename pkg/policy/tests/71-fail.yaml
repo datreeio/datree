@@ -4,7 +4,7 @@ metadata:
   name: nginx
 spec:
   containers:
-  - name: launchdarklywfk9w.06rawq6lpp0h3=`hab60fwsca7bk2hxuaw5lvepy0ux0u19jbjgt-cv
+  - name: launchdarklywfk9w.06rawq6lpp0h3=`hab60fwsca7bk2hxuaw5lvepy0ux0u19jbjgt-cv
     image: nginx:1.14.2
     ports:
     - containerPort: 80
