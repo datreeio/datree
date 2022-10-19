@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: datadog5x<=```"pcxx9wi21i8sh4na1sdl6488j79fsemasb40i10p
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80

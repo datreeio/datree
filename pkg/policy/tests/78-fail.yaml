@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: hvs.aiky6mstgd0g9r-epdtfcghy32mzi6cm83z02emx80-1-m5bntqc9xf3e9qjcaw24vd1how4ptt0lssm7e637nox8skbz
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80

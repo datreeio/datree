@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: sk_live_ditock8qyu3uujas83fgnn5ab
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80

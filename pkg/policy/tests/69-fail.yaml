@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: herokuvsz_en6klqqzpkm0vxp:=c864956d-e7d4-65ed-bb79-f938ff6167a9
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80

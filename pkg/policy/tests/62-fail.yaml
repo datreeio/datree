@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: bitbucketr=>yf8gf86gcdz1e4df2efnbtmcpzwivk1a
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
