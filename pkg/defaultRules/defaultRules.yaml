@@ -20,6 +20,7 @@ aliases:
           enum:
             - Secret
   # The following alias is used to prohibit a string from matching a given regex anywhere in the manifest
+  # make sure to use the $ref "#/definitions/regexes" in the schema definition to populate the regexes variable
   - &recursiveDontAllowValue
     type: object
     additionalProperties:
