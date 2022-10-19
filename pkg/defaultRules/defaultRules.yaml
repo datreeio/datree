@@ -1964,6 +1964,3 @@ rules:
                         enum:
                           - "unconfined"
                           - "Unconfined"
-
-
-
