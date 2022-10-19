@@ -1893,7 +1893,98 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
-
+  - id: 61
+    name: "Prevent containers from having unnecessary system call privileges"
+    uniqueName: CONTAINERS_INCORRECT_SECCOMP_PROFILE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-system-call-privileges"
+    messageOnFailure: "Incorrect value for key seccompProfile - set an explicit value to prevent malicious use of system calls within the container"
+    category: Containers
+    schema:
+      definitions:
+        seccompExplicit:
+          if: *standardKinds
+          then:
+            properties: 
+              spec:
+                oneOf:
+                  - $ref: "#/$defs/securityContextSeccompReq"
+                  - $ref: "#/definitions/seccompExplicitInContainer"
+        seccompExplicitInContainer:
+          if: *standardKinds
+          then:
+            properties:
+              containers:
+                type: array
+                items:
+                  $ref: "#/$defs/securityContextSeccompReq"
+              initContainers:
+                type: array
+                items:
+                  $ref: "#/$defs/securityContextSeccompReq"
+              ephemeralContainers:
+                type: array
+                items:
+                  $ref: "#/$defs/securityContextSeccompReq"
+        seccompPatternInSpec:
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                $ref: "#/$defs/securityContextSeccomp"
+        seccompPatternInContainer:
+          if: *standardKinds
+          then:
+            properties:
+              spec:
+                properties:
+                  containers:
+                    type: array
+                    items:
+                      $ref: "#/$defs/securityContextSeccomp"
+                  initContainers:
+                    type: array
+                    items:
+                      $ref: "#/$defs/securityContextSeccomp"
+                  ephemeralContainers:
+                    type: array
+                    items:
+                      $ref: "#/$defs/securityContextSeccomp"
+      allOf:
+        - $ref: "#/definitions/seccompExplicit"
+        - $ref: "#/definitions/seccompPatternInSpec"
+        - $ref: "#/definitions/seccompPatternInContainer"
+      additionalProperties:
+        $ref: "#"
+        items:
+          $ref: "#"
+      $defs:
+        securityContextSeccompReq:
+          required:
+            - securityContext
+          properties:
+            securityContext:
+              type: object
+              required:
+                - seccompProfile
+              properties:
+                seccompProfile:
+                  type: object
+                  required:
+                    - type
+        securityContextSeccomp:
+          properties:
+            securityContext:
+              type: object
+              properties:
+                seccompProfile:
+                  type: object
+                  properties:
+                    type:
+                      not:
+                        enum:
+                          - "unconfined"
+                          - "Unconfined"
   - id: 62
     name: Prevent exposed BitBucket secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_BITBUCKET

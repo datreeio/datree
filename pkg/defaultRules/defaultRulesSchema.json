@@ -10,7 +10,7 @@
     },
     "rules": {
       "type": "array",
-      "minItems": 78,
+      "minItems": 79,
       "maxItems": 79,
       "items": {
         "type": "object",
