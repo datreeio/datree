@@ -34,24 +34,6 @@
 		<testcase name="Prevent containers from having root access capabilities" classname="CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE"></testcase>
 		<testcase name="Prevent CronJob from executing jobs concurrently" classname="CRONJOB_MISSING_CONCURRENCYPOLICY_KEY"></testcase>
 		<testcase name="Ensure resource has a configured name" classname="RESOURCE_MISSING_NAME"></testcase>
-		<testcase name="Prevent exposed BitBucket secrets in objects" classname="ALL_EXPOSED_SECRET_BITBUCKET"></testcase>
-		<testcase name="Prevent exposed Datadog secrets in objects" classname="ALL_EXPOSED_SECRET_DATADOG"></testcase>
-		<testcase name="Prevent exposed GCP secrets in objects" classname="ALL_EXPOSED_SECRET_GCP"></testcase>
-		<testcase name="Prevent exposed AWS secrets in objects" classname="ALL_EXPOSED_SECRET_AWS"></testcase>
-		<testcase name="Prevent exposed GitHub secrets in objects" classname="ALL_EXPOSED_SECRET_GITHUB"></testcase>
-		<testcase name="Prevent exposed GitLab secrets in objects" classname="ALL_EXPOSED_SECRET_GITLAB"></testcase>
-		<testcase name="Prevent exposed Terraform secrets in objects" classname="ALL_EXPOSED_SECRET_TERRAFORM"></testcase>
-		<testcase name="Prevent exposed Heroku secrets in objects" classname="ALL_EXPOSED_SECRET_HEROKU"></testcase>
-		<testcase name="Prevent exposed JWT secrets in objects" classname="ALL_EXPOSED_SECRET_JWT"></testcase>
-		<testcase name="Prevent exposed LaunchDarkly secrets in objects" classname="ALL_EXPOSED_SECRET_LAUNCHDARKLY"></testcase>
-		<testcase name="Prevent exposed New Relic secrets in objects" classname="ALL_EXPOSED_SECRET_NEWRELIC"></testcase>
-		<testcase name="Prevent exposed npm secrets in objects" classname="ALL_EXPOSED_SECRET_NPM"></testcase>
-		<testcase name="Prevent exposed Okta secrets in objects" classname="ALL_EXPOSED_SECRET_OKTA"></testcase>
-		<testcase name="Prevent exposed Stripe secrets in objects" classname="ALL_EXPOSED_SECRET_STRIPE"></testcase>
-		<testcase name="Prevent exposed SumoLogic secrets in objects" classname="ALL_EXPOSED_SECRET_SUMOLOGIC"></testcase>
-		<testcase name="Prevent exposed Twilio secrets in objects" classname="ALL_EXPOSED_SECRET_TWILIO"></testcase>
-		<testcase name="Prevent exposed Vault secrets in objects" classname="ALL_EXPOSED_SECRET_VAULT"></testcase>
-		<testcase name="Prevent exposed private keys in objects" classname="ALL_EXPOSED_SECRET_PRIVATEKEY"></testcase>
 	</testsuite>
 	<testsuite name="File2">
 		<testcase name="Ensure each container image has a pinned (tag) version" classname="CONTAINERS_MISSING_IMAGE_VALUE_VERSION"></testcase>
@@ -75,24 +57,6 @@
 		<testcase name="Prevent containers from having root access capabilities" classname="CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE"></testcase>
 		<testcase name="Prevent CronJob from executing jobs concurrently" classname="CRONJOB_MISSING_CONCURRENCYPOLICY_KEY"></testcase>
 		<testcase name="Ensure resource has a configured name" classname="RESOURCE_MISSING_NAME"></testcase>
-		<testcase name="Prevent exposed BitBucket secrets in objects" classname="ALL_EXPOSED_SECRET_BITBUCKET"></testcase>
-		<testcase name="Prevent exposed Datadog secrets in objects" classname="ALL_EXPOSED_SECRET_DATADOG"></testcase>
-		<testcase name="Prevent exposed GCP secrets in objects" classname="ALL_EXPOSED_SECRET_GCP"></testcase>
-		<testcase name="Prevent exposed AWS secrets in objects" classname="ALL_EXPOSED_SECRET_AWS"></testcase>
-		<testcase name="Prevent exposed GitHub secrets in objects" classname="ALL_EXPOSED_SECRET_GITHUB"></testcase>
-		<testcase name="Prevent exposed GitLab secrets in objects" classname="ALL_EXPOSED_SECRET_GITLAB"></testcase>
-		<testcase name="Prevent exposed Terraform secrets in objects" classname="ALL_EXPOSED_SECRET_TERRAFORM"></testcase>
-		<testcase name="Prevent exposed Heroku secrets in objects" classname="ALL_EXPOSED_SECRET_HEROKU"></testcase>
-		<testcase name="Prevent exposed JWT secrets in objects" classname="ALL_EXPOSED_SECRET_JWT"></testcase>
-		<testcase name="Prevent exposed LaunchDarkly secrets in objects" classname="ALL_EXPOSED_SECRET_LAUNCHDARKLY"></testcase>
-		<testcase name="Prevent exposed New Relic secrets in objects" classname="ALL_EXPOSED_SECRET_NEWRELIC"></testcase>
-		<testcase name="Prevent exposed npm secrets in objects" classname="ALL_EXPOSED_SECRET_NPM"></testcase>
-		<testcase name="Prevent exposed Okta secrets in objects" classname="ALL_EXPOSED_SECRET_OKTA"></testcase>
-		<testcase name="Prevent exposed Stripe secrets in objects" classname="ALL_EXPOSED_SECRET_STRIPE"></testcase>
-		<testcase name="Prevent exposed SumoLogic secrets in objects" classname="ALL_EXPOSED_SECRET_SUMOLOGIC"></testcase>
-		<testcase name="Prevent exposed Twilio secrets in objects" classname="ALL_EXPOSED_SECRET_TWILIO"></testcase>
-		<testcase name="Prevent exposed Vault secrets in objects" classname="ALL_EXPOSED_SECRET_VAULT"></testcase>
-		<testcase name="Prevent exposed private keys in objects" classname="ALL_EXPOSED_SECRET_PRIVATEKEY"></testcase>
 	</testsuite>
 	<testsuite name="policySummary">
 		<properties>
