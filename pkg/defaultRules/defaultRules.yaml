@@ -1989,7 +1989,7 @@ rules:
   - id: 62
     name: Prevent exposed BitBucket secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_BITBUCKET
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-bitbucket"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2003,7 +2003,7 @@ rules:
   - id: 63
     name: Prevent exposed Datadog secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_DATADOG
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-datadog"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2017,7 +2017,7 @@ rules:
   - id: 64
     name: Prevent exposed GCP secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_GCP
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-gcp"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2031,7 +2031,7 @@ rules:
   - id: 65
     name: Prevent exposed AWS secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_AWS
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-aws"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2045,7 +2045,7 @@ rules:
   - id: 66
     name: Prevent exposed GitHub secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_GITHUB
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-github"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2062,7 +2062,7 @@ rules:
   - id: 67
     name: Prevent exposed GitLab secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_GITLAB
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-gitlab"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2076,7 +2076,7 @@ rules:
   - id: 68
     name: Prevent exposed Terraform secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_TERRAFORM
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-terraform"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2090,7 +2090,7 @@ rules:
   - id: 69
     name: Prevent exposed Heroku secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_HEROKU
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-heroku"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2104,7 +2104,7 @@ rules:
   - id: 70
     name: Prevent exposed JWT secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_JWT
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-jwt"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2118,7 +2118,7 @@ rules:
   - id: 71
     name: Prevent exposed LaunchDarkly secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_LAUNCHDARKLY
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-launchdarkly"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2132,7 +2132,7 @@ rules:
   - id: 72
     name: Prevent exposed New Relic secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_NEWRELIC
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-newrelic"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2148,7 +2148,7 @@ rules:
   - id: 73
     name: Prevent exposed npm secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_NPM
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-npm"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2162,7 +2162,7 @@ rules:
   - id: 74
     name: Prevent exposed Okta secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_OKTA
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-okta"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2176,7 +2176,7 @@ rules:
   - id: 75
     name: Prevent exposed Stripe secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_STRIPE
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-stripe"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2190,7 +2190,7 @@ rules:
   - id: 76
     name: Prevent exposed SumoLogic secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_SUMOLOGIC
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-sumologic"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2205,7 +2205,7 @@ rules:
   - id: 77
     name: Prevent exposed Twilio secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_TWILIO
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-twilio"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2219,7 +2219,7 @@ rules:
   - id: 78
     name: Prevent exposed Vault secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_VAULT
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-vault"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
@@ -2234,7 +2234,7 @@ rules:
   - id: 79
     name: Prevent exposed private keys in objects
     uniqueName: ALL_EXPOSED_SECRET_PRIVATEKEY
-    enabledByDefault: True
+    enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-privatekey"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
