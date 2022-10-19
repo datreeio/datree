@@ -15,7 +15,7 @@ func (e *InvalidK8sSchemaError) Error() string {
 
 func (e *InvalidK8sSchemaError) usageSuggestion() string {
 	if strings.HasPrefix(e.ErrorMessage, "could not find schema for ") {
-		return "You can skip files with missing schemas instead of failing by using the `--ignore-missing-schemas` flag\n"
+		return "To troubleshoot: refer to our docs [https://hub.datree.io/troubleshooting#schema-validation-failure]\nTo ignore this failure: use the CLI flag `--ignore-missing-schemas`\n"
 	}
 	return ""
 }
