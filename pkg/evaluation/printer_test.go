@@ -372,7 +372,7 @@ func createFormattedOutputWithDocumentationUrl() FormattedOutput {
 }
 
 func createInvalidK8sFileFormattedOutput() FormattedOutput {
-	err := errors.New("k8s schema validation error: could not find schema for Deployment You can skip files with missing schemas instead of failing by using the `--ignore-missing-schemas` flag ")
+	err := errors.New("k8s schema validation error: could not find schema for Deployment\nTo troubleshoot: refer to our docs [https://hub.datree.io/troubleshooting#schema-validation-failure]\nTo ignore this failure: use the CLI flag `--ignore-missing-schemas`\n")
 	err2 := errors.New("k8s schema validation error: For field spec.replicas: Invalid type. Expected: [integer,null], given: string ")
 	invalidK8sFile := &extractor.InvalidFile{
 		Path:             "File1",

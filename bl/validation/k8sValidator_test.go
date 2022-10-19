@@ -235,7 +235,7 @@ func test_validateResource_offline_with_local_schema(t *testing.T) {
 	var nilValidationWarning *validationWarning
 	assert.Equal(t, nil, err)
 	assert.Equal(t, false, isValid)
-	assert.Equal(t, "k8s schema validation error: could not find schema for Deployment\nYou can skip files with missing schemas instead of failing by using the `--ignore-missing-schemas` flag\n", validationErrors[0].Error())
+	assert.Equal(t, "k8s schema validation error: could not find schema for Deployment\nTo troubleshoot: refer to our docs [https://hub.datree.io/troubleshooting#schema-validation-failure]\nTo ignore this failure: use the CLI flag `--ignore-missing-schemas`\n", validationErrors[0].Error())
 	assert.Equal(t, nilValidationWarning, validationWarningResult)
 }
 
