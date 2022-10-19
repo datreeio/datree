@@ -19,7 +19,8 @@ aliases:
         not:
           enum:
             - Secret
-  - &recursiveFindValue
+  # The following alias is used to prohibit a string from matching a given regex anywhere in the manifest
+  - &recursiveDontAllowValue
     type: object
     additionalProperties:
       if:
@@ -1998,7 +1999,7 @@ rules:
           anyOf:
             - pattern: (?:bitbucket)(?:[0-9a-z\-_\t .]{0,20})(?:[\s|']|[\s|"]){0,3}(?:=|>|:=|\|\|:|<=|=>|:)(?:'|\"|\s|=|\x60){0,5}([a-z0-9]{32})(?:['|\"|\n|\r|\s|\x60|;]|$)
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 63
     name: Prevent exposed Datadog secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_DATADOG
@@ -2012,7 +2013,7 @@ rules:
           anyOf:
             - pattern: (?:datadog)(?:[0-9a-z\-_\t .]{0,20})(?:[\s|']|[\s|"]){0,3}(?:=|>|:=|\|\|:|<=|=>|:)(?:'|\"|\s|=|\x60){0,5}([a-z0-9]{40})(?:['|\"|\n|\r|\s|\x60|;]|$)
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 64
     name: Prevent exposed GCP secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_GCP
@@ -2026,7 +2027,7 @@ rules:
           anyOf:
             - pattern: \b(AIza[0-9A-Za-z\\-_]{35})(?:['|\"|\n|\r|\s|\x60|;]|$)
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 65
     name: Prevent exposed AWS secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_AWS
@@ -2040,7 +2041,7 @@ rules:
           anyOf:
             - pattern: (A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 66
     name: Prevent exposed GitHub secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_GITHUB
@@ -2057,7 +2058,7 @@ rules:
             - pattern: ghp_[0-9a-zA-Z]{36}
             - pattern: ghr_[0-9a-zA-Z]{36}
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 67
     name: Prevent exposed GitLab secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_GITLAB
@@ -2071,7 +2072,7 @@ rules:
           anyOf:
             - pattern: glpat-[0-9a-zA-Z\-\_]{20}
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 68
     name: Prevent exposed Terraform secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_TERRAFORM
@@ -2085,7 +2086,7 @@ rules:
           anyOf:
             - pattern: '[a-z0-9]{14}\.atlasv1\.[a-z0-9\-_=]{60,70}'
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 69
     name: Prevent exposed Heroku secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_HEROKU
@@ -2099,7 +2100,7 @@ rules:
           anyOf:
             - pattern: (?:heroku)(?:[0-9a-z\-_\t .]{0,20})(?:[\s|']|[\s|"]){0,3}(?:=|>|:=|\|\|:|<=|=>|:)(?:'|\"|\s|=|\x60){0,5}([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:['|\"|\n|\r|\s|\x60|;]|$)
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 70
     name: Prevent exposed JWT secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_JWT
@@ -2113,7 +2114,7 @@ rules:
           anyOf:
             - pattern: \b(ey[0-9a-z]{30,34}\.ey[0-9a-z-\/_]{30,500}\.[0-9a-zA-Z-\/_]{10,200})(?:['|\"|\n|\r|\s|\x60|;]|$)
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 71
     name: Prevent exposed LaunchDarkly secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_LAUNCHDARKLY
@@ -2127,7 +2128,7 @@ rules:
           anyOf:
             - pattern: (?:launchdarkly)(?:[0-9a-z\-_\t .]{0,20})(?:[\s|']|[\s|"]){0,3}(?:=|>|:=|\|\|:|<=|=>|:)(?:'|\"|\s|=|\x60){0,5}([a-z0-9=_\-]{40})(?:['|\"|\n|\r|\s|\x60|;]|$)
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 72
     name: Prevent exposed New Relic secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_NEWRELIC
@@ -2143,7 +2144,7 @@ rules:
             - pattern: (?:new-relic|newrelic|new_relic)(?:[0-9a-z\-_\t .]{0,20})(?:[\s|']|[\s|"]){0,3}(?:=|>|:=|\|\|:|<=|=>|:)(?:'|\"|\s|=|\x60){0,5}([a-z0-9]{64})(?:['|\"|\n|\r|\s|\x60|;]|$)
             - pattern: (?:new-relic|newrelic|new_relic)(?:[0-9a-z\-_\t .]{0,20})(?:[\s|']|[\s|"]){0,3}(?:=|>|:=|\|\|:|<=|=>|:)(?:'|\"|\s|=|\x60){0,5}(NRAK-[a-z0-9]{27})(?:['|\"|\n|\r|\s|\x60|;]|$)
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 73
     name: Prevent exposed npm secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_NPM
@@ -2157,7 +2158,7 @@ rules:
           anyOf:
             - pattern: \b(npm_[a-z0-9]{36})(?:['|\"|\n|\r|\s|\x60|;]|$)
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 74
     name: Prevent exposed Okta secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_OKTA
@@ -2171,7 +2172,7 @@ rules:
           anyOf:
             - pattern: (?:okta)(?:[0-9a-z\-_\t .]{0,20})(?:[\s|']|[\s|"]){0,3}(?:=|>|:=|\|\|:|<=|=>|:)(?:'|\"|\s|=|\x60){0,5}([a-z0-9=_\-]{42})(?:['|\"|\n|\r|\s|\x60|;]|$)
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 75
     name: Prevent exposed Stripe secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_STRIPE
@@ -2185,7 +2186,7 @@ rules:
           anyOf:
             - pattern: (sk|pk)_(test|live)_[0-9a-z]{10,32}
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 76
     name: Prevent exposed SumoLogic secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_SUMOLOGIC
@@ -2200,7 +2201,7 @@ rules:
             - pattern: (?:sumo)(?:[0-9a-z\-_\t .]{0,20})(?:[\s|']|[\s|"]){0,3}(?:=|>|:=|\|\|:|<=|=>|:)(?:'|\"|\s|=|\x60){0,5}([a-z0-9]{14})(?:['|\"|\n|\r|\s|\x60|;]|$)
             - pattern: (?:sumo)(?:[0-9a-z\-_\t .]{0,20})(?:[\s|']|[\s|"]){0,3}(?:=|>|:=|\|\|:|<=|=>|:)(?:'|\"|\s|=|\x60){0,5}([a-z0-9]{64})(?:['|\"|\n|\r|\s|\x60|;]|$)
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 77
     name: Prevent exposed Twilio secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_TWILIO
@@ -2214,7 +2215,7 @@ rules:
           anyOf:
             - pattern: SK[0-9a-fA-F]{32}
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 78
     name: Prevent exposed Vault secrets in objects
     uniqueName: ALL_EXPOSED_SECRET_VAULT
@@ -2229,7 +2230,7 @@ rules:
             - pattern: \b(hvb\.[a-z0-9_-]{138,212})(?:['|\"|\n|\r|\s|\x60|;]|$)
             - pattern: \b(hvs\.[a-z0-9_-]{90,100})(?:['|\"|\n|\r|\s|\x60|;]|$)
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
   - id: 79
     name: Prevent exposed private keys in objects
     uniqueName: ALL_EXPOSED_SECRET_PRIVATEKEY
@@ -2243,4 +2244,4 @@ rules:
           anyOf:
             - pattern: (?i)-----BEGIN[ A-Z0-9_-]{0,100}PRIVATE KEY-----[\s\S-]*KEY----
       if: *notKindSecret
-      then: *recursiveFindValue
+      then: *recursiveDontAllowValue
