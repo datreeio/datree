@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myPod
+spec:
+  securityContext:
+    seccompProfile:
+      type: Localhost
+  containers:
+    - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80
+  initContainers:
+    - name: nginx
+      image: nginx:1.14.2
+      securityContext:
+        seccompProfile:
+          type: unconfined
+      ports:
+        - containerPort: 80
+

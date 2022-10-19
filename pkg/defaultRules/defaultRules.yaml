@@ -1932,6 +1932,11 @@ rules:
         - $ref: "#/definitions/seccompPatternInSpec"
         - $ref: "#/definitions/seccompPatternInContainer"
 
+      additionalProperties:
+        $ref: "#"
+        items:
+          $ref: "#"
+      
       $defs:
         securityContextSeccompReq:
           required:
