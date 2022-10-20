@@ -2,16 +2,19 @@ package docs
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
+const DEFAULT_ERR_EXIT_CODE = 1
+
 func New() *cobra.Command {
 	var docsCmd = &cobra.Command{
 		Use:     "docs",
-		Short:   "Datree documentation",
-		Long:    "It will open a browser with datree documentation",
+		Short:   "Open datree documentation page",
+		Long:    "Open the default browser with datree documentation page",
 		Aliases: []string{"documentation"},
 		Example: (`
 		# Open documentation with 'docs'
@@ -25,6 +28,7 @@ func New() *cobra.Command {
 			err := utils.OpenBrowser(url)
 			if err != nil {
 				fmt.Println(err)
+				os.Exit(DEFAULT_ERR_EXIT_CODE)
 			}
 		},
 	}
