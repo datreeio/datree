@@ -42,15 +42,16 @@ For more information see [Datree webhook Helm chart](https://github.com/datreeio
 
 ## Deploy with installation script
 
-During the installtion the script will require to enter the Datree token during installation.
+During the installation the script will require you to enter your Datree token.  
+To install run the following command in your terminal:
 
 ```bash
-# Install with prompting Datree token
 bash <(curl https://get.datree.io/admission-webhook)
+```
 
-# Install without prompting Datree token
+To install without prompting for a token, you can supply it in the command:
+```bash
 DATREE_TOKEN=[your-token] bash <(curl https://get.datree.io/admission-webhook)
-
 ```
 
 ### Prerequisites
