@@ -1,58 +1,40 @@
 package upgrademanager
 
 import (
-	"net/http"
 	"os"
 	"os/exec"
-
-	"github.com/datreeio/datree/pkg/httpClient"
 )
 
 type UpgradeManager struct {
-	newCommand func(string, ...string) *exec.Cmd
-	client     *httpClient.Client
 }
 
 func NewUpgradeManager() *UpgradeManager {
-	return &UpgradeManager{
-		newCommand: exec.Command,
-		client:     httpClient.NewClient("https://get.datree.io", nil),
-	}
+	return &UpgradeManager{}
 }
 
 func (m *UpgradeManager) CheckIfDatreeInstalledUsingBrew() bool {
-	_, err := m.newCommand("brew", "list", "datree").CombinedOutput()
+	_, err := exec.Command("brew", "list", "datree").Output()
 	return err == nil
 }
 
 func (m *UpgradeManager) Upgrade() error {
 
-	client := m.client
+	shellScript := exec.Command("curl", "https://get.datree.io")
+	execShellScript := exec.Command("bash")
+	execShellScript.Stdin, _ = shellScript.StdoutPipe()
+	execShellScript.Stdout = os.Stdout
 
-	// fetch the content of the shell script i.e. `install.sh`
-	response, err := client.Request(http.MethodGet, "", nil, map[string]string{})
+	err := execShellScript.Start()
 	if err != nil {
 		return err
 	}
 
-	destPath, err := os.CreateTemp(os.TempDir(), "datree-install-*.sh")
-	// resource cleanup if job complete successfully
-	defer func() {
-		os.RemoveAll(destPath.Name())
-	}()
+	err = shellScript.Run()
 	if err != nil {
 		return err
 	}
 
-	_, err = destPath.Write(response.Body)
-	if err != nil {
-		return err
-	}
-	// closing the file after writing content to it
-	destPath.Close()
-
-	// executing the shell script
-	_, err = m.newCommand("bash", destPath.Name()).CombinedOutput()
+	err = execShellScript.Wait()
 	if err != nil {
 		return err
 	}

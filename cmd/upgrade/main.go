@@ -36,7 +36,7 @@ func New(ctx *UpgradeCommandContext) *cobra.Command {
 						ctx.Printer.PrintMessage(errMsg, "error")
 						return
 					}
-					ctx.Printer.PrintMessage("Datree upgraded successfully\n", "green")
+					ctx.Printer.PrintMessage("[V] Datree upgraded successfully\n", "green")
 				}
 			}
 		},
