@@ -24,8 +24,8 @@ func New(ctx *UpgradeCommandContext) *cobra.Command {
 		Short: "Upgrade datree to the latest version",
 		Long:  "Upgrade datree to the latest version",
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) > 0 {
-				ctx.Printer.PrintMessage("Run upgrade command without any argument\n", "error")
+			if m.CheckIfDatreeInstalledUsingBrew() {
+				ctx.Printer.PrintMessage("Looks like you installed Datree via brew, to upgrade datree run - brew upgrade datree\n", "error")
 			} else {
 				if m.CheckIfDatreeInstalledUsingBrew() {
 					ctx.Printer.PrintMessage("Looks like you installed Datree via brew, to upgrade datree run - brew upgrade datree\n", "error")
@@ -39,7 +39,6 @@ func New(ctx *UpgradeCommandContext) *cobra.Command {
 					ctx.Printer.PrintMessage("Datree upgraded successfully\n", "green")
 				}
 			}
-
 		},
 	}
 	return upgradeCmd
