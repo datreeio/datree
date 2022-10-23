@@ -16,7 +16,7 @@ type UpgradeManager struct {
 func NewUpgradeManager() *UpgradeManager {
 	return &UpgradeManager{
 		newCommand: exec.Command,
-		client:     httpClient.NewClient("https://raw.githubusercontent.com", nil),
+		client:     httpClient.NewClient("https://get.datree.io", nil),
 	}
 }
 
@@ -30,7 +30,7 @@ func (m *UpgradeManager) Upgrade() error {
 	client := m.client
 
 	// fetch the content of the shell script i.e. `install.sh`
-	response, err := client.Request(http.MethodGet, "/datreeio/datree/main/install.sh", nil, map[string]string{})
+	response, err := client.Request(http.MethodGet, "", nil, map[string]string{})
 	if err != nil {
 		return err
 	}
