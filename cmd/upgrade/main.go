@@ -32,7 +32,7 @@ func New(ctx *UpgradeCommandContext) *cobra.Command {
 				} else {
 					err := m.Upgrade()
 					if err != nil {
-						err_msg := fmt.Sprintf("Failed to upgrade datree to the latest version, error encountered %s\n", err)
+						errMsg := fmt.Sprintf("Failed to upgrade datree to the latest version, error encountered %s\n", err)
 						ctx.Printer.PrintMessage(err_msg, "error")
 						return
 					}
