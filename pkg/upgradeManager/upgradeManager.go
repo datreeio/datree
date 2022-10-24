@@ -18,26 +18,7 @@ func (m *UpgradeManager) CheckIfDatreeInstalledUsingBrew() bool {
 }
 
 func (m *UpgradeManager) Upgrade() error {
-
-	shellScript := exec.Command("curl", "https://get.datree.io")
-	execShellScript := exec.Command("bash")
-	execShellScript.Stdin, _ = shellScript.StdoutPipe()
-	execShellScript.Stdout = os.Stdout
-
-	err := execShellScript.Start()
-	if err != nil {
-		return err
-	}
-
-	err = shellScript.Run()
-	if err != nil {
-		return err
-	}
-
-	err = execShellScript.Wait()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	oneLineInstallationCommand := exec.Command("bash", "-c", "curl https://get.datree.io | /bin/bash")
+	oneLineInstallationCommand.Stdout = os.Stdout
+	return oneLineInstallationCommand.Run()
 }
