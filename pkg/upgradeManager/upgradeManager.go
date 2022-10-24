@@ -3,6 +3,7 @@ package upgrademanager
 import (
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -19,7 +20,7 @@ func (m *UpgradeManager) CheckIfDatreeInstalledUsingBrew() bool {
 }
 
 func (m *UpgradeManager) CheckIfOsIsWindows() bool {
-	return strings.Contains("windowssdsd", "windows")
+	return strings.Contains(runtime.GOOS, "windows")
 }
 
 func (m *UpgradeManager) Upgrade() error {
