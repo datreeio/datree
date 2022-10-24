@@ -43,21 +43,25 @@ var ciMap = map[string]*CIMetadata{
 	"SAIL_CI":                            {CIEnvValue: "sail", ShouldHideEmojis: false},
 }
 
-var ciMapPrefix = map[string]CIMetadata{
+var ciMapPrefix = map[string]*CIMetadata{
 	"ATLANTIS_":  {CIEnvValue: "atlantis", ShouldHideEmojis: false},
 	"BITBUCKET_": {CIEnvValue: "bitbucket", ShouldHideEmojis: false},
 	"CONCOURSE_": {CIEnvValue: "concourse", ShouldHideEmojis: false},
 	"SPACELIFT_": {CIEnvValue: "spacelift", ShouldHideEmojis: false},
 	"HARNESS_":   {CIEnvValue: "harness", ShouldHideEmojis: false},
+	"Octopus":    {CIEnvValue: "octopus-deploy", ShouldHideEmojis: false},
 }
 
+var ciFallbackEnvVar = map[string]*CIMetadata{"CI": {CIEnvValue: "unrecognized-ci", ShouldHideEmojis: false}}
+
 func Extract() *CIContext {
-	ciName := getCIName()
+	ciName, ciMetadata := getCIData()
 	isCI := len(ciName) > 0
+
 	if isCI {
 		return &CIContext{
 			IsCI:       isCI,
-			CIMetadata: ciMap[ciName],
+			CIMetadata: ciMetadata,
 		}
 	} else {
 		return &CIContext{
@@ -70,22 +74,28 @@ func Extract() *CIContext {
 	}
 }
 
-func getCIName() string {
+func getCIData() (string, *CIMetadata) {
 	for env := range ciMap {
 		if isKeyInEnv(env) {
-			return env
+			return env, ciMap[env]
 		}
 	}
 
 	for _, key := range os.Environ() {
 		for prefix := range ciMapPrefix {
 			if strings.HasPrefix(key, prefix) {
-				return prefix
+				return prefix, ciMapPrefix[prefix]
 			}
 		}
 	}
 
-	return ""
+	for env := range ciFallbackEnvVar {
+		if isKeyInEnv(env) {
+			return env, ciFallbackEnvVar[env]
+		}
+	}
+
+	return "", nil
 }
 
 func isKeyInEnv(key string) bool {
