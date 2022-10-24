@@ -26,5 +26,6 @@ func (m *UpgradeManager) CheckIfOsIsWindows() bool {
 func (m *UpgradeManager) Upgrade() error {
 	oneLineInstallationCommand := exec.Command("bash", "-c", "curl https://get.datree.io | /bin/bash")
 	oneLineInstallationCommand.Stdout = os.Stdout
+	oneLineInstallationCommand.Stderr = os.Stderr
 	return oneLineInstallationCommand.Run()
 }
