@@ -25,15 +25,18 @@ func New(ctx *UpgradeCommandContext) *cobra.Command {
 		Long:  "Upgrade datree to the latest version",
 		Run: func(cmd *cobra.Command, args []string) {
 			if m.CheckIfDatreeInstalledUsingBrew() {
-				ctx.Printer.PrintMessage("Looks like you installed Datree via brew, to upgrade datree run - brew upgrade datree\n", "error")
-			} else {
-				err := m.Upgrade()
-				if err != nil {
-					errMsg := fmt.Sprintf("Failed to upgrade datree to the latest version, error encountered %s\n", err)
-					ctx.Printer.PrintMessage(errMsg, "error")
-					return
-				}
-				ctx.Printer.PrintMessage("[V] Datree upgraded successfully\n", "green")
+				ctx.Printer.PrintMessage("Looks like you installed Datree via brew, to upgrade datree run: 'brew upgrade datree'\n", "error")
+				return
+			}
+			if m.CheckIfOsIsWindows() {
+				ctx.Printer.PrintMessage("Looks like you are using windows OS, to upgrade datree run: 'iwr -useb https://get.datree.io/windows_install.ps1 | iex'\n", "error")
+				return
+			}
+
+			err := m.Upgrade()
+			if err != nil {
+				errMsg := fmt.Sprintf("Failed to upgrade datree to the latest version, error encountered:\n%s\n", err)
+				ctx.Printer.PrintMessage(errMsg, "error")
 			}
 		},
 	}
