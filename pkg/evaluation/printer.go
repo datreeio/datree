@@ -376,6 +376,21 @@ func GetWarningExtraMessages(invalidFile *extractor.InvalidFile) []printer.Extra
 		}
 	}
 
+	for _, validationError := range invalidFile.ValidationErrors {
+		if strings.Contains(validationError.Error(), "error while parsing: missing 'kind' key") && !IsHelmFile(invalidFile.Path) && !IsKustomizationFile(invalidFile.Path) {
+			extraMessages = append(extraMessages, printer.ExtraMessage{
+				Text:  "A non-K8s file was passed to Datree, and therefore the K8s schema validation step failed.\nUse the `--only-k8s-files` flag to ignore non-K8s files when they are passed to Datree.\n",
+				Color: "cyan",
+			})
+			break
+		}
+	}
+
+	// add spaces between messages
+	for i := 0; i < len(extraMessages)-1; i++ {
+		extraMessages[i].Text += "\n"
+	}
+
 	return extraMessages
 }
 
