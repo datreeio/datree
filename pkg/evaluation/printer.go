@@ -366,6 +366,16 @@ func GetWarningExtraMessages(invalidFile *extractor.InvalidFile) []printer.Extra
 		})
 	}
 
+	for _, validationError := range invalidFile.ValidationErrors {
+		if strings.Contains(validationError.Error(), "could not find schema for") {
+			extraMessages = append(extraMessages, printer.ExtraMessage{
+				Text:  "To troubleshoot: refer to our docs [https://hub.datree.io/troubleshooting#schema-validation-failure]\nTo ignore this failure: use the CLI flag `--ignore-missing-schemas`\n",
+				Color: "cyan",
+			})
+			break
+		}
+	}
+
 	return extraMessages
 }
 
