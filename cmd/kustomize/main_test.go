@@ -98,6 +98,11 @@ type mockKustomizeExecuter struct {
 	mock.Mock
 }
 
+func (m *mockKustomizeExecuter) SaveRenderedFile(saveRenderedFlag string, content []byte) (string, error) {
+	args := m.Called(saveRenderedFlag, content)
+	return args.String(0), args.Error(1)
+}
+
 func (m *mockKustomizeExecuter) ExecuteKustomizeBin(args []string) ([]byte, error) {
 	_args := m.Called(args)
 	return _args.Get(0).([]byte), _args.Error(1)

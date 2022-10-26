@@ -87,6 +87,15 @@ func (m *mockEvaluator) RequestEvaluationPrerunData(token string) (*cliClient.Ev
 	return args.Get(0).(*cliClient.EvaluationPrerunDataResponse), args.Get(1).(int), args.Error(2)
 }
 
+type MockCommandRunner struct {
+	mock.Mock
+}
+
+func (m *MockCommandRunner) SaveRenderedFile(saveRenderedFlag string, content []byte) (string, error) {
+	args := m.Called(saveRenderedFlag, content)
+	return args.String(0), args.Error(1)
+}
+
 type mockMessager struct {
 	mock.Mock
 }
@@ -207,6 +216,7 @@ var ctx *TestCommandContext
 var testingPolicy policy_factory.Policy
 
 // mock instances
+var mockedCommandRunner *MockCommandRunner
 var k8sValidatorMock *K8sValidatorMock
 var mockedEvaluator *mockEvaluator
 var localConfigMock *LocalConfigMock
@@ -266,6 +276,7 @@ func TestTestFlow(t *testing.T) {
 				Reader:         readerMock,
 				FilesExtractor: filesExtractorMock,
 				CiContext:      ciContext,
+				CommandRunner:  mockedCommandRunner,
 			}
 
 			err := test(ctx, tt.args.path, &TestCommandData{K8sVersion: "1.18.0", Output: "", Policy: tt.expected.Evaluate.evaluationData.Policy, Token: "134kh"})
@@ -678,6 +689,9 @@ func setup() {
 	k8sValidatorMock = &K8sValidatorMock{}
 
 	path := "valid/path"
+	mockedCommandRunner = &MockCommandRunner{}
+	mockedCommandRunner.On("SaveRenderedFile", mock.Anything, mock.Anything).Return(path, nil)
+
 	filesConfigurationsChan := newFilesConfigurationsChan(path)
 	filesConfigurations = newFilesConfigurations(path)
 
@@ -726,6 +740,7 @@ func setup() {
 		FilesExtractor: filesExtractorMock,
 		CliClient:      mockedCliClient,
 		CiContext:      ciContext,
+		CommandRunner:  mockedCommandRunner,
 	}
 
 	defaultRules, err := defaultRules.GetDefaultRules()
@@ -766,6 +781,19 @@ func TestTestCommandNoFlags(t *testing.T) {
 
 	k8sValidatorMock.AssertCalled(t, "ValidateResources", mock.Anything, 100)
 	mockedEvaluator.AssertCalled(t, "Evaluate", policyCheckData)
+}
+
+func TestTestCommandSaveRendered(t *testing.T) {
+	filePath := "rendered.yaml"
+	setup()
+	_ = test(ctx, []string{"-"}, &TestCommandData{
+		K8sVersion:   "1.18.0",
+		Output:       "",
+		Policy:       testingPolicy,
+		Token:        "134kh",
+		SaveRendered: filePath,
+	})
+	mockedCommandRunner.AssertCalled(t, "SaveRenderedFile", filePath, mock.Anything)
 }
 
 func TestTestCommandJsonOutput(t *testing.T) {
