@@ -34,6 +34,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type CommandRunner interface {
+	SaveRenderedFile(saveRenderedFlag string, content []byte) (string, error)
+}
+
 type Evaluator interface {
 	Evaluate(policyCheckData evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error)
 	SendEvaluationResult(evaluationRequestData evaluation.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error)
@@ -170,6 +174,7 @@ type TestCommandContext struct {
 	CliClient      CliClient
 	FilesExtractor files.FilesExtractorInterface
 	StartTime      time.Time
+	CommandRunner  CommandRunner
 }
 
 func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
@@ -269,7 +274,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	// kubeconform flag
 	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
-	cmd.Flags().StringVarP(&flags.SaveRendered, "save-rendered", "", "", "Save The rendered file")
+	cmd.Flags().StringVarP(&flags.SaveRendered, "save-rendered", "", "", "Save The rendered file. needs to be a path to a directory")
 }
 
 func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
@@ -365,35 +370,12 @@ func TestWrapper(ctx *TestCommandContext, args []string, testCommandFlags *TestC
 	return test(ctx, args, testCommandOptions)
 }
 
-func SaveRenderedFile(saveRenderedFlag string, content []byte) (string, error) {
-	defaultFileName := fmt.Sprintf("datree_rendered_%s.yaml", time.Now().Format("20060102150405"))
-
-	var fileName string
-	var fileDir string
-
-	fileDir, fileName = filepath.Split(saveRenderedFlag)
-
-	if fileName == "" {
-		fileName = defaultFileName
-	}
-
-	filePath := filepath.Join(fileDir, fileName)
-	filePath = filepath.Clean(filePath)
-
-	err := ioutil.WriteFile(filePath, content, 0644)
-	if err != nil {
-		return "", err
-	}
-
-	return filePath, nil
-}
-
 func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandData) error {
 	if paths[0] == "-" {
 		if testCommandData.SaveRendered != "" {
 			content := []byte{}
 			os.Stdin.Read(content)
-			savedFilenam, err := SaveRenderedFile(testCommandData.SaveRendered, content)
+			savedFilenam, err := ctx.CommandRunner.SaveRenderedFile(testCommandData.SaveRendered, content)
 			if err != nil {
 				return err
 			}

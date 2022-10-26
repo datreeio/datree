@@ -49,6 +49,7 @@ func NewRootCommand(app *App) *cobra.Command {
 		FilesExtractor: app.Context.FilesExtractor,
 		CiContext:      app.Context.CiContext,
 		StartTime:      startTime,
+		CommandRunner:  app.Context.CommandRunner,
 	}))
 
 	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{

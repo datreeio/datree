@@ -21,6 +21,7 @@ type KustomizeCommandRunner interface {
 	RunCommand(name string, args []string) (executor.CommandOutput, error)
 	ExecuteKustomizeBin(args []string) ([]byte, error)
 	CreateTempFile(tempFilePrefix string, content []byte) (string, error)
+	SaveRenderedFile(saveRenderedFlag string, content []byte) (string, error)
 }
 
 type KustomizeContext struct {
@@ -70,7 +71,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 
 			var tempFilename string
 			if testCommandFlags.SaveRendered != "" {
-				tempFilename, err = test.SaveRenderedFile(testCommandFlags.SaveRendered, out)
+				tempFilename, err = kustomizeCtx.CommandRunner.SaveRenderedFile(testCommandFlags.SaveRendered, out)
 				if err != nil {
 					return err
 				}

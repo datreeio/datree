@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"time"
 )
 
 // CommandOutput is RunCommand result object
@@ -91,4 +94,27 @@ func (c *CommandRunner) CreateTempFile(tempFilePrefix string, content []byte) (s
 	}
 
 	return tempFile.Name(), nil
+}
+
+func (c *CommandRunner) SaveRenderedFile(saveRenderedFlag string, content []byte) (string, error) {
+	defaultFileName := fmt.Sprintf("datree_rendered_%s.yaml", time.Now().Format("20060102150405"))
+
+	var fileName string
+	var fileDir string
+
+	fileDir, fileName = filepath.Split(saveRenderedFlag)
+
+	if fileName == "" {
+		fileName = defaultFileName
+	}
+
+	filePath := filepath.Join(fileDir, fileName)
+	filePath = filepath.Clean(filePath)
+
+	err := ioutil.WriteFile(filePath, content, 0644)
+	if err != nil {
+		return "", err
+	}
+
+	return filePath, nil
 }
