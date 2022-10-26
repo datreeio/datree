@@ -374,7 +374,11 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 	if paths[0] == "-" {
 		if testCommandData.SaveRendered != "" {
 			content := []byte{}
-			os.Stdin.Read(content)
+			_, err := os.Stdin.Read(content)
+			if err != nil {
+				return err
+			}
+
 			savedFilenam, err := ctx.CommandRunner.SaveRenderedFile(testCommandData.SaveRendered, content)
 			if err != nil {
 				return err

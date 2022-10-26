@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -111,7 +110,7 @@ func (c *CommandRunner) SaveRenderedFile(saveRenderedFlag string, content []byte
 	filePath := filepath.Join(fileDir, fileName)
 	filePath = filepath.Clean(filePath)
 
-	err := ioutil.WriteFile(filePath, content, 0644)
+	err := os.WriteFile(filePath, content, 0644)
 	if err != nil {
 		return "", err
 	}
