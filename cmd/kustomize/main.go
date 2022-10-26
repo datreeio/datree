@@ -54,6 +54,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			return test.LoadVersionMessages(testCtx, args, cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// fmt.Println(cmd.Flags().Changed("save-rendered"))
 			test.SetSilentMode(cmd)
 			var err error = nil
 			defer func() {
@@ -67,11 +68,19 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				return err
 			}
 
-			tempFilename, err := kustomizeCtx.CommandRunner.CreateTempFile("datree_kustomize", out)
-			if err != nil {
-				return err
+			var tempFilename string
+			if testCommandFlags.SaveRendered != "" {
+				tempFilename, err = test.SaveRenderedFile(testCommandFlags.SaveRendered, out)
+				if err != nil {
+					return err
+				}
+			} else {
+				tempFilename, err = kustomizeCtx.CommandRunner.CreateTempFile("datree_kustomize", out)
+				if err != nil {
+					return err
+				}
+				defer os.Remove(tempFilename)
 			}
-			defer os.Remove(tempFilename)
 
 			err = test.TestWrapper(testCtx, []string{tempFilename}, testCommandFlags)
 			if err != nil {
