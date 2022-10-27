@@ -54,7 +54,6 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			return test.LoadVersionMessages(testCtx, args, cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// fmt.Println(cmd.Flags().Changed("save-rendered"))
 			test.SetSilentMode(cmd)
 			var err error = nil
 			defer func() {
