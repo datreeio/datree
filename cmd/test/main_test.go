@@ -678,6 +678,7 @@ func setup() {
 	k8sValidatorMock = &K8sValidatorMock{}
 
 	path := "valid/path"
+
 	filesConfigurationsChan := newFilesConfigurationsChan(path)
 	filesConfigurations = newFilesConfigurations(path)
 

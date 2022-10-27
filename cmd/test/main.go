@@ -60,6 +60,7 @@ type TestCommandFlags struct {
 	PolicyConfig         string
 	NoRecord             bool
 	SkipValidation       string
+	SaveRendered         bool
 }
 
 // TestCommandFlags constructor
@@ -73,6 +74,7 @@ func NewTestCommandFlags() *TestCommandFlags {
 		PolicyName:           "",
 		SchemaLocations:      make([]string, 0),
 		SkipValidation:       "",
+		SaveRendered:         false,
 	}
 }
 
@@ -148,6 +150,7 @@ type TestCommandData struct {
 	PromptRegistrationURL string
 	ClientId              string
 	SkipSchemaValidation  bool
+	SaveRendered          bool
 }
 
 type TestCommandContext struct {
@@ -261,6 +264,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	// kubeconform flag
 	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
+	cmd.Flags().BoolVarP(&flags.SaveRendered, "save-rendered", "", false, "Save The rendered file. needs to be a path to a directory")
 }
 
 func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
@@ -315,6 +319,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		RegistrationURL:       evaluationPrerunDataResp.RegistrationURL,
 		PromptRegistrationURL: evaluationPrerunDataResp.PromptRegistrationURL,
 		SkipSchemaValidation:  testCommandFlags.SkipValidation == "schema",
+		SaveRendered:          testCommandFlags.SaveRendered,
 	}
 
 	return testCommandOptions, nil
@@ -361,7 +366,10 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 		if err != nil {
 			return err
 		}
-		defer os.Remove(tempFile.Name())
+
+		if !testCommandData.SaveRendered {
+			defer os.Remove(tempFile.Name())
+		}
 
 		if _, err := io.Copy(tempFile, os.Stdin); err != nil {
 			return err
