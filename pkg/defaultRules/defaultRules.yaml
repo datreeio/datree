@@ -314,7 +314,7 @@ rules:
     uniqueName: WORKLOAD_INVALID_LABELS_VALUE
     enabledByDefault: true
     documentationUrl: "https://hub.datree.io/ensure-labels-value-valid"
-    messageOnFailure: "Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it"
+    messageOnFailure: "Incorrect value for key(s) under `labels` - the value's syntax is not valid so the Kubernetes engine will not accept it"
     category: Workload
     schema:
       if: *standardKinds
