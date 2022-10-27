@@ -34,10 +34,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type CommandRunner interface {
-	SaveRenderedFile(saveRenderedFlag string, content []byte) (string, error)
-}
-
 type Evaluator interface {
 	Evaluate(policyCheckData evaluation.PolicyCheckData) (evaluation.PolicyCheckResultData, error)
 	SendEvaluationResult(evaluationRequestData evaluation.EvaluationRequestData) (*cliClient.SendEvaluationResultsResponse, error)
@@ -53,11 +49,6 @@ type K8sValidator interface {
 	GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations)
 }
 
-const (
-	SAVE_RENDERED_YES string = "YES"
-	SAVE_RENDERED_NO  string = "NO"
-)
-
 type TestCommandFlags struct {
 	Output               string
 	K8sVersion           string
@@ -69,7 +60,7 @@ type TestCommandFlags struct {
 	PolicyConfig         string
 	NoRecord             bool
 	SkipValidation       string
-	SaveRendered         string
+	SaveRendered         bool
 }
 
 // TestCommandFlags constructor
@@ -83,7 +74,7 @@ func NewTestCommandFlags() *TestCommandFlags {
 		PolicyName:           "",
 		SchemaLocations:      make([]string, 0),
 		SkipValidation:       "",
-		SaveRendered:         "",
+		SaveRendered:         false,
 	}
 }
 
@@ -159,7 +150,7 @@ type TestCommandData struct {
 	PromptRegistrationURL string
 	ClientId              string
 	SkipSchemaValidation  bool
-	SaveRendered          string
+	SaveRendered          bool
 }
 
 type TestCommandContext struct {
@@ -174,7 +165,6 @@ type TestCommandContext struct {
 	CliClient      CliClient
 	FilesExtractor files.FilesExtractorInterface
 	StartTime      time.Time
-	CommandRunner  CommandRunner
 }
 
 func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
@@ -274,7 +264,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	// kubeconform flag
 	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
-	cmd.Flags().StringVarP(&flags.SaveRendered, "save-rendered", "", "", "Save The rendered file. needs to be a path to a directory")
+	cmd.Flags().BoolVarP(&flags.SaveRendered, "save-rendered", "", false, "Save The rendered file. needs to be a path to a directory")
 }
 
 func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
@@ -372,30 +362,19 @@ func TestWrapper(ctx *TestCommandContext, args []string, testCommandFlags *TestC
 
 func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandData) error {
 	if paths[0] == "-" {
-		if testCommandData.SaveRendered != "" {
-			content := []byte{}
-			_, err := os.Stdin.Read(content)
-			if err != nil {
-				return err
-			}
-
-			savedFilenam, err := ctx.CommandRunner.SaveRenderedFile(testCommandData.SaveRendered, content)
-			if err != nil {
-				return err
-			}
-			paths = []string{savedFilenam}
-		} else {
-			tempFile, err := os.CreateTemp("", "datree_temp_*.yaml")
-			if err != nil {
-				return err
-			}
-			defer os.Remove(tempFile.Name())
-
-			if _, err := io.Copy(tempFile, os.Stdin); err != nil {
-				return err
-			}
-			paths = []string{tempFile.Name()}
+		tempFile, err := os.CreateTemp("", "datree_temp_*.yaml")
+		if err != nil {
+			return err
 		}
+
+		if !testCommandData.SaveRendered {
+			defer os.Remove(tempFile.Name())
+		}
+
+		if _, err := io.Copy(tempFile, os.Stdin); err != nil {
+			return err
+		}
+		paths = []string{tempFile.Name()}
 	}
 
 	filesPaths, err := ctx.Reader.FilterFiles(paths)

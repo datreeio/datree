@@ -21,7 +21,6 @@ type KustomizeCommandRunner interface {
 	RunCommand(name string, args []string) (executor.CommandOutput, error)
 	ExecuteKustomizeBin(args []string) ([]byte, error)
 	CreateTempFile(tempFilePrefix string, content []byte) (string, error)
-	SaveRenderedFile(saveRenderedFlag string, content []byte) (string, error)
 }
 
 type KustomizeContext struct {
@@ -69,17 +68,12 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 				return err
 			}
 
-			var tempFilename string
-			if testCommandFlags.SaveRendered != "" {
-				tempFilename, err = kustomizeCtx.CommandRunner.SaveRenderedFile(testCommandFlags.SaveRendered, out)
-				if err != nil {
-					return err
-				}
-			} else {
-				tempFilename, err = kustomizeCtx.CommandRunner.CreateTempFile("datree_kustomize", out)
-				if err != nil {
-					return err
-				}
+			tempFilename, err := kustomizeCtx.CommandRunner.CreateTempFile("datree_kustomize", out)
+			if err != nil {
+				return err
+			}
+
+			if !testCommandFlags.SaveRendered {
 				defer os.Remove(tempFilename)
 			}
 
