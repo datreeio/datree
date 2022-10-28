@@ -151,17 +151,18 @@ type TestCommandData struct {
 }
 
 type TestCommandContext struct {
-	CliVersion     string
-	CiContext      *ciContext.CIContext
-	LocalConfig    LocalConfig
-	Evaluator      Evaluator
-	Messager       Messager
-	K8sValidator   K8sValidator
-	Printer        EvaluationPrinter
-	Reader         Reader
-	CliClient      CliClient
-	FilesExtractor files.FilesExtractorInterface
-	StartTime      time.Time
+	CliVersion         string
+	CiContext          *ciContext.CIContext
+	LocalConfig        LocalConfig
+	Evaluator          Evaluator
+	Messager           Messager
+	K8sValidator       K8sValidator
+	Printer            EvaluationPrinter
+	Reader             Reader
+	CliClient          CliClient
+	FilesExtractor     files.FilesExtractorInterface
+	StartTime          time.Time
+	OpenBrowserContext utils.OpenBrowserContext
 }
 
 func LoadVersionMessages(ctx *TestCommandContext, args []string, cmd *cobra.Command) error {
@@ -437,9 +438,9 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 		}
 
 		if strings.ToLower(string(answer)) != "n" {
-			err := utils.OpenBrowser(testCommandData.PromptRegistrationURL)
+			err := ctx.OpenBrowserContext.OpenBrowser(testCommandData.PromptRegistrationURL)
 			if err != nil {
-				fmt.Println(err)
+				return err
 			}
 		}
 	}

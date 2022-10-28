@@ -50,7 +50,15 @@ func ValidateStdinPathArgument(paths []string) error {
 	return nil
 }
 
-func OpenBrowser(url string) error {
+type URLOpener interface {
+	OpenURL(url string) error
+}
+
+type OpenBrowserContext struct {
+	UrlOpener URLOpener
+}
+
+func (o *OpenBrowserContext) OpenBrowser(url string) error {
 	fmt.Printf("Opening %s in your browser.\n", url)
 	err := browser.OpenURL(url)
 	if err != nil {

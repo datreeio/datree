@@ -1,16 +1,24 @@
 package docs
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
-const DEFAULT_ERR_EXIT_CODE = 1
+type DocsCommandContext struct {
+	BrowserCtx utils.OpenBrowserContext
+	URL        string
+}
 
-func New() *cobra.Command {
+func (do *DocsCommandContext) OpenURL(url string) error {
+	err := do.BrowserCtx.OpenBrowser(url)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func New(ctx *DocsCommandContext) *cobra.Command {
 	var docsCmd = &cobra.Command{
 		Use:     "docs",
 		Short:   "Open datree documentation page",
@@ -23,13 +31,15 @@ func New() *cobra.Command {
 		# Open documentation with alias 'documentation'
 		datree documentation
 		`),
-		Run: func(cmd *cobra.Command, args []string) {
-			url := "https://hub.datree.io"
-			err := utils.OpenBrowser(url)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(DEFAULT_ERR_EXIT_CODE)
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if ctx.URL == "" {
+				ctx.URL = "https://hub.datree.io"
 			}
+			err := ctx.BrowserCtx.UrlOpener.OpenURL(ctx.URL)
+			if err != nil {
+				return err
+			}
+			return nil
 		},
 	}
 

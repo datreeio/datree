@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/datreeio/datree/pkg/evaluation"
+	"github.com/datreeio/datree/pkg/utils"
 
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
@@ -33,22 +34,24 @@ var rootCmd = &cobra.Command{
 }
 
 var CliVersion string
+var DocUrl string
 
 func NewRootCommand(app *App) *cobra.Command {
 	startTime := time.Now()
 
 	rootCmd.AddCommand(test.New(&test.TestCommandContext{
-		CliVersion:     CliVersion,
-		Evaluator:      app.Context.Evaluator,
-		LocalConfig:    app.Context.LocalConfig,
-		Messager:       app.Context.Messager,
-		Printer:        app.Context.Printer,
-		Reader:         app.Context.Reader,
-		K8sValidator:   app.Context.K8sValidator,
-		CliClient:      app.Context.CliClient,
-		FilesExtractor: app.Context.FilesExtractor,
-		CiContext:      app.Context.CiContext,
-		StartTime:      startTime,
+		CliVersion:         CliVersion,
+		Evaluator:          app.Context.Evaluator,
+		LocalConfig:        app.Context.LocalConfig,
+		Messager:           app.Context.Messager,
+		Printer:            app.Context.Printer,
+		Reader:             app.Context.Reader,
+		K8sValidator:       app.Context.K8sValidator,
+		CliClient:          app.Context.CliClient,
+		FilesExtractor:     app.Context.FilesExtractor,
+		CiContext:          app.Context.CiContext,
+		OpenBrowserContext: utils.OpenBrowserContext{},
+		StartTime:          startTime,
 	}))
 
 	rootCmd.AddCommand(kustomize.New(&test.TestCommandContext{
@@ -94,7 +97,13 @@ func NewRootCommand(app *App) *cobra.Command {
 		Printer:             app.Context.Printer,
 	}))
 
-	rootCmd.AddCommand(docs.New())
+	rootCmd.AddCommand(docs.New(&docs.DocsCommandContext{
+		BrowserCtx: utils.OpenBrowserContext{
+			UrlOpener: &docs.DocsCommandContext{
+				URL: "https://hub.datree.io",
+			},
+		},
+	}))
 
 	return rootCmd
 }
