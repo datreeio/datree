@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
@@ -24,6 +23,7 @@ import (
 	"github.com/datreeio/datree/pkg/policy"
 	"github.com/pkg/errors"
 	"k8s.io/utils/strings/slices"
+	"time"
 
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/localConfig"
