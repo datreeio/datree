@@ -6,7 +6,7 @@ jobs:
     name: go linters
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Go environment
         uses: actions/setup-go@v2.1.4
         with:
