@@ -26,4 +26,4 @@ jobs:
         # - https://github.com/golangci/golangci-lint-action/issues/442
         run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.2
       - name: Run golangci-lint
-        run: golangci-lint run --version --verbose --out-format=github-actions --only-new-issues
+        run: golangci-lint run --version --verbose --out-format=github-actions
