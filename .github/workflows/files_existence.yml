@@ -16,4 +16,4 @@ jobs:
         uses: andstor/file-existence-action@v2
         with:
           files: "pkg/defaultRules/defaultRules.yaml, pkg/defaultPolicies/defaultPolicies.yaml"
-          allow_failure: true
+          fail: true
