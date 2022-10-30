@@ -24,7 +24,7 @@ func New(ctx *DocsCommandContext) *cobra.Command {
 		Short:   "Open datree documentation page",
 		Long:    "Open the default browser with datree documentation page",
 		Aliases: []string{"documentation"},
-		Example: (`
+		Example: utils.Example(`
 		# Open documentation with 'docs'
 		datree docs
 
