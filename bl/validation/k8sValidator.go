@@ -29,10 +29,10 @@ func New() *K8sValidator {
 	return &K8sValidator{}
 }
 
-func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, userProvidedSchemaLocations []string) {
+func (val *K8sValidator) InitClient(k8sVersion string, ignoreMissingSchemas bool, userProvidedSchemaLocations []string, permissiveSchema bool) {
 	val.isOffline = checkIsOffline()
 	val.areThereCustomSchemaLocations = len(userProvidedSchemaLocations) > 0
-	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, getAllSchemaLocations(userProvidedSchemaLocations, val.isOffline))
+	val.validationClient = newKubeconformValidator(k8sVersion, ignoreMissingSchemas, getAllSchemaLocations(userProvidedSchemaLocations, val.isOffline), permissiveSchema)
 }
 
 func checkIsOffline() bool {
@@ -212,8 +212,8 @@ func (val *K8sValidator) validateResource(filepath string) (bool, []error, *vali
 	return isValid, validationErrors, warning, nil
 }
 
-func newKubeconformValidator(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) ValidationClient {
-	v, _ := kubeconformValidator.New(schemaLocations, kubeconformValidator.Opts{Strict: true, KubernetesVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas})
+func newKubeconformValidator(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string, permissiveSchema bool) ValidationClient {
+	v, _ := kubeconformValidator.New(schemaLocations, kubeconformValidator.Opts{Strict: !permissiveSchema, KubernetesVersion: k8sVersion, IgnoreMissingSchemas: ignoreMissingSchemas})
 	return v
 }
 
