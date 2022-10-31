@@ -1,11 +1,9 @@
 package test
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/briandowns/spinner"
-	"github.com/pkg/browser"
 )
 
 func createSpinner(text string, color string) *spinner.Spinner {
@@ -13,9 +11,4 @@ func createSpinner(text string, color string) *spinner.Spinner {
 	s.Suffix = text
 	s.Color(color)
 	return s
-}
-
-func openBrowser(url string) {
-	fmt.Printf("Opening %s in your browser.\n", url)
-	browser.OpenURL(url)
 }
