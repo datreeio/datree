@@ -137,7 +137,7 @@ func (kv *K8sValidatorMock) GetK8sFiles(filesConfigurationsChan chan *extractor.
 	return args.Get(0).(chan *extractor.FileConfigurations), args.Get(1).(chan *extractor.FileConfigurations)
 }
 
-func (kv *K8sValidatorMock) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string) {
+func (kv *K8sValidatorMock) InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string, permissiveSchema bool) {
 }
 
 type PrinterMock struct {
@@ -242,7 +242,7 @@ func TestTestFlow(t *testing.T) {
 			readerMock.On("FilterFiles", mock.Anything).Return(tt.args.path, nil)
 			filesExtractorMock.On("ExtractFilesConfigurations", mock.Anything, 100).Return(tt.mock.ExtractFilesConfigurations.filesConfigurationsChan, tt.mock.ExtractFilesConfigurations.invalidFilesChan)
 			k8sValidatorMock.On("ValidateResources", mock.Anything, 100).Return(tt.mock.ValidateResources.k8sFilesConfigurationsChan, tt.mock.ValidateResources.k8sInvalidFilesChan, tt.mock.ValidateResources.filesWithWarningsChan)
-			k8sValidatorMock.On("InitClient", mock.Anything, mock.Anything, mock.Anything).Return()
+			k8sValidatorMock.On("InitClient", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return()
 			evaluatorMock.On("Evaluate", mock.Anything, mock.Anything, mock.Anything).Return(tt.mock.Evaluate.policyCheckResultData, tt.mock.Evaluate.err)
 			evaluatorMock.On("SendEvaluationResult", mock.Anything).Return(tt.mock.SendEvaluationResult.sendEvaluationResultsResponse, tt.mock.SendEvaluationResult.err)
 
@@ -690,7 +690,7 @@ func setup() {
 
 	k8sValidatorMock.On("ValidateResources", mock.Anything, mock.Anything, mock.Anything).Return(filesConfigurationsChan, invalidK8sFilesChan, k8sValidationWarningsChan, newErrorsChan())
 	k8sValidatorMock.On("GetK8sFiles", mock.Anything, mock.Anything).Return(filesConfigurationsChan, ignoredFilesChan, newErrorsChan())
-	k8sValidatorMock.On("InitClient", mock.Anything, mock.Anything, mock.Anything).Return()
+	k8sValidatorMock.On("InitClient", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return()
 
 	filesExtractorMock := &FilesExtractorMock{}
 	filesExtractorMock.On("ExtractFilesConfigurations", mock.Anything, 100).Return(filesConfigurationsChan, invalidFilesChan)

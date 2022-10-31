@@ -45,7 +45,7 @@ type Messager interface {
 
 type K8sValidator interface {
 	ValidateResources(filesConfigurations chan *extractor.FileConfigurations, concurrency int, skipSchemaValidation bool) (chan *extractor.FileConfigurations, chan *extractor.InvalidFile, chan *validation.FileWithWarning)
-	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string)
+	InitClient(k8sVersion string, ignoreMissingSchemas bool, schemaLocations []string, permissiveSchema bool)
 	GetK8sFiles(filesConfigurationsChan chan *extractor.FileConfigurations, concurrency int) (chan *extractor.FileConfigurations, chan *extractor.FileConfigurations)
 }
 
@@ -61,6 +61,7 @@ type TestCommandFlags struct {
 	NoRecord             bool
 	SkipValidation       string
 	SaveRendered         bool
+	PermissiveSchema     bool
 }
 
 // TestCommandFlags constructor
@@ -75,6 +76,7 @@ func NewTestCommandFlags() *TestCommandFlags {
 		SchemaLocations:      make([]string, 0),
 		SkipValidation:       "",
 		SaveRendered:         false,
+		PermissiveSchema:     false,
 	}
 }
 
@@ -151,6 +153,7 @@ type TestCommandData struct {
 	ClientId              string
 	SkipSchemaValidation  bool
 	SaveRendered          bool
+	PermissiveSchema      bool
 }
 
 type TestCommandContext struct {
@@ -266,6 +269,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringArrayVarP(&flags.SchemaLocations, "schema-location", "", []string{}, "Override schemas location search path (can be specified multiple times)")
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 	cmd.Flags().BoolVarP(&flags.SaveRendered, "save-rendered", "", false, "Don't delete rendered files after the policy check (e.g helm, kustomize)")
+	cmd.Flags().BoolVarP(&flags.PermissiveSchema, "permissive-schema", "", false, "Perform non-strict schema validation, allow additional properties")
 }
 
 func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
@@ -321,6 +325,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		PromptRegistrationURL: evaluationPrerunDataResp.PromptRegistrationURL,
 		SkipSchemaValidation:  testCommandFlags.SkipValidation == "schema",
 		SaveRendered:          testCommandFlags.SaveRendered,
+		PermissiveSchema:      testCommandFlags.PermissiveSchema,
 	}
 
 	return testCommandOptions, nil
@@ -490,7 +495,7 @@ func evaluate(ctx *TestCommandContext, filesPaths []string, testCommandData *Tes
 
 	validationManager := NewValidationManager()
 
-	ctx.K8sValidator.InitClient(testCommandData.K8sVersion, testCommandData.IgnoreMissingSchemas, testCommandData.SchemaLocations)
+	ctx.K8sValidator.InitClient(testCommandData.K8sVersion, testCommandData.IgnoreMissingSchemas, testCommandData.SchemaLocations, testCommandData.PermissiveSchema)
 
 	concurrency := 100
 	var wg sync.WaitGroup
