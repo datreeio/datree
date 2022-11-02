@@ -226,7 +226,7 @@ func test_validateResource_offline_with_local_schema(t *testing.T) {
 	k8sValidator := &K8sValidator{
 		validationClient: newKubeconformValidator("1.21.0", false, getAllSchemaLocations([]string{
 			"some-path-to-non-existing-file-to-get-404.yaml",
-		}, true)),
+		}, true), false),
 		isOffline:                     true,
 		areThereCustomSchemaLocations: true,
 	}
@@ -241,7 +241,7 @@ func test_validateResource_offline_with_local_schema(t *testing.T) {
 
 func test_validateResource_offline_without_custom_schema_location(t *testing.T) {
 	k8sValidator := &K8sValidator{
-		validationClient:              newKubeconformValidator("1.21.0", false, getAllSchemaLocations([]string{}, true)),
+		validationClient:              newKubeconformValidator("1.21.0", false, getAllSchemaLocations([]string{}, true), true),
 		isOffline:                     true,
 		areThereCustomSchemaLocations: false,
 	}
