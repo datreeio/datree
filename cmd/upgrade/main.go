@@ -25,7 +25,7 @@ func New(ctx *UpgradeCommandContext) *cobra.Command {
 		Long:  "Upgrade datree to the latest version",
 		Run: func(cmd *cobra.Command, args []string) {
 			if m.CheckIfDatreeInstalledUsingBrew() {
-				ctx.Printer.PrintMessage("Looks like you installed Datree via brew, to upgrade datree run: 'brew upgrade datree'\n", "error")
+				ctx.Printer.PrintMessage("Looks like you installed Datree via brew, to upgrade the CLI run: 'brew upgrade datree'\n", "yellow")
 				return
 			}
 			if m.CheckIfOsIsWindows() {
