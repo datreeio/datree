@@ -13,6 +13,7 @@ import (
 	"github.com/datreeio/datree/bl/validation"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/fatih/color"
+	"github.com/owenrumney/go-sarif/v2/sarif"
 
 	"github.com/datreeio/datree/pkg/printer"
 	"gopkg.in/yaml.v2"
@@ -39,6 +40,7 @@ type PrintResultsData struct {
 	Verbose               bool
 	PolicyName            string
 	K8sValidationWarnings validation.K8sValidationWarningPerValidFile
+	CliVersion            string
 	IsCI                  bool
 }
 
@@ -133,6 +135,8 @@ func GetResultsText(resultsData *PrintResultsData) (string, error) {
 			return getXmlOutput(&formattedOutput)
 		case "JUnit":
 			return getJUnitOutput(&formattedOutput, resultsData.AdditionalJUnitData, resultsData.Verbose)
+		case "sarif":
+			return getSarifOutput(&formattedOutput, resultsData.CliVersion)
 		default:
 			panic(errors.New("invalid output format"))
 		}
@@ -182,6 +186,57 @@ func getXmlOutput(formattedOutput *FormattedOutput) (string, error) {
 
 func getJUnitOutput(formattedOutput *FormattedOutput, additionalJUnitData AdditionalJUnitData, verbose bool) (string, error) {
 	return convertStructToXml(FormattedOutputToJUnitOutput(*formattedOutput, additionalJUnitData, verbose))
+}
+
+func getSarifOutput(formattedOutput *FormattedOutput, cliVersion string) (string, error) {
+	// create a new report object
+	report, err := sarif.New(sarif.Version210)
+	if err != nil {
+		return "", err
+	}
+
+	const repoURL = "https://github.com/datreeio/datree"
+
+	// create a run for datree
+	run := sarif.NewRunWithInformationURI("datree", repoURL)
+	run.Tool.Driver.WithSemanticVersion(cliVersion)
+
+	for _, validationResult := range formattedOutput.PolicyValidationResults {
+		for _, ruleResult := range validationResult.RuleResults {
+			for _, occurrenceDetails := range ruleResult.OccurrencesDetails {
+				for _, failureLocation := range occurrenceDetails.FailureLocations {
+
+					helpURL := "https://hub.datree.io/built-in-rules"
+					if ruleResult.DocumentationUrl != "" {
+						helpURL = ruleResult.DocumentationUrl
+					}
+
+					howToFix := ("For information on how to fix this issue, see: " + "[" + helpURL + "](" + helpURL + ")")
+
+					// add each rule to report
+					run.AddRule(ruleResult.Identifier).
+						WithDescription(ruleResult.Name).
+						WithHelp(sarif.NewMultiformatMessageString(howToFix)).
+						WithMarkdownHelp(howToFix)
+
+					// create a result for each violation
+					result := run.CreateResultForRule(ruleResult.Identifier).WithMessage(sarif.NewTextMessage(ruleResult.MessageOnFailure))
+
+					result.AddLocation(sarif.NewLocationWithPhysicalLocation(
+						sarif.NewPhysicalLocation().WithArtifactLocation(sarif.NewSimpleArtifactLocation(validationResult.FileName)).WithRegion(sarif.NewSimpleRegion(failureLocation.FailedErrorLine, failureLocation.FailedErrorColumn))))
+				}
+			}
+		}
+	}
+
+	report.AddRun(run)
+
+	marshal, err := json.MarshalIndent(report, "", "  ")
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintln(string(marshal)), nil
 }
 
 func convertStructToXml(output interface{}) (string, error) {

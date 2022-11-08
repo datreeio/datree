@@ -11,7 +11,7 @@ The webhook will catch **create**, **apply** and **edit** operations and initiat
 
 ## Webhook validation triggers
 
-K8s use different abstractions to simplify and automate complex processes. For example, when explicitly applying an object type “Deployment”, under the hood, K8s will “translate” this object into implicit objects of type “Pod.”
+K8s use different abstractions to simplify and automate complex processes. For example, when explicitly applying an object type “Deployment”, under the hood, K8s will “translate” this object into implicit objects of type “Pod.” 
 
 When installed on your cluster, other policy enforcement tools will validate both explicit and implicit objects. This approach may create a lot of noise and false positive failures since it will cause the webhook to validate objects that the users don’t manage and, in some cases, are not even accessible.
 
