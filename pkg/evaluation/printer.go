@@ -223,7 +223,7 @@ func getSarifOutput(formattedOutput *FormattedOutput, cliVersion string) (string
 					result := run.CreateResultForRule(ruleResult.Identifier).WithMessage(sarif.NewTextMessage(ruleResult.MessageOnFailure))
 
 					result.AddLocation(sarif.NewLocationWithPhysicalLocation(
-						sarif.NewPhysicalLocation().WithArtifactLocation(sarif.NewSimpleArtifactLocation(validationResult.FileName)).WithRegion(sarif.NewSimpleRegion(failureLocation.FailedErrorLine, failureLocation.FailedErrorColumn))))
+						sarif.NewPhysicalLocation().WithArtifactLocation(sarif.NewSimpleArtifactLocation(validationResult.FileName)).WithRegion(sarif.NewSimpleRegion(failureLocation.FailedErrorLine, failureLocation.FailedErrorLine))))
 				}
 			}
 		}

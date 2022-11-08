@@ -67,7 +67,7 @@
                 },
                 "region": {
                   "startLine": 10,
-                  "endLine": 20
+                  "endLine": 10
                 }
               }
             }
@@ -87,7 +87,7 @@
                 },
                 "region": {
                   "startLine": 95,
-                  "endLine": 15
+                  "endLine": 95
                 }
               }
             }
@@ -107,7 +107,7 @@
                 },
                 "region": {
                   "startLine": 7,
-                  "endLine": 12
+                  "endLine": 7
                 }
               }
             }
@@ -127,7 +127,7 @@
                 },
                 "region": {
                   "startLine": 22,
-                  "endLine": 11
+                  "endLine": 22
                 }
               }
             }
