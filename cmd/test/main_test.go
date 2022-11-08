@@ -877,12 +877,12 @@ func test_testCommand_output_flags_validation(t *testing.T, ctx *TestCommandCont
 		assert.NoError(t, err)
 	}
 
-	values := []string{" ", "Simple", "Json", "Yaml", "Xml", "junit", "invalid", "113", "true"}
+	values := []string{" ", "Simple", "Json", "Yaml", "Xml", "junit", "Sarif", "invalid", "113", "true"}
 
 	for _, value := range values {
 		err := executeTestCommand(ctx, []string{"8/*", "--output=" + value})
 		expectedErrorStr := "invalid --output option - \"" + value + "\"\n" +
-			"Valid output values are - simple, yaml, json, xml, JUnit"
+			"Valid output values are - simple, yaml, json, xml, JUnit, sarif"
 		assert.EqualError(t, err, expectedErrorStr)
 	}
 }
