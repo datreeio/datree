@@ -73,6 +73,7 @@ require (
 require (
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/mikefarah/yq/v4 v4.27.3
+	github.com/owenrumney/go-sarif/v2 v2.1.2
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/shirou/gopsutil/v3 v3.22.2
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect

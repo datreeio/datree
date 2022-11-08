@@ -56,6 +56,7 @@ type expectedOutputs struct {
 	xml   string
 	yaml  string
 	JUnit string
+	sarif string
 }
 
 // TODO: fill missing call assertions
@@ -122,6 +123,9 @@ func TestCustomOutputs(t *testing.T) {
 
 	JUnitStdout, _ := getJUnitOutput(&formattedOutput, additionalJUnitData, false)
 	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
+
+	SarifStdout, _ := getSarifOutput(&formattedOutput, "1.0.0")
+	assert.Equal(t, expectedOutputs.sarif, SarifStdout)
 }
 
 func TestCustomOutputsWithVerbose(t *testing.T) {
@@ -395,11 +399,13 @@ func getExpectedOutputs() expectedOutputs {
 	yamlOutput, _ := os.ReadFile("./printer_test_expected_outputs/yaml_output.yaml")
 	xmlOutput, _ := os.ReadFile("./printer_test_expected_outputs/xml_output.xml")
 	jUnitOutput, _ := os.ReadFile("./printer_test_expected_outputs/JUnit_output.xml")
+	sarifOutput, _ := os.ReadFile("./printer_test_expected_outputs/sarif_output.sarif")
 	return expectedOutputs{
 		json:  string(jsonOutput),
 		yaml:  string(yamlOutput),
 		xml:   string(xmlOutput),
 		JUnit: string(jUnitOutput),
+		sarif: string(sarifOutput),
 	}
 }
 
