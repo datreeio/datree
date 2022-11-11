@@ -24,7 +24,7 @@ func IsNetworkError(err error) bool {
 
 func stringInSliceContains(a string, list []string) bool {
 	for _, b := range list {
-		if strings.Contains(a, b) {
+		if strings.Contains(strings.ToLower(a), b) {
 			return true
 		}
 	}
