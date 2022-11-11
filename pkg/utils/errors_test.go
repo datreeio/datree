@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"testing"
 	"errors"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestIsNetworkError(t *testing.T) {
