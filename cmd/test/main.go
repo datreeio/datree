@@ -62,6 +62,7 @@ type TestCommandFlags struct {
 	SkipValidation       string
 	SaveRendered         bool
 	PermissiveSchema     bool
+	Quiet                bool
 }
 
 // TestCommandFlags constructor
@@ -77,6 +78,7 @@ func NewTestCommandFlags() *TestCommandFlags {
 		SkipValidation:       "",
 		SaveRendered:         false,
 		PermissiveSchema:     false,
+		Quiet:                false,
 	}
 }
 
@@ -115,7 +117,7 @@ func (flags *TestCommandFlags) Validate() error {
 }
 
 type EvaluationPrinter interface {
-	GetWarningsText(warnings []printer.Warning) string
+	GetWarningsText(warnings []printer.Warning, quiet bool) string
 	GetSummaryTableText(summary printer.Summary) string
 	PrintMessage(messageText string, messageColor string)
 	PrintPromptMessage(promptMessage string)
@@ -154,6 +156,7 @@ type TestCommandData struct {
 	SkipSchemaValidation  bool
 	SaveRendered          bool
 	PermissiveSchema      bool
+	Quiet                 bool
 }
 
 type TestCommandContext struct {
@@ -270,6 +273,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 	cmd.Flags().BoolVarP(&flags.SaveRendered, "save-rendered", "", false, "Don't delete rendered files after the policy check (e.g. helm, kustomize)")
 	cmd.Flags().BoolVarP(&flags.PermissiveSchema, "permissive-schema", "", false, "Perform non-strict schema validation (i.e. allow additional properties)")
+	cmd.Flags().BoolVarP(&flags.Quiet, "quiet", "", false, "Enable quiet mode (don't print skipped rule messages)")
 }
 
 func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
@@ -326,6 +330,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		SkipSchemaValidation:  testCommandFlags.SkipValidation == "schema",
 		SaveRendered:          testCommandFlags.SaveRendered,
 		PermissiveSchema:      testCommandFlags.PermissiveSchema,
+		Quiet:                 testCommandFlags.Quiet,
 	}
 
 	return testCommandOptions, nil
@@ -440,6 +445,7 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 		K8sValidationWarnings: validationManager.k8sValidationWarningPerValidFile,
 		CliVersion:            ctx.CliVersion,
 		IsCI:                  ctx.CiContext.IsCI,
+		Quiet:                 testCommandData.Quiet,
 	})
 
 	if evaluationResultData.PromptMessage != "" {

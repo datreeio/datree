@@ -144,7 +144,7 @@ type PrinterMock struct {
 	mock.Mock
 }
 
-func (p *PrinterMock) GetWarningsText(warnings []printer.Warning) string {
+func (p *PrinterMock) GetWarningsText(warnings []printer.Warning, quiet bool) string {
 	p.Called(warnings)
 	return ""
 }

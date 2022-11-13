@@ -142,7 +142,7 @@ func (p *Printer) getYamlSchemaResultsText(errorsResult []jsonschema.Detailed, e
 	return sb.String()
 }
 
-func (p *Printer) GetWarningsText(warnings []Warning) string {
+func (p *Printer) GetWarningsText(warnings []Warning, quiet bool) string {
 	var sb strings.Builder
 	for _, warning := range warnings {
 		sb.WriteString(p.GetTitleText(warning.Title))
@@ -164,27 +164,30 @@ func (p *Printer) GetWarningsText(warnings []Warning) string {
 			sb.WriteString(p.GetTextInColor("[X] Policy check\n", p.Theme.Colors.Highlight))
 			sb.WriteString("\n")
 
-			if len(warning.SkippedRules) > 0 {
-				sb.WriteString(fmt.Sprintf("%v", p.Theme.Colors.CyanBold.Sprintf("SKIPPED")+"\n\n"))
-			}
+			if !quiet {
 
-			for _, skippedRule := range warning.SkippedRules {
-				ruleName := p.Theme.Colors.CyanBold.Sprint(skippedRule.Name)
-
-				sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Skip, ruleName))
-
-				if skippedRule.DocumentationUrl != "" {
-					howToFix := p.Theme.Colors.Cyan.Sprint(skippedRule.DocumentationUrl)
-					sb.WriteString(fmt.Sprintf("    How to fix: %v\n", howToFix))
+				if len(warning.SkippedRules) > 0 {
+					sb.WriteString(fmt.Sprintf("%v", p.Theme.Colors.CyanBold.Sprintf("SKIPPED")+"\n\n"))
 				}
 
-				for _, occurrenceDetails := range skippedRule.OccurrencesDetails {
-					sb.WriteString(fmt.Sprintf("    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
-					m := p.Theme.Colors.Highlight.Sprint(occurrenceDetails.SkipMessage)
-					sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, m))
-				}
+				for _, skippedRule := range warning.SkippedRules {
+					ruleName := p.Theme.Colors.CyanBold.Sprint(skippedRule.Name)
 
-				sb.WriteString("\n")
+					sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Skip, ruleName))
+
+					if skippedRule.DocumentationUrl != "" {
+						howToFix := p.Theme.Colors.Cyan.Sprint(skippedRule.DocumentationUrl)
+						sb.WriteString(fmt.Sprintf("    How to fix: %v\n", howToFix))
+					}
+
+					for _, occurrenceDetails := range skippedRule.OccurrencesDetails {
+						sb.WriteString(fmt.Sprintf("    - metadata.name: %v (kind: %v)\n", p.getStringOrNotAvailableText(occurrenceDetails.MetadataName), p.getStringOrNotAvailableText(occurrenceDetails.Kind)))
+						m := p.Theme.Colors.Highlight.Sprint(occurrenceDetails.SkipMessage)
+						sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, m))
+					}
+
+					sb.WriteString("\n")
+				}
 			}
 
 			for _, failedRule := range warning.FailedRules {

@@ -22,7 +22,7 @@ import (
 var out = color.Output
 
 type Printer interface {
-	GetWarningsText(warnings []printer.Warning) string
+	GetWarningsText(warnings []printer.Warning, quiet bool) string
 	GetSummaryTableText(summary printer.Summary) string
 	GetEvaluationSummaryText(summary printer.EvaluationSummary, k8sVersion string) string
 }
@@ -42,6 +42,7 @@ type PrintResultsData struct {
 	K8sValidationWarnings validation.K8sValidationWarningPerValidFile
 	CliVersion            string
 	IsCI                  bool
+	Quiet                 bool
 }
 
 type textOutputData struct {
@@ -55,6 +56,7 @@ type textOutputData struct {
 	Verbose               bool
 	policyName            string
 	k8sValidationWarnings validation.K8sValidationWarningPerValidFile
+	quiet                 bool
 }
 
 func SaveLastResultToJson(resultsData *PrintResultsData) {
@@ -152,6 +154,7 @@ func GetResultsText(resultsData *PrintResultsData) (string, error) {
 			policyName:            resultsData.PolicyName,
 			Verbose:               resultsData.Verbose,
 			k8sValidationWarnings: resultsData.K8sValidationWarnings,
+			quiet:                 resultsData.Quiet,
 		})
 	}
 }
@@ -261,7 +264,7 @@ func getTextOutput(outputData textOutputData) (string, error) {
 		return "", err
 	}
 
-	warningsText := outputData.printer.GetWarningsText(warnings)
+	warningsText := outputData.printer.GetWarningsText(warnings, outputData.quiet)
 	sb.WriteString(warningsText)
 
 	summary := parseEvaluationResultsToSummary(outputData.results, outputData.evaluationSummary, outputData.url, outputData.policyName)
