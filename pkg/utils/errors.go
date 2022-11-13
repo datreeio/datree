@@ -18,13 +18,13 @@ func ParseErrorToString(err interface{}) string {
 }
 
 func IsNetworkError(err error) bool {
-	networkErrors := []string{"network error", "connection refused", "no such host", "i/o timeout", "server misbehaving"}
+	networkErrors := []string{"network error", "connection refused", "no such host", "i/o timeout", "server misbehaving", "blocked"}
 	return stringInSliceContains(err.Error(), networkErrors) || isUrlErrorType(err)
 }
 
 func stringInSliceContains(a string, list []string) bool {
 	for _, b := range list {
-		if strings.Contains(a, b) {
+		if strings.Contains(strings.ToLower(a), b) {
 			return true
 		}
 	}
