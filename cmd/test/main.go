@@ -273,7 +273,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&flags.IgnoreMissingSchemas, "ignore-missing-schemas", "", false, "Ignore missing schemas when executing schema validation step")
 	cmd.Flags().BoolVarP(&flags.SaveRendered, "save-rendered", "", false, "Don't delete rendered files after the policy check (e.g. helm, kustomize)")
 	cmd.Flags().BoolVarP(&flags.PermissiveSchema, "permissive-schema", "", false, "Perform non-strict schema validation (i.e. allow additional properties)")
-	cmd.Flags().BoolVarP(&flags.Quiet, "quiet", "", false, "Enable quiet mode (don't print skipped rule messages)")
+	cmd.Flags().BoolVarP(&flags.Quiet, "quiet", "", false, "Don't print skipped rules messages")
 }
 
 func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
