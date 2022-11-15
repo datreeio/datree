@@ -20,8 +20,8 @@ type mockPrinter struct {
 	mock.Mock
 }
 
-func (m *mockPrinter) GetWarningsText(warnings []printer.Warning) string {
-	m.Called(warnings)
+func (m *mockPrinter) GetWarningsText(warnings []printer.Warning, quiet bool) string {
+	m.Called(warnings, quiet)
 	return ""
 }
 
@@ -70,7 +70,7 @@ func TestPrintResults(t *testing.T) {
 	}
 	for _, tt := range tests {
 		mockedPrinter := &mockPrinter{}
-		mockedPrinter.On("GetWarningsText", mock.Anything, mock.Anything, mock.Anything)
+		mockedPrinter.On("GetWarningsText", mock.Anything, mock.Anything)
 		mockedPrinter.On("GetSummaryTableText", mock.Anything)
 		mockedPrinter.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
 
@@ -87,6 +87,7 @@ func TestPrintResults(t *testing.T) {
 				K8sVersion:            "1.18.0",
 				Verbose:               false,
 				PolicyName:            "Default",
+				Quiet:                 false,
 				K8sValidationWarnings: validation.K8sValidationWarningPerValidFile{},
 			})
 
@@ -101,7 +102,7 @@ func TestPrintResults(t *testing.T) {
 			} else {
 				pwd, _ := os.Getwd()
 				warnings, _ := parseToPrinterWarnings(tt.args.results.EvaluationResults, tt.args.invalidYamlFiles, tt.args.invalidK8sFiles, pwd, "1.18.0", validation.K8sValidationWarningPerValidFile{}, false)
-				mockedPrinter.AssertCalled(t, "GetWarningsText", warnings)
+				mockedPrinter.AssertCalled(t, "GetWarningsText", warnings, false)
 			}
 		})
 	}

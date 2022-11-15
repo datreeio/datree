@@ -47,13 +47,36 @@ func TestGetWarningsText(t *testing.T) {
 			ExtraMessages: []ExtraMessage{{Text: "Are you trying to test a raw helm file? To run Datree with Helm - check out the helm plugin README:\nhttps://github.com/datreeio/helm-datree",
 				Color: "cyan"}},
 		},
+		{
+			Title: GetFileNameText("/datree/datree/internal/fixtures/kube/skipRule/k8s-demo-skip-two.yaml\n"),
+			SkippedRules: []FailedRule{
+				{
+					Name:        "Ensure workload has valid label values",
+					Occurrences: 1,
+					OccurrencesDetails: []OccurrenceDetails{{
+						MetadataName: "rss-site",
+						Kind:         "Deployment",
+						SkipMessage:  "skip first k8s-demo rule",
+					}},
+				},
+				{
+					Name:        "Ensure each container has a configured liveness probe",
+					Occurrences: 1,
+					OccurrencesDetails: []OccurrenceDetails{{
+						MetadataName: "rss-site",
+						Kind:         "Deployment",
+						SkipMessage:  "skip second k8s-demo rule",
+					}},
+				},
+			},
+		},
 	}
 
 	t.Run("Test GetWarningsText", func(t *testing.T) {
 
 		out = new(bytes.Buffer)
 
-		got := printer.GetWarningsText(warnings)
+		got := printer.GetWarningsText(warnings, false)
 
 		expected := []byte(
 			`>>  File: ~/.datree/k8-demo.yaml
@@ -100,6 +123,24 @@ Are you trying to test a raw helm file? To run Datree with Helm - check out the 
 https://github.com/datreeio/helm-datree
 [?] Policy check didn't run for this file
 
+>>  File: /datree/datree/internal/fixtures/kube/skipRule/k8s-demo-skip-two.yaml
+
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
+
+SKIPPED
+
+⏩  Ensure workload has valid label values
+    - metadata.name: rss-site (kind: Deployment)
+💡  skip first k8s-demo rule
+
+⏩  Ensure each container has a configured liveness probe
+    - metadata.name: rss-site (kind: Deployment)
+💡  skip second k8s-demo rule
+
 
 `)
 		assert.Equal(t, string(expected), got)
@@ -111,7 +152,7 @@ https://github.com/datreeio/helm-datree
 
 		printer.SetTheme(CreateSimpleTheme())
 
-		got := printer.GetWarningsText(warnings)
+		got := printer.GetWarningsText(warnings, true)
 
 		expected := []byte(
 			`>>  File: ~/.datree/k8-demo.yaml
@@ -157,6 +198,14 @@ https://github.com/datreeio/helm-datree
 Are you trying to test a raw helm file? To run Datree with Helm - check out the helm plugin README:
 https://github.com/datreeio/helm-datree
 [?] Policy check didn't run for this file
+
+>>  File: /datree/datree/internal/fixtures/kube/skipRule/k8s-demo-skip-two.yaml
+
+
+[V] YAML validation
+[V] Kubernetes schema validation
+
+[X] Policy check
 
 
 `)
