@@ -27,9 +27,7 @@
 
 ## 🤔 What is Datree?
 
-[Datree](https://datree.io/) automatically validates Kubernetes objects for rule violations, ensuring no misconfigurations reach production. It’s an E2E policy enforcement solution that can be used as a cluster guardrail, on the command line, or even as a kubectl plugin to run policies against Kubernetes objects.
-
-It’s far more effective than manual processes, such as sending an email to a slew of developers, begging them to set various limits, which likely falls on deaf ears because developers are already overwhelmed.
+[Datree](https://datree.io/) prevents misconfigurations by blocking resources that do not meet your policy.
 
 ## ✌️ Quick-start in two steps
 
@@ -52,28 +50,19 @@ This will create a new namespace (datree), where Datree’s services and applica
 
 ## ⚙️ How it works
 
-Datree scans Kubernetes configurations and validates them against a centrally managed policy for rule violations and misconfigurations.
+Datree scans Kubernetes resources against a centrally managed policy, and blocks those that violate your desired policies.
 
-![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_light.png#gh-light-mode-only)  
-![Architecture](https://github.com/datreeio/datree/blob/main/images/datree_architecture_dark.png#gh-dark-mode-only) 
-
-Datree acts as a guardrail, enforcing your desired policies on the cluster. You can also shift-left your validations by using our [CLI tool](https://hub.datree.io/cli) during development and/or as part of your CI.
-
-Datree comes with dozens of battle-tested rules for you to select to create your policy. The policy rules cover a variety of Kubernetes resources such as workload security, networking availability, Argo best practices, NSA hardening guide, and [many more](https://hub.datree.io/built-in-rules). 
+Datree comes with multiple pre-built policies covering various use-cases, such as workload security, high availability, ArgoCD best practices, NSA hardening guide, and [many more](https://hub.datree.io/built-in-rules). 
 
 In addition to our built-in rules, you can write [any custom rule you wish](https://hub.datree.io/custom-rules-overview) and then run it against your Kubernetes configurations to check for rule violations. The custom rule engine is based on JSON Schema.
 
-## 🔌 Helm plugin
+## ✔️ Additional features
 
-[Datree's Helm plugin](https://github.com/datreeio/helm-datree) can be accessed through the helm CLI to provide a seamless experience to Helm users:
-
-`helm plugin install https://github.com/datreeio/helm-datree`
-
-## 🗂 Kustomize support
-
-Datree comes with out-of-the-box [support for Kustomize](https://hub.datree.io/kustomize-support):
-
-`datree kustomize test [kustomization.yaml dir path/]`
+Datree offers a suite of features to make adoption seamless:
+* **Monitoring** - Datree is first installed in monitoring mode that reports on policy violations, rather than block their deployments.
+* [**CLI**](https://hub.datree.io/cli) - Help your developers find misconfigurations in their configs before deploying them, by integrating Datree into their CI.
+* **Misconfiguration prioritization** - Datree makes it easy to improve the quality of your cluster by prioritizing the misconfigurations to be fixed.
+* **Cluster score** - Rank the stability of your cluster based on the number of detected misconfigurations.
 
 ## Management dashboard (web application)
 
@@ -85,16 +74,6 @@ Datree can be customized via code (policy as code) or via a management dashboard
 * Configure Kubernetes schema version
 
 <img src="https://user-images.githubusercontent.com/19731161/130956287-ca44e831-46ba-48fa-96eb-be8e23d43bdf.png" alt="Datree-saas" width="55%">
-
-## ✔️ Next step: Shift-left your validations
-
-In addition to protecting your cluster, you can use Datree in every step of your Kuberenetes pipeline to help you prevent misconfigurations:  
-* [Develop (code)](https://hub.datree.io/#2-test-a-kubernetes-demo-manifest) - run the CLI locally (or as a pre-commit hook) to get instant validation  
-* [Distribute (CI)](https://hub.datree.io/cicd-examples) - integrate with your CI platform to shift-left policy checks  
-* [Deploy (CD)](https://github.com/datreeio/admission-webhook-datree) - gate your cluster with the admission webhook  
-* [Runtime (production)](https://github.com/datreeio/kubectl-datree) - query deployed resources with the kubectl plugin to your know your status  
-
-![Offerings](https://github.com/datreeio/datree/blob/main/images/offerings.png)
 
 ## Contributing
 
