@@ -31,6 +31,12 @@
 
 ## ✌️ Quick-start in two steps
 
+Install Datree to get insights on the status of your cluster and enforce your desired policies on new resources.
+
+> **⚠ NOTE:**  
+> By default, Datree does not block misconfigured resources, it only monitors and alerts about them.  
+> To enable **enforcement mode**, see the [documentation](https://hub.datree.io/setup/behavior#options).
+
 ### 1. Add the Datree Helm repository
 Run the following command in your terminal:
 ```terminal
