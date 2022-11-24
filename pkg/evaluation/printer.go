@@ -207,9 +207,8 @@ func getSarifOutput(formattedOutput *FormattedOutput, cliVersion string) (string
 	for _, validationResult := range formattedOutput.PolicyValidationResults {
 		githubPrefix := "/github/workspace/"
 		fileName := validationResult.FileName
-		if strings.HasPrefix(fileName, githubPrefix) {
-			fileName = strings.TrimPrefix(fileName, githubPrefix)
-		}
+		fileName = strings.TrimPrefix(fileName, githubPrefix)
+
 		for _, ruleResult := range validationResult.RuleResults {
 			for _, occurrenceDetails := range ruleResult.OccurrencesDetails {
 				for _, failureLocation := range occurrenceDetails.FailureLocations {
