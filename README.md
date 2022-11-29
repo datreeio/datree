@@ -1,10 +1,6 @@
 <p align="center">
  <img src="https://github.com/datreeio/datree/blob/main/images/datree_GitHub_hero.png" alt="datree=github" border="0" />
 </p>
-
-<h1 align="center">
- Prevent Kubernetes Misconfigurations
-</h1>
  
 <p align="center">
  <img src="https://img.shields.io/travis/com/datreeio/datree/staging?label=build-staging" target="_blank"></a>
@@ -25,15 +21,15 @@
   <br />
 </p>
 
-## 🤔 What is Datree?
+# Datree
 
-[Datree](https://datree.io/) prevents misconfigurations by blocking resources that do not meet your policy.
+[Datree](https://www.datree.io/) (pronounced `/da-tree/`) is a cloud native solution to prevent Kuberentes misconfigurations by blocking resources that do not meet your policy.
 
 ## ✌️ Quick-start in two steps
 
 Install Datree to get insights on the status of your cluster and enforce your desired policies on new resources.
 
-> **⚠ NOTE:**  
+> **NOTE:**  
 > By default, Datree does not block misconfigured resources, it only monitors and alerts about them.  
 > To enable **enforcement mode**, see the [documentation](https://hub.datree.io/setup/behavior#options).
 
@@ -62,7 +58,7 @@ Datree comes with multiple pre-built policies covering various use-cases, such a
 
 In addition to our built-in rules, you can write [any custom rule you wish](https://hub.datree.io/custom-rules-overview) and then run it against your Kubernetes configurations to check for rule violations. The custom rule engine is based on JSON Schema.
 
-## ✔️ Additional features
+## 🤩 Additional features
 
 Datree offers a suite of features to make adoption seamless:
 * **Monitoring** - Datree is first installed in monitoring mode that reports on policy violations, rather than block their deployments.
@@ -70,7 +66,7 @@ Datree offers a suite of features to make adoption seamless:
 * **Misconfiguration prioritization** - Datree makes it easy to improve the quality of your cluster by prioritizing the misconfigurations to be fixed.
 * **Cluster score** - Rank the stability of your cluster based on the number of detected misconfigurations.
 
-## Management dashboard (web application)
+## 📊 Management dashboard (web application)
 
 Datree can be customized via code (policy as code) or via a management dashboard. The dashboard offers the following capabilities in an intuitive visual interface: 
 * Customize policies
