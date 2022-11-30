@@ -73,20 +73,20 @@
             "$ref": "http://json-schema.org/draft-07/schema#",
             "description": "schema is the logic of the rule, should be a yaml schema as specified in http://json-schema.org/draft-07/schema#"
           }
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "uniqueName",
-        "enabledByDefault",
-        "documentationUrl",
-        "messageOnFailure",
-        "category",
-        "complexity",
-        "impact",
-        "schema"
-      ]
+        },
+        "required": [
+          "id",
+          "name",
+          "uniqueName",
+          "enabledByDefault",
+          "documentationUrl",
+          "messageOnFailure",
+          "category",
+          "complexity",
+          "impact",
+          "schema"
+        ]
+      }
     }
   },
   "required": [
