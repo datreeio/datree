@@ -44,10 +44,10 @@ helm repo update
 Replace `<DATREE_TOKEN>` with the token from your [dashboard](https://app.datree.io/), and run the following command in your terminal:
 
 ```terminal
-helm install -n datree datree-webhook datree-webhook/datree-admission-webhook --debug  \
+helm install -n datree datree-webhook datree-webhook/datree-admission-webhook --debug \
 --create-namespace \
 --set datree.token=<DATREE_TOKEN> \
---set datree.context=$(kubectl config current-context)
+--set datree.clusterName=$(kubectl config current-context)
 ```
 
 This will create a new namespace (datree), where Datree’s services and application resources will reside. `datree.token` is used to connect your dashboard to your cluster. Note that the installation can take up to 5 minutes.
