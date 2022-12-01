@@ -7,12 +7,12 @@
           <value>
             <SchemaInfo>
               <option name="name" value="defaultRulesSchema" />
-              <option name="relativePathToSchema" value="pkg/policy/defaultRulesSchema.json" />
+              <option name="relativePathToSchema" value="pkg/defaultRules/defaultRulesSchema.json" />
               <option name="schemaVersion" value="JSON Schema version 7" />
               <option name="patterns">
                 <list>
                   <Item>
-                    <option name="path" value="pkg/policy/defaultRules.yaml" />
+                    <option name="path" value="pkg/defaultRules/defaultRules.yaml" />
                   </Item>
                 </list>
               </option>
@@ -29,6 +29,9 @@
                 <list>
                   <Item>
                     <option name="path" value="internal/fixtures/policyAsCode/policies.yaml" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="pkg/defaultPolicies/defaultPolicies.yaml" />
                   </Item>
                 </list>
               </option>
