@@ -332,8 +332,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-labels-value-valid"
     messageOnFailure: "Incorrect value for key(s) under `labels` - the value's syntax is not valid so the Kubernetes engine will not accept it"
     category: Workload
-    complexity:
-    impact:
+    complexity: easy
+    impact: If an object's labels do not follow Kubernetes label syntax requirements, it will not be applied properly.
     schema:
       if: *standardKinds
       then:
@@ -750,8 +750,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-using-host-ipc"
     messageOnFailure: "Incorrect value for key `hostIPC` - running on the host`s IPC namespace can be (maliciously) used to interact with other processes running outside the container"
     category: Containers
-    complexity:
-    impact:
+    complexity: easy
+    impact: When a container is allowed to share its host's IPC namespace, it has access to other processes running outside of the container.
     schema:
       definitions:
         specContainers:
@@ -1933,8 +1933,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-failure-threshold"
     messageOnFailure: "Incorrect value for key `failureThreshold` - set explicitly to control the number of retries after a probe fails (min 1)"
     category: Containers
-    complexity:
-    impact:
+    complexity: medium
+    impact: `failureThreshold` defines the number of times Kubernetes will try to initialize a failed probe before giving up. It's recommended to set this value implicitly and not rely on the default value (3).
     schema:
       definitions:
         probePattern:
@@ -1989,8 +1989,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-prestop"
     messageOnFailure: "Missing property object `preStop` - set to ensure graceful shutdown of the container"
     category: Containers
-    complexity:
-    impact:
+    complexity: hard
+    impact: Once Kubernetes has decided to terminate one of your pods, it will proceed to send a SIGTERM signal to it. If your application doesnt gracefully shut down when receiving a SIGTERM, this can cause undesired behavior and loss of data.
     schema:
       definitions:
         prestopPattern:
@@ -2022,7 +2022,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-system-call-privileges"
     messageOnFailure: "Incorrect value for key seccompProfile - set an explicit value to prevent malicious use of system calls within the container"
     category: Containers
-    complexity: 2
+    complexity: medium
     impact: Running containers/Pods with the `seccomp` profile set to `unconfined` can give attackers dangerous privileges.
     schema:
       definitions:
@@ -2116,8 +2116,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-bitbucket"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2132,8 +2132,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-datadog"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2148,8 +2148,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-gcp"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2164,8 +2164,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-aws"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2180,8 +2180,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-github"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2199,8 +2199,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-gitlab"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2215,8 +2215,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-terraform"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2231,8 +2231,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-heroku"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2247,8 +2247,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-jwt"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2263,8 +2263,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-launchdarkly"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2279,8 +2279,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-newrelic"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2297,8 +2297,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-npm"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2313,8 +2313,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-okta"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2329,8 +2329,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-stripe"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2345,8 +2345,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-sumologic"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2362,8 +2362,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-twilio"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2378,8 +2378,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-vault"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
@@ -2395,8 +2395,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-exposed-secrets-privatekey"
     messageOnFailure: "Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen"
     category: Secrets
-    complexity:
-    impact:
+    complexity: medium
+    impact: Exposing sensitive data in resource configs is risky and highly unrecommended, as it can be stolen and used maliciously.
     schema:
       definitions:
         regexes:
