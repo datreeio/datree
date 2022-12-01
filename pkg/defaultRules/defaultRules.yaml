@@ -57,8 +57,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-image-pinned-version"
     messageOnFailure: Incorrect value for key `image` - specify an image version to avoid unpleasant "version surprises" in the future
     category: Containers
-    complexity:
-    impact:
+    complexity: easy
+    impact: When the version tag is missing, every time that the image is pulled it pulls the latest version which may break your code.
     schema:
       definitions:
         imageValuePattern:
@@ -90,8 +90,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-memory-request"
     messageOnFailure: "Missing property object `requests.memory` - value should be within the accepted boundaries recommended by the organization"
     category: Containers
-    complexity:
-    impact:
+    complexity: hard
+    impact: Memory requests allow you to use memory resources efficiently and allocate a guaranteed minimum of computing resources for the pods running in your cluster.
     schema:
       definitions:
         memoryRequestPattern:
@@ -132,8 +132,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-cpu-request"
     messageOnFailure: "Missing property object `requests.cpu` - value should be within the accepted boundaries recommended by the organization"
     category: Containers
-    complexity:
-    impact:
+    complexity: hard
+    impact: CPU requests allow you to use CPU resources efficiently and to allocate a guaranteed minimum of computing resources for the pods running in your cluster.
     schema:
       definitions:
         cpuRequestPattern:
@@ -174,8 +174,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-memory-limit"
     messageOnFailure: "Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization"
     category: Containers
-    complexity:
-    impact:
+    complexity: hard
+    impact: Without memory limits, the pods running in your cluster will not have a restriction on the max amount of memory consumption, which may result with OOM failures
     schema:
       definitions:
         memoryLimitPattern:
@@ -216,8 +216,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-cpu-limit"
     messageOnFailure: "Missing property object `limits.cpu` - value should be within the accepted boundaries recommended by the organization"
     category: Containers
-    complexity:
-    impact:
+    complexity: hard
+    impact: Without CPU limits, the pods running in your cluster will not have a restriction on the max amount of CPU consumption, which may result with OOM failures
     schema:
       definitions:
         cpuLimitPattern:
@@ -258,8 +258,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-ingress-forwarding-traffic-to-single-container"
     messageOnFailure: 'Incorrect value for key `host` - specify host instead of using a wildcard character ("*")'
     category: Networking
-    complexity:
-    impact:
+    complexity: medium
+    impact: Misconfiguring the ingress host can cause all traffic to be forwarded to a single pod instead of leveraging load-balancing capabilities.
     schema:
       if:
         properties:
@@ -286,8 +286,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-node-port"
     messageOnFailure: "Incorrect value for key `type` - `NodePort` will open a port on all nodes where it can be reached by the network external to the cluster"
     category: Networking
-    complexity:
-    impact:
+    complexity: easy
+    impact: Exposing a NodePort will open a network port on all nodes to be reached by the cluster's external network, which poses a security threat.
     schema:
       if:
         properties:
@@ -310,8 +310,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-cronjob-scheduler-valid"
     messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
     category: CronJob
-    complexity:
-    impact:
+    complexity: easy
+    impact: An invalid cron schedule expression will prevent your jobs from being executed.
     schema:
       if:
         properties:
@@ -352,8 +352,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-valid-restart-policy"
     messageOnFailure: "Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource"
     category: Workload
-    complexity:
-    impact:
+    complexity: easy
+    impact: A workload with a 'restartPolicy' value other than 'Always' is invalid and will not be applied properly.
     schema:
       if:
         properties:
@@ -381,8 +381,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-liveness-probe"
     messageOnFailure: "Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks"
     category: Containers
-    complexity:
-    impact:
+    complexity: hard
+    impact: When liveness probes aren't set, Kubernetes can't determine when a pod should be restarted, which can result with an unavailable application
     schema:
       definitions:
         specContainers:
@@ -408,8 +408,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-readiness-probe"
     messageOnFailure: "Missing property object `readinessProbe` - add a properly configured readinessProbe to notify kubelet your Pods are ready for traffic"
     category: Containers
-    complexity:
-    impact:
+    complexity: hard
+    impact: Readiness probes allow Kubernetes to determine when a pod is ready to accept traffic. This ensures that client requests will not be routed to pods that are unable to process them.
     schema:
       definitions:
         specContainers:
@@ -435,8 +435,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-hpa-minimum-replicas"
     messageOnFailure: "Missing property object `minReplicas` - the value should be within the accepted boundaries recommended by the organization"
     category: Other
-    complexity:
-    impact:
+    complexity: medium
+    impact: The minimum replicas range must be set to prevent unintended scaling down scenarios.
     schema:
       if:
         properties:
@@ -455,8 +455,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-hpa-maximum-replicas"
     messageOnFailure: "Missing property object `maxReplicas` - the value should be within the accepted boundaries recommended by the organization"
     category: Other
-    complexity:
-    impact:
+    complexity: medium
+    impact: The maximum replicas range must be set to prevent unintended scaling up scenarios.
     schema:
       if:
         properties:
@@ -475,8 +475,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-deafult-namespce"
     messageOnFailure: Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)
     category: Workload
-    complexity:
-    impact:
+    complexity: medium
+    impact: All objects that do not specify an explicit namespace will be applied to the 'default' namespace. This can cause a messy cluster with configuration overlaps.
     schema:
       if: *standardKinds
       then:
@@ -494,8 +494,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-minimum-two-replicas"
     messageOnFailure: "Incorrect value for key `replicas` - running 2 or more replicas will increase the availability of the service"
     category: Workload
-    complexity:
-    impact:
+    complexity: medium
+    impact: When running two or more replicas per service, you are increasing the availability of the containerized service by not relying on a single pod to do all of the work.
     schema:
       if:
         properties:
@@ -515,8 +515,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-cronjob-deadline"
     messageOnFailure: "Missing property object `startingDeadlineSeconds` - set a time limit to the cron execution to allow killing it if exceeded"
     category: CronJob
-    complexity:
-    impact:
+    complexity: medium
+    impact: Setting a deadline can reduce the number of missed schedules needed to mark a CronJob as a failure while also increasing its reliability.
     schema:
       if:
         properties:
@@ -538,8 +538,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-deprecated-k8s-api-116"
     messageOnFailure: "Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.16)"
     category: Deprecation
-    complexity:
-    impact:
+    complexity: easy
+    impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it.
     schema:
       properties:
         apiVersion:
@@ -556,8 +556,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-deprecated-k8s-api-117"
     messageOnFailure: "Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.17)"
     category: Deprecation
-    complexity:
-    impact:
+    complexity: easy
+    impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it.
     schema:
       properties:
         apiVersion:
@@ -574,8 +574,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-privileged-containers"
     messageOnFailure: "Incorrect value for key `privileged` - this mode will allow the container the same access as processes running on the host"
     category: Containers
-    complexity:
-    impact:
+    complexity: easy
+    impact: Processes running in privileged containers have access to host-level resources such as the file system. These containers are much more secure when their access is limited to the pod level.dsza
     schema:
       definitions:
         specContainers:
@@ -681,8 +681,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-cronjob-concurrency"
     messageOnFailure: Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently
     category: CronJob
-    complexity:
-    impact:
+    complexity: easy
+    impact: Preventing your CronJobs from running concurrently will cause their behavior to be more deterministic and avoid race conditions.
     schema:
       if:
         properties:
@@ -1014,8 +1014,8 @@ rules:
     documentationUrl: https://hub.datree.io/built-in-rules/ensure-workflow-dag-fail-fast-on-node-failure
     messageOnFailure: Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches
     category: Argo
-    complexity:
-    impact:
+    complexity: easy
+    impact: When failFast is set to false, it will allow a DAG to run all branches of the DAG to completion, regardless of the failed outcomes of branches in the DAG.
     schema:
       if:
         properties:
@@ -1052,8 +1052,8 @@ rules:
     documentationUrl: https://hub.datree.io/built-in-rules/prevent-workflow-pods-from-using-the-default-service-account
     messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
     category: Argo
-    complexity:
-    impact:
+    complexity: hard
+    impact: When sericeAccount is set to default, the workflow is able to interact with the Kubernetes API server, which creates a great way for attackers with access to a single container to abuse K8s
     schema:
       if:
         properties:
@@ -1078,8 +1078,8 @@ rules:
     documentationUrl: https://hub.datree.io/built-in-rules/ensure-configmap-is-recognized-by-argocd
     messageOnFailure: Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won't recognize this resource
     category: Argo
-    complexity:
-    impact:
+    complexity: easy
+    impact: "A relevant ConfigMap resource that isn’t labeled with app.kubernetes.io/part-of: argocd will not be used by Argo CD."
     schema:
       if:
         properties:
@@ -1113,8 +1113,8 @@ rules:
     documentationUrl: https://hub.datree.io/built-in-rules/ensure-rollout-pause-step-has-a-configured-duration
     messageOnFailure: Missing the key `duration` - prevent the rollout from waiting indefinitely for the pause condition
     category: Argo
-    complexity:
-    impact:
+    complexity: easy
+    impact: If the duration field within the pause struct isn't set, the rollout will wait indefinitely until that Pause condition is removed.
     schema:
       if:
         properties:
@@ -1148,8 +1148,8 @@ rules:
     documentationUrl: https://hub.datree.io/built-in-rules/ensure-application-and-appproject-are-part-of-the-argocd-namespace
     messageOnFailure: Incorrect value for property `namespace` - Application and AppProject have to be installed on the argocd namespace
     category: Argo
-    complexity:
-    impact:
+    complexity: easy
+    impact: Application and AppProject instances, must be installed in the same namespace where argo was installed to be recognized by Argo
     schema:
       if:
         properties:
@@ -1173,8 +1173,8 @@ rules:
     documentationUrl: https://hub.datree.io/built-in-rules/prevent-workflow-from-having-an-empty-retry-strategy
     messageOnFailure: Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues
     category: Argo
-    complexity:
-    impact:
+    complexity: medium
+    impact: Empty retryStrategy will cause a container to retry until completion and eventually cause OOM issues.
     schema:
       if:
         properties:
@@ -1198,8 +1198,8 @@ rules:
     documentationUrl: https://hub.datree.io/built-in-rules/ensure-rollout-has-revision-history-set
     messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
     category: Argo
-    complexity:
-    impact:
+    complexity: medium
+    impact: A new Deployment rollout cannot be undone, since its revision history is cleaned up
     schema:
       if:
         properties:
@@ -1666,8 +1666,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-resource-name"
     messageOnFailure: "Missing key `name` or `generateName` - one of them must be set to apply resource to a cluster"
     category: Other
-    complexity:
-    impact:
+    complexity: easy
+    impact: Configurations that miss this property will pass k8s schema validation, but will fail when pushed into a cluster (i.e. when running kubectl apply/create).
     schema:
       definitions:
         metadataNamePattern:
