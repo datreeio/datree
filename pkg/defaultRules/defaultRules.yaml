@@ -1417,7 +1417,7 @@ rules:
     messageOnFailure: "Incorrect value for key `resources` and/or `verbs` - allowing containers to run the exec command can be exploited by attackers"
     category: NSA
     complexity: easy
-    impact: 'kubectl exec' allows a user to execute a command in a container. Attackers with permissions could run 'kubectl exec' to execute malicious code and compromise resources within a cluster.
+    impact: "'kubectl exec' allows a user to execute a command in a container. Attackers with permissions could run 'kubectl exec' to execute malicious code and compromise resources within a cluster."
     schema:
       if:
         properties:
@@ -1710,7 +1710,7 @@ rules:
     messageOnFailure: "Incorrect value for key `initialDelaySeconds` - set explicitly to control the start time before a probe is initiated (min 0)"
     category: Containers
     complexity: medium
-    impact: `initialDelaySeconds` defines the number of seconds after the container has started before liveness or readiness probes are initiated. It's recommended to set this value implicitly and not rely on the default value (0)
+    impact: "`initialDelaySeconds` defines the number of seconds after the container has started before liveness or readiness probes are initiated. It's recommended to set this value implicitly and not rely on the default value (0)"
     schema:
       definitions:
         probePattern:
@@ -1766,7 +1766,7 @@ rules:
     messageOnFailure: "Incorrect value for key `periodSeconds` - set explicitly to control how often a probe is performed (min 1)"
     category: Containers
     complexity: medium
-    impact: `periodSeconds` defines how often (in seconds) the kubelet should perform a liveness probe. It's recommended to set this value implicitly and not rely on the default value (10).
+    impact: "`periodSeconds` defines how often (in seconds) the kubelet should perform a liveness probe. It's recommended to set this value implicitly and not rely on the default value (10)."
     schema:
       definitions:
         probePattern:
@@ -1822,7 +1822,7 @@ rules:
     messageOnFailure: "Incorrect value for key `timeoutSeconds` - set explicitly to control when a probe times out (min 1)"
     category: Containers
     complexity: medium
-    impact: `timeoutSeconds` defines the number of seconds after which the probe times out. It's recommended to set this value implicitly and not rely on the default value (1).
+    impact: "`timeoutSeconds` defines the number of seconds after which the probe times out. It's recommended to set this value implicitly and not rely on the default value (1)."
     schema:
       definitions:
         probePattern:
@@ -1878,7 +1878,7 @@ rules:
     messageOnFailure: "Incorrect value for key `successThreshold` - set explicitly to control when a probe is considered successful after having failed"
     category: Containers
     complexity: medium
-    impact: `successThreshold` defines the minimum consecutive successes required for the probe to be successful after failing. It's recommended to set this value implicitly and not rely on the default value (1).
+    impact: "`successThreshold` defines the minimum consecutive successes required for the probe to be successful after failing. It's recommended to set this value implicitly and not rely on the default value (1)."
     schema:
       definitions:
         probePattern:
@@ -1934,7 +1934,7 @@ rules:
     messageOnFailure: "Incorrect value for key `failureThreshold` - set explicitly to control the number of retries after a probe fails (min 1)"
     category: Containers
     complexity: medium
-    impact: `failureThreshold` defines the number of times Kubernetes will try to initialize a failed probe before giving up. It's recommended to set this value implicitly and not rely on the default value (3).
+    impact: "`failureThreshold` defines the number of times Kubernetes will try to initialize a failed probe before giving up. It's recommended to set this value implicitly and not rely on the default value (3)."
     schema:
       definitions:
         probePattern:
