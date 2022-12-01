@@ -608,8 +608,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-owner-label"
     messageOnFailure: "Missing label object `owner` - add a proper owner label to know which person/team to ping when needed"
     category: Workload
-    complexity:
-    impact:
+    complexity: easy
+    impact: An owner label is great for financial and operational ownership, and makes it easier to alert the relevant team or team member when necessary.
     schema:
       if: *standardKinds
       then:
@@ -626,8 +626,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-env-label"
     messageOnFailure: 'Missing label object `env` - add a proper environment description (e.g. "prod", "testing", etc.) to the Deployment config'
     category: Workload
-    complexity:
-    impact:
+    complexity: easy
+    impact: Having an env label is useful for performing bulk operations in specific environments or for filtering Deployments according to their stage.
     schema:
       if:
         properties:
@@ -652,8 +652,8 @@ rules:
     documentationUrl: "https://hub.datree.io/ensure-digest-tag"
     messageOnFailure: "Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image"
     category: Containers
-    complexity:
-    impact:
+    complexity: medium
+    impact: The digest uniquely identifies a specific version sha of the image, so it will never be tampered
     schema:
       definitions:
         imageValuePattern:
@@ -706,8 +706,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-naked-pods"
     messageOnFailure: Incorrect value for key `kind` - raw pod won't be rescheduled in the event of a node failure
     category: Other
-    complexity:
-    impact:
+    complexity: medium
+    impact: Pods not created by workload controllers such as Deployments have no self-healing or scaling abilities and are unsuitable for production.
     schema:
       properties:
         kind:
@@ -722,8 +722,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-using-host-pid"
     messageOnFailure: Incorrect value for key `hostPID` - running on the host's PID namespace enables access to sensitive information from processes running outside the container
     category: Containers
-    complexity:
-    impact:
+    complexity: easy
+    impact: When a container is allowed to share its hosts PID namespace, it can see and may even kill processes running on the host outside of the container.
     schema:
       definitions:
         specContainers:
@@ -778,8 +778,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-using-host-network"
     messageOnFailure: Incorrect value for key `hostNetwork` - running on the host's network namespace can allow a compromised container to sniff network traffic
     category: Containers
-    complexity:
-    impact:
+    complexity: easy
+    impact: When a container is allowed to share its host's network namespace, it can leverage the host's local network to do malicious stuff.
     schema:
       definitions:
         specContainers:
@@ -806,8 +806,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-uid-conflicts"
     messageOnFailure: "Incorrect value for key `runAsUser` - value should be above 9999 to reduce the likelihood that the UID is already taken"
     category: Containers
-    complexity:
-    impact:
+    complexity: medium
+    impact: With a high UID number, a container is blocked from accessing host-based files even if it manages to gain access to a host's file system.
     schema:
       definitions:
         specContainers:
@@ -837,8 +837,8 @@ rules:
     documentationUrl: "https://hub.datree.io/prevent-mounting-docker-socket"
     messageOnFailure: "Incorrect value for key `path` - avoid mounting the docker.socket becasue it can allow container breakout"
     category: Containers
-    complexity:
-    impact:
+    complexity: medium
+    impact: When a container has access to the Docker socket, it can effectively manage other containers on the host.
     schema:
       definitions:
         specContainers:
@@ -889,8 +889,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-configmap-security-vulnerability-cve-2021-25742"
     messageOnFailure: Missing property object `allow-snippet-annotations` - set it to "false" to override default behaviour
     category: Security
-    complexity:
-    impact:
+    complexity: easy
+    impact: Users with the ability to create or update NGINX ingress objects can use the custom snippets feature to obtain secrets in the cluster.
     schema:
       if:
         properties:
@@ -932,8 +932,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-ingress-security-vulnerability-cve-2021-25742"
     messageOnFailure: Forbidden property object `server-snippet` - ingress-nginx custom snippets are not allowed
     category: Security
-    complexity:
-    impact:
+    complexity: easy
+    impact: A vulnerability has been found that when exploited, attackers can use the custom snippets feature to obtain all secrets in the cluster.
     schema:
       if:
         properties:
@@ -955,8 +955,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-container-security-vulnerability-cve-2021-25741"
     messageOnFailure: Forbidden property object `subPath` - malicious users can gain access to files & directories outside of the volume
     category: Security
-    complexity:
-    impact:
+    complexity: hard
+    impact: A vulnerability has been found that when exploited, attackers can gain access to the host filesystem and compromise the cluster.
     schema:
       definitions:
         subPathPattern:
@@ -986,8 +986,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-endpointslice-validation-from-enabling-host-network-hijack-cve-2021-25737"
     messageOnFailure: Incorrect value for key `addresses` - IP address is within vulnerable ranges (127.0.0.0/8 and 169.254.0.0/16)
     category: Security
-    complexity:
-    impact:
+    complexity: hard
+    impact: A vulnerability has been found that when exploited, attackers can hijack your cluster’s network traffic, potentially leading to sensitive data leaks.
     schema:
       if:
         properties:
@@ -1221,8 +1221,8 @@ rules:
     documentationUrl: https://hub.datree.io/built-in-rules/ensure-rollout-allows-broadcasting-ip-table-changes
     messageOnFailure: Incorrect value for key `scaleDownDelaySeconds` - value should be at least 30 to prevent packets from being sent to a node that killed the pod
     category: Argo
-    complexity:
-    impact:
+    complexity: easy
+    impact: A minimum of 30 seconds is recommended to prevent packets from being sent to a node that killed an old pod
     schema:
       if:
         properties:
@@ -1250,8 +1250,8 @@ rules:
     documentationUrl: https://hub.datree.io/built-in-rules/ensure-rollout-that-is-marked-as-degraded-scales-down-replicaset
     messageOnFailure: Incorrect value for key `progressDeadlineAbort` - value should be `true` to prevent the rollout pod from retrying indefinitely
     category: Argo
-    complexity:
-    impact:
+    complexity: medium
+    impact: Prevent pods from indefinitly retrying to rollout, when the pod is stuck on error state
     schema:
       if:
         properties:
@@ -1279,8 +1279,8 @@ rules:
     documentationUrl: https://hub.datree.io/built-in-rules/ensure-workflow-retry-policy-catches-relevant-errors-only
     messageOnFailure: Incorrect value for key `retryPolicy` - the expression should include retry on steps that failed either on transient or Argo controller errors
     category: Argo
-    complexity:
-    impact:
+    complexity: medium
+    impact: When setting Argo's `retryPolicy` to Always, you should also set a proper expression to filter out unnecessary errors.
     schema:
       if:
         allOf:
@@ -1323,8 +1323,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-read-only-filesystem"
     messageOnFailure: Incorrect value for key `readOnlyRootFilesystem` - set to 'true' to protect filesystem from potential attacks
     category: NSA
-    complexity:
-    impact:
+    complexity: easy
+    impact: An immutable root filesystem prevents attackers from being able to tamper with the filesystem or write foreign executables to disk.
     schema:
       definitions:
         containerSecurityPattern:
@@ -1356,8 +1356,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-accessing-underlying-host"
     messageOnFailure: Invalid key `hostPath` - refrain from using this mount to prevent an attack on the underlying host
     category: NSA
-    complexity:
-    impact:
+    complexity: easy
+    impact: Using a hostPath mount can enable attackers to break from the container and gain access to the underlying host.
     schema:
       definitions:
         specVolumePattern:
@@ -1383,8 +1383,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-escalating-privileges"
     messageOnFailure: Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges
     category: NSA
-    complexity:
-    impact:
+    complexity: easy
+    impact: In their default state, containers allow privilege escalation. Attackers may use this to manipulate the application and to gain more permissions than they should have.
     schema:
       definitions:
         specContainerPattern:
@@ -1416,8 +1416,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-allowing-command-execution"
     messageOnFailure: "Incorrect value for key `resources` and/or `verbs` - allowing containers to run the exec command can be exploited by attackers"
     category: NSA
-    complexity:
-    impact:
+    complexity: easy
+    impact: 'kubectl exec' allows a user to execute a command in a container. Attackers with permissions could run 'kubectl exec' to execute malicious code and compromise resources within a cluster.
     schema:
       if:
         properties:
@@ -1452,8 +1452,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-insecure-capabilities"
     messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
     category: NSA
-    complexity:
-    impact:
+    complexity: easy
+    impact: Giving containers unnecessary capabilities may compromise them and allow attackers access to sensitive components.
     schema:
       definitions:
         specContainerPattern:
@@ -1499,8 +1499,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-insecurely-exposing-workload"
     messageOnFailure: "Incorrect key `hostPort` - refrain from using this key to prevent insecurely exposing your workload"
     category: NSA
-    complexity:
-    impact:
+    complexity: easy
+    impact: With the hostPort defined, the workloads become exposed as the node, but without the firewall rules and access control attached to the host.
     schema:
       definitions:
         specContainerPattern:
@@ -1531,8 +1531,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-accessing-host-files-by-using-high-gids"
     messageOnFailure: "Invalid value for key `runAsGroup` - must be greater than 999 to ensure container is running with non-root group membership"
     category: NSA
-    complexity:
-    impact:
+    complexity: medium
+    impact: With a high UID number, a container is blocked from accessing host-based files even if it manages to gain access to a host's file system.
     schema:
       definitions:
         specContainerPattern:
@@ -1576,8 +1576,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-running-with-root-privileges"
     messageOnFailure: "Invalid value for key `runAsNonRoot` - must be set to `true` to prevent unnecessary privileges"
     category: NSA
-    complexity:
-    impact:
+    complexity: easy
+    impact: Having non-root execution integrated at build time provides better assurance that applications will function correctly without root privileges.
     schema:
       definitions:
         containerSecurityPattern:
@@ -1626,8 +1626,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-service-account-token-auto-mount"
     messageOnFailure: "Invalid value for key `automountServiceAccountToken` - must be set to `false` to prevent granting unnecessary access to the service account"
     category: NSA
-    complexity:
-    impact:
+    complexity: easy
+    impact: If an application is compromised, account tokens in Pods can be stolen and used to further compromise the cluster. When an application does not need to access the service account directly, secren token mounting should be disabled.
     schema:
       definitions:
         podPattern:
@@ -1709,8 +1709,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-initial-probe-delay"
     messageOnFailure: "Incorrect value for key `initialDelaySeconds` - set explicitly to control the start time before a probe is initiated (min 0)"
     category: Containers
-    complexity:
-    impact:
+    complexity: medium
+    impact: `initialDelaySeconds` defines the number of seconds after the container has started before liveness or readiness probes are initiated. It's recommended to set this value implicitly and not rely on the default value (0)
     schema:
       definitions:
         probePattern:
@@ -1765,8 +1765,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-frequency"
     messageOnFailure: "Incorrect value for key `periodSeconds` - set explicitly to control how often a probe is performed (min 1)"
     category: Containers
-    complexity:
-    impact:
+    complexity: medium
+    impact: `periodSeconds` defines how often (in seconds) the kubelet should perform a liveness probe. It's recommended to set this value implicitly and not rely on the default value (10).
     schema:
       definitions:
         probePattern:
@@ -1821,8 +1821,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-timeout"
     messageOnFailure: "Incorrect value for key `timeoutSeconds` - set explicitly to control when a probe times out (min 1)"
     category: Containers
-    complexity:
-    impact:
+    complexity: medium
+    impact: `timeoutSeconds` defines the number of seconds after which the probe times out. It's recommended to set this value implicitly and not rely on the default value (1).
     schema:
       definitions:
         probePattern:
@@ -1877,8 +1877,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-min-success-threshold"
     messageOnFailure: "Incorrect value for key `successThreshold` - set explicitly to control when a probe is considered successful after having failed"
     category: Containers
-    complexity:
-    impact:
+    complexity: medium
+    impact: `successThreshold` defines the minimum consecutive successes required for the probe to be successful after failing. It's recommended to set this value implicitly and not rely on the default value (1).
     schema:
       definitions:
         probePattern:
@@ -2022,8 +2022,8 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-system-call-privileges"
     messageOnFailure: "Incorrect value for key seccompProfile - set an explicit value to prevent malicious use of system calls within the container"
     category: Containers
-    complexity:
-    impact:
+    complexity: 2
+    impact: Running containers/Pods with the `seccomp` profile set to `unconfined` can give attackers dangerous privileges.
     schema:
       definitions:
         seccompExplicit:
