@@ -575,7 +575,7 @@ rules:
     messageOnFailure: "Incorrect value for key `privileged` - this mode will allow the container the same access as processes running on the host"
     category: Containers
     complexity: easy
-    impact: Processes running in privileged containers have access to host-level resources such as the file system. These containers are much more secure when their access is limited to the pod level.dsza
+    impact: Processes running in privileged containers have access to host-level resources such as the file system. These containers are much more secure when their access is limited to the pod level
     schema:
       definitions:
         specContainers:
@@ -1532,7 +1532,7 @@ rules:
     messageOnFailure: "Invalid value for key `runAsGroup` - must be greater than 999 to ensure container is running with non-root group membership"
     category: NSA
     complexity: medium
-    impact: With a high UID number, a container is blocked from accessing host-based files even if it manages to gain access to a host's file system
+    impact: With a high GID number, a container is blocked from accessing host-based files even if it manages to gain access to a host's file system
     schema:
       definitions:
         specContainerPattern:
@@ -1627,7 +1627,7 @@ rules:
     messageOnFailure: "Invalid value for key `automountServiceAccountToken` - must be set to `false` to prevent granting unnecessary access to the service account"
     category: NSA
     complexity: easy
-    impact: If an application is compromised, account tokens in Pods can be stolen and used to further compromise the cluster. When an application does not need to access the service account directly, secren token mounting should be disabled
+    impact: If an application is compromised, account tokens in Pods can be stolen and used to further compromise the cluster. When an application does not need to access the service account directly, token mounting should be disabled
     schema:
       definitions:
         podPattern:
@@ -1710,7 +1710,7 @@ rules:
     messageOnFailure: "Incorrect value for key `initialDelaySeconds` - set explicitly to control the start time before a probe is initiated (min 0)"
     category: Containers
     complexity: medium
-    impact: "`initialDelaySeconds` defines the number of seconds after the container has started before liveness or readiness probes are initiated. It's recommended to set this value implicitly and not rely on the default value (0)"
+    impact: "`initialDelaySeconds` defines the number of seconds after the container has started before liveness or readiness probes are initiated. It's recommended to set this value explicitly and not rely on the default value (0)"
     schema:
       definitions:
         probePattern:
@@ -1766,7 +1766,7 @@ rules:
     messageOnFailure: "Incorrect value for key `periodSeconds` - set explicitly to control how often a probe is performed (min 1)"
     category: Containers
     complexity: medium
-    impact: "`periodSeconds` defines how often (in seconds) the kubelet should perform a liveness probe. It's recommended to set this value implicitly and not rely on the default value (10)"
+    impact: "`periodSeconds` defines how often (in seconds) the kubelet should perform a liveness probe. It's recommended to set this value explicitly and not rely on the default value (10)"
     schema:
       definitions:
         probePattern:
@@ -1822,7 +1822,7 @@ rules:
     messageOnFailure: "Incorrect value for key `timeoutSeconds` - set explicitly to control when a probe times out (min 1)"
     category: Containers
     complexity: medium
-    impact: "`timeoutSeconds` defines the number of seconds after which the probe times out. It's recommended to set this value implicitly and not rely on the default value (1)"
+    impact: "`timeoutSeconds` defines the number of seconds after which the probe times out. It's recommended to set this value explicitly and not rely on the default value (1)"
     schema:
       definitions:
         probePattern:
@@ -1878,7 +1878,7 @@ rules:
     messageOnFailure: "Incorrect value for key `successThreshold` - set explicitly to control when a probe is considered successful after having failed"
     category: Containers
     complexity: medium
-    impact: "`successThreshold` defines the minimum consecutive successes required for the probe to be successful after failing. It's recommended to set this value implicitly and not rely on the default value (1)"
+    impact: "`successThreshold` defines the minimum consecutive successes required for the probe to be successful after failing. It's recommended to set this value explicitly and not rely on the default value (1)"
     schema:
       definitions:
         probePattern:
@@ -1934,7 +1934,7 @@ rules:
     messageOnFailure: "Incorrect value for key `failureThreshold` - set explicitly to control the number of retries after a probe fails (min 1)"
     category: Containers
     complexity: medium
-    impact: "`failureThreshold` defines the number of times Kubernetes will try to initialize a failed probe before giving up. It's recommended to set this value implicitly and not rely on the default value (3)"
+    impact: "`failureThreshold` defines the number of times Kubernetes will try to initialize a failed probe before giving up. It's recommended to set this value explicitly and not rely on the default value (3)"
     schema:
       definitions:
         probePattern:
@@ -1990,7 +1990,7 @@ rules:
     messageOnFailure: "Missing property object `preStop` - set to ensure graceful shutdown of the container"
     category: Containers
     complexity: hard
-    impact: Once Kubernetes has decided to terminate one of your pods, it will proceed to send a SIGTERM signal to it. If your application doesnt gracefully shut down when receiving a SIGTERM, this can cause undesired behavior and loss of data
+    impact: Once Kubernetes has decided to terminate one of your pods, it will proceed to send a SIGTERM signal to it. If your application doesn't gracefully shut down when receiving a SIGTERM, this can cause undesired behavior and loss of data
     schema:
       definitions:
         prestopPattern:
