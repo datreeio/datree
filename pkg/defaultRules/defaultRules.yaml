@@ -217,7 +217,7 @@ rules:
     messageOnFailure: "Missing property object `limits.cpu` - value should be within the accepted boundaries recommended by the organization"
     category: Containers
     complexity: hard
-    impact: Without CPU limits, the pods running in your cluster will not have a restriction on the max amount of CPU consumption, which may result with OOM failures
+    impact: Without CPU limits, the pods running in your cluster will not have a restriction on the max amount of CPU consumption, which may cause starvation of other pods in the same node
     schema:
       definitions:
         cpuLimitPattern:
