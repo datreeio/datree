@@ -835,7 +835,7 @@ rules:
     uniqueName: "CONTAINERS_INCORRECT_PATH_VALUE_DOCKERSOCKET"
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/prevent-mounting-docker-socket"
-    messageOnFailure: "Incorrect value for key `path` - avoid mounting the docker.socket becasue it can allow container breakout"
+    messageOnFailure: "Incorrect value for key `path` - avoid mounting the docker.socket because it can allow container breakout"
     category: Containers
     complexity: medium
     impact: When a container has access to the Docker socket, it can effectively manage other containers on the host
@@ -1053,7 +1053,7 @@ rules:
     messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
     category: Argo
     complexity: hard
-    impact: When sericeAccount is set to default, the workflow is able to interact with the Kubernetes API server, which creates a great way for attackers with access to a single container to abuse K8s
+    impact: When serviceAccount is set to default, the workflow is able to interact with the Kubernetes API server, which creates a great way for attackers with access to a single container to abuse K8s
     schema:
       if:
         properties:
@@ -1251,7 +1251,7 @@ rules:
     messageOnFailure: Incorrect value for key `progressDeadlineAbort` - value should be `true` to prevent the rollout pod from retrying indefinitely
     category: Argo
     complexity: medium
-    impact: Prevent pods from indefinitly retrying to rollout, when the pod is stuck on error state
+    impact: Prevent pods from indefinitely retrying to rollout, when the pod is stuck on error state
     schema:
       if:
         properties:
