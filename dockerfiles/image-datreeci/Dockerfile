@@ -11,7 +11,7 @@ RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/s
     && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
 FROM alpine:3.14
-RUN apk add --no-cache bash
+RUN apk add --no-cache bash git
 
 COPY --from=builder /usr/local/bin/datree /usr/local/bin/datree
 COPY --from=builder /usr/local/bin/helm /usr/local/bin/helm
