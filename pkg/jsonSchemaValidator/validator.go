@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	extensions "github.com/datreeio/datree/pkg/jsonSchemaValidator/extensions"
 	"github.com/ghodss/yaml"
 	"github.com/santhosh-tekuri/jsonschema/v5"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -64,6 +65,8 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byt
 
 	compiler.RegisterExtension("resourceMinimum", resourceMinimum, resourceMinimumCompiler{})
 	compiler.RegisterExtension("resourceMaximum", resourceMaximum, resourceMaximumCompiler{})
+	compiler.RegisterExtension("ckCpuEq", extensions.CkCpuEq, extensions.CkCpuEqCompiler{})
+	compiler.RegisterExtension("ckMemoryEq", extensions.CkMemoryEq, extensions.CkMemoryEqCompiler{})
 
 	schema, err := compiler.Compile("schema.json")
 	if err != nil {
@@ -95,6 +98,8 @@ func (resourceMinimumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 }
 
 func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
+	// convert ctx to json and print it
+
 	if resourceMaximum, ok := m["resourceMaximum"]; ok {
 		resourceMaximumStr, validStr := resourceMaximum.(string)
 		if !validStr {
@@ -103,6 +108,20 @@ func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 		return resourceMaximumSchema(resourceMaximumStr), nil
 	}
 	return nil, nil
+}
+
+type Resources struct {
+	Requests Requests `json:"requests"`
+	Limits   Limits   `json:"limits"`
+}
+type Requests struct {
+	CPU    string `json:"cpu"`
+	Memory string `json:"memory"`
+}
+
+type Limits struct {
+	CPU    string `json:"cpu"`
+	Memory string `json:"memory"`
 }
 
 func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
