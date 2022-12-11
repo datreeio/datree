@@ -2404,3 +2404,57 @@ rules:
             - pattern: (?i)-----BEGIN[ A-Z0-9_-]{0,100}PRIVATE KEY-----[\s\S-]*KEY----
       if: *notKindSecret
       then: *recursiveDontAllowValue
+  - id: 80
+    name: Ensure container CPU request and CPU limit are equal
+    uniqueName: CONTAINERS_INVALID_CPU_REQUEST_LIMIT
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    messageOnFailure: "Invalid value for CPU request and/or CPU limit - ensure they are equal to prevent unpredictable behavior"
+    category: Containers
+    complexity: medium
+    impact: ...
+    schema:
+      definitions:
+        specContainers:
+          properties:
+            spec:
+              properties:
+                containers:
+                  items:
+                    properties:
+                      resources:
+                        ckCpuEq:
+                          type: string
+      allOf:
+        - $ref: "#/definitions/specContainers"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 80
+    name: Ensure container memory request and memory limit are equal
+    uniqueName: CONTAINERS_INVALID_MEMORY_REQUEST_LIMIT
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    messageOnFailure: "Invalid value for memory request and/or memory limit - ensure they are equal to prevent unpredictable behavior"
+    category: Containers
+    complexity: medium
+    impact: ...
+    schema:
+      definitions:
+        specContainers:
+          properties:
+            spec:
+              properties:
+                containers:
+                  items:
+                    properties:
+                      resources:
+                        ckMemoryEq:
+                          type: string
+      allOf:
+        - $ref: "#/definitions/specContainers"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
