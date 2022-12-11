@@ -98,8 +98,6 @@ func (resourceMinimumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 }
 
 func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
-	// convert ctx to json and print it
-
 	if resourceMaximum, ok := m["resourceMaximum"]; ok {
 		resourceMaximumStr, validStr := resourceMaximum.(string)
 		if !validStr {
@@ -108,20 +106,6 @@ func (resourceMaximumCompiler) Compile(ctx jsonschema.CompilerContext, m map[str
 		return resourceMaximumSchema(resourceMaximumStr), nil
 	}
 	return nil, nil
-}
-
-type Resources struct {
-	Requests Requests `json:"requests"`
-	Limits   Limits   `json:"limits"`
-}
-type Requests struct {
-	CPU    string `json:"cpu"`
-	Memory string `json:"memory"`
-}
-
-type Limits struct {
-	CPU    string `json:"cpu"`
-	Memory string `json:"memory"`
 }
 
 func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
