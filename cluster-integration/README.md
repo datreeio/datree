@@ -12,5 +12,5 @@ The webhook will catch **create**, **apply** and **edit** operations and initiat
 
 👉🏻 For the full documentation click [here](https://hub.datree.io).
 
-👉🏻 For the Datree webhook Helm chart click [here](https://github.com/datreeio/admission-webhook-datree/tree/gh-pages).
+👉🏻 For the Datree webhook Helm chart click [here](https://github.com/datreeio/admission-webhook-datree#values).
 
