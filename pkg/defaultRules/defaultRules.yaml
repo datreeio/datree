@@ -2408,7 +2408,7 @@ rules:
     name: Ensure container fully utilizes CPU with no limitations
     uniqueName: EKS_INVALID_CPU_LIMIT
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-no-cpu-limit"
     messageOnFailure: "Invalid key limits.cpu - refrain from setting a CPU limit to better utilize the CPU and prevent starvation"
     category: EKS
     complexity: easy
@@ -2440,7 +2440,7 @@ rules:
     name: Ensure container memory request and memory limit are equal
     uniqueName: EKS_INVALID_MEMORY_REQUEST_LIMIT
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-memory-request-limit-equal"
     messageOnFailure: "Invalid value for memory request and/or memory limit - ensure they are equal to prevent unpredictable behavior"
     category: EKS
     complexity: easy
@@ -2467,7 +2467,7 @@ rules:
     name: Ensure containers have limited capabilities
     uniqueName: EKS_INVALID_CAPABILITIES_EKS
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-containers-limited-capabilities"
     messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
     category: EKS
     complexity: medium
@@ -2513,7 +2513,7 @@ rules:
     name: Ensure multiple replicas run on different nodes
     uniqueName: EKS_MISSING_KEY_TOPOLOGYKEY
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-replicas-different-nodes"
     messageOnFailure: "Missing key `topologyKey` - add it to ensure replicas are spread across multiple nodes"
     category: EKS
     complexity: medium
@@ -2568,7 +2568,7 @@ rules:
     name: Prevent pods from becoming unschedulable
     uniqueName: EKS_INVALID_VALUE_DONOOTSCHEDULE
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-pods-becoming-unschedulable"
     messageOnFailure: "Incorrect value for key `whenUnsatisfiable` - use a different value to ensure your pod does not become unschedulable"
     category: EKS
     complexity: medium
@@ -2597,7 +2597,7 @@ rules:
     name: Prevent Windows containers from running with unnecessary privileges
     uniqueName: EKS_INVALID_HOSTPROCESS_VALUE
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-windows-containers-unnecessary-privileges"
     messageOnFailure: "Incorrect value for key `hostProcess` - don't set or set to false to prevent unnecessary privileges"
     category: EKS
     complexity: easy
