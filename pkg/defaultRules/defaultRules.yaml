@@ -2405,44 +2405,49 @@ rules:
       if: *notKindSecret
       then: *recursiveDontAllowValue
   - id: 80
-    name: Ensure container CPU request and CPU limit are equal
-    uniqueName: CONTAINERS_INVALID_CPU_REQUEST_LIMIT
+    name: Ensure container fully utilizes CPU with no limitations
+    uniqueName: EKS_INVALID_CPU_LIMIT
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/"
-    messageOnFailure: "Invalid value for CPU request and/or CPU limit - ensure they are equal to prevent unpredictable behavior"
-    category: Containers
-    complexity: medium
+    messageOnFailure: "Invalid key limits.cpu - refrain from setting a CPU limit to better utilize the CPU and prevent starvation"
+    category: EKS
+    complexity: easy
     impact: ...
     schema:
       definitions:
-        specContainers:
+        cpuLimitPattern:
           properties:
             spec:
               properties:
                 containers:
+                  type: array
                   items:
                     properties:
                       resources:
-                        ckCpuEq:
-                          type: string
+                        properties:
+                          limits:
+                            type: object
+                            not:
+                              required:
+                                - cpu
       allOf:
-        - $ref: "#/definitions/specContainers"
+        - $ref: "#/definitions/cpuLimitPattern"
       additionalProperties:
         $ref: "#"
       items:
         $ref: "#"
-  - id: 80
+  - id: 81
     name: Ensure container memory request and memory limit are equal
-    uniqueName: CONTAINERS_INVALID_MEMORY_REQUEST_LIMIT
+    uniqueName: EKS_INVALID_MEMORY_REQUEST_LIMIT
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/"
     messageOnFailure: "Invalid value for memory request and/or memory limit - ensure they are equal to prevent unpredictable behavior"
-    category: Containers
-    complexity: medium
+    category: EKS
+    complexity: easy
     impact: ...
     schema:
       definitions:
-        specContainers:
+        containerResourcesPattern:
           properties:
             spec:
               properties:
@@ -2453,7 +2458,161 @@ rules:
                         ckMemoryEq:
                           type: string
       allOf:
-        - $ref: "#/definitions/specContainers"
+        - $ref: "#/definitions/containerResourcesPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 82
+    name: Ensure containers have limited capabilities
+    uniqueName: EKS_INVALID_CAPABILITIES_EKS
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
+    category: EKS
+    complexity: medium
+    impact: Giving containers unnecessary capabilities may compromise them and allow attackers access to sensitive components
+    schema:
+      definitions:
+        specContainerPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      securityContext:
+                        properties:
+                          capabilities:
+                            properties:
+                              add:
+                                type: array
+                                items:
+                                  enum:
+                                    - "AUDIT_WRITE"
+                                    - "CHOWN"
+                                    - "DAC_OVERRIDE"
+                                    - "FOWNER"
+                                    - "FSETID"
+                                    - "KILL"
+                                    - "MKNOD"
+                                    - "NET_BIND_SERVICE"
+                                    - "SETFCAP"
+                                    - "SETGID"
+                                    - "SETPCAP"
+                                    - "SETUID"
+                                    - "SYS_CHROOT"
+      allOf:
+        - $ref: "#/definitions/specContainerPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 83
+    name: Ensure multiple replicas run on different nodes
+    uniqueName: EKS_MISSING_KEY_TOPOLOGYKEY
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    messageOnFailure: "Missing key `topologyKey` - add it to ensure replicas are spread across multiple nodes"
+    category: EKS
+    complexity: medium
+    impact: Running multiple replicas on the same node may cause a single node failure to take down the entire application
+    schema:
+      definitions:
+        antiAffinityPreferredPattern:
+          properties:
+            spec:
+              properties:
+                affinity:
+                  properties:
+                    podAntiAffinity:
+                      properties:
+                        preferredDuringSchedulingIgnoredDuringExecution:
+                          type: array
+                          items:
+                            properties:
+                              podAffinityTerm:
+                                properties:
+                                  topologyKey:
+                                    type: string
+                                required:
+                                  - topologyKey
+        antiAffinityRequiredPattern:
+          properties:
+            spec:
+              properties:
+                affinity:
+                  properties:
+                    podAntiAffinity:
+                      properties:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          type: array
+                          items:
+                            properties:
+                              podAffinityTerm:
+                                properties:
+                                  topologyKey:
+                                    type: string
+                                required:
+                                  - topologyKey
+
+      allOf:
+        - $ref: "#/definitions/antiAffinityPreferredPattern"
+        - $ref: "#/definitions/antiAffinityRequiredPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 84
+    name: Prevent pods from becoming unschedulable
+    uniqueName: EKS_INVALID_VALUE_DONOOTSCHEDULE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    messageOnFailure: "Incorrect value for key `whenUnsatisfiable` - use a different value to ensure your pod does not become unschedulable"
+    category: EKS
+    complexity: medium
+    impact: Setting `whenUnsatisfiable` to `DoNotSchedule` will cause pods to be “unschedulable” if the topology spread constraint can't be fulfilled
+    schema:
+      definitions:
+        specConstraintsPattern:
+          properties:
+            spec:
+              properties:
+                topologySpreadConstraints:
+                  type: array
+                  items:
+                    properties:
+                      whenUnsatisfiable:
+                        not:
+                          enum:
+                            - DoNotSchedule
+      allOf:
+        - $ref: "#/definitions/specConstraintsPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 85
+    name: Prevent Windows containers from running with unnecessary privileges
+    uniqueName: EKS_INVALID_HOSTPROCESS_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/"
+    messageOnFailure: "Incorrect value for key `hostProcess` - don't set or set to false to prevent unnecessary privileges"
+    category: EKS
+    complexity: easy
+    impact: Setting `hostProcess` to `true` will cause pods to be “unschedulable” if the topology spread constraint can't be fulfilled
+    schema:
+      definitions:
+        hostProcessPattern:
+          properties:
+            windowsOptions:
+              properties:
+                hostProcess:
+                  enum:
+                    - false
+      allOf:
+        - $ref: "#/definitions/hostProcessPattern"
       additionalProperties:
         $ref: "#"
       items:
