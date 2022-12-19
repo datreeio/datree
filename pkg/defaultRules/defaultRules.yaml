@@ -2517,7 +2517,7 @@ rules:
     messageOnFailure: "Missing key `topologyKey` - add it to ensure replicas are spread across multiple nodes"
     category: EKS
     complexity: medium
-    impact: Running multiple replicas on the same node may cause a single node failure to take down the entire application
+    impact: Running multiple replicas on the same node may cause downtime if the node becomes unavailable
     schema:
       definitions:
         antiAffinityPreferredPattern:
