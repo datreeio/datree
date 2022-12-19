@@ -2617,3 +2617,81 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
+  - id: 86
+    name: Prevent SELinux containers from running with unnecessary privileges
+    uniqueName: EKS_INVALID_SELINUXOPTIONS_TYPE_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-selinux-containers-unnecessary-privileges"
+    messageOnFailure: "Invalid value for key `type` - set to a predefined type to prevent unnecessary privileges"
+    category: EKS
+    complexity: medium
+    impact: Using a different type than the allowed ones may grant attackers access to sensitive components
+    schema:
+      definitions:
+        selinuxTypePattern:
+          properties:
+            securityContext:
+              properties:
+                seLinuxOptions:
+                  properties:
+                    type:
+                      enum:
+                        - container_t
+                        - container_init_t
+                        - container_kvm_t
+      allOf:
+        - $ref: "#/definitions/selinuxTypePattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 87
+    name: Prevent SELinux containers from setting a user
+    uniqueName: EKS_INVALID_SELINUXOPTIONS_USER_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-selinux-containers-user"
+    messageOnFailure: "Invalid key `user` - refrain from setting this key to prevent potential access to the host filesystem"
+    category: EKS
+    complexity: easy
+    impact: Setting an SELinux user may grant attackers access to sensitive components
+    schema:
+      definitions:
+        selinuxUserPattern:
+          properties:
+            securityContext:
+              properties:
+                seLinuxOptions:
+                  not:
+                    required:
+                      - user
+      allOf:
+        - $ref: "#/definitions/selinuxUserPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 88
+    name: Prevent SELinux containers from setting a role
+    uniqueName: EKS_INVALID_SELINUXOPTIONS_ROLE_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-selinux-containers-role"
+    messageOnFailure: "Invalid key `role` - refrain from setting this key to prevent potential access to the host filesystem"
+    category: EKS
+    complexity: easy
+    impact: Setting an SELinux role may grant attackers access to sensitive components
+    schema:
+      definitions:
+        selinuxUserPattern:
+          properties:
+            securityContext:
+              properties:
+                seLinuxOptions:
+                  not:
+                    required:
+                      - role
+      allOf:
+        - $ref: "#/definitions/selinuxUserPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
