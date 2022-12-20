@@ -64,7 +64,7 @@ In addition to our built-in rules, you can write [any custom rule you wish](http
 
 Datree offers a suite of features to make adoption seamless:
 * **Monitoring** - Datree is first installed in monitoring mode that reports on policy violations, rather than block their deployments.
-* [**CLI**](https://hub.datree.io/cli) - Help your developers find misconfigurations in their configs before deploying them, by integrating Datree into their CI.
+* [**CLI**](https://hub.datree.io/cli/getting-started) - Help your developers find misconfigurations in their configs before deploying them, by integrating Datree into their CI.
 * **Misconfiguration prioritization** - Datree makes it easy to improve the quality of your cluster by prioritizing the misconfigurations to be fixed.
 * **Cluster score** - Rank the stability of your cluster based on the number of detected misconfigurations.
 
