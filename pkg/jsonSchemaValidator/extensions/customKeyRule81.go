@@ -10,27 +10,25 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
 
-type CkMemoryEqCompiler struct{}
+type CustomKeyRule81Compiler struct{}
 
-type CkMemoryEqSchema map[string]interface{}
+type CustomKeyRule81Schema map[string]interface{}
 
-var CkMemoryEq = jsonschema.MustCompileString("ckMemoryEq.json", `{
+var CustomKeyRule81 = jsonschema.MustCompileString("customKeyRule81.json", `{
 	"properties" : {
-		"ckMemoryEq": {
+		"customKeyRule81": {
 			"type": "string"
 		}
 	}
 }`)
 
-func (CkMemoryEqCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
-	// convert ctx to json and print it
-
-	if ckMemoryEq, ok := m["ckMemoryEq"]; ok {
-		ckMemoryEqStr, validStr := ckMemoryEq.(map[string]interface{})
+func (CustomKeyRule81Compiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
+	if customKeyRule81, ok := m["customKeyRule81"]; ok {
+		customKeyRule81Str, validStr := customKeyRule81.(map[string]interface{})
 		if !validStr {
-			return nil, fmt.Errorf("ckMemoryEq must be a string")
+			return nil, fmt.Errorf("customKeyRule81 must be a string")
 		}
-		return CkMemoryEqSchema(ckMemoryEqStr), nil
+		return CustomKeyRule81Schema(customKeyRule81Str), nil
 	}
 	return nil, nil
 }
@@ -49,8 +47,8 @@ type Limits struct {
 	Memory string `json:"memory"`
 }
 
-func (s CkMemoryEqSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
-	keywordPath := "ckMemoryEq"
+func (s CustomKeyRule81Schema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
+	keywordPath := "customKeyRule81"
 
 	b, _ := json.Marshal(dataValue)
 	var resources Resources

@@ -2455,7 +2455,7 @@ rules:
                   items:
                     properties:
                       resources:
-                        ckMemoryEq:
+                        customKeyRule81:
                           type: string
       allOf:
         - $ref: "#/definitions/containerResourcesPattern"
