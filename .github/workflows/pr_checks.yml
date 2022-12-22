@@ -1,0 +1,37 @@
+name: PR checks
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+jobs:
+  check_file_existence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Check if important files exist
+        id: check_files
+        uses: andstor/file-existence-action@v2
+        with:
+          files: "pkg/defaultRules/defaultRules.yaml, pkg/defaultPolicies/defaultPolicies.yaml"
+          fail: true
+
+  check_pr_title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.8'
+
+      - name: Check if PR title matches the required format
+        run: python ./scripts/check_pr_title.py
