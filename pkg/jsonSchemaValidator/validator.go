@@ -66,6 +66,7 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byt
 	compiler.RegisterExtension("resourceMinimum", resourceMinimum, resourceMinimumCompiler{})
 	compiler.RegisterExtension("resourceMaximum", resourceMaximum, resourceMaximumCompiler{})
 	compiler.RegisterExtension("customKeyRule81", extensions.CustomKeyRule81, extensions.CustomKeyRule81Compiler{})
+	compiler.RegisterExtension("customKeyRule89", extensions.CustomKeyRule89, extensions.CustomKeyRule89Compiler{})
 
 	schema, err := compiler.Compile("schema.json")
 	if err != nil {

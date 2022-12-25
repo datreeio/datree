@@ -2695,3 +2695,26 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
+  - id: 89
+    name: Ensure hostPath volume mounts are read-only
+    uniqueName: EKS_INVALID_HOSTPATH_MOUNT_READONLY_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-hostpath-mounts-readonly"
+    messageOnFailure: "Invalid key `readOnly` - set to 'true' to prevent potential attacks on the host filesystem"
+    category: EKS
+    complexity: easy
+    impact: Not setting hostPath mounts as `readOnly` may allow attackers to modify the host filesystem
+    schema:
+      definitions:
+        specContainers:
+          properties:
+            spec:
+              customKeyRule89:
+                type: string                         
+      allOf:
+        - $ref: "#/definitions/specContainers"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+    
