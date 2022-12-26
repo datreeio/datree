@@ -2405,14 +2405,14 @@ rules:
       if: *notKindSecret
       then: *recursiveDontAllowValue
   - id: 80
-    name: Ensure container fully utilizes CPU with no limitations
+    name: Ensure each container fully utilizes CPU with no limitations
     uniqueName: EKS_INVALID_CPU_LIMIT
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-no-cpu-limit"
     messageOnFailure: "Invalid key limits.cpu - refrain from setting a CPU limit to better utilize the CPU and prevent starvation"
     category: EKS
     complexity: easy
-    impact: ...
+    impact: Setting a CPU limit may cause starvation and sub-optimal utilization of the CPU
     schema:
       definitions:
         cpuLimitPattern:
@@ -2444,7 +2444,7 @@ rules:
     messageOnFailure: "Invalid value for memory request and/or memory limit - ensure they are equal to prevent unpredictable behavior"
     category: EKS
     complexity: easy
-    impact: ...
+    impact: Setting memory request and limit to different values may cause unpredictable behavior
     schema:
       definitions:
         containerResourcesPattern:
