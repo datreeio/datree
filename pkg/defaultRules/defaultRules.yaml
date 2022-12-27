@@ -2409,7 +2409,7 @@ rules:
     uniqueName: EKS_INVALID_CPU_LIMIT
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-no-cpu-limit"
-    messageOnFailure: "Invalid key limits.cpu - refrain from setting a CPU limit to better utilize the CPU and prevent starvation"
+    messageOnFailure: "Invalid key `limits.cpu` - refrain from setting a CPU limit to better utilize the CPU and prevent starvation"
     category: EKS
     complexity: easy
     impact: Setting a CPU limit may cause starvation and sub-optimal utilization of the CPU

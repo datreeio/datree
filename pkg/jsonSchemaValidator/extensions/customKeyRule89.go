@@ -33,25 +33,21 @@ func (CustomKeyRule89Compiler) Compile(ctx jsonschema.CompilerContext, m map[str
 	return nil, nil
 }
 
-type Volume struct {
-	Name string `json:"name"`
-}
-
 func (s CustomKeyRule89Schema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
 	var hostPathVolumes []string
 
-	query, _ := gojq.Parse(".volumes[] | select(.hostPath != null) | .name")
-	queryIter := query.Run(dataValue)
+	hostPathVolumeNameQuery, _ := gojq.Parse(".volumes[] | select(.hostPath != null) | .name")
+	hostPathVolumeNameIter := hostPathVolumeNameQuery.Run(dataValue)
 	for {
-		volName, ok := queryIter.Next()
+		volumeName, ok := hostPathVolumeNameIter.Next()
 		if !ok {
 			break
 		}
-		if _, ok := volName.(error); ok {
+		if _, ok := volumeName.(error); ok {
 			break
 		}
 
-		hostPathVolumes = append(hostPathVolumes, volName.(string))
+		hostPathVolumes = append(hostPathVolumes, volumeName.(string))
 	}
 
 	if len(hostPathVolumes) == 0 {
@@ -59,20 +55,20 @@ func (s CustomKeyRule89Schema) Validate(ctx jsonschema.ValidationContext, dataVa
 		return nil
 	}
 
-	containersQuery, _ := gojq.Parse(".containers[] | .volumeMounts[] | select((.readOnly == null) or (.readOnly == false)) | .name")
-	containersIter := containersQuery.Run(dataValue)
+	volumeMountsNameQuery, _ := gojq.Parse(".containers[] | .volumeMounts[] | select((.readOnly == null) or (.readOnly == false)) | .name")
+	volumeMountsNameIter := volumeMountsNameQuery.Run(dataValue)
 	for {
-		volMountName, ok := containersIter.Next()
-		if !ok || volMountName == nil {
+		volumeMountName, ok := volumeMountsNameIter.Next()
+		if !ok || volumeMountName == nil {
 			break
 		}
-		if _, ok := volMountName.(error); ok {
+		if _, ok := volumeMountName.(error); ok {
 			break
 		}
 
-		for _, hostPathVol := range hostPathVolumes {
-			if volMountName.(string) == hostPathVol {
-				return ctx.Error("volumeMounts", "a container is using a hostPath volume without setting it to read-only %v", hostPathVol)
+		for _, hostPathVolume := range hostPathVolumes {
+			if volumeMountName.(string) == hostPathVolume {
+				return ctx.Error("volumeMounts", "a container is using a hostPath volume without setting it to read-only")
 			}
 		}
 	}
