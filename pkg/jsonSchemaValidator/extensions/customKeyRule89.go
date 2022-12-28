@@ -34,8 +34,23 @@ func (CustomKeyRule89Compiler) Compile(ctx jsonschema.CompilerContext, m map[str
 }
 
 func (s CustomKeyRule89Schema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
+	namesOfVolumesWithHostPath := getNamesOfVolumesWithHostPath(dataValue)
+	namesOfVolumeMountsWithoutReadonly := getNamesOfVolumeMountsWithoutReadonly(dataValue)
+
+	for _, nameOfVolumeMountWithoutReadonly := range namesOfVolumeMountsWithoutReadonly {
+		for _, nameOfVolumeWithHostPath := range namesOfVolumesWithHostPath {
+			if nameOfVolumeMountWithoutReadonly == nameOfVolumeWithHostPath {
+				return ctx.Error("volumeMounts", "a container is using a hostPath volume without setting it to read-only")
+			}
+		}
+	}
+	return nil
+}
+
+func getNamesOfVolumesWithHostPath(dataValue interface{}) []string {
 	var hostPathVolumes []string
 
+	// Get all volumes with hostPath
 	hostPathVolumeNameQuery, _ := gojq.Parse(".volumes[] | select(.hostPath != null) | .name")
 	hostPathVolumeNameIter := hostPathVolumeNameQuery.Run(dataValue)
 	for {
@@ -49,12 +64,13 @@ func (s CustomKeyRule89Schema) Validate(ctx jsonschema.ValidationContext, dataVa
 
 		hostPathVolumes = append(hostPathVolumes, volumeName.(string))
 	}
+	return hostPathVolumes
+}
 
-	if len(hostPathVolumes) == 0 {
-		// no hostPath volumes found, no need to check anything else
-		return nil
-	}
+func getNamesOfVolumeMountsWithoutReadonly(dataValue interface{}) []string {
+	var namesOfVolumeMountsWithoutReadonly []string
 
+	// Get all volumeMounts without readOnly
 	volumeMountsNameQuery, _ := gojq.Parse(".containers[] | .volumeMounts[] | select((.readOnly == null) or (.readOnly == false)) | .name")
 	volumeMountsNameIter := volumeMountsNameQuery.Run(dataValue)
 	for {
@@ -66,12 +82,8 @@ func (s CustomKeyRule89Schema) Validate(ctx jsonschema.ValidationContext, dataVa
 			break
 		}
 
-		for _, hostPathVolume := range hostPathVolumes {
-			if volumeMountName.(string) == hostPathVolume {
-				return ctx.Error("volumeMounts", "a container is using a hostPath volume without setting it to read-only")
-			}
-		}
+		namesOfVolumeMountsWithoutReadonly = append(namesOfVolumeMountsWithoutReadonly, volumeMountName.(string))
 	}
 
-	return nil
+	return namesOfVolumeMountsWithoutReadonly
 }
