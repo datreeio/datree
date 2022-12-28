@@ -2404,3 +2404,317 @@ rules:
             - pattern: (?i)-----BEGIN[ A-Z0-9_-]{0,100}PRIVATE KEY-----[\s\S-]*KEY----
       if: *notKindSecret
       then: *recursiveDontAllowValue
+  - id: 80
+    name: Ensure each container fully utilizes CPU with no limitations
+    uniqueName: EKS_INVALID_CPU_LIMIT
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-no-cpu-limit"
+    messageOnFailure: "Invalid key `limits.cpu` - refrain from setting a CPU limit to better utilize the CPU and prevent starvation"
+    category: EKS
+    complexity: easy
+    impact: Setting a CPU limit may cause starvation and sub-optimal utilization of the CPU
+    schema:
+      definitions:
+        cpuLimitPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      resources:
+                        properties:
+                          limits:
+                            type: object
+                            not:
+                              required:
+                                - cpu
+      allOf:
+        - $ref: "#/definitions/cpuLimitPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 81
+    name: Ensure container memory request and memory limit are equal
+    uniqueName: EKS_INVALID_MEMORY_REQUEST_LIMIT
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-memory-request-limit-equal"
+    messageOnFailure: "Invalid value for memory request and/or memory limit - ensure they are equal to prevent unpredictable behavior"
+    category: EKS
+    complexity: easy
+    impact: Setting memory request and limit to different values may cause unpredictable behavior
+    schema:
+      definitions:
+        containerResourcesPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  items:
+                    properties:
+                      resources:
+                        customKeyRule81:
+                          type: string
+      allOf:
+        - $ref: "#/definitions/containerResourcesPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 82
+    name: Ensure containers have limited capabilities
+    uniqueName: EKS_INVALID_CAPABILITIES_EKS
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-containers-limited-capabilities"
+    messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
+    category: EKS
+    complexity: medium
+    impact: Giving containers unnecessary capabilities may compromise them and allow attackers access to sensitive components
+    schema:
+      definitions:
+        specContainerPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      securityContext:
+                        properties:
+                          capabilities:
+                            properties:
+                              add:
+                                type: array
+                                items:
+                                  enum:
+                                    - "AUDIT_WRITE"
+                                    - "CHOWN"
+                                    - "DAC_OVERRIDE"
+                                    - "FOWNER"
+                                    - "FSETID"
+                                    - "KILL"
+                                    - "MKNOD"
+                                    - "NET_BIND_SERVICE"
+                                    - "SETFCAP"
+                                    - "SETGID"
+                                    - "SETPCAP"
+                                    - "SETUID"
+                                    - "SYS_CHROOT"
+      allOf:
+        - $ref: "#/definitions/specContainerPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 83
+    name: Ensure multiple replicas run on different nodes
+    uniqueName: EKS_MISSING_KEY_TOPOLOGYKEY
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-replicas-different-nodes"
+    messageOnFailure: "Missing key `topologyKey` - add it to ensure replicas are spread across multiple nodes"
+    category: EKS
+    complexity: medium
+    impact: Running multiple replicas on the same node may cause downtime if the node becomes unavailable
+    schema:
+      definitions:
+        antiAffinityPreferredPattern:
+          properties:
+            spec:
+              properties:
+                affinity:
+                  properties:
+                    podAntiAffinity:
+                      properties:
+                        preferredDuringSchedulingIgnoredDuringExecution:
+                          type: array
+                          items:
+                            properties:
+                              podAffinityTerm:
+                                properties:
+                                  topologyKey:
+                                    type: string
+                                required:
+                                  - topologyKey
+        antiAffinityRequiredPattern:
+          properties:
+            spec:
+              properties:
+                affinity:
+                  properties:
+                    podAntiAffinity:
+                      properties:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          type: array
+                          items:
+                            properties:
+                              podAffinityTerm:
+                                properties:
+                                  topologyKey:
+                                    type: string
+                                required:
+                                  - topologyKey
+
+      allOf:
+        - $ref: "#/definitions/antiAffinityPreferredPattern"
+        - $ref: "#/definitions/antiAffinityRequiredPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 84
+    name: Prevent pods from becoming unschedulable
+    uniqueName: EKS_INVALID_VALUE_DONOOTSCHEDULE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-pods-becoming-unschedulable"
+    messageOnFailure: "Incorrect value for key `whenUnsatisfiable` - use a different value to ensure your pod does not become unschedulable"
+    category: EKS
+    complexity: easy
+    impact: Setting `whenUnsatisfiable` to `DoNotSchedule` will cause pods to be “unschedulable” if the topology spread constraint can't be fulfilled
+    schema:
+      definitions:
+        specConstraintsPattern:
+          properties:
+            spec:
+              properties:
+                topologySpreadConstraints:
+                  type: array
+                  items:
+                    properties:
+                      whenUnsatisfiable:
+                        not:
+                          enum:
+                            - DoNotSchedule
+      allOf:
+        - $ref: "#/definitions/specConstraintsPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 85
+    name: Prevent Windows containers from running with unnecessary privileges
+    uniqueName: EKS_INVALID_HOSTPROCESS_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-windows-containers-unnecessary-privileges"
+    messageOnFailure: "Incorrect value for key `hostProcess` - don't set or set to false to prevent unnecessary privileges"
+    category: EKS
+    complexity: easy
+    impact: Setting `hostProcess` to `true` will cause pods to be “unschedulable” if the topology spread constraint can't be fulfilled
+    schema:
+      definitions:
+        hostProcessPattern:
+          properties:
+            windowsOptions:
+              properties:
+                hostProcess:
+                  enum:
+                    - false
+      allOf:
+        - $ref: "#/definitions/hostProcessPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 86
+    name: Prevent SELinux containers from running with unnecessary privileges
+    uniqueName: EKS_INVALID_SELINUXOPTIONS_TYPE_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-selinux-containers-unnecessary-privileges"
+    messageOnFailure: "Invalid value for key `type` - set to a predefined type to prevent unnecessary privileges"
+    category: EKS
+    complexity: medium
+    impact: Using a different type than the allowed ones may grant attackers access to sensitive components
+    schema:
+      definitions:
+        selinuxTypePattern:
+          properties:
+            securityContext:
+              properties:
+                seLinuxOptions:
+                  properties:
+                    type:
+                      enum:
+                        - container_t
+                        - container_init_t
+                        - container_kvm_t
+      allOf:
+        - $ref: "#/definitions/selinuxTypePattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 87
+    name: Prevent SELinux containers from setting a user
+    uniqueName: EKS_INVALID_SELINUXOPTIONS_USER_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-selinux-containers-user"
+    messageOnFailure: "Invalid key `user` - refrain from setting this key to prevent potential access to the host filesystem"
+    category: EKS
+    complexity: easy
+    impact: Setting an SELinux user may grant attackers access to sensitive components
+    schema:
+      definitions:
+        selinuxUserPattern:
+          properties:
+            securityContext:
+              properties:
+                seLinuxOptions:
+                  not:
+                    required:
+                      - user
+      allOf:
+        - $ref: "#/definitions/selinuxUserPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 88
+    name: Prevent SELinux containers from setting a role
+    uniqueName: EKS_INVALID_SELINUXOPTIONS_ROLE_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-selinux-containers-role"
+    messageOnFailure: "Invalid key `role` - refrain from setting this key to prevent potential access to the host filesystem"
+    category: EKS
+    complexity: easy
+    impact: Setting an SELinux role may grant attackers access to sensitive components
+    schema:
+      definitions:
+        selinuxUserPattern:
+          properties:
+            securityContext:
+              properties:
+                seLinuxOptions:
+                  not:
+                    required:
+                      - role
+      allOf:
+        - $ref: "#/definitions/selinuxUserPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 89
+    name: Ensure hostPath volume mounts are read-only
+    uniqueName: EKS_INVALID_HOSTPATH_MOUNT_READONLY_VALUE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-hostpath-mounts-readonly"
+    messageOnFailure: "Invalid key `readOnly` - set to 'true' to prevent potential attacks on the host filesystem"
+    category: EKS
+    complexity: easy
+    impact: Not setting hostPath mounts as `readOnly` may allow attackers to modify the host filesystem
+    schema:
+      definitions:
+        specContainers:
+          properties:
+            spec:
+              customKeyRule89:
+                type: string                         
+      allOf:
+        - $ref: "#/definitions/specContainers"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+    

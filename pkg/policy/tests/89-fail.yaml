@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: volumes-example-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      volumes:
+        - name: cache-volume
+          hostPath: 
+            path: /cache
+            type: Directory
+        - name: try
+          hostPath: 
+            path: /other
+            type: Directory
+        - name: without
+      containers:
+      - name: test-container
+        image: us-docker.pkg.dev/google-samples/containers/gke/hello-app:1.0
+        volumeMounts:
+        - mountPath: /cache
+          name: cache-volume
+        - mountPath: /cache
+          name: try
+          readOnly: true
