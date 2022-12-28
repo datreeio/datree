@@ -19,7 +19,7 @@ policies:
       - identifier: SERVICE_INCORRECT_TYPE_VALUE_NODEPORT
         messageOnFailure: Incorrect value for key `type` - `NodePort` will open a port on all nodes where it can be reached by the network external to the cluster
       - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
-        messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected'
+        messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
       - identifier: WORKLOAD_INVALID_LABELS_VALUE
         messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it
       - identifier: WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS
@@ -49,17 +49,17 @@ policies:
   - name: Argo
     rules:
       - identifier: ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE
-        messageOnFailure: 'Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches'
+        messageOnFailure: "Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches"
       - identifier: ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT
         messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
       - identifier: ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD
-        messageOnFailure: 'Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won''t recognize this resource'
+        messageOnFailure: "Incorrect value for annotation `app.kubernetes.io/part-of` - value should be `argocd`, or ArgoCD won't recognize this resource"
       - identifier: ARGO_ROLLOUT_MISSING_PAUSE_DURATION
         messageOnFailure: Missing the key `duration` - prevent the rollout from waiting indefinitely for the pause condition
       - identifier: ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE
         messageOnFailure: Incorrect value for property `namespace` - Application and AppProject have to be installed on the argocd namespace
       - identifier: ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY
-        messageOnFailure: 'Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues'
+        messageOnFailure: "Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues"
       - identifier: ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0
         messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
       - identifier: ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30
@@ -115,7 +115,7 @@ policies:
       - identifier: CONTAINERS_INCORRECT_KEY_HOSTPORT
         messageOnFailure: Incorrect key `hostPort` - refrain from using this key to prevent insecurely exposing your workload
       - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
-        messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected'
+        messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
       - identifier: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
         messageOnFailure: Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges
   - name: Strict
@@ -135,7 +135,7 @@ policies:
       - identifier: SERVICE_INCORRECT_TYPE_VALUE_NODEPORT
         messageOnFailure: Incorrect value for key `type` - `NodePort` will open a port on all nodes where it can be reached by the network external to the cluster
       - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
-        messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected'
+        messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
       - identifier: WORKLOAD_INVALID_LABELS_VALUE
         messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it
       - identifier: WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS
@@ -165,7 +165,7 @@ policies:
       - identifier: DEPLOYMENT_MISSING_LABEL_ENV_VALUE
         messageOnFailure: 'Missing label object `env` - add a proper environment description (e.g. "prod", "testing", etc.) to the Deployment config'
       - identifier: CONTAINERS_MISSING_IMAGE_VALUE_DIGEST
-        messageOnFailure: 'Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image'
+        messageOnFailure: "Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image"
       - identifier: CRONJOB_MISSING_CONCURRENCYPOLICY_KEY
         messageOnFailure: Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently
       - identifier: K8S_INCORRECT_KIND_VALUE_POD
@@ -189,7 +189,7 @@ policies:
       - identifier: ENDPOINTSLICE_CVE2021_25373_INCORRECT_ADDRESSES_VALUE
         messageOnFailure: Incorrect value for key `addresses` - IP address is within vulnerable ranges (127.0.0.0/8 and 169.254.0.0/16)
       - identifier: ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE
-        messageOnFailure: 'Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches'
+        messageOnFailure: "Incorrect value for key `failFast` - value should be `true` to prevent DAG from running on all branches, regardless of the failed outcomes of the DAG branches"
       - identifier: ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT
         messageOnFailure: Incorrect value for key `serviceAccountName` - when set to `default` container is exposed to possible attacks
       - identifier: ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD
@@ -199,7 +199,7 @@ policies:
       - identifier: ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE
         messageOnFailure: Incorrect value for property `namespace` - Application and AppProject have to be installed on the argocd namespace
       - identifier: ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY
-        messageOnFailure: 'Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues'
+        messageOnFailure: "Incorrect value for key `retryStrategy` - empty value (`{}`) can cause failed/errored steps to keep retrying, which can result in OOM issues"
       - identifier: ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0
         messageOnFailure: Incorrect value for key `revisionHistoryLimit` - value above 0 is required to enable rolling back from a failed deployment
       - identifier: ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30
@@ -323,33 +323,33 @@ policies:
       - identifier: CONTAINERS_MISSING_MEMORY_REQUEST_KEY
         messageOnFailure: Missing property object `requests.memory` - value should be within the accepted boundaries recommended by the organization
       - identifier: CONTAINERS_MISSING_LIVENESSPROBE_KEY
-        messageOnFailure: Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks  
+        messageOnFailure: Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks
       - identifier: CONTAINERS_MISSING_READINESSPROBE_KEY
         messageOnFailure: Missing property object `readinessProbe` - add a properly configured readinessProbe to notify kubelet your Pods are ready for traffic
       - identifier: CONTAINERS_MISSING_MEMORY_LIMIT_KEY
-        messageOnFailure: Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization  
+        messageOnFailure: Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization
       - identifier: CONTAINERS_MISSING_IMAGE_VALUE_VERSION
-        messageOnFailure: Incorrect value for key `image` - specify an image version to avoid unpleasant "version surprises" in the future    
+        messageOnFailure: Incorrect value for key `image` - specify an image version to avoid unpleasant "version surprises" in the future
       - identifier: CONTAINERS_INCORRECT_RUNASUSER_VALUE_LOWUID
-        messageOnFailure: Incorrect value for key `runAsUser` - value should be above 9999 to reduce the likelihood that the UID is already taken      
+        messageOnFailure: Incorrect value for key `runAsUser` - value should be above 9999 to reduce the likelihood that the UID is already taken
       - identifier: CONTAINERS_INCORRECT_READONLYROOTFILESYSTEM_VALUE
-        messageOnFailure: Incorrect value for key `readOnlyRootFilesystem` - set to 'true' to protect filesystem from potential attacks  
+        messageOnFailure: Incorrect value for key `readOnlyRootFilesystem` - set to 'true' to protect filesystem from potential attacks
       - identifier: CONTAINERS_INCORRECT_KEY_HOSTPATH
         messageOnFailure: Invalid key `hostPath` - refrain from using this mount to prevent an attack on the underlying host
       - identifier: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
-        messageOnFailure: Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges     
+        messageOnFailure: Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges
       - identifier: CONTAINERS_INCORRECT_KEY_HOSTPORT
-        messageOnFailure: Incorrect key `hostPort` - refrain from using this key to prevent insecurely exposing your workload  
+        messageOnFailure: Incorrect key `hostPort` - refrain from using this key to prevent insecurely exposing your workload
       - identifier: WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT
         messageOnFailure: Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)
       - identifier: INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE
-        messageOnFailure: Incorrect value for key `host` - specify host instead of using a wildcard character ("*")   
+        messageOnFailure: Incorrect value for key `host` - specify host instead of using a wildcard character ("*")
       - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
-        messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected'  
+        messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
       - identifier: WORKLOAD_INVALID_LABELS_VALUE
-        messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it  
+        messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax is not valid so the Kubernetes engine will not accept it
       - identifier: WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS
-        messageOnFailure: Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource   
+        messageOnFailure: Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource
       - identifier: ALL_EXPOSED_SECRET_BITBUCKET
         messageOnFailure: Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen
       - identifier: ALL_EXPOSED_SECRET_DATADOG
@@ -385,4 +385,26 @@ policies:
       - identifier: ALL_EXPOSED_SECRET_VAULT
         messageOnFailure: Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen
       - identifier: ALL_EXPOSED_SECRET_PRIVATEKEY
-        messageOnFailure: Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen  
+        messageOnFailure: Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen
+  - name: EKS
+    rules:
+      - identifier: EKS_INVALID_CPU_LIMIT
+        messageOnFailure: "Invalid key `limits.cpu` - refrain from setting a CPU limit to better utilize the CPU and prevent starvation"
+      - identifier: EKS_INVALID_MEMORY_REQUEST_LIMIT
+        messageOnFailure: "Invalid value for memory request and/or memory limit - ensure they are equal to prevent unpredictable behavior"
+      - identifier: EKS_INVALID_CAPABILITIES_EKS
+        messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
+      - identifier: EKS_MISSING_KEY_TOPOLOGYKEY
+        messageOnFailure: "Missing key `topologyKey` - add it to ensure replicas are spread across multiple nodes"
+      - identifier: EKS_INVALID_VALUE_DONOOTSCHEDULE
+        messageOnFailure: "Incorrect value for key `whenUnsatisfiable` - use a different value to ensure your pod does not become unschedulable"
+      - identifier: EKS_INVALID_HOSTPROCESS_VALUE
+        messageOnFailure: "Incorrect value for key `hostProcess` - don't set or set to false to prevent unnecessary privileges"
+      - identifier: EKS_INVALID_SELINUXOPTIONS_TYPE_VALUE
+        messageOnFailure: "Invalid value for key `type` - set to a predefined type to prevent unnecessary privileges"
+      - identifier: EKS_INVALID_SELINUXOPTIONS_USER_VALUE
+        messageOnFailure: "Invalid key `user` - refrain from setting this key to prevent potential access to the host filesystem"
+      - identifier: EKS_INVALID_SELINUXOPTIONS_ROLE_VALUE
+        messageOnFailure: "Invalid key `role` - refrain from setting this key to prevent potential access to the host filesystem"
+      - identifier: EKS_INVALID_HOSTPATH_MOUNT_READONLY_VALUE
+        messageOnFailure: "Invalid key `readOnly` - set to 'true' to prevent potential attacks on the host filesystem"
