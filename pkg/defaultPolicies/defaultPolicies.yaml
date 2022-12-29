@@ -408,3 +408,11 @@ policies:
         messageOnFailure: "Invalid key `role` - refrain from setting this key to prevent potential access to the host filesystem"
       - identifier: EKS_INVALID_HOSTPATH_MOUNT_READONLY_VALUE
         messageOnFailure: "Invalid key `readOnly` - set to 'true' to prevent potential attacks on the host filesystem"
+      - identifier: CONTAINERS_INCORRECT_READONLYROOTFILESYSTEM_VALUE
+        messageOnFailure: Incorrect value for key `readOnlyRootFilesystem` - set to 'true' to protect filesystem from potential attacks
+      - identifier: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
+        messageOnFailure: Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges
+      - identifier: SRVACC_INCORRECT_AUTOMOUNTSERVICEACCOUNTTOKEN_VALUE
+        messageOnFailure: "Invalid value for key `automountServiceAccountToken` - must be set to `false` to prevent granting unnecessary access to the service account"
+      - identifier: CONTAINERS_INCORRECT_SECCOMP_PROFILE
+        messageOnFailure: "Incorrect value for key seccompProfile - set an explicit value to prevent malicious use of system calls within the container"
