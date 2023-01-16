@@ -1602,6 +1602,8 @@ rules:
               kind:
                 enum:
                   - Pod
+            required:
+              - kind
           then:
             properties:
               spec:
