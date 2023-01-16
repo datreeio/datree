@@ -13,6 +13,8 @@ aliases:
           - ReplicaSet
           - CronJob
           - Job
+    required:
+      - kind
   - &notKindSecret
     properties:
       kind:
@@ -1553,6 +1555,8 @@ rules:
               kind:
                 enum:
                   - Pod
+            required:
+              - kind
           then:
             properties:
               spec:
@@ -1638,6 +1642,8 @@ rules:
               kind:
                 enum:
                   - Pod
+            required:
+              - kind
           then:
             properties:
               spec:
@@ -1652,6 +1658,8 @@ rules:
               kind:
                 enum:
                   - ServiceAccount
+            required:
+              - kind
           then:
             properties:
               automountServiceAccountToken:
