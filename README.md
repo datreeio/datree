@@ -23,7 +23,7 @@
 
 # Datree
 
-[Datree](https://www.datree.io/) (pronounced `/da-tree/`) is a cloud native solution to prevent Kuberentes misconfigurations by blocking resources that do not meet your policy.
+[Datree](https://www.datree.io/) (pronounced `/da-tree/`) secures your Kubernetes by blocking the deployment of misconfigured resources.
 
 ## ✌️ Quick-start in two steps
 
