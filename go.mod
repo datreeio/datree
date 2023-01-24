@@ -6,7 +6,7 @@ require (
 	github.com/bmatcuk/doublestar/v2 v2.0.4
 	github.com/briandowns/spinner v1.12.0
 	github.com/eiannone/keyboard v0.0.0-20200508000154-caf4b762e807
-	github.com/fatih/coflor v1.13.0
+	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/lithammer/shortuuid v3.0.0+incompatible
