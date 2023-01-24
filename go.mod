@@ -6,7 +6,7 @@ require (
 	github.com/bmatcuk/doublestar/v2 v2.0.4
 	github.com/briandowns/spinner v1.12.0
 	github.com/eiannone/keyboard v0.0.0-20200508000154-caf4b762e807
-	github.com/fatih/color v1.13.0
+	github.com/fatih/coflor v1.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/lithammer/shortuuid v3.0.0+incompatible
@@ -17,7 +17,12 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
 	github.com/xeipuuv/gojsonschema v1.2.0
+	
+	// 24.1.23: A new version of kubeconform will be released soon, using a different json-schema library.
+	// This affects our output when resources fail schema validation. Do not update kubeconform version
+	// without consulting the product team
 	github.com/yannh/kubeconform v0.4.14
+	
 	gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
