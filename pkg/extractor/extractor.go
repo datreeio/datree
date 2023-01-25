@@ -131,21 +131,21 @@ func extractConfigurationK8sData(content []byte, yamlNode yaml.Node) Configurati
 		return configuration
 	}
 
-	if metadata := jsonObject["metadata"]; metadata != nil {
-		if metadataName := metadata.(map[string]interface{})["name"]; metadataName != nil {
+	if metadata, ok := jsonObject["metadata"]; ok {
+		if metadataName, ok := metadata.(map[string]interface{})["name"]; ok {
 			configuration.MetadataName = metadataName.(string)
 		}
 
-		if annotations := metadata.(map[string]interface{})["annotations"]; annotations != nil {
+		if annotations, ok := metadata.(map[string]interface{})["annotations"]; ok {
 			configuration.Annotations = annotations.(map[string]interface{})
 		}
 	}
 
-	if apiVersion := jsonObject["apiVersion"]; apiVersion != nil {
+	if apiVersion, ok := jsonObject["apiVersion"]; ok {
 		configuration.ApiVersion = apiVersion.(string)
 	}
 
-	if kind := jsonObject["kind"]; kind != nil {
+	if kind, ok := jsonObject["kind"]; ok {
 		configuration.Kind = kind.(string)
 	}
 	configuration.YamlNode = yamlNode
