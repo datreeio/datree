@@ -77,7 +77,7 @@ Datree can be customized via code (policy as code) or via a management dashboard
 * View policy check history
 * Configure Kubernetes schema version
 
-<img src="/images/dashboard-policies.png" alt="Datree-saas" width="55%">
+<img src="/images/dashboard-policies.png" alt="Datree-saas" width="70%">
 
 ## Contributing
 
