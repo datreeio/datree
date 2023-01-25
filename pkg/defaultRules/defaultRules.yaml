@@ -945,8 +945,8 @@ rules:
           metadata:
             properties:
               annotations:
-                not:
-                  propertyNames:
+                propertyNames:
+                  not:
                     pattern: ^.*server-snippet$
   - id: 33
     name: "Prevent container security vulnerability (CVE-2021-25741)"
