@@ -4,6 +4,7 @@ metadata:
   name: simple-fanout-example
   annotations:
     nginx.ingress.kubernetes.io/server-snippet: dekljdkfj
+    aaa: bbb
 spec:
   rules:
   - host: foo.bar.com
