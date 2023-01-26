@@ -54,7 +54,7 @@ func ExtractConfigurationsFromYamlFile(path string) (*[]Configuration, string, *
 		return nil, "", &InvalidFile{Path: absolutePath, ValidationErrors: []error{&InvalidYamlError{ErrorMessage: err.Error()}}}
 	}
 
-	configurations, err := ParseYaml(content)
+	configurations, err := parseYaml(content)
 	if err != nil {
 		return nil, "", &InvalidFile{Path: absolutePath, ValidationErrors: []error{&InvalidYamlError{ErrorMessage: err.Error()}}}
 	}
@@ -76,7 +76,7 @@ type FileConfigurations struct {
 	Configurations []Configuration `json:"configurations"`
 }
 
-func ParseYaml(content string) (*[]Configuration, error) {
+func parseYaml(content string) (*[]Configuration, error) {
 	configurations, err := extractYamlConfigurations(content)
 	if err != nil {
 		return nil, err
@@ -131,22 +131,22 @@ func extractConfigurationK8sData(content []byte, yamlNode yaml.Node) Configurati
 		return configuration
 	}
 
-	if metadata := jsonObject["metadata"]; metadata != nil {
-		if metadataName := metadata.(map[string]interface{})["name"]; metadataName != nil {
-			configuration.MetadataName = metadataName.(string)
+	if metadata, ok := jsonObject["metadata"].(map[string]interface{}); ok {
+		if metadataName, ok := metadata["name"].(string); ok {
+			configuration.MetadataName = metadataName
 		}
 
-		if annotations := metadata.(map[string]interface{})["annotations"]; annotations != nil {
-			configuration.Annotations = annotations.(map[string]interface{})
+		if annotations, ok := metadata["annotations"].(map[string]interface{}); ok {
+			configuration.Annotations = annotations
 		}
 	}
 
-	if apiVersion := jsonObject["apiVersion"]; apiVersion != nil {
-		configuration.ApiVersion = apiVersion.(string)
+	if apiVersion, ok := jsonObject["apiVersion"].(string); ok {
+		configuration.ApiVersion = apiVersion
 	}
 
-	if kind := jsonObject["kind"]; kind != nil {
-		configuration.Kind = kind.(string)
+	if kind, ok := jsonObject["kind"].(string); ok {
+		configuration.Kind = kind
 	}
 	configuration.YamlNode = yamlNode
 	return configuration

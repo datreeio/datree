@@ -18,11 +18,11 @@ type toAbsolutePathsTestCase struct {
 }
 
 func test_existed_file() *toAbsolutePathsTestCase {
-	p, _ := filepath.Abs("../../internal/fixtures/kube/pass-all.yaml")
+	p, _ := filepath.Abs("./extractorTestFiles/validYaml.yaml")
 	return &toAbsolutePathsTestCase{
 		name: "existed file, should return abs path with no errors",
 		args: struct{ path string }{
-			path: "../../internal/fixtures/kube/pass-all.yaml",
+			path: "./extractorTestFiles/validYaml.yaml",
 		},
 		expected: struct {
 			path string
@@ -36,7 +36,7 @@ func test_not_existed_file() *toAbsolutePathsTestCase {
 	return &toAbsolutePathsTestCase{
 		name: "test not existed file, should return an error",
 		args: struct{ path string }{
-			path: "../../internal/fixtures/kube/bla.yaml",
+			path: "./extractorTestFiles/fileThatDoesNotExist.yaml",
 		},
 		expected: struct {
 			path string
@@ -49,7 +49,7 @@ func test_not_existed_file() *toAbsolutePathsTestCase {
 func test_directory_file() *toAbsolutePathsTestCase {
 	return &toAbsolutePathsTestCase{
 		args: struct{ path string }{
-			path: "../../internal/fixtures/kube",
+			path: "./extractorTestFiles",
 		},
 		expected: struct {
 			path string
@@ -83,7 +83,7 @@ func TestExtractConfigurationsFromYamlFile(t *testing.T) {
 	})
 
 	t.Run("invalid yaml file, should return an error", func(t *testing.T) {
-		path := "../../internal/fixtures/policyAsCode/invalid-yaml.yaml"
+		path := "./extractorTestFiles/invalidYaml.yaml"
 		configurations, absolutePath, err := ExtractConfigurationsFromYamlFile(path)
 
 		assert.Empty(t, configurations)
@@ -92,11 +92,42 @@ func TestExtractConfigurationsFromYamlFile(t *testing.T) {
 	})
 
 	t.Run("valid yaml file, should return a configuration and no error", func(t *testing.T) {
-		path := "../../internal/fixtures/jsonSchema/yamlSchema.yaml"
+		path := "./extractorTestFiles/validYaml.yaml"
 		configurations, absolutePath, err := ExtractConfigurationsFromYamlFile(path)
 
 		assert.NotEmpty(t, configurations)
 		assert.NotEmpty(t, absolutePath)
 		assert.Nil(t, err)
+	})
+	t.Run("should not panic even though annotations is an array instead of object", func(t *testing.T) {
+		path := "./extractorTestFiles/annotationsAreArray.yaml"
+		configurations, _, _ := ExtractConfigurationsFromYamlFile(path)
+
+		firstConfiguration := (*configurations)[0]
+		assert.Nil(t, firstConfiguration.Annotations)
+		assert.Equal(t, "rss-site", firstConfiguration.MetadataName)
+		assert.Equal(t, "Deployment", firstConfiguration.Kind)
+		assert.Equal(t, "apps/v1", firstConfiguration.ApiVersion)
+	})
+	t.Run("should not panic even though metadata does not exist", func(t *testing.T) {
+		path := "./extractorTestFiles/noMetadata.yaml"
+		configurations, _, _ := ExtractConfigurationsFromYamlFile(path)
+
+		firstConfiguration := (*configurations)[0]
+		assert.Nil(t, firstConfiguration.Annotations)
+		assert.Equal(t, "", firstConfiguration.MetadataName)
+		assert.Equal(t, "Deployment", firstConfiguration.Kind)
+		assert.Equal(t, "apps/v1", firstConfiguration.ApiVersion)
+	})
+	t.Run("should extract skip annotations", func(t *testing.T) {
+		path := "./extractorTestFiles/skipAnnotations.yaml"
+		configurations, _, _ := ExtractConfigurationsFromYamlFile(path)
+
+		firstConfiguration := (*configurations)[0]
+		assert.Equal(t, "skip 1 rule", firstConfiguration.Annotations["datree.skip/WORKLOAD_INVALID_LABELS_VALUE"])
+		assert.Equal(t, "skip 2 rule", firstConfiguration.Annotations["datree.skip/CONTAINERS_MISSING_LIVENESSPROBE_KEY"])
+		assert.Equal(t, "rss-site", firstConfiguration.MetadataName)
+		assert.Equal(t, "Deployment", firstConfiguration.Kind)
+		assert.Equal(t, "apps/v1", firstConfiguration.ApiVersion)
 	})
 }
