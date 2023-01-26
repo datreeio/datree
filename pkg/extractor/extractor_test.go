@@ -18,11 +18,11 @@ type toAbsolutePathsTestCase struct {
 }
 
 func test_existed_file() *toAbsolutePathsTestCase {
-	p, _ := filepath.Abs("../../internal/fixtures/kube/pass-all.yaml")
+	p, _ := filepath.Abs("./extractorTestFiles/validYaml.yaml")
 	return &toAbsolutePathsTestCase{
 		name: "existed file, should return abs path with no errors",
 		args: struct{ path string }{
-			path: "../../internal/fixtures/kube/pass-all.yaml",
+			path: "./extractorTestFiles/validYaml.yaml",
 		},
 		expected: struct {
 			path string
@@ -36,7 +36,7 @@ func test_not_existed_file() *toAbsolutePathsTestCase {
 	return &toAbsolutePathsTestCase{
 		name: "test not existed file, should return an error",
 		args: struct{ path string }{
-			path: "../../internal/fixtures/kube/bla.yaml",
+			path: "./extractorTestFiles/fileThatDoesNotExist.yaml",
 		},
 		expected: struct {
 			path string
@@ -49,7 +49,7 @@ func test_not_existed_file() *toAbsolutePathsTestCase {
 func test_directory_file() *toAbsolutePathsTestCase {
 	return &toAbsolutePathsTestCase{
 		args: struct{ path string }{
-			path: "../../internal/fixtures/kube",
+			path: "./extractorTestFiles",
 		},
 		expected: struct {
 			path string
@@ -83,7 +83,7 @@ func TestExtractConfigurationsFromYamlFile(t *testing.T) {
 	})
 
 	t.Run("invalid yaml file, should return an error", func(t *testing.T) {
-		path := "../../internal/fixtures/policyAsCode/invalid-yaml.yaml"
+		path := "./extractorTestFiles/invalidYaml.yaml"
 		configurations, absolutePath, err := ExtractConfigurationsFromYamlFile(path)
 
 		assert.Empty(t, configurations)
@@ -92,7 +92,7 @@ func TestExtractConfigurationsFromYamlFile(t *testing.T) {
 	})
 
 	t.Run("valid yaml file, should return a configuration and no error", func(t *testing.T) {
-		path := "../../internal/fixtures/jsonSchema/yamlSchema.yaml"
+		path := "./extractorTestFiles/validYaml.yaml"
 		configurations, absolutePath, err := ExtractConfigurationsFromYamlFile(path)
 
 		assert.NotEmpty(t, configurations)
