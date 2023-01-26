@@ -2721,4 +2721,266 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
-    
+  - id: 90
+    name: Prevent use of deprecated APIs in Kubernetes v1.16
+    uniqueName: DEPRECATION_VERSION_1.16
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-116"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    category: Deprecation
+    complexity: easy
+    impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - apiextensions.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - CustomResourceDefinition
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - admissionregistration.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - MutatingWebhookConfiguration
+                    - ValidatingWebhookConfiguration
+  - id: 91
+    name: Prevent use of deprecated APIs in Kubernetes v1.17
+    uniqueName: DEPRECATION_VERSION_1.17
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-117"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    category: Deprecation
+    complexity: easy
+    impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - rbac.authorization.k8s.io/v1alpha1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - ClusterRoleBinding
+                    - ClusterRole
+                    - ClusterRoleBindingList
+                    - ClusterRoleList
+                    - Role
+                    - RoleBinding
+                    - RoleList
+                    - RoleBindingList
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - rbac.authorization.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - ClusterRoleBinding
+                    - ClusterRole
+                    - ClusterRoleBindingList
+                    - ClusterRoleList
+                    - Role
+                    - RoleBinding
+                    - RoleList
+                    - RoleBindingList
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - storage.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - CSINode
+  - id: 92
+    name: Prevent use of deprecated APIs in Kubernetes v1.19
+    uniqueName: DEPRECATION_VERSION_1.19
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-119"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    category: Deprecation
+    complexity: easy
+    impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - networking.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - Ingress
+                    - IngressClass
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - storage.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - CSIDriver
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - certificates.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - CertificateSigningRequest
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - events.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - Event
+  - id: 93
+    name: Prevent use of deprecated APIs in Kubernetes v1.21
+    uniqueName: DEPRECATION_VERSION_1.21
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-121"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    category: Deprecation
+    complexity: easy
+    impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - policy/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - PodSecurityPolicy
+                    - PodDisruptionBudget
+                    - PodDisruptionBudgetList
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - batch/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - CronJob
+                    - CronJobList
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - discovery.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - EndpointSlice
+  - id: 94
+    name: Prevent use of deprecated APIs in Kubernetes v1.22
+    uniqueName: DEPRECATION_VERSION_1.22
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-122"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    category: Deprecation
+    complexity: easy
+    impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - autoscaling/v2beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - HorizontalPodAutoscaler
+                    - HorizontalPodAutoscalerList
+  - id: 95
+    name: Prevent use of deprecated APIs in Kubernetes v1.23
+    uniqueName: DEPRECATION_VERSION_1.23
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-123"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    category: Deprecation
+    complexity: easy
+    impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - autoscaling/v2beta2
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - HorizontalPodAutoscaler
+                    - HorizontalPodAutoscalerList
+  - id: 96
+    name: Prevent use of deprecated APIs in Kubernetes v1.24
+    uniqueName: DEPRECATION_VERSION_1.24
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-124"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    category: Deprecation
+    complexity: easy
+    impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - storage.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - CSIStorageCapacity
