@@ -100,7 +100,7 @@ func TestExtractConfigurationsFromYamlFile(t *testing.T) {
 		assert.Nil(t, err)
 	})
 	t.Run("should not panic even though annotations are an object instead of array", func(t *testing.T) {
-		path := "./extractorTestFiles/annotationsAreObject.yaml"
+		path := "./extractorTestFiles/annotationsAreArray.yaml"
 		configurations, _, _ := ExtractConfigurationsFromYamlFile(path)
 
 		assert.Nil(t, (*configurations)[0].Annotations)
