@@ -2726,7 +2726,7 @@ rules:
     uniqueName: DEPRECATION_VERSION_1.16
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-116"
-    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.16"
     category: Deprecation
     complexity: easy
     impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
@@ -2760,7 +2760,7 @@ rules:
     uniqueName: DEPRECATION_VERSION_1.17
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-117"
-    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.17"
     category: Deprecation
     complexity: easy
     impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
@@ -2818,7 +2818,7 @@ rules:
     uniqueName: DEPRECATION_VERSION_1.19
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-119"
-    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.19"
     category: Deprecation
     complexity: easy
     impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
@@ -2874,7 +2874,7 @@ rules:
     uniqueName: DEPRECATION_VERSION_1.21
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-121"
-    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.21"
     category: Deprecation
     complexity: easy
     impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
@@ -2921,7 +2921,7 @@ rules:
     uniqueName: DEPRECATION_VERSION_1.22
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-122"
-    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.22"
     category: Deprecation
     complexity: easy
     impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
@@ -2944,7 +2944,7 @@ rules:
     uniqueName: DEPRECATION_VERSION_1.23
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-123"
-    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.23"
     category: Deprecation
     complexity: easy
     impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
@@ -2967,7 +2967,7 @@ rules:
     uniqueName: DEPRECATION_VERSION_1.24
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-api-124"
-    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.24"
     category: Deprecation
     complexity: easy
     impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
