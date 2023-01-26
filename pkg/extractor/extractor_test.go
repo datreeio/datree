@@ -103,18 +103,31 @@ func TestExtractConfigurationsFromYamlFile(t *testing.T) {
 		path := "./extractorTestFiles/annotationsAreArray.yaml"
 		configurations, _, _ := ExtractConfigurationsFromYamlFile(path)
 
-		assert.Nil(t, (*configurations)[0].Annotations)
-		assert.Equal(t, "rss-site", (*configurations)[0].MetadataName)
-		assert.Equal(t, "Deployment", (*configurations)[0].Kind)
-		assert.Equal(t, "apps/v1", (*configurations)[0].ApiVersion)
+		firstConfiguration := (*configurations)[0]
+		assert.Nil(t, firstConfiguration.Annotations)
+		assert.Equal(t, "rss-site", firstConfiguration.MetadataName)
+		assert.Equal(t, "Deployment", firstConfiguration.Kind)
+		assert.Equal(t, "apps/v1", firstConfiguration.ApiVersion)
 	})
 	t.Run("should not panic even though metadata does not exist", func(t *testing.T) {
 		path := "./extractorTestFiles/noMetadata.yaml"
 		configurations, _, _ := ExtractConfigurationsFromYamlFile(path)
 
-		assert.Nil(t, (*configurations)[0].Annotations)
-		assert.Equal(t, "", (*configurations)[0].MetadataName)
-		assert.Equal(t, "Deployment", (*configurations)[0].Kind)
-		assert.Equal(t, "apps/v1", (*configurations)[0].ApiVersion)
+		firstConfiguration := (*configurations)[0]
+		assert.Nil(t, firstConfiguration.Annotations)
+		assert.Equal(t, "", firstConfiguration.MetadataName)
+		assert.Equal(t, "Deployment", firstConfiguration.Kind)
+		assert.Equal(t, "apps/v1", firstConfiguration.ApiVersion)
+	})
+	t.Run("should extract skip annotations", func(t *testing.T) {
+		path := "./extractorTestFiles/skipAnnotations.yaml"
+		configurations, _, _ := ExtractConfigurationsFromYamlFile(path)
+
+		firstConfiguration := (*configurations)[0]
+		assert.Equal(t, "skip 1 rule", firstConfiguration.Annotations["datree.skip/WORKLOAD_INVALID_LABELS_VALUE"])
+		assert.Equal(t, "skip 2 rule", firstConfiguration.Annotations["datree.skip/CONTAINERS_MISSING_LIVENESSPROBE_KEY"])
+		assert.Equal(t, "rss-site", firstConfiguration.MetadataName)
+		assert.Equal(t, "Deployment", firstConfiguration.Kind)
+		assert.Equal(t, "apps/v1", firstConfiguration.ApiVersion)
 	})
 }

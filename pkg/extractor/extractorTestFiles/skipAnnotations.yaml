@@ -1,0 +1,7 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-site
+  annotations:
+    datree.skip/WORKLOAD_INVALID_LABELS_VALUE: skip 1 rule
+    datree.skip/CONTAINERS_MISSING_LIVENESSPROBE_KEY: skip 2 rule
