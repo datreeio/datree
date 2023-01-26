@@ -99,4 +99,22 @@ func TestExtractConfigurationsFromYamlFile(t *testing.T) {
 		assert.NotEmpty(t, absolutePath)
 		assert.Nil(t, err)
 	})
+	t.Run("should not panic even though annotations are an object instead of array", func(t *testing.T) {
+		path := "./extractorTestFiles/annotationsAreObject.yaml"
+		configurations, _, _ := ExtractConfigurationsFromYamlFile(path)
+
+		assert.Nil(t, (*configurations)[0].Annotations)
+		assert.Equal(t, "rss-site", (*configurations)[0].MetadataName)
+		assert.Equal(t, "Deployment", (*configurations)[0].Kind)
+		assert.Equal(t, "apps/v1", (*configurations)[0].ApiVersion)
+	})
+	t.Run("should not panic even though metadata does not exist", func(t *testing.T) {
+		path := "./extractorTestFiles/noMetadata.yaml"
+		configurations, _, _ := ExtractConfigurationsFromYamlFile(path)
+
+		assert.Nil(t, (*configurations)[0].Annotations)
+		assert.Equal(t, "", (*configurations)[0].MetadataName)
+		assert.Equal(t, "Deployment", (*configurations)[0].Kind)
+		assert.Equal(t, "apps/v1", (*configurations)[0].ApiVersion)
+	})
 }
