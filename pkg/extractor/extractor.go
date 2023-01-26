@@ -54,7 +54,7 @@ func ExtractConfigurationsFromYamlFile(path string) (*[]Configuration, string, *
 		return nil, "", &InvalidFile{Path: absolutePath, ValidationErrors: []error{&InvalidYamlError{ErrorMessage: err.Error()}}}
 	}
 
-	configurations, err := parseYaml(content)
+	configurations, err := ParseYaml(content)
 	if err != nil {
 		return nil, "", &InvalidFile{Path: absolutePath, ValidationErrors: []error{&InvalidYamlError{ErrorMessage: err.Error()}}}
 	}
@@ -76,7 +76,7 @@ type FileConfigurations struct {
 	Configurations []Configuration `json:"configurations"`
 }
 
-func parseYaml(content string) (*[]Configuration, error) {
+func ParseYaml(content string) (*[]Configuration, error) {
 	configurations, err := extractYamlConfigurations(content)
 	if err != nil {
 		return nil, err
