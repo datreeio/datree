@@ -2869,6 +2869,30 @@ rules:
                 not:
                   enum:
                     - Event
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - coordination.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - Lease
+                    - LeaseList
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - apiregistration.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - APIService
+                    - APIServiceList
   - id: 93
     name: Prevent use of deprecated APIs in Kubernetes v1.21
     uniqueName: DEPRECATION_VERSION_1.21
@@ -2916,6 +2940,21 @@ rules:
                 not:
                   enum:
                     - EndpointSlice
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - audit.k8s.io/v1beta1
+                  - audit.k8s.io/v1alpha1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - Event
+                    - EventList
+                    - Policy
+                    - PolicyList
   - id: 94
     name: Prevent use of deprecated APIs in Kubernetes v1.22
     uniqueName: DEPRECATION_VERSION_1.22
