@@ -416,3 +416,19 @@ policies:
         messageOnFailure: "Invalid value for key `automountServiceAccountToken` - must be set to `false` to prevent granting unnecessary access to the service account"
       - identifier: CONTAINERS_INCORRECT_SECCOMP_PROFILE
         messageOnFailure: "Incorrect value for key seccompProfile - set an explicit value to prevent malicious use of system calls within the container"
+  - name: Deprecation
+    rules:
+      - identifier: K8S_DEPRECATED_APIVERSION_1.16
+        messageOnFailure: "Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.16)"
+      - identifier: K8S_DEPRECATED_APIVERSION_1.17
+        messageOnFailure: "Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.17)"
+      - identifier: K8S_DEPRECATED_APIVERSION_1.19
+        messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.19"
+      - identifier: K8S_DEPRECATED_APIVERSION_1.21
+        messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.21"
+      - identifier: K8S_DEPRECATED_APIVERSION_1.22
+        messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.22"
+      - identifier: K8S_DEPRECATED_APIVERSION_1.23
+        messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.23"
+      - identifier: K8S_DEPRECATED_APIVERSION_1.24
+        messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.24"
