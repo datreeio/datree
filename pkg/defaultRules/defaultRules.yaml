@@ -3256,3 +3256,27 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
+  - id: 101
+    name: Ensure containers and pods have a configured security context
+    uniqueName: CIS_MISSING_KEY_SECURITYCONTEXT
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-containers-pods-security-context"
+    messageOnFailure: "Missing key `securityContext` - set to ensure your containers' security and stability"
+    category: CIS
+    complexity: medium
+    impact: Omitting security contexts may cause undesired behavior when running your containers
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - ClusterRole
+              - Role
+        required:
+          - kind
+      then:
+        properties:
+          rules:
+            type: array
+            customKeyRule101:
+              type: string
