@@ -2987,3 +2987,272 @@ rules:
                 not:
                   enum:
                     - CSIStorageCapacity
+  - id: 95
+    name: Prevent use of the `cluster-admin` role
+    uniqueName: CIS_INVALID_ROLE_CLUSTER_ADMIN
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-cluster-admin-role"
+    messageOnFailure: "Incorrect value for key `name` - the RBAC role `cluster-admin` provides wide-ranging powers over the environment and should be used only where needed"
+    category: CIS
+    complexity: easy
+    impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - ClusterRoleBinding
+              - RoleBinding
+        required:
+          - kind
+      then:
+        properties:
+          roleRef:
+            properties:
+              name:
+                not:
+                  enum:
+                    - cluster-admin
+  - id: 96
+    name: Prevent access to secrets
+    uniqueName: CIS_INVALID_VERB_SECRETS
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-access-to-secrets"
+    messageOnFailure: "Incorrect value/s for key `verbs` - access to secrets should be restricted to the smallest possible group of users to reduce the risk of privilege escalation"
+    category: CIS
+    complexity: medium
+    impact: Inappropriate access to cluster secrets can allow an attacker to gain access to the cluster or external resources whose credentials are stored as secrets
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - ClusterRole
+              - Role
+          rules:
+            type: array
+            items:
+              properties:
+                resources:
+                  type: array
+                  contains:
+                    enum:
+                      - secrets
+        required:
+          - kind
+      then:
+        properties:
+          rules:
+            type: array
+            items:
+              properties:
+                verbs:
+                  type: array
+                  items:
+                    not:
+                      enum:
+                        - get
+                        - list
+                        - watch
+  - id: 97
+    name: Prevent use of wildcards in Roles and ClusterRoles
+    uniqueName: CIS_INVALID_WILDCARD_ROLE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-wildcards-role-clusterrole"
+    messageOnFailure: "Incorrect value for key `apiGroups`/`resources`/`verbs` - wildcards may provide excessive rights and should only be used when necessary"
+    category: CIS
+    complexity: medium
+    impact: The use of wildcards may allow for inadvertent access to be granted when new resources are added to the Kubernetes API
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - ClusterRole
+              - Role
+        required:
+          - kind
+      then:
+        properties:
+          rules:
+            type: array
+            items:
+              properties:
+                apiGroups:
+                  type: array
+                  items:
+                    not:
+                      enum:
+                        - "*"
+                resources:
+                  type: array
+                  items:
+                    not:
+                      enum:
+                        - "*"
+                verbs:
+                  type: array
+                  items:
+                    not:
+                      enum:
+                        - "*"
+  - id: 98
+    name: Prevent use of secrets as environment variables
+    uniqueName: CIS_INVALID_KEY_SECRETKEYREF_SECRETREF
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-secrets-as-env-variables"
+    messageOnFailure: "Incorrect key `secretKeyRef`/`secretRef` - mount secrets as files and not as env variables to avoid exposing sensitive data"
+    category: CIS
+    complexity: hard
+    impact: Using secrets as environment variables is not secure and may expose sensitive data to undesired entities
+    schema:
+      definitions:
+        containerValueFromPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      env:
+                        type: array
+                        items:
+                          properties:
+                            valueFrom:
+                              not:
+                                required:
+                                  - secretKeyRef
+        containerEnvFromPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      envFrom:
+                        type: array
+                        items:
+                          not:
+                            required:
+                              - secretRef
+      allOf:
+        - $ref: "#/definitions/containerValueFromPattern"
+        - $ref: "#/definitions/containerEnvFromPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 99
+    name: Ensure seccomp profile is set to docker/default or runtime/default
+    uniqueName: CIS_INVALID_VALUE_SECCOMP_PROFILE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-seccomp-profile-default"
+    messageOnFailure: "Invalid value for key `seccomp.security.alpha.kubernetes.io/pod` - set to docker/default or runtime/default to ensure restricted privileges"
+    category: CIS
+    complexity: medium
+    impact: Using the default seccomp profile may allow risky privileges for workloads
+    schema:
+      definitions:
+        podAnnotationsPattern:
+          if:
+            properties:
+              kind:
+                enum:
+                  - Pod
+            required:
+              - kind
+          then:
+            properties:
+              metadata:
+                properties:
+                  annotations:
+                    properties:
+                      seccomp.security.alpha.kubernetes.io/pod:
+                        enum:
+                          - docker/default
+                          - runtime/default
+                    required:
+                      - seccomp.security.alpha.kubernetes.io/pod
+                required:
+                  - annotations
+            required:
+              - metadata
+        templateAnnotationsPattern:
+          properties:
+            spec:
+              properties:
+                template:
+                  properties:
+                    metadata:
+                      properties:
+                        annotations:
+                          properties:
+                            seccomp.security.alpha.kubernetes.io/pod:
+                              enum:
+                                - docker/default
+                                - runtime/default
+                          required:
+                            - seccomp.security.alpha.kubernetes.io/pod
+                      required:
+                        - annotations
+                  required:
+                    - metadata
+      allOf:
+        - $ref: "#/definitions/podAnnotationsPattern"
+        - $ref: "#/definitions/templateAnnotationsPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
+  - id: 100
+    name: Ensure containers and pods have a configured security context
+    uniqueName: CIS_MISSING_KEY_SECURITYCONTEXT
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-containers-pods-security-context"
+    messageOnFailure: "Missing key `securityContext` - set to ensure your containers' security and stability"
+    category: CIS
+    complexity: medium
+    impact: Omitting security contexts may cause undesired behavior when running your containers
+    schema:
+      definitions:
+        podSecurityContextPattern:
+          if:
+            properties:
+              kind:
+                enum:
+                  - Pod
+            required:
+              - kind
+          then:
+            properties:
+              spec:
+                required:
+                  - securityContext
+        containerSecurityContextPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    required:
+                      - securityContext
+        templateSecurityContextPattern:
+          properties:
+            spec:
+              properties:
+                template:
+                  properties:
+                    spec:
+                      required:
+                        - securityContext
+      allOf:
+        - $ref: "#/definitions/podSecurityContextPattern"
+        - $ref: "#/definitions/containerSecurityContextPattern"
+        - $ref: "#/definitions/templateSecurityContextPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
