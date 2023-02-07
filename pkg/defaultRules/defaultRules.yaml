@@ -3257,14 +3257,14 @@ rules:
       items:
         $ref: "#"
   - id: 101
-    name: Ensure containers and pods have a configured security context
-    uniqueName: CIS_MISSING_KEY_SECURITYCONTEXT
+    name: Prevent access to create pods
+    uniqueName: CIS_INVALID_VALUE_CREATE_POD
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-containers-pods-security-context"
-    messageOnFailure: "Missing key `securityContext` - set to ensure your containers' security and stability"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-access-create-pods"
+    messageOnFailure: "Invalid value for key `resources`/`verbs` - prohibit creating pods to prevent undesired privilege escalation"
     category: CIS
     complexity: medium
-    impact: Omitting security contexts may cause undesired behavior when running your containers
+    impact: The ability to create pods in a cluster opens up possibilities for privilege escalation
     schema:
       if:
         properties:
@@ -3280,3 +3280,33 @@ rules:
             type: array
             customKeyRule101:
               type: string
+  - id: 101
+    name: Prevent access to create pods
+    uniqueName: CIS_INVALID_VALUE_CREATE_POD
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-access-create-pods"
+    messageOnFailure: "Invalid value for key `resources`/`verbs` - prohibit creating pods to prevent undesired privilege escalation"
+    category: CIS
+    complexity: medium
+    impact: The ability to create pods in a cluster opens up possibilities for privilege escalation
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - ServiceAccount
+          metadata:
+            properties:
+              name:
+                enum:
+                  - default
+        required:
+          - kind
+          - metadata
+      then:
+        properties:
+          automountServiceAccountToken:
+            enum:
+              - false
+        required:
+          - automountServiceAccountToken

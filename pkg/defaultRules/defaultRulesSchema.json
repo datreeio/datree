@@ -10,15 +10,15 @@
     },
     "rules": {
       "type": "array",
-      "minItems": 101,
-      "maxItems": 101,
+      "minItems": 102,
+      "maxItems": 102,
       "items": {
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
             "minimum": 1,
-            "maximum": 101
+            "maximum": 102
           },
           "name": {
             "type": "string",
