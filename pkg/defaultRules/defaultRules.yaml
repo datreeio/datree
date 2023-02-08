@@ -3218,44 +3218,48 @@ rules:
     schema:
       definitions:
         podSecurityContextPattern:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Pod
-            required:
-              - kind
-          then:
-            properties:
-              spec:
-                required:
-                  - securityContext
+          properties:
+            kind:
+              enum:
+                - Pod
+            spec:
+              required:
+                - securityContext
+          required:
+            - kind
+            - spec
         containerSecurityContextPattern:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    required:
-                      - securityContext
-        templateSecurityContextPattern:
-          properties:
-            spec:
-              properties:
-                template:
+          allOf:
+            - properties:
+                spec:
                   properties:
-                    spec:
-                      required:
-                        - securityContext
-      allOf:
-        - $ref: "#/definitions/podSecurityContextPattern"
+                    containers:
+                      type: array
+                      items:
+                        required:
+                          - securityContext
+          additionalProperties:
+            $ref: "#/definitions/containerSecurityContextPattern"
+          items:
+            $ref: "#/definitions/containerSecurityContextPattern"
+        templateSecurityContextPattern:
+          allOf:
+            - properties:
+                spec:
+                  properties:
+                    template:
+                      properties:
+                        spec:
+                          required:
+                            - securityContext
+          additionalProperties:
+            $ref: "#/definitions/templateSecurityContextPattern"
+          items:
+            $ref: "#/definitions/templateSecurityContextPattern"
+      anyOf:
         - $ref: "#/definitions/containerSecurityContextPattern"
         - $ref: "#/definitions/templateSecurityContextPattern"
-      additionalProperties:
-        $ref: "#"
-      items:
-        $ref: "#"
+        - $ref: "#/definitions/podSecurityContextPattern"
   - id: 101
     name: Prevent access to create pods
     uniqueName: CIS_INVALID_VALUE_CREATE_POD
@@ -3280,15 +3284,15 @@ rules:
             type: array
             customKeyRule101:
               type: string
-  - id: 101
-    name: Prevent access to create pods
-    uniqueName: CIS_INVALID_VALUE_CREATE_POD
+  - id: 102
+    name: Ensure that default service accounts are not actively used
+    uniqueName: CIS_INVALID_VALUE_AUTOMOUNTSERVICEACCOUNTTOKEN
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-access-create-pods"
-    messageOnFailure: "Invalid value for key `resources`/`verbs` - prohibit creating pods to prevent undesired privilege escalation"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-default-service-account-not-used"
+    messageOnFailure: "Invalid value for key `automountServiceAccountToken` - set to `false` to ensure rights can be more easily audited"
     category: CIS
-    complexity: medium
-    impact: The ability to create pods in a cluster opens up possibilities for privilege escalation
+    complexity: easy
+    impact: Using default service accounts may provide undesired rights to applications
     schema:
       if:
         properties:
