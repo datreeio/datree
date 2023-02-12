@@ -3211,7 +3211,7 @@ rules:
     uniqueName: CIS_MISSING_KEY_SECURITYCONTEXT
     enabledByDefault: false
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-containers-pods-security-context"
-    messageOnFailure: "Missing key `securityContext` - set to ensure your containers' security and stability"
+    messageOnFailure: "Missing key `securityContext` - set to enforce your containers' security and stability"
     category: CIS
     complexity: medium
     impact: Omitting security contexts may cause undesired behavior when running your containers
@@ -3314,3 +3314,38 @@ rules:
               - false
         required:
           - automountServiceAccountToken
+  - id: 103
+    name: Prevent the admission of containers with the NET_RAW capability
+    uniqueName: CIS_MISSING_VALUE_DROP_NET_RAW
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-containers-net-raw-capability"
+    messageOnFailure: "Invalid value for key `drop` - prohibit the potentially dangerous NET_RAW capability"
+    category: CIS
+    complexity: easy
+    impact: The NET_RAW capability may be misused by malicious containers
+    schema:
+      definitions:
+        specContainerPattern:
+          properties:
+            spec:
+              properties:
+                containers:
+                  type: array
+                  items:
+                    properties:
+                      securityContext:
+                        properties:
+                          capabilities:
+                            properties:
+                              drop:
+                                type: array
+                                items:
+                                  enum:
+                                    - "NET_RAW"
+                                    - "ALL"
+      allOf:
+        - $ref: "#/definitions/specContainerPattern"
+      additionalProperties:
+        $ref: "#"
+      items:
+        $ref: "#"
