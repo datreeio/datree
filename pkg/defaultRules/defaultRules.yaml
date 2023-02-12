@@ -3343,6 +3343,12 @@ rules:
                                   enum:
                                     - "NET_RAW"
                                     - "ALL"
+                            required:
+                              - drop
+                        required:
+                          - capabilities
+                    required:
+                      - securityContext
       allOf:
         - $ref: "#/definitions/specContainerPattern"
       additionalProperties:
