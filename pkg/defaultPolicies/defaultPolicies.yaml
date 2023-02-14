@@ -471,4 +471,14 @@ policies:
       - identifier: EKS_INVALID_CAPABILITIES_EKS
         messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
       - identifier: WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT
-        messageOnFailure: "Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)"
+        messageOnFailure: "Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)"     
+      - identifier: EKS_INVALID_HOSTPROCESS_VALUE
+        messageOnFailure: "Incorrect value for key `hostProcess` - don't set or set to false to prevent unnecessary privileges"
+      - identifier: CONTAINERS_INCORRECT_KEY_HOSTPATH
+        messageOnFailure: "Invalid key `hostPath` - refrain from using this mount to prevent an attack on the underlying host"
+      - identifier: CONTAINERS_INCORRECT_KEY_HOSTPORT
+        messageOnFailure: "Incorrect key `hostPort` - refrain from using this key to prevent insecurely exposing your workload"
+      - identifier: CIS_INVALID_VALUE_SYSTEM_MASTERS
+        messageOnFailure: "Invalid value for key `subjects.name` - do not use the system:masters group to prevent unnecessary unrestriced access to the Kubernetes API"
+      - identifier: CIS_INVALID_VALUE_BIND_IMPERSONATE_ESCALATE
+        messageOnFailure: "Invalid value for key `verbs` - do not use `bind`/`impersonate`/`escalate` to prevent privilege escalation"

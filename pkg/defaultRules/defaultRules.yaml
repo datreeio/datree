@@ -1573,7 +1573,26 @@ rules:
                           not:
                             required:
                               - hostPort
-
+                initContainers:
+                  type: array
+                  items:
+                    properties:
+                      ports:
+                        type: array
+                        items:
+                          not:
+                            required:
+                              - hostPort
+                ephemeralContainers:
+                  type: array
+                  items:
+                    properties:
+                      ports:
+                        type: array
+                        items:
+                          not:
+                            required:
+                              - hostPort
       allOf:
         - $ref: "#/definitions/specContainerPattern"
       additionalProperties:
@@ -3355,3 +3374,63 @@ rules:
         $ref: "#"
       items:
         $ref: "#"
+  - id: 104
+    name: Prevent use of the system:masters group
+    uniqueName: CIS_INVALID_VALUE_SYSTEM_MASTERS
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-system-masters-group"
+    messageOnFailure: "Invalid value for key `subjects.name` - do not use the system:masters group to prevent unnecessary unrestriced access to the Kubernetes API"
+    category: CIS
+    complexity: medium
+    impact: Use of the system:masters group can allow for irrevocable cluster-admin level credentials to exist for a cluster
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - ClusterRoleBinding
+              - RoleBinding
+        required:
+          - kind
+      then:
+        properties:
+          subjects:
+            type: array
+            items:
+              properties:
+                name:
+                  not:
+                    enum:
+                      - system:masters
+  - id: 105
+    name: Prevent role privilege escalation
+    uniqueName: CIS_INVALID_VALUE_BIND_IMPERSONATE_ESCALATE
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-role-privilege-escalation"
+    messageOnFailure: "Invalid value for key `verbs` - do not use `bind`/`impersonate`/`escalate` to prevent privilege escalation"
+    category: CIS
+    complexity: medium
+    impact: Use of the `bind`/`impersonate`/`escalate` permissions can allow for privilege escalation to cluster-admin level
+    schema:
+      if:
+        properties:
+          kind:
+            enum:
+              - ClusterRole
+              - Role
+        required:
+          - kind
+      then:
+        properties:
+          rules:
+            type: array
+            items:
+              properties:
+                verbs:
+                  type: array
+                  items:
+                    not:
+                      enum:
+                        - bind
+                        - impersonate
+                        - escalate
