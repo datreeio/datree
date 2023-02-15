@@ -3270,6 +3270,12 @@ rules:
                         spec:
                           required:
                             - securityContext
+                      required:
+                        - spec
+                  required:
+                    - template
+              required:
+                - spec
           additionalProperties:
             $ref: "#/definitions/templateSecurityContextPattern"
           items:
