@@ -6,4 +6,4 @@ spec:
     image: gcr.io/google-samples/node-hello:1.0
     securityContext:
       capabilities:
-        drop: ["NET_RAW"]
+        drop: ["NET_RAW", "Blah"]

@@ -3014,7 +3014,7 @@ rules:
     messageOnFailure: "Incorrect value for key `name` - the RBAC role `cluster-admin` provides wide-ranging powers over the environment and should be used only where needed"
     category: CIS
     complexity: easy
-    impact: Deploying a resource with a deprecated API version will cause Kubernetes to reject it
+    impact: The cluster-admin allows super-user access to perform any action on any resource and may be used maliciously
     schema:
       if:
         properties:
@@ -3048,15 +3048,6 @@ rules:
             enum:
               - ClusterRole
               - Role
-          rules:
-            type: array
-            items:
-              properties:
-                resources:
-                  type: array
-                  contains:
-                    enum:
-                      - secrets
         required:
           - kind
       then:
@@ -3064,15 +3055,23 @@ rules:
           rules:
             type: array
             items:
-              properties:
-                verbs:
-                  type: array
-                  items:
-                    not:
+              if:
+                properties:
+                  resources:
+                    type: array
+                    contains:
                       enum:
-                        - get
-                        - list
-                        - watch
+                        - secrets
+              then:
+                properties:
+                  verbs:
+                    type: array
+                    items:
+                      not:
+                        enum:
+                          - get
+                          - list
+                          - watch
   - id: 97
     name: Prevent use of wildcards in Roles and ClusterRoles
     uniqueName: CIS_INVALID_WILDCARD_ROLE
@@ -3359,9 +3358,10 @@ rules:
                               drop:
                                 type: array
                                 items:
-                                  enum:
-                                    - "NET_RAW"
-                                    - "ALL"
+                                  contains:
+                                    enum:
+                                      - "NET_RAW"
+                                      - "ALL"
                             required:
                               - drop
                         required:
