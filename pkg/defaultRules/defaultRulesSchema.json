@@ -10,15 +10,15 @@
     },
     "rules": {
       "type": "array",
-      "minItems": 94,
-      "maxItems": 94,
+      "minItems": 105,
+      "maxItems": 105,
       "items": {
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
             "minimum": 1,
-            "maximum": 94
+            "maximum": 105
           },
           "name": {
             "type": "string",
@@ -55,7 +55,8 @@
               "Argo",
               "Secrets",
               "NSA",
-              "EKS"
+              "EKS",
+              "CIS"
             ]
           },
           "complexity": {
