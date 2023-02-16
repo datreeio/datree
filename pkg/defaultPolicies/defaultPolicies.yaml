@@ -432,3 +432,53 @@ policies:
         messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.23"
       - identifier: K8S_DEPRECATED_APIVERSION_1.24
         messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is deprecated in k8s v1.24"
+  - name: CIS
+    rules:
+      - identifier: CIS_INVALID_ROLE_CLUSTER_ADMIN
+        messageOnFailure: "Incorrect value for key `name` - the RBAC role `cluster-admin` provides wide-ranging powers over the environment and should be used only where needed"
+      - identifier: CIS_INVALID_VERB_SECRETS
+        messageOnFailure: "Incorrect value/s for key `verbs` - access to secrets should be restricted to the smallest possible group of users to reduce the risk of privilege escalation"
+      - identifier: CIS_INVALID_WILDCARD_ROLE
+        messageOnFailure: "Incorrect value for key `apiGroups`/`resources`/`verbs` - wildcards may provide excessive rights and should only be used when necessary"
+      - identifier: CIS_INVALID_KEY_SECRETKEYREF_SECRETREF
+        messageOnFailure: "Incorrect key `secretKeyRef`/`secretRef` - mount secrets as files and not as env variables to avoid exposing sensitive data"
+      - identifier: CIS_INVALID_VALUE_SECCOMP_PROFILE
+        messageOnFailure: "Invalid value for key `seccomp.security.alpha.kubernetes.io/pod` - set to docker/default or runtime/default to ensure restricted privileges"
+      - identifier: CIS_MISSING_KEY_SECURITYCONTEXT
+        messageOnFailure: "Missing key `securityContext` - set to enforce your containers' security and stability"
+      - identifier: CIS_INVALID_VALUE_CREATE_POD
+        messageOnFailure: "Invalid value for key `resources`/`verbs` - prohibit creating pods to prevent undesired privilege escalation"
+      - identifier: CIS_INVALID_VALUE_AUTOMOUNTSERVICEACCOUNTTOKEN
+        messageOnFailure: "Invalid value for key `automountServiceAccountToken` - set to `false` to ensure rights can be more easily audited"
+      - identifier: SRVACC_INCORRECT_AUTOMOUNTSERVICEACCOUNTTOKEN_VALUE
+        messageOnFailure: "Invalid value for key `automountServiceAccountToken` - must be set to `false` to prevent granting unnecessary access to the service account"
+      - identifier: CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE
+        messageOnFailure: "Incorrect value for key `privileged` - this mode will allow the container the same access as processes running on the host"
+      - identifier: CONTAINERS_INCORRECT_HOSTPID_VALUE_TRUE
+        messageOnFailure: "Incorrect value for key `hostPID` - running on the host's PID namespace enables access to sensitive information from processes running outside the container"
+      - identifier: CONTAINERS_INCORRECT_HOSTIPC_VALUE_TRUE
+        messageOnFailure: "Incorrect value for key `hostIPC` - running on the host`s IPC namespace can be (maliciously) used to interact with other processes running outside the container"
+      - identifier: CONTAINERS_INCORRECT_HOSTNETWORK_VALUE_TRUE
+        messageOnFailure: "Incorrect value for key `hostNetwork` - running on the host's network namespace can allow a compromised container to sniff network traffic"
+      - identifier: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
+        messageOnFailure: "Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges"        
+      - identifier: CONTAINERS_INCORRECT_RUNASNONROOT_VALUE
+        messageOnFailure: "Invalid value for key `runAsNonRoot` - must be set to `true` to prevent unnecessary privileges"
+      - identifier: CIS_MISSING_VALUE_DROP_NET_RAW
+        messageOnFailure: "Invalid value for key `drop` - prohibit the potentially dangerous NET_RAW capability"
+      - identifier: CONTAINERS_INVALID_CAPABILITIES_VALUE
+        messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
+      - identifier: EKS_INVALID_CAPABILITIES_EKS
+        messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
+      - identifier: WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT
+        messageOnFailure: "Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)"     
+      - identifier: EKS_INVALID_HOSTPROCESS_VALUE
+        messageOnFailure: "Incorrect value for key `hostProcess` - don't set or set to false to prevent unnecessary privileges"
+      - identifier: CONTAINERS_INCORRECT_KEY_HOSTPATH
+        messageOnFailure: "Invalid key `hostPath` - refrain from using this mount to prevent an attack on the underlying host"
+      - identifier: CONTAINERS_INCORRECT_KEY_HOSTPORT
+        messageOnFailure: "Incorrect key `hostPort` - refrain from using this key to prevent insecurely exposing your workload"
+      - identifier: CIS_INVALID_VALUE_SYSTEM_MASTERS
+        messageOnFailure: "Invalid value for key `subjects.name` - do not use the system:masters group to prevent unnecessary unrestriced access to the Kubernetes API"
+      - identifier: CIS_INVALID_VALUE_BIND_IMPERSONATE_ESCALATE
+        messageOnFailure: "Invalid value for key `verbs` - do not use `bind`/`impersonate`/`escalate` to prevent privilege escalation"
