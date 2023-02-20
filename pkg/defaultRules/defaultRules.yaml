@@ -41,7 +41,7 @@ aliases:
               if:
                 type: string
               then:
-                not: 
+                not:
                   "$ref": "#/definitions/regexes"
         else:
           if:
@@ -1801,11 +1801,11 @@ rules:
                     items:
                       anyOf:
                         - required:
-                          - livenessProbe
+                            - livenessProbe
                         - required:
-                          - readinessProbe
+                            - readinessProbe
                         - required:
-                          - startupProbe
+                            - startupProbe
           then:
             properties:
               spec:
@@ -1818,19 +1818,19 @@ rules:
                             initialDelaySeconds:
                               minimum: 0
                           required:
-                          - initialDelaySeconds
+                            - initialDelaySeconds
                         readinessProbe:
                           properties:
                             initialDelaySeconds:
                               minimum: 0
                           required:
-                          - initialDelaySeconds
+                            - initialDelaySeconds
                         startupProbe:
                           properties:
                             initialDelaySeconds:
                               minimum: 0
                           required:
-                          - initialDelaySeconds
+                            - initialDelaySeconds
       allOf:
         - $ref: "#/definitions/probePattern"
       additionalProperties:
@@ -1857,11 +1857,11 @@ rules:
                     items:
                       anyOf:
                         - required:
-                          - livenessProbe
+                            - livenessProbe
                         - required:
-                          - readinessProbe
+                            - readinessProbe
                         - required:
-                          - startupProbe
+                            - startupProbe
           then:
             properties:
               spec:
@@ -1874,19 +1874,19 @@ rules:
                             periodSeconds:
                               minimum: 1
                           required:
-                          - periodSeconds
+                            - periodSeconds
                         readinessProbe:
                           properties:
                             periodSeconds:
                               minimum: 1
                           required:
-                          - periodSeconds
+                            - periodSeconds
                         startupProbe:
                           properties:
                             periodSeconds:
                               minimum: 1
                           required:
-                          - periodSeconds
+                            - periodSeconds
       allOf:
         - $ref: "#/definitions/probePattern"
       additionalProperties:
@@ -1913,11 +1913,11 @@ rules:
                     items:
                       anyOf:
                         - required:
-                          - livenessProbe
+                            - livenessProbe
                         - required:
-                          - readinessProbe
+                            - readinessProbe
                         - required:
-                          - startupProbe
+                            - startupProbe
           then:
             properties:
               spec:
@@ -1930,19 +1930,19 @@ rules:
                             timeoutSeconds:
                               minimum: 1
                           required:
-                          - timeoutSeconds
+                            - timeoutSeconds
                         readinessProbe:
                           properties:
                             timeoutSeconds:
                               minimum: 1
                           required:
-                          - timeoutSeconds
+                            - timeoutSeconds
                         startupProbe:
                           properties:
                             timeoutSeconds:
                               minimum: 1
                           required:
-                          - timeoutSeconds
+                            - timeoutSeconds
       allOf:
         - $ref: "#/definitions/probePattern"
       additionalProperties:
@@ -1969,11 +1969,11 @@ rules:
                     items:
                       anyOf:
                         - required:
-                          - livenessProbe
+                            - livenessProbe
                         - required:
-                          - readinessProbe
+                            - readinessProbe
                         - required:
-                          - startupProbe
+                            - startupProbe
           then:
             properties:
               spec:
@@ -1986,19 +1986,19 @@ rules:
                             successThreshold:
                               const: 1
                           required:
-                          - successThreshold
+                            - successThreshold
                         readinessProbe:
                           properties:
                             successThreshold:
                               minimum: 1
                           required:
-                          - successThreshold
+                            - successThreshold
                         startupProbe:
                           properties:
                             successThreshold:
                               const: 1
                           required:
-                          - successThreshold
+                            - successThreshold
       allOf:
         - $ref: "#/definitions/probePattern"
       additionalProperties:
@@ -2025,11 +2025,11 @@ rules:
                     items:
                       anyOf:
                         - required:
-                          - livenessProbe
+                            - livenessProbe
                         - required:
-                          - readinessProbe
+                            - readinessProbe
                         - required:
-                          - startupProbe
+                            - startupProbe
           then:
             properties:
               spec:
@@ -2042,19 +2042,19 @@ rules:
                             failureThreshold:
                               minimum: 1
                           required:
-                          - failureThreshold
+                            - failureThreshold
                         readinessProbe:
                           properties:
                             failureThreshold:
                               minimum: 1
                           required:
-                          - failureThreshold
+                            - failureThreshold
                         startupProbe:
                           properties:
                             failureThreshold:
                               minimum: 1
                           required:
-                          - failureThreshold
+                            - failureThreshold
       allOf:
         - $ref: "#/definitions/probePattern"
       additionalProperties:
@@ -2108,7 +2108,7 @@ rules:
         seccompExplicit:
           if: *standardKinds
           then:
-            properties: 
+            properties:
               spec:
                 oneOf:
                   - $ref: "#/$defs/securityContextSeccompReq"
@@ -2789,7 +2789,7 @@ rules:
           properties:
             spec:
               customKeyRule89:
-                type: string                         
+                type: string
       allOf:
         - $ref: "#/definitions/specContainers"
       additionalProperties:
