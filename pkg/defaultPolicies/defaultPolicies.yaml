@@ -2,7 +2,6 @@ apiVersion: v1
 customRules: null
 policies:
   - name: Default
-    isDefault: true
     rules:
       - identifier: CONTAINERS_MISSING_IMAGE_VALUE_VERSION
         messageOnFailure: Incorrect value for key `image` - specify an image version to avoid unpleasant "version surprises" in the future
@@ -317,6 +316,7 @@ policies:
       - identifier: ALL_EXPOSED_SECRET_PRIVATEKEY
         messageOnFailure: Secret data found in config - keep your sensitive data elsewhere to prevent it from being stolen
   - name: Starter
+    isDefault: true
     rules:
       - identifier: DEPLOYMENT_INCORRECT_REPLICAS_VALUE
         messageOnFailure: Incorrect value for key `replicas` - running 2 or more replicas will increase the availability of the service
@@ -461,7 +461,7 @@ policies:
       - identifier: CONTAINERS_INCORRECT_HOSTNETWORK_VALUE_TRUE
         messageOnFailure: "Incorrect value for key `hostNetwork` - running on the host's network namespace can allow a compromised container to sniff network traffic"
       - identifier: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
-        messageOnFailure: "Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges"        
+        messageOnFailure: "Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges"
       - identifier: CONTAINERS_INCORRECT_RUNASNONROOT_VALUE
         messageOnFailure: "Invalid value for key `runAsNonRoot` - must be set to `true` to prevent unnecessary privileges"
       - identifier: CIS_MISSING_VALUE_DROP_NET_RAW
@@ -471,7 +471,7 @@ policies:
       - identifier: EKS_INVALID_CAPABILITIES_EKS
         messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
       - identifier: WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT
-        messageOnFailure: "Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)"     
+        messageOnFailure: "Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)"
       - identifier: EKS_INVALID_HOSTPROCESS_VALUE
         messageOnFailure: "Incorrect value for key `hostProcess` - don't set or set to false to prevent unnecessary privileges"
       - identifier: CONTAINERS_INCORRECT_KEY_HOSTPATH
