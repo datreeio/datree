@@ -73,7 +73,6 @@ func populateRules(policyRules []defaultPolicies.Rule, customRules []*defaultPol
 	if policyRules == nil {
 		return rules, nil
 	}
-
 	for _, rule := range policyRules {
 		customRule := getCustomRuleByIdentifier(customRules, rule.Identifier)
 
