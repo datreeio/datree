@@ -24,7 +24,7 @@ type DefaultRuleDefinition struct {
 	EnabledByDefault bool                   `yaml:"enabledByDefault"`
 	DocumentationUrl string                 `yaml:"documentationUrl"`
 	MessageOnFailure string                 `yaml:"messageOnFailure"`
-	Category         string                 `yaml:"category"`
+	Categories       []string               `yaml:"categories"`
 	Schema           map[string]interface{} `yaml:"schema"`
 }
 
