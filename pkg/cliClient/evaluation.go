@@ -39,24 +39,8 @@ type SendEvaluationResultsResponse struct {
 
 type Match struct {
 	FileName     string `json:"fileName"`
-	Path         string `json:"path"`
-	Value        string `json:"value"`
 	MetadataName string `json:"metadataName"`
 	Kind         string `json:"kind"`
-}
-
-type EvaluationResult struct {
-	Passed  bool `json:"passed"`
-	Results struct {
-		Matches    []*Match `json:"matches"`
-		Mismatches []*Match `json:"mismatches"`
-	} `json:"results"`
-	Rule struct {
-		Identifier     string     `json:"identifier"`
-		Name           string     `json:"name"`
-		FailSuggestion string     `json:"failSuggestion"`
-		Origin         RuleOrigin `json:"origin"`
-	} `json:"rule"`
 }
 
 type RuleOrigin struct {
@@ -71,11 +55,6 @@ const (
 	Default RuleType = "default"
 	Custom           = "custom"
 )
-
-type EvaluationResponse struct {
-	Results []*EvaluationResult `json:"results"`
-	Status  string              `json:"status"`
-}
 
 type EvaluationRequest struct {
 	EvaluationId int                             `json:"evaluationId"`
