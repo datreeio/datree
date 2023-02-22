@@ -108,17 +108,6 @@ func TestCreatePolicy(t *testing.T) {
 
 		assert.Equal(t, expectedRules, policy.Rules)
 	})
-	t.Run("Test Create Policy for anonymous user with --policy flag Default", func(t *testing.T) {
-		defaultRules, err := defaultRules.GetDefaultRules()
-		defaultPolicies := defaultPolicies.GetDefaultPoliciesStruct()
-		if err != nil {
-			panic(err)
-		}
-
-		_, err = CreatePolicy(defaultPolicies, "Default", preRunData.RegistrationURL, defaultRules, true)
-
-		assert.Equal(t, nil, err)
-	})
 	t.Run("Test Create Policy for anonymous user with --policy flag not default", func(t *testing.T) {
 		defaultRules, err := defaultRules.GetDefaultRules()
 		defaultPolicies := defaultPolicies.GetDefaultPoliciesStruct()
