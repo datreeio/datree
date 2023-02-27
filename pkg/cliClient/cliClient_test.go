@@ -438,11 +438,9 @@ func test_requestEvaluationPrerunData_success() *RequestEvaluationPrerunDataTest
 func test_requestEvaluationPrerunData_anonymousSuccess() *RequestEvaluationPrerunDataTestCase {
 	preRunDataServerResponse := mockGetPreRunData()
 	preRunDataServerResponse.IsAnonymous = true
-	preRunDataServerResponse.PoliciesJson = nil
 
 	preRunDataExpectedOutput := mockGetPreRunData()
 	preRunDataExpectedOutput.IsAnonymous = true
-	preRunDataExpectedOutput.PoliciesJson = defaultPolicies.GetDefaultPoliciesStruct()
 
 	return &RequestEvaluationPrerunDataTestCase{
 		name: "success - get prerun data for anonymous evaluation",
