@@ -120,11 +120,6 @@ func (c *CliClient) RequestEvaluationPrerunData(tokenId string, isCi bool) (*Eva
 		return &EvaluationPrerunDataResponse{}, err
 	}
 
-	// for anonymous invocations, use the embedded defaultPolicies.yaml file
-	if evaluationPrerunDataResponse.PoliciesJson == nil {
-		evaluationPrerunDataResponse.PoliciesJson = defaultPolicies.GetDefaultPoliciesStruct()
-	}
-
 	return evaluationPrerunDataResponse, nil
 }
 
