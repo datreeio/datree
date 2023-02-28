@@ -47,19 +47,18 @@
               "type": "string",
               "minLength": 1,
               "enum": [
-                "Containers",
-                "Workload",
-                "CronJob",
-                "Networking",
-                "Deprecation",
-                "Security",
-                "Other",
-                "Custom",
                 "Argo",
-                "Secrets",
-                "NSA",
+                "cdk8s",
+                "CIS",
+                "CVE",
+                "Deprecation",
                 "EKS",
-                "CIS"
+                "NSA",
+                "Secrets",
+                "Best practices",
+                "Other",
+                "Resources",
+                "Custom"
               ]
             }
           },
