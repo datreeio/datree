@@ -114,6 +114,9 @@ func extractYamlConfigurations(content string) (*[]Configuration, error) {
 		if err != nil {
 			return nil, err
 		}
+		if string(jsonByte) == "null" {
+			continue
+		}
 
 		configurations = append(configurations, extractConfigurationK8sData(jsonByte, yamlNode))
 	}
