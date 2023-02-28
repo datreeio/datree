@@ -54,7 +54,7 @@ rules:
     name: Ensure each container image has a pinned (tag) version
     uniqueName: CONTAINERS_MISSING_IMAGE_VALUE_VERSION
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-image-pinned-version"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-image-pinned-version"
     messageOnFailure: Incorrect value for key `image` - specify an image version to avoid unpleasant "version surprises" in the future
     categories:
       - Containers
@@ -88,7 +88,7 @@ rules:
     name: Ensure each container has a configured memory request
     uniqueName: CONTAINERS_MISSING_MEMORY_REQUEST_KEY
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-memory-request"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-memory-request"
     messageOnFailure: "Missing property object `requests.memory` - value should be within the accepted boundaries recommended by the organization"
     categories:
       - Containers
@@ -131,7 +131,7 @@ rules:
     name: Ensure each container has a configured CPU request
     uniqueName: CONTAINERS_MISSING_CPU_REQUEST_KEY
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-cpu-request"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-cpu-request"
     messageOnFailure: "Missing property object `requests.cpu` - value should be within the accepted boundaries recommended by the organization"
     categories:
       - Containers
@@ -174,7 +174,7 @@ rules:
     name: Ensure each container has a configured memory limit
     uniqueName: CONTAINERS_MISSING_MEMORY_LIMIT_KEY
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-memory-limit"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-memory-limit"
     messageOnFailure: "Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization"
     categories:
       - Containers
@@ -217,7 +217,7 @@ rules:
     name: Ensure each container has a configured CPU limit
     uniqueName: CONTAINERS_MISSING_CPU_LIMIT_KEY
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-cpu-limit"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-cpu-limit"
     messageOnFailure: "Missing property object `limits.cpu` - value should be within the accepted boundaries recommended by the organization"
     categories:
       - Containers
@@ -260,7 +260,7 @@ rules:
     name: "Prevent Ingress from forwarding all traffic to a single container"
     uniqueName: "INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE"
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/prevent-ingress-forwarding-traffic-to-single-container"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-ingress-forwarding-traffic-to-single-container"
     messageOnFailure: 'Incorrect value for key `host` - specify host instead of using a wildcard character ("*")'
     categories:
       - Networking
@@ -289,7 +289,7 @@ rules:
     name: Prevent Service from exposing node port
     uniqueName: SERVICE_INCORRECT_TYPE_VALUE_NODEPORT
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/prevent-node-port"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-node-port"
     messageOnFailure: "Incorrect value for key `type` - `NodePort` will open a port on all nodes where it can be reached by the network external to the cluster"
     categories:
       - Networking
@@ -314,7 +314,7 @@ rules:
     name: Ensure CronJob scheduler is valid
     uniqueName: CRONJOB_INVALID_SCHEDULE_VALUE
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-cronjob-scheduler-valid"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-cronjob-scheduler-valid"
     messageOnFailure: "Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and, therefore, will not work as expected"
     categories:
       - CronJob
@@ -337,7 +337,7 @@ rules:
     name: Ensure workload has valid label values
     uniqueName: WORKLOAD_INVALID_LABELS_VALUE
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-labels-value-valid"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-labels-value-valid"
     messageOnFailure: "Incorrect value for key(s) under `labels` - the value's syntax is not valid so the Kubernetes engine will not accept it"
     categories:
       - Workload
@@ -358,7 +358,7 @@ rules:
     name: "Ensure deployment-like resource is using a valid restart policy"
     uniqueName: "WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS"
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-valid-restart-policy"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-valid-restart-policy"
     messageOnFailure: "Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource"
     categories:
       - Workload
@@ -388,7 +388,7 @@ rules:
     name: Ensure each container has a configured liveness probe
     uniqueName: CONTAINERS_MISSING_LIVENESSPROBE_KEY
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-liveness-probe"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-liveness-probe"
     messageOnFailure: "Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks"
     categories:
       - Containers
@@ -416,7 +416,7 @@ rules:
     name: Ensure each container has a configured readiness probe
     uniqueName: CONTAINERS_MISSING_READINESSPROBE_KEY
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-readiness-probe"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-readiness-probe"
     messageOnFailure: "Missing property object `readinessProbe` - add a properly configured readinessProbe to notify kubelet your Pods are ready for traffic"
     categories:
       - Containers
@@ -444,7 +444,7 @@ rules:
     name: Ensure HPA has minimum replicas configured
     uniqueName: HPA_MISSING_MINREPLICAS_KEY
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-hpa-minimum-replicas"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-hpa-minimum-replicas"
     messageOnFailure: "Missing property object `minReplicas` - the value should be within the accepted boundaries recommended by the organization"
     categories:
       - Other
@@ -465,7 +465,7 @@ rules:
     name: Ensure HPA has maximum replicas configured
     uniqueName: HPA_MISSING_MAXREPLICAS_KEY
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/ensure-hpa-maximum-replicas"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-hpa-maximum-replicas"
     messageOnFailure: "Missing property object `maxReplicas` - the value should be within the accepted boundaries recommended by the organization"
     categories:
       - Other
@@ -486,7 +486,7 @@ rules:
     name: Prevent workload from using the default namespace
     uniqueName: WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/prevent-deafult-namespce"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deafult-namespce"
     messageOnFailure: Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)
     categories:
       - Workload
@@ -506,7 +506,7 @@ rules:
     name: "Ensure Deployment has more than one replica configured"
     uniqueName: "DEPLOYMENT_INCORRECT_REPLICAS_VALUE"
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-minimum-two-replicas"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-minimum-two-replicas"
     messageOnFailure: "Incorrect value for key `replicas` - running 2 or more replicas will increase the availability of the service"
     categories:
       - Workload
@@ -528,7 +528,7 @@ rules:
     name: "Ensure CronJob has a configured deadline"
     uniqueName: "CRONJOB_MISSING_STARTINGDEADLINESECOND_KEY"
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/ensure-cronjob-deadline"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-cronjob-deadline"
     messageOnFailure: "Missing property object `startingDeadlineSeconds` - set a time limit to the cron execution to allow killing it if exceeded"
     categories:
       - CronJob
@@ -552,7 +552,7 @@ rules:
     name: "Prevent deprecated APIs in Kubernetes v1.16"
     uniqueName: "K8S_DEPRECATED_APIVERSION_1.16"
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/prevent-deprecated-k8s-api-116"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-k8s-api-116"
     messageOnFailure: "Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.16)"
     categories:
       - Deprecation
@@ -587,7 +587,7 @@ rules:
     name: "Prevent deprecated APIs in Kubernetes v1.17"
     uniqueName: "K8S_DEPRECATED_APIVERSION_1.17"
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/prevent-deprecated-k8s-api-117"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-deprecated-k8s-api-117"
     messageOnFailure: "Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.17)"
     categories:
       - Deprecation
@@ -646,7 +646,7 @@ rules:
     name: "Prevent containers from having root access capabilities"
     uniqueName: "CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE"
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/prevent-privileged-containers"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-privileged-containers"
     messageOnFailure: "Incorrect value for key `privileged` - this mode will allow the container the same access as processes running on the host"
     categories:
       - Containers
@@ -681,7 +681,7 @@ rules:
     name: Ensure workload has a configured `owner` label
     uniqueName: WORKLOAD_MISSING_LABEL_OWNER_VALUE
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/ensure-owner-label"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-owner-label"
     messageOnFailure: "Missing label object `owner` - add a proper owner label to know which person/team to ping when needed"
     categories:
       - Workload
@@ -700,7 +700,7 @@ rules:
     name: Ensure Deployment has a configured `env` label
     uniqueName: DEPLOYMENT_MISSING_LABEL_ENV_VALUE
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/ensure-env-label"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-env-label"
     messageOnFailure: 'Missing label object `env` - add a proper environment description (e.g. "prod", "testing", etc.) to the Deployment config'
     categories:
       - Workload
@@ -727,7 +727,7 @@ rules:
     name: Ensure each container image has a digest tag
     uniqueName: CONTAINERS_MISSING_IMAGE_VALUE_DIGEST
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/ensure-digest-tag"
+    documentationUrl: "https://hub.datree.io/built-in-rules/ensure-digest-tag"
     messageOnFailure: "Incorrect value for key `image` - add a digest tag (starts with `@sha256:`) to represent an immutable version of the image"
     categories:
       - Containers
@@ -757,7 +757,7 @@ rules:
     name: "Prevent CronJob from executing jobs concurrently"
     uniqueName: "CRONJOB_MISSING_CONCURRENCYPOLICY_KEY"
     enabledByDefault: true
-    documentationUrl: "https://hub.datree.io/prevent-cronjob-concurrency"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-cronjob-concurrency"
     messageOnFailure: Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently
     categories:
       - CronJob
@@ -783,7 +783,7 @@ rules:
     name: "Prevent deploying naked pods"
     uniqueName: "K8S_INCORRECT_KIND_VALUE_POD"
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/prevent-naked-pods"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-naked-pods"
     messageOnFailure: Incorrect value for key `kind` - raw pod won't be rescheduled in the event of a node failure
     categories:
       - Other
@@ -800,7 +800,7 @@ rules:
     name: Prevent containers from sharing the host's PID namespace
     uniqueName: "CONTAINERS_INCORRECT_HOSTPID_VALUE_TRUE"
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/prevent-using-host-pid"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-using-host-pid"
     messageOnFailure: Incorrect value for key `hostPID` - running on the host's PID namespace enables access to sensitive information from processes running outside the container
     categories:
       - Containers
@@ -829,7 +829,7 @@ rules:
     name: "Prevent containers from sharing the host`s IPC namespace"
     uniqueName: "CONTAINERS_INCORRECT_HOSTIPC_VALUE_TRUE"
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/prevent-using-host-ipc"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-using-host-ipc"
     messageOnFailure: "Incorrect value for key `hostIPC` - running on the host`s IPC namespace can be (maliciously) used to interact with other processes running outside the container"
     categories:
       - Containers
@@ -858,7 +858,7 @@ rules:
     name: Prevent containers from sharing the host's network namespace
     uniqueName: "CONTAINERS_INCORRECT_HOSTNETWORK_VALUE_TRUE"
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/prevent-using-host-network"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-using-host-network"
     messageOnFailure: Incorrect value for key `hostNetwork` - running on the host's network namespace can allow a compromised container to sniff network traffic
     categories:
       - Containers
@@ -887,7 +887,7 @@ rules:
     name: "Prevent containers from accessing host files by using high UIDs"
     uniqueName: "CONTAINERS_INCORRECT_RUNASUSER_VALUE_LOWUID"
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/prevent-uid-conflicts"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-uid-conflicts"
     messageOnFailure: "Incorrect value for key `runAsUser` - value should be above 9999 to reduce the likelihood that the UID is already taken"
     categories:
       - Containers
@@ -919,7 +919,7 @@ rules:
     name: "Prevent containers from mounting Docker socket"
     uniqueName: "CONTAINERS_INCORRECT_PATH_VALUE_DOCKERSOCKET"
     enabledByDefault: false
-    documentationUrl: "https://hub.datree.io/prevent-mounting-docker-socket"
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-mounting-docker-socket"
     messageOnFailure: "Incorrect value for key `path` - avoid mounting the docker.socket because it can allow container breakout"
     categories:
       - Containers
