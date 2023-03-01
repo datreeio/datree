@@ -1,0 +1,1101 @@
+rules:
+  - id: 1
+    title: Each container image should have a pinned version tag or image ID (aka image SHA)
+    uniqueName: CONTAINERS_MISSING_IMAGE_VALUE_VERSION
+    ruleId: ensure-image-pinned-version
+    yamlExamples:
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+      - spec:
+          containers:
+            - name: app
+              image: nginx@sha256:0a564e80a3156f2cc825d1720f303d59bd521da19bcbd01316870e1313ecbd23
+  - id: 2
+    title: ""
+    uniqueName: CONTAINERS_MISSING_MEMORY_REQUEST_KEY
+    ruleId: ensure-memory-request
+    yamlExamples:
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              resources:
+                requests:
+                  memory: "64Mi"
+  - id: 3
+    title: ""
+    uniqueName: CONTAINERS_MISSING_CPU_REQUEST_KEY
+    ruleId: ensure-cpu-request
+    yamlExamples:
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              resources:
+                requests:
+                  cpu: "250m"
+  - id: 4
+    title: ""
+    uniqueName: CONTAINERS_MISSING_MEMORY_LIMIT_KEY
+    ruleId: ensure-memory-limit
+    yamlExamples:
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              resources:
+                limits:
+                  memory: "128Mi"
+  - id: 5
+    title: ""
+    uniqueName: CONTAINERS_MISSING_CPU_LIMIT_KEY
+    ruleId: ensure-cpu-limit
+    yamlExamples:
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              resources:
+                limits:
+                  cpu: "500m"
+  - id: 6
+    title: ""
+    uniqueName: INGRESS_INCORRECT_HOST_VALUE_PERMISSIVE
+    ruleId: prevent-ingress-forwarding-traffic-to-single-container
+    yamlExamples:
+      - kind: Ingress
+        spec:
+          rules:
+            - host: "*.example.com"
+              http:
+                - path: /foo
+  - id: 7
+    title: Use a different service `type` other than _NodePort_
+    uniqueName: SERVICE_INCORRECT_TYPE_VALUE_NODEPORT
+    ruleId: prevent-node-port
+    yamlExamples: []
+  - id: 8
+    title: Specify a valid cron expression
+    uniqueName: CRONJOB_INVALID_SCHEDULE_VALUE
+    ruleId: ensure-cronjob-scheduler-valid
+    yamlExamples:
+      - kind: CronJob
+        spec:
+          schedule: "*/1 * * * *"
+  - id: 9
+    title: Use valid values only (see links below for valid syntax)
+    uniqueName: WORKLOAD_INVALID_LABELS_VALUE
+    ruleId: ensure-labels-value-valid
+    yamlExamples:
+      - metadata:
+          labels:
+            on-call: yoda-at-datree.io
+  - id: 10
+    title: >-
+      Set `restartPolicy` to _Always_ or don't include the `restartPolicy` key
+      at all
+    uniqueName: WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS
+    ruleId: ensure-valid-restart-policy
+    yamlExamples:
+      - spec:
+          template:
+            spec:
+              restartPolicy: Always
+  - id: 11
+    title: >-
+      Configure a liveness probe with an HTTP request, TCP protocol or exec
+      command (the least recommended option)
+    uniqueName: CONTAINERS_MISSING_LIVENESSPROBE_KEY
+    ruleId: ensure-liveness-probe
+    yamlExamples:
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              livenessProbe:
+                httpGet:
+                  path: /healthz
+                  port: 8080
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              livenessProbe:
+                tcpSocket:
+                  port: 8080
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              livenessProbe:
+                exec:
+                  command:
+                    - cat
+                    - /tmp/healthy
+  - id: 12
+    title: >-
+      Configure a readiness probe with an HTTP request, TCP protocol or exec
+      command (the least recommended option)
+    uniqueName: CONTAINERS_MISSING_READINESSPROBE_KEY
+    ruleId: ensure-readiness-probe
+    yamlExamples:
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              readinessProbe:
+                httpGet:
+                  path: /healthz
+                  port: 8080
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              readinessProbe:
+                tcpSocket:
+                  port: 8080
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              readinessProbe:
+                exec:
+                  command:
+                    - cat
+                    - /tmp/healthy
+  - id: 13
+    title: ""
+    uniqueName: HPA_MISSING_MINREPLICAS_KEY
+    ruleId: ensure-hpa-minimum-replicas
+    yamlExamples:
+      - kind: HorizontalPodAutoscaler
+        spec:
+          minReplicas: 1
+          maxReplicas: 10
+  - id: 14
+    title: ""
+    uniqueName: HPA_MISSING_MAXREPLICAS_KEY
+    ruleId: ensure-hpa-maximum-replicas
+    yamlExamples:
+      - kind: HorizontalPodAutoscaler
+        spec:
+          minReplicas: 1
+          maxReplicas: 10
+  - id: 15
+    title: ""
+    uniqueName: WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT
+    ruleId: prevent-deafult-namespce
+    yamlExamples:
+      - metadata:
+          namespace: test
+  - id: 16
+    title: Set numbers of `replicas` to be greater than 1
+    uniqueName: DEPLOYMENT_INCORRECT_REPLICAS_VALUE
+    ruleId: ensure-minimum-two-replicas
+    yamlExamples:
+      - kind: Deployment
+        spec:
+          replicas: 2
+  - id: 17
+    title: ""
+    uniqueName: CRONJOB_MISSING_STARTINGDEADLINESECOND_KEY
+    ruleId: ensure-cronjob-deadline
+    yamlExamples:
+      - kind: CronJob
+        spec:
+          schedule: "*/1 * * * *"
+          startingDeadlineSeconds: 100
+  - id: 18
+    title: >-
+      Use a supported API version instead of the deprecated one:
+
+
+      | Deprecated API version | Supported API version |
+
+      |-------------|---------------|
+
+      | `apiextensions.k8s.io/v1beta1` | `apiextensions.k8s.io/v1` |
+
+      | `admissionregistration.k8s.io/v1beta1` |
+        `admissionregistration.k8s.io/v1` |
+
+
+      **Example**:
+    uniqueName: K8S_DEPRECATED_APIVERSION_1.16
+    ruleId: prevent-deprecated-k8s-api-116
+    yamlExamples:
+      - apiVersion: apiextensions.k8s.io/v1
+        kind: CustomResourceDefinition
+  - id: 19
+    title: Use _v1_ instead of the deprecated version
+    uniqueName: K8S_DEPRECATED_APIVERSION_1.17
+    ruleId: prevent-deprecated-k8s-api-117
+    yamlExamples:
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+  - id: 20
+    title: Set `privileged` to _false_ or remove this property completely
+    uniqueName: CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE
+    ruleId: prevent-privileged-containers
+    yamlExamples:
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              securityContext:
+                privileged: false
+  - id: 21
+    title: ""
+    uniqueName: WORKLOAD_MISSING_LABEL_OWNER_VALUE
+    ruleId: ensure-owner-label
+    yamlExamples:
+      - metadata:
+          labels:
+            env: prod
+            owner: yoda-at-datree.io
+  - id: 22
+    title: ""
+    uniqueName: DEPLOYMENT_MISSING_LABEL_ENV_VALUE
+    ruleId: ensure-env-label
+    yamlExamples:
+      - kind: Deployment
+        metadata:
+          labels:
+            env: prod
+            owner: yoda-at-datree.io
+  - id: 23
+    title: Each container image should have an image ID (aka image SHA)
+    uniqueName: CONTAINERS_MISSING_IMAGE_VALUE_DIGEST
+    ruleId: ensure-digest-tag
+    yamlExamples:
+      - spec:
+          containers:
+            - name: app
+              image: nginx@sha256:0a564e80a3156f2cc825d1720f303d59bd521da19bcbd01316870e1313ecbd23
+  - id: 24
+    title: Set `concurrencyPolicy` to either _Forbid_ or _Replace_
+    uniqueName: CRONJOB_MISSING_CONCURRENCYPOLICY_KEY
+    ruleId: prevent-cronjob-concurrency
+    yamlExamples:
+      - kind: CronJob
+        spec:
+          concurrencyPolicy: Forbid
+      - kind: CronJob
+        spec:
+          concurrencyPolicy: Replace
+  - id: 25
+    title: Deploy pods using higher-level resources
+    uniqueName: K8S_INCORRECT_KIND_VALUE_POD
+    ruleId: prevent-naked-pods
+    yamlExamples:
+      - apiVersion: apps/v1
+        kind: Deployment
+  - id: 26
+    title: Set the `hostPID` to _false_ or remove it completely
+    uniqueName: CONTAINERS_INCORRECT_HOSTPID_VALUE_TRUE
+    ruleId: prevent-using-host-pid
+    yamlExamples:
+      - spec:
+          hostPID: false
+  - id: 27
+    title: Set the `hostIPC` to _false_ or remove it completely
+    uniqueName: CONTAINERS_INCORRECT_HOSTIPC_VALUE_TRUE
+    ruleId: prevent-using-host-ipc
+    yamlExamples:
+      - spec:
+          hostIPC: false
+  - id: 28
+    title: Set the `hostNetwork` to _false_ or remove it completely
+    uniqueName: CONTAINERS_INCORRECT_HOSTNETWORK_VALUE_TRUE
+    ruleId: prevent-using-host-network
+    yamlExamples:
+      - spec:
+          hostNetwork: false
+  - id: 29
+    title: Set `runAsUser` to a number bigger than 9999
+    uniqueName: CONTAINERS_INCORRECT_RUNASUSER_VALUE_LOWUID
+    ruleId: prevent-uid-conflicts
+    yamlExamples:
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+              securityContext:
+                runAsUser: 25000
+  - id: 30
+    title: Avoid mounting the Docker socket
+    uniqueName: CONTAINERS_INCORRECT_PATH_VALUE_DOCKERSOCKET
+    ruleId: prevent-mounting-docker-socket
+    yamlExamples:
+      - spec:
+          containers:
+            - name: app
+              image: nginx:1.19.8
+  - id: 31
+    title: ""
+    uniqueName: CONFIGMAP_CVE2021_25742_INCORRECT_SNIPPET_ANNOTATIONS_VALUE
+    ruleId: prevent-configmap-security-vulnerability-cve-2021-25742
+    yamlExamples:
+      - kind: ConfigMap
+        metadata:
+          namespace: nginx-ingress
+        data:
+          allow-snippet-annotations: "false"
+  - id: 32
+    title: Refrain from using this vulnerable annotation.
+    uniqueName: INGRESS_CVE2021_25742_INCORRECT_SERVER_SNIPPET_KEY
+    ruleId: prevent-ingress-security-vulnerability-cve-2021-25742
+    yamlExamples:
+      - kind: Ingress
+        metadata:
+          annotations:
+            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  - id: 33
+    title: >-
+      CVE-2021-25741 was fixed in the following Kubernetes versions:
+
+
+      - v1.22.2
+
+      - v1.21.5
+
+      - v1.20.11
+
+      - v1.19.15
+
+
+      To mitigate this vulnerability without upgrading kubelet, you can disable
+      the VolumeSubpath feature gate on kubelet and kube-apiserver, and remove
+      any existing pods making use of the feature.
+    uniqueName: CONTAINER_CVE2021_25741_INCORRECT_SUBPATH_KEY
+    ruleId: prevent-container-security-vulnerability-cve-2021-25741
+    yamlExamples:
+      - spec:
+          containers:
+            volumeMounts:
+              - mountPath: /var/lib/mysql
+                name: site-data
+  - id: 34
+    title: "Use endpoint addresses that are not in the vulnerable ranges (**127.0.0.0/8**\_and\_**169.254.0.0/16**)."
+    uniqueName: ENDPOINTSLICE_CVE2021_25373_INCORRECT_ADDRESSES_VALUE
+    ruleId: >-
+      prevent-endpointslice-validation-from-enabling-host-network-hijack-cve-2021-25737
+    yamlExamples:
+      - kind: EndpointSlice
+        endpoints:
+          - addresses:
+              - "172.23.47.4"
+  - id: 35
+    title: ""
+    uniqueName: ARGO_WORKFLOW_INCORRECT_FAILFAST_VALUE_FALSE
+    ruleId: ensure-workflow-dag-fail-fast-on-node-failure
+    yamlExamples: []
+  - id: 36
+    title: "Set the `serviceAccountName` key and give it a value:"
+    uniqueName: ARGO_WORKFLOW_INCORRECT_SERVICE_ACCOUNT_NAME_VALUE_DEFAULT
+    ruleId: prevent-workflow-pods-from-using-the-default-service-account
+    yamlExamples:
+      - kind: Workflow
+        spec:
+          serviceAccountName: mySrvAcc"
+  - id: 37
+    title: "Set the `app.kubernetes.io/part-of` key with a value of '_argocd'_:"
+    uniqueName: ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD
+    ruleId: ensure-configmap-is-recognized-by-argocd
+    yamlExamples:
+      - kind: ConfigMap
+        metadata:
+        labels:
+          app.kubernetes.io/part-of: argocd"
+  - id: 38
+    title: "Set the `duration` key and give it a value:"
+    uniqueName: ARGO_ROLLOUT_MISSING_PAUSE_DURATION
+    ruleId: ensure-rollout-pause-step-has-a-configured-duration
+    yamlExamples:
+      - kind: Rollout
+        spec:
+          strategy:
+            canary:
+              steps:
+                - pause:
+                  duration: 1h # 1 hour
+  - id: 39
+    title: "Set the `namespace` key with a value of '_argocd_':"
+    uniqueName: ARGO_APP_PROJECT_INCORRECT_NAMESPACE_VALUE
+    ruleId: ensure-application-and-appproject-are-part-of-the-argocd-namespace
+    yamlExamples:
+      - kind: Application
+        metadata:
+          namespace: argocd
+  - id: 40
+    title: "Set the `retryStrategy` key with a non-empty value or don't set it at all:"
+    uniqueName: ARGO_WORKFLOW_INCORRECT_RETRY_STRATEGY_VALUE_EMPTY
+    ruleId: prevent-workflow-from-having-an-empty-retry-strategy
+    yamlExamples:
+      - kind: Workflow
+        spec:
+          templates:
+            - retryStrategy:
+              limit: 10
+  - id: 41
+    title: "Set the `revisionHistoryLimit` key with a non-zero value:"
+    uniqueName: ARGO_WORKFLOW_INCORRECT_REVISION_HISTORY_LIMIT_VALUE_0
+    ruleId: ensure-rollout-has-revision-history-set
+    yamlExamples:
+      - kind: Rollout
+        spec:
+          revisionHistoryLimit: 3
+  - id: 42
+    title: "Set the `scaleDownDelaySeconds` key with value of at least 30:"
+    uniqueName: ARGO_ROLLOUT_INCORRECT_SCALE_DOWN_DELAY_VALUE_BELOW_30
+    ruleId: ensure-rollout-allows-broadcasting-ip-table-changes
+    yamlExamples:
+      - kind: Rollout
+        spec:
+          strategy:
+            blueGreen:
+              scaleDownDelaySeconds: 30
+  - id: 43
+    title: "Set the `progressDeadlineAbort` key with value of '_true_':"
+    uniqueName: ARGO_ROLLOUT_INCORRECT_PROGRESS_DEADLINE_ABORT_VALUE_FALSE
+    ruleId: ensure-rollout-that-is-marked-as-degraded-scales-down-replicaset
+    yamlExamples:
+      - kind: Rollout
+        spec:
+          progressDeadlineSeconds: 700
+          progressDeadlineAbort: true
+  - id: 44
+    title: >-
+      When using a `retryPolicy` of `Always`, set the `expression` key with the
+      following value:
+    uniqueName: ARGO_WORKFLOW_ENSURE_RETRY_ON_BOTH_ERROR_AND_TRANSIENT_ERROR
+    ruleId: ensure-workflow-retry-policy-catches-relevant-errors-only
+    yamlExamples:
+      - kind: Workflow
+        spec:
+          templates:
+            - retryStrategy:
+                retryPolicy: "Always"
+                expression: 'lastRetry.status == "Error" or (lastRetry.status == "Failed" and asInt(lastRetry.exitCode) not in [0])'
+  - id: 45
+    title: >-
+      Set the `readOnlyRootFilesystem` key with a value of _true_ either at
+      **pod** level or **container** level:
+    uniqueName: CONTAINERS_INCORRECT_READONLYROOTFILESYSTEM_VALUE
+    ruleId: ensure-read-only-filesystem
+    yamlExamples:
+      - kind: Pod
+        spec:
+          securityContext:
+            readOnlyRootFilesystem: true
+      - kind: Deployment
+        spec:
+          containers:
+            - name: myContainer
+              securityContext:
+                readOnlyRootFilesystem: true
+  - id: 46
+    title: Refrain from using the `hostPath` mount
+    uniqueName: CONTAINERS_INCORRECT_KEY_HOSTPATH
+    ruleId: prevent-accessing-underlying-host
+    yamlExamples:
+      - spec:
+          volumes:
+            - name: myVolume
+  - id: 47
+    title: "Set the `allowPrivilegeEscalation` key to _false_:"
+    uniqueName: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
+    ruleId: prevent-escalating-privileges
+    yamlExamples:
+      - kind: Deployment
+        spec:
+          template:
+            spec:
+              containers:
+                - name: myContainer
+                  securityContext:
+                    allowPrivilegeEscalation: false
+  - id: 48
+    title: >-
+      Refrain from setting these privilieges in your `Role` and `ClusterRole`
+      resources.
+    uniqueName: CONTAINERS_INCORRECT_RESOURCES_VERBS_VALUE
+    ruleId: prevent-allowing-command-execution
+    yamlExamples:
+      - kind: Role
+        rules:
+          - verbs: ["get"]
+  - id: 49
+    title: Refrain from setting any unnecessary insecure capabilities.
+    uniqueName: CONTAINERS_INVALID_CAPABILITIES_VALUE
+    ruleId: prevent-insecure-capabilities
+    yamlExamples:
+      - kind: Pod
+        spec:
+          containers:
+            - securityContext:
+                capabilities:
+                  add: ["SYS_TIME"]
+  - id: 50
+    title: >-
+      Refrain from using the `hostPort` key (use `NodePort` or `ClusterIP`
+      instead).
+    uniqueName: CONTAINERS_INCORRECT_KEY_HOSTPORT
+    ruleId: prevent-insecurely-exposing-workload
+    yamlExamples:
+      - kind: Service
+        spec:
+          type: NodePort
+  - id: 51
+    title: "Set runAsGroup to a value higher than _999_:"
+    uniqueName: CONTAINERS_INCORRECT_RUNASGROUP_VALUE_LOWGID
+    ruleId: prevent-accessing-host-files-by-using-high-gids
+    yamlExamples:
+      - kind: Pod
+        spec:
+          securityContext:
+            runAsGroup: 4000
+      - kind: Deployment
+        spec:
+          containers:
+            - name: myContainer
+              securityContext:
+                runAsGroup: 4000
+  - id: 52
+    title: "Set `runAsNonRoot` to `true`:"
+    uniqueName: CONTAINERS_INCORRECT_RUNASNONROOT_VALUE
+    ruleId: prevent-running-with-root-privileges
+    yamlExamples:
+      - kind: Pod
+        spec:
+          securityContext:
+            runAsNonRoot: true
+      - kind: Deployment
+        spec:
+          containers:
+            - name: myContainer
+              securityContext:
+                runAsNonRoot: true
+  - id: 53
+    title: >-
+      Set `automountServiceAccountToken` to _false_ either at the
+      `ServiceAccount` level or at the individual `Pod` level (`Pod` level takes
+      precedence):
+    uniqueName: SRVACC_INCORRECT_AUTOMOUNTSERVICEACCOUNTTOKEN_VALUE
+    ruleId: prevent-service-account-token-auto-mount
+    yamlExamples:
+      - kind: ServiceAccount
+        automountServiceAccountToken: false
+      - kind: Pod
+        spec:
+          automountServiceAccountToken: false
+          containers:
+            - name: myContainer
+  - id: 54
+    title: Set either `name` or `generateName` and give it a value
+    uniqueName: RESOURCE_MISSING_NAME
+    ruleId: ensure-resource-name
+    yamlExamples:
+      - apiVersion: networking.k8s.io/v1beta1
+        kind: Ingress
+        metadata:
+          name: "myGreatIngress"
+          namespace: "myGreatNamespace"
+  - id: 55
+    title: >-
+      Each container probe should have a configured `initialDelaySeconds`
+      property with a minimum value of 0
+    uniqueName: CONTAINERS_INCORRECT_INITIALDELAYSECONDS_VALUE
+    ruleId: ensure-initial-probe-delay
+    yamlExamples:
+      - spec:
+          containers:
+            - name: myContainer
+              readinessProbe:
+                initialDelaySeconds: 0
+  - id: 56
+    title: >-
+      Each container probe should have a configured `periodSeconds` property
+      with a minimum value of 1
+    uniqueName: CONTAINERS_INCORRECT_PERIODSECONDS_VALUE
+    ruleId: ensure-probe-frequency
+    yamlExamples:
+      - spec:
+          containers:
+            - name: myContainer
+              readinessProbe:
+                periodSeconds: 2
+  - id: 57
+    title: >-
+      Each container probe should have a configured `timeoutSeconds` property
+      with a minimum value of 1
+    uniqueName: CONTAINERS_INCORRECT_TIMEOUTSECONDS_VALUE
+    ruleId: ensure-probe-timeout
+    yamlExamples:
+      - spec:
+          containers:
+            - name: myContainer
+              readinessProbe:
+                timeoutSeconds: 2
+  - id: 58
+    title: >-
+      Each container probe should have a configured `successThreshold` property
+      with a valid value (see above for limitations)
+    uniqueName: CONTAINERS_INCORRECT_SUCCESSTHRESHOLD_VALUE
+    ruleId: ensure-probe-min-success-threshold
+    yamlExamples:
+      - spec:
+          containers:
+            - name: myContainer
+              readinessProbe:
+                successThreshold: 2
+      - spec:
+          containers:
+            - name: myContainer
+              livenessProbe:
+                successThreshold: 1
+      - spec:
+          containers:
+            - name: myContainer
+              startupProbe:
+                successThreshold: 1
+  - id: 59
+    title: >-
+      Each container probe should have a configured `failureThreshold` property
+      with a minimum value of 1
+    uniqueName: CONTAINERS_INCORRECT_FAILURETHRESHOLD_VALUE
+    ruleId: ensure-probe-failure-threshold
+    yamlExamples:
+      - spec:
+          containers:
+            - name: myContainer
+              readinessProbe:
+                failureThreshold: 3
+  - id: 60
+    title: ""
+    uniqueName: CONTAINERS_MISSING_PRESTOP_KEY
+    ruleId: ensure-prestop
+    yamlExamples:
+      - spec:
+          containers:
+            - name: myNginxApp
+              lifecycle:
+                preStop:
+                  exec:
+                    command: [
+                        # Gracefully shutdown nginx
+                        "/usr/sbin/nginx",
+                        "-s",
+                        "quit",
+                      ]
+  - id: 61
+    title: "Set the `seccompProfile` type to `Localhost` or `RuntimeDefault`:"
+    uniqueName: CONTAINERS_INCORRECT_SECCOMP_PROFILE
+    ruleId: prevent-system-call-privileges
+    yamlExamples:
+      - spec:
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+  - id: 62
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_BITBUCKET
+    ruleId: prevent-exposed-secrets-bitbucket
+    yamlExamples: []
+  - id: 63
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_DATADOG
+    ruleId: prevent-exposed-secrets-datadog
+    yamlExamples: []
+  - id: 64
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_GCP
+    ruleId: prevent-exposed-secrets-gcp
+    yamlExamples: []
+  - id: 65
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_AWS
+    ruleId: prevent-exposed-secrets-aws
+    yamlExamples: []
+  - id: 66
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_GITHUB
+    ruleId: prevent-exposed-secrets-github
+    yamlExamples: []
+  - id: 67
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_GITLAB
+    ruleId: prevent-exposed-secrets-gitlab
+    yamlExamples: []
+  - id: 68
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_TERRAFORM
+    ruleId: prevent-exposed-secrets-terraform
+    yamlExamples: []
+  - id: 69
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_HEROKU
+    ruleId: prevent-exposed-secrets-heroku
+    yamlExamples: []
+  - id: 70
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_JWT
+    ruleId: prevent-exposed-secrets-jwt
+    yamlExamples: []
+  - id: 71
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_LAUNCHDARKLY
+    ruleId: prevent-exposed-secrets-launchdarkly
+    yamlExamples: []
+  - id: 72
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_NEWRELIC
+    ruleId: prevent-exposed-secrets-newrelic
+    yamlExamples: []
+  - id: 73
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_NPM
+    ruleId: prevent-exposed-secrets-npm
+    yamlExamples: []
+  - id: 74
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_OKTA
+    ruleId: prevent-exposed-secrets-okta
+    yamlExamples: []
+  - id: 75
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_STRIPE
+    ruleId: prevent-exposed-secrets-stripe
+    yamlExamples: []
+  - id: 76
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_SUMOLOGIC
+    ruleId: prevent-exposed-secrets-sumologic
+    yamlExamples: []
+  - id: 77
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_TWILIO
+    ruleId: prevent-exposed-secrets-twilio
+    yamlExamples: []
+  - id: 78
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_VAULT
+    ruleId: prevent-exposed-secrets-vault
+    yamlExamples: []
+  - id: 79
+    title: >-
+      Do not put sensitive data in any config. Kubernetes offers the handy [Secret](https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret) object to handle this.  
+      If you do not wish to use Secrets, take a look at these [available alternatives](https://kubernetes.io/docs/concepts/configuration/secret/#alternatives-to-secrets).
+    uniqueName: ALL_EXPOSED_SECRET_PRIVATEKEY
+    ruleId: prevent-exposed-secrets-privatekey
+    yamlExamples: []
+  - id: 80
+    title: "Do not configure a CPU limit:"
+    uniqueName: EKS_INVALID_CPU_LIMIT
+    ruleId: ensure-no-cpu-limit
+    yamlExamples:
+      - resources:
+          requests:
+            cpu: "128Mi"
+  - id: 81
+    title: ""
+    uniqueName: EKS_INVALID_MEMORY_REQUEST_LIMIT
+    ruleId: ensure-memory-request-limit-equal
+    yamlExamples:
+      - resources:
+          requests:
+            memory: "128Mi"
+          limits:
+            memory: "128Mi"
+  - id: 82
+    title: ""
+    uniqueName: EKS_INVALID_CAPABILITIES_EKS
+    ruleId: ensure-containers-limited-capabilities
+    yamlExamples:
+      - securityContext:
+          capabilities:
+            add:
+              - AUDIT_WRITE
+  - id: 83
+    title: ""
+    uniqueName: EKS_MISSING_KEY_TOPOLOGYKEY
+    ruleId: ensure-replicas-different-nodes
+    yamlExamples:
+      - podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - web-server
+                topologyKey: topology.kubernetes.io/zone
+  - id: 84
+    title: ""
+    uniqueName: EKS_INVALID_VALUE_DONOOTSCHEDULE
+    ruleId: prevent-pods-becoming-unschedulable
+    yamlExamples:
+      - spec:
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: zone
+              whenUnsatisfiable: ScheduleAnyway
+              labelSelector:
+                matchLabels:
+                  app: foo
+  - id: 85
+    title: ""
+    uniqueName: EKS_INVALID_HOSTPROCESS_VALUE
+    ruleId: prevent-windows-containers-unnecessary-privileges
+    yamlExamples:
+      - spec:
+          securityContext:
+            windowsOptions:
+              runAsUserName: "ContainerUser"
+  - id: 86
+    title: ""
+    uniqueName: EKS_INVALID_SELINUXOPTIONS_TYPE_VALUE
+    ruleId: prevent-selinux-containers-unnecessary-privileges
+    yamlExamples:
+      - spec:
+          containers:
+            - securityContext:
+                seLinuxOptions:
+                  type: container_kvm_t
+  - id: 87
+    title: ""
+    uniqueName: EKS_INVALID_SELINUXOPTIONS_USER_VALUE
+    ruleId: prevent-selinux-containers-user
+    yamlExamples:
+      - spec:
+          containers:
+            - securityContext:
+                seLinuxOptions:
+                  type: container_kvm_t
+  - id: 88
+    title: ""
+    uniqueName: EKS_INVALID_SELINUXOPTIONS_ROLE_VALUE
+    ruleId: prevent-selinux-containers-role
+    yamlExamples:
+      - spec:
+          containers:
+            - securityContext:
+                seLinuxOptions:
+                  type: container_kvm_t
+  - id: 89
+    title: ""
+    uniqueName: EKS_INVALID_HOSTPATH_MOUNT_READONLY_VALUE
+    ruleId: ensure-hostpath-mounts-readonly
+    yamlExamples:
+      - spec:
+          volumes:
+            - name: mount-this
+              hostPath:
+                path: /cache
+                type: Directory
+          containers:
+            - volumeMounts:
+                - mountPath: /cache
+                  name: mount-this
+                  readOnly: true
+  - id: 90
+    title: ""
+    uniqueName: K8S_DEPRECATED_APIVERSION_1.19
+    ruleId: prevent-deprecated-api-119
+    yamlExamples:
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRole
+  - id: 91
+    title: ""
+    uniqueName: K8S_DEPRECATED_APIVERSION_1.21
+    ruleId: prevent-deprecated-api-121
+    yamlExamples:
+      - apiVersion: batch/v1
+        kind: CronJob
+  - id: 92
+    title: ""
+    uniqueName: K8S_DEPRECATED_APIVERSION_1.22
+    ruleId: prevent-deprecated-api-122
+    yamlExamples:
+      - apiVersion: autoscaling/v2
+        kind: HorizontalPodAutoscaler
+  - id: 93
+    title: ""
+    uniqueName: K8S_DEPRECATED_APIVERSION_1.23
+    ruleId: prevent-deprecated-api-123
+    yamlExamples:
+      - apiVersion: autoscaling/v2
+        kind: HorizontalPodAutoscaler
+  - id: 94
+    title: ""
+    uniqueName: K8S_DEPRECATED_APIVERSION_1.24
+    ruleId: prevent-deprecated-api-124
+    yamlExamples:
+      - apiVersion: storage.k8s.io/v1
+        kind: CSIStorageCapacity
+  - id: 95
+    title: "Use a more restrictive role:"
+    uniqueName: CIS_INVALID_ROLE_CLUSTER_ADMIN
+    ruleId: prevent-cluster-admin-role
+    yamlExamples:
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: RoleBinding
+        roleRef:
+          kind: Role
+          name: role:viewer
+  - id: 96
+    title: "Remove `get`, `list`, or `watch` permissions from the `secrets` resource."
+    uniqueName: CIS_INVALID_VERB_SECRETS
+    ruleId: prevent-access-to-secrets
+    yamlExamples: []
+  - id: 97
+    title: "Explicitly define your desired `resources`/`verbs`:"
+    uniqueName: CIS_INVALID_WILDCARD_ROLE
+    ruleId: prevent-wildcards-role-clusterrole
+    yamlExamples:
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: Role
+        rules:
+          - resources: ["pods"]
+            verbs: ["get", "watch", "list"]
+  - id: 98
+    title: "Mount secrets as files instead:"
+    uniqueName: CIS_INVALID_KEY_SECRETKEYREF_SECRETREF
+    ruleId: prevent-secrets-as-env-variables
+    yamlExamples:
+      - apiVersion: v1
+        kind: Pod
+        spec:
+          volumes:
+            - name: secret-volume
+              secret:
+                secretName: ssh-key-secret
+          containers:
+            - name: ssh-test-container
+              image: mySshImage
+              volumeMounts:
+                - name: secret-volume
+                  readOnly: true
+                  mountPath: "/etc/secret-volume"
+  - id: 99
+    title: >-
+      Pods should have a seccomp profile set to `docker/default` or
+      `runtime/default`:
+    uniqueName: CIS_INVALID_VALUE_SECCOMP_PROFILE
+    ruleId: ensure-seccomp-profile-default
+    yamlExamples:
+      - apiVersion: v1
+        kind: Pod
+        metadata:
+          name: my-pod
+          annotations:
+            seccomp.security.alpha.kubernetes.io/pod: docker/default
+  - id: 100
+    title: "Define a security context for your pod or container:"
+    uniqueName: CIS_MISSING_KEY_SECURITYCONTEXT
+    ruleId: ensure-containers-pods-security-context
+    yamlExamples:
+      - apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+            - securityContext:
+                capabilities:
+                  add: ["SYS_TIME"]
+  - id: 101
+    title: "Do not allow `create` access to pods:"
+    uniqueName: CIS_INVALID_VALUE_CREATE_POD
+    ruleId: prevent-access-create-pods
+    yamlExamples:
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: Role
+        rules:
+          - resources: ["pods"]
+            verbs: ["get", "watch", "list"]
+  - id: 102
+    title: "Add the `automountServiceAccountToken` key and set it to `false`:"
+    uniqueName: CIS_INVALID_VALUE_AUTOMOUNTSERVICEACCOUNTTOKEN
+    ruleId: ensure-default-service-account-not-used
+    yamlExamples:
+      - apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: default
+          namespace: default
+        automountServiceAccountToken: false
+  - id: 103
+    title: "Drop the `NET_RAW` capability from the container:"
+    uniqueName: CIS_MISSING_VALUE_DROP_NET_RAW
+    ruleId: prevent-containers-net-raw-capability
+    yamlExamples:
+      - apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+            - name: my-pod
+              image: gcr.io/google-samples/node-hello:1.0
+              securityContext:
+                capabilities:
+                  drop: ["NET_RAW"]
+  - id: 104
+    title: "Use a different group:"
+    uniqueName: CIS_INVALID_VALUE_SYSTEM_MASTERS
+    ruleId: prevent-system-masters-group
+    yamlExamples:
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: RoleBinding
+        metadata:
+          name: do-all
+          namespace: default
+        subjects:
+          - kind: User
+            name: jane
+            apiGroup: rbac.authorization.k8s.io
+  - id: 105
+    title: "Remove the aforementioned permissions:"
+    uniqueName: CIS_INVALID_VALUE_BIND_IMPERSONATE_ESCALATE
+    ruleId: prevent-role-privilege-escalation
+    yamlExamples:
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: Role
+        rules:
+          - apiGroups: [""]
+            resources: ["pods"]
+            verbs: ["get", "watch", "list"]
