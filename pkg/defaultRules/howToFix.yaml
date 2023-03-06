@@ -399,7 +399,7 @@ rules:
     yamlExamples:
       - kind: Workflow
         spec:
-          serviceAccountName: mySrvAcc"
+          serviceAccountName: mySrvAcc
   - id: 37
     title: "Set the `app.kubernetes.io/part-of` key with a value of '_argocd'_:"
     uniqueName: ARGO_CONFIGMAP_MISSING_PART_OF_LABEL_VALUE_ARGOCD
@@ -408,7 +408,7 @@ rules:
       - kind: ConfigMap
         metadata:
         labels:
-          app.kubernetes.io/part-of: argocd"
+          app.kubernetes.io/part-of: argocd
   - id: 38
     title: "Set the `duration` key and give it a value:"
     uniqueName: ARGO_ROLLOUT_MISSING_PAUSE_DURATION
