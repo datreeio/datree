@@ -391,7 +391,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-liveness-probe"
     messageOnFailure: "Missing property object `livenessProbe` - add a properly configured livenessProbe to catch possible deadlocks"
     categories:
-      - Best practices
+      - Other
     complexity: hard
     impact: When liveness probes aren't set, Kubernetes can't determine when a pod should be restarted, which can result with an unavailable application
     schema:
@@ -419,7 +419,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-readiness-probe"
     messageOnFailure: "Missing property object `readinessProbe` - add a properly configured readinessProbe to notify kubelet your Pods are ready for traffic"
     categories:
-      - Best practices
+      - Other
     complexity: hard
     impact: Readiness probes allow Kubernetes to determine when a pod is ready to accept traffic. This ensures that client requests will not be routed to pods that are unable to process them
     schema:
@@ -447,7 +447,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-hpa-minimum-replicas"
     messageOnFailure: "Missing property object `minReplicas` - the value should be within the accepted boundaries recommended by the organization"
     categories:
-      - Best practices
+      - Other
     complexity: medium
     impact: The minimum replicas range must be set to prevent unintended scaling down scenarios
     schema:
@@ -468,7 +468,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-hpa-maximum-replicas"
     messageOnFailure: "Missing property object `maxReplicas` - the value should be within the accepted boundaries recommended by the organization"
     categories:
-      - Best practices
+      - Other
     complexity: medium
     impact: The maximum replicas range must be set to prevent unintended scaling up scenarios
     schema:
@@ -532,7 +532,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-cronjob-deadline"
     messageOnFailure: "Missing property object `startingDeadlineSeconds` - set a time limit to the cron execution to allow killing it if exceeded"
     categories:
-      - Best practices
+      - Other
     complexity: medium
     impact: Setting a deadline can reduce the number of missed schedules needed to mark a CronJob as a failure while also increasing its reliability
     schema:
@@ -761,7 +761,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-cronjob-concurrency"
     messageOnFailure: Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently
     categories:
-      - Best practices
+      - Other
     complexity: easy
     impact: Preventing your CronJobs from running concurrently will cause their behavior to be more deterministic and avoid race conditions
     schema:
@@ -923,7 +923,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-mounting-docker-socket"
     messageOnFailure: "Incorrect value for key `path` - avoid mounting the docker.socket because it can allow container breakout"
     categories:
-      - Best practices
+      - Other
     complexity: medium
     impact: When a container has access to the Docker socket, it can effectively manage other containers on the host
     schema:
@@ -1856,7 +1856,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-initial-probe-delay"
     messageOnFailure: "Incorrect value for key `initialDelaySeconds` - set explicitly to control the start time before a probe is initiated (min 0)"
     categories:
-      - Best practices
+      - Other
     complexity: medium
     impact: "`initialDelaySeconds` defines the number of seconds after the container has started before liveness or readiness probes are initiated. It's recommended to set this value explicitly and not rely on the default value (0)"
     schema:
@@ -1913,7 +1913,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-frequency"
     messageOnFailure: "Incorrect value for key `periodSeconds` - set explicitly to control how often a probe is performed (min 1)"
     categories:
-      - Best practices
+      - Other
     complexity: medium
     impact: "`periodSeconds` defines how often (in seconds) the kubelet should perform a liveness probe. It's recommended to set this value explicitly and not rely on the default value (10)"
     schema:
@@ -1970,7 +1970,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-timeout"
     messageOnFailure: "Incorrect value for key `timeoutSeconds` - set explicitly to control when a probe times out (min 1)"
     categories:
-      - Best practices
+      - Other
     complexity: medium
     impact: "`timeoutSeconds` defines the number of seconds after which the probe times out. It's recommended to set this value explicitly and not rely on the default value (1)"
     schema:
@@ -2027,7 +2027,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-min-success-threshold"
     messageOnFailure: "Incorrect value for key `successThreshold` - set explicitly to control when a probe is considered successful after having failed"
     categories:
-      - Best practices
+      - Other
     complexity: medium
     impact: "`successThreshold` defines the minimum consecutive successes required for the probe to be successful after failing. It's recommended to set this value explicitly and not rely on the default value (1)"
     schema:
@@ -2084,7 +2084,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-probe-failure-threshold"
     messageOnFailure: "Incorrect value for key `failureThreshold` - set explicitly to control the number of retries after a probe fails (min 1)"
     categories:
-      - Best practices
+      - Other
     complexity: medium
     impact: "`failureThreshold` defines the number of times Kubernetes will try to initialize a failed probe before giving up. It's recommended to set this value explicitly and not rely on the default value (3)"
     schema:
@@ -2141,7 +2141,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-prestop"
     messageOnFailure: "Missing property object `preStop` - set to ensure graceful shutdown of the container"
     categories:
-      - Best practices
+      - Other
     complexity: hard
     impact: Once Kubernetes has decided to terminate one of your pods, it will proceed to send a SIGTERM signal to it. If your application doesn't gracefully shut down when receiving a SIGTERM, this can cause undesired behavior and loss of data
     schema:
