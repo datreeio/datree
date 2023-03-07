@@ -4,9 +4,7 @@
   "properties": {
     "apiVersion": {
       "type": "string",
-      "enum": [
-        "v1"
-      ]
+      "enum": ["v1"]
     },
     "rules": {
       "type": "array",
@@ -55,7 +53,7 @@
                 "EKS",
                 "NSA",
                 "Secrets",
-                "Best practices",
+                "Probes",
                 "Other",
                 "Resources",
                 "Custom"
@@ -64,11 +62,7 @@
           },
           "complexity": {
             "type": "string",
-            "enum": [
-              "easy",
-              "medium",
-              "hard"
-            ]
+            "enum": ["easy", "medium", "hard"]
           },
           "impact": {
             "type": "string",
@@ -94,8 +88,5 @@
       }
     }
   },
-  "required": [
-    "apiVersion",
-    "rules"
-  ]
+  "required": ["apiVersion", "rules"]
 }
