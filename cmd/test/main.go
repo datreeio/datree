@@ -293,7 +293,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 	var err error
 
 	if testCommandFlags.PolicyConfig != "" {
-		if !evaluationPrerunDataResp.IsPolicyAsCodeMode {
+		if localConfigContent.Offline != "local" && !evaluationPrerunDataResp.IsPolicyAsCodeMode {
 			return nil, fmt.Errorf("to use --policy-config flag you must first enable policy-as-code mode: https://hub.datree.io/policy-as-code")
 		}
 

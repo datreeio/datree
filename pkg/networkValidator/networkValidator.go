@@ -33,5 +33,5 @@ func (nv *NetworkValidator) IdentifyNetworkError(err error) error {
 }
 
 func (nv *NetworkValidator) IsLocalMode() bool {
-	return !nv.isBackendAvailable && nv.offlineMode == "local"
+	return nv.offlineMode == "local"
 }
