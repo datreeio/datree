@@ -94,7 +94,7 @@ type EvaluationPrerunDataResponse struct {
 
 func (c *CliClient) RequestEvaluationPrerunData(tokenId string, isCi bool) (*EvaluationPrerunDataResponse, error) {
 	if c.networkValidator.IsLocalMode() {
-		return &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true}, nil
+		return &EvaluationPrerunDataResponse{IsPolicyAsCodeMode: true, PoliciesJson: defaultPolicies.GetDefaultPoliciesStruct()}, nil
 	}
 
 	isCiQueryParam := "isCi=" + strconv.FormatBool(isCi)

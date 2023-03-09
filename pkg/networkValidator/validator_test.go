@@ -53,7 +53,7 @@ func TestNetworkValidatorOtherError(t *testing.T) {
 	err = test_identifyNetworkError_other_error(validator, "local")
 	isLocalMode = validator.IsLocalMode()
 	assert.Equal(t, nil, err)
-	assert.Equal(t, false, isLocalMode)
+	assert.Equal(t, true, isLocalMode)
 
 }
 

@@ -132,11 +132,10 @@ func TestRequestEvaluationPrerunDataSuccess(t *testing.T) {
 		test_requestEvaluationPrerunData_anonymousSuccess(),
 	}
 
-	httpClientMock := mockHTTPClient{}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.mock.response.body)
+			httpClientMock := mockHTTPClient{}
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
 			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, tt.mock.response.error).Once()
 
@@ -155,18 +154,45 @@ func TestRequestEvaluationPrerunDataSuccess(t *testing.T) {
 	}
 }
 
-func TestRequestEvaluationPrerunDataFail(t *testing.T) {
+func TestRequestEvaluationPrerunDataLocal(t *testing.T) {
 	tests := []*RequestEvaluationPrerunDataTestCase{
-		test_requestEvaluationPrerunData_error(),
-		test_requestEvaluationPrerunData_network_error("fail", errors.New("Failed since internet connection refused, you can use the following command to set your config to run offline:\ndatree config set offline local")),
 		test_requestEvaluationPrerunData_network_error("local", nil),
 	}
-
-	httpClientMock := mockHTTPClient{}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.mock.response.body)
+			httpClientMock := mockHTTPClient{}
+			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
+			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, tt.mock.response.error).Once()
+
+			validator := networkValidator.NewNetworkValidator()
+			validator.SetOfflineMode(tt.args.offline)
+			client := &CliClient{
+				baseUrl:          "http://cli-service.test.io",
+				httpClient:       &httpClientMock,
+				networkValidator: validator,
+			}
+
+			preRunDataResp, err := client.RequestEvaluationPrerunData(tt.args.token, false)
+
+			httpClientMock.AssertNotCalled(t, "Request", tt.expected.request.method, tt.expected.request.uri, tt.expected.request.body, tt.expected.request.headers)
+			assert.Equal(t, tt.expected.response, preRunDataResp)
+			assert.Equal(t, tt.expected.responseErr, err)
+		})
+	}
+}
+
+func TestRequestEvaluationPrerunDataFail(t *testing.T) {
+	tests := []*RequestEvaluationPrerunDataTestCase{
+		test_requestEvaluationPrerunData_error(),
+		test_requestEvaluationPrerunData_network_error("fail", errors.New("Failed since internet connection refused, you can use the following command to set your config to run offline:\ndatree config set offline local")),
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, _ := json.Marshal(tt.mock.response.body)
+			httpClientMock := mockHTTPClient{}
 			mockedHTTPResponse := httpClient.Response{StatusCode: tt.mock.response.status, Body: body}
 			httpClientMock.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockedHTTPResponse, tt.mock.response.error).Once()
 
