@@ -157,6 +157,7 @@ type TestCommandData struct {
 	SaveRendered          bool
 	PermissiveSchema      bool
 	Quiet                 bool
+	IsOffline             bool
 }
 
 type TestCommandContext struct {
@@ -331,6 +332,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		SaveRendered:          testCommandFlags.SaveRendered,
 		PermissiveSchema:      testCommandFlags.PermissiveSchema,
 		Quiet:                 testCommandFlags.Quiet,
+		IsOffline:             localConfigContent.Offline == "local",
 	}
 
 	return testCommandOptions, nil
@@ -463,6 +465,10 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 				return err
 			}
 		}
+	}
+
+	if testCommandData.IsOffline {
+		ctx.Printer.PrintMessage("[INFO] You're running Datree in offline mode", "cyan")
 	}
 
 	if err != nil {
