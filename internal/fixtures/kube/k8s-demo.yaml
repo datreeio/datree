@@ -4,7 +4,8 @@ metadata:
   name: rss-site
   namespace: test
   labels:
-    owner: --
+#    billing: test
+    owner:  --
     environment: prod
     app: web
 spec:
