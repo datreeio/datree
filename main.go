@@ -10,6 +10,8 @@ import (
 	"github.com/datreeio/datree/bl/files"
 
 	"github.com/datreeio/datree/pkg/ciContext"
+	"github.com/datreeio/datree/pkg/deploymentConfig"
+
 	"github.com/datreeio/datree/pkg/executor"
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
@@ -32,7 +34,7 @@ const VIOLATIONS_FOUND_EXIT_CODE = 2
 
 func main() {
 	validator := networkValidator.NewNetworkValidator()
-	cliClient := cliClient.NewCliClient("http://localhost:8000", validator)
+	cliClient := cliClient.NewCliClient(deploymentConfig.URL, validator)
 	localConfig := localConfig.NewLocalConfigClient(cliClient, validator)
 	ciContext := ciContext.Extract()
 
