@@ -46,7 +46,6 @@ func (CustomKeyRegoDefinitionCompiler) Compile(ctx jsonschema.CompilerContext, m
 		var regoDefinition RegoDefinition
 		err := json.Unmarshal(b, &regoDefinition)
 		if err != nil {
-			// We expect a certain format, if this fails that means the format is wrong and we can ignore this validation and move on
 			return nil, fmt.Errorf("regoDefinition must be a string")
 		}
 
