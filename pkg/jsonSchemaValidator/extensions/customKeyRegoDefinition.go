@@ -78,24 +78,13 @@ func (s CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext
 	r := rego.New(regoObjectParts...)
 
 	// Create a prepared query that can be evaluated.
-	_, err := r.PrepareForEval(regoCtx)
+	query, err := r.PrepareForEval(regoCtx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	pr, err := r.PartialResult(regoCtx)
-	if err != nil {
-		fmt.Println(err.Error())
-		// Handle error.
-	}
-
-	// Prepare and run normal evaluation from the result of partial
-	// evaluation.
-	rr := pr.Rego(
-		rego.Input(dataValue),
-	)
-
-	rs, err := rr.Eval(regoCtx)
+	// Execute the prepared query.
+	rs, err := query.Eval(regoCtx, rego.EvalInput(dataValue))
 
 	if err != nil || len(rs) != 1 || len(rs[0].Expressions) != 1 {
 		// We expect a certain format, if this fails that means the format is wrong and we can ignore this validation and move on
