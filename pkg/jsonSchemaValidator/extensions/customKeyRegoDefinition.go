@@ -19,13 +19,13 @@ import (
 var regoCodeToEval = RegoDefinition{}
 var mainRegoPackage = ""
 
-const regoDefinitionCustomKEY = "regoDefinition"
+const regoDefinitionCustomKey = "regoDefinition"
 
-type CustomKeyRegoRuleCompiler struct{}
+type CustomKeyRegoDefinitionCompiler struct{}
 
-type CustomKeyRegoRuleSchema map[string]interface{}
+type CustomKeyRegoDefinitionSchema map[string]interface{}
 
-var CustomKeyRegoRule = jsonschema.MustCompileString("customKeyRegoRule.json", `{
+var CustomKeyRegoRule = jsonschema.MustCompileString("customKeyRegoDefinition.json", `{
 	"properties" : {
 		"regoCode": {
 			"type": "string"
@@ -33,8 +33,8 @@ var CustomKeyRegoRule = jsonschema.MustCompileString("customKeyRegoRule.json", `
 	}
 }`)
 
-func (CustomKeyRegoRuleCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
-	if customKeyRegoRule, ok := m[regoDefinitionCustomKEY]; ok {
+func (CustomKeyRegoDefinitionCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
+	if customKeyRegoRule, ok := m[regoDefinitionCustomKey]; ok {
 		customKeyRegoRuleStr, validStr := customKeyRegoRule.(map[string]interface{})
 		if !validStr {
 			return nil, fmt.Errorf("regoCode must be a string")
@@ -50,7 +50,7 @@ func (CustomKeyRegoRuleCompiler) Compile(ctx jsonschema.CompilerContext, m map[s
 
 		regoCodeToEval = regoDefinition
 		mainRegoPackage = getPackageFromRegoCode(regoDefinition.Code)
-		return CustomKeyRegoRuleSchema(customKeyRegoRuleStr), nil
+		return CustomKeyRegoDefinitionSchema(customKeyRegoRuleStr), nil
 	}
 	return nil, nil
 }
@@ -60,7 +60,7 @@ type RegoDefinition struct {
 	Code string   `json:"code"`
 }
 
-func (s CustomKeyRegoRuleSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
+func (s CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
 	mainModuleFileName := "main.rego"
 	regoFunctionEntryPoint := "violation"
 	libsModuleGeneralName := "lib.rego"
@@ -104,7 +104,7 @@ func (s CustomKeyRegoRuleSchema) Validate(ctx jsonschema.ValidationContext, data
 		resultsValue := (rs[0].Expressions[0].Value).([]interface{})
 		if value, ok := resultsValue[0].(bool); ok {
 			if value {
-				return ctx.Error(regoDefinitionCustomKEY, "values in data value %v do not match", rs[0].Expressions[0].Value)
+				return ctx.Error(regoDefinitionCustomKey, "values in data value %v do not match", rs[0].Expressions[0].Value)
 			}
 			return nil
 		}
