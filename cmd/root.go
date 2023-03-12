@@ -89,12 +89,13 @@ func NewRootCommand(app *App) *cobra.Command {
 	}))
 
 	rootCmd.AddCommand(publish.New(&publish.PublishCommandContext{
-		CliVersion:       CliVersion,
-		LocalConfig:      app.Context.LocalConfig,
-		Messager:         app.Context.Messager,
-		Printer:          app.Context.Printer,
-		PublishCliClient: app.Context.CliClient,
-		FilesExtractor:   app.Context.FilesExtractor,
+		CliVersion:          CliVersion,
+		LocalConfig:         app.Context.LocalConfig,
+		Messager:            app.Context.Messager,
+		Printer:             app.Context.Printer,
+		PublishCliClient:    app.Context.CliClient,
+		FilesExtractor:      app.Context.FilesExtractor,
+		JSONSchemaValidator: app.Context.JSONSchemaValidator,
 	}))
 
 	rootCmd.AddCommand(completion.New())

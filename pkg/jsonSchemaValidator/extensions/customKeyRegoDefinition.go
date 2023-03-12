@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -18,8 +17,11 @@ import (
 
 var regoCodeToEval = RegoDefinition{}
 var mainRegoPackage = ""
+var mainModuleFileName = "main.rego"
+var regoFunctionEntryPoint = "violation"
+var libsModuleGeneralName = "lib.rego"
 
-const regoDefinitionCustomKey = "regoDefinition"
+const RegoDefinitionCustomKey = "regoDefinition"
 
 type CustomKeyRegoDefinitionCompiler struct{}
 
@@ -34,7 +36,7 @@ var CustomKeyRegoRule = jsonschema.MustCompileString("customKeyRegoDefinition.js
 }`)
 
 func (CustomKeyRegoDefinitionCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
-	if customKeyRegoRule, ok := m[regoDefinitionCustomKey]; ok {
+	if customKeyRegoRule, ok := m[RegoDefinitionCustomKey]; ok {
 		customKeyRegoRuleStr, validStr := customKeyRegoRule.(map[string]interface{})
 		if !validStr {
 			return nil, fmt.Errorf("regoCode must be a string")
@@ -49,7 +51,6 @@ func (CustomKeyRegoDefinitionCompiler) Compile(ctx jsonschema.CompilerContext, m
 		}
 
 		regoCodeToEval = regoDefinition
-		mainRegoPackage = getPackageFromRegoCode(regoDefinition.Code)
 		return CustomKeyRegoDefinitionSchema(customKeyRegoRuleStr), nil
 	}
 	return nil, nil
@@ -61,26 +62,14 @@ type RegoDefinition struct {
 }
 
 func (s CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
-	mainModuleFileName := "main.rego"
-	regoFunctionEntryPoint := "violation"
-	libsModuleGeneralName := "lib.rego"
-
 	regoCtx := context.Background()
-	var regoObjectParts []func(r *rego.Rego)
-	regoObjectParts = append(regoObjectParts, rego.Query("data."+mainRegoPackage+"."+regoFunctionEntryPoint))
 
-	regoObjectParts = append(regoObjectParts, rego.Module(mainModuleFileName, regoCodeToEval.Code))
-
-	for _, lib := range regoCodeToEval.Libs {
-		rnd := rand.Intn(100)
-		regoObjectParts = append(regoObjectParts, rego.Module(libsModuleGeneralName+strconv.Itoa(rnd), lib))
-	}
-	r := rego.New(regoObjectParts...)
+	r := retrieveRegoFromSchema(regoCodeToEval.Code)
 
 	// Create a prepared query that can be evaluated.
 	query, err := r.PrepareForEval(regoCtx)
 	if err != nil {
-		log.Fatal(err)
+		return ctx.Error(RegoDefinitionCustomKey, "can't compile rego code")
 	}
 
 	// Execute the prepared query.
@@ -93,7 +82,7 @@ func (s CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext
 		resultsValue := (rs[0].Expressions[0].Value).([]interface{})
 		if value, ok := resultsValue[0].(bool); ok {
 			if value {
-				return ctx.Error(regoDefinitionCustomKey, "values in data value %v do not match", rs[0].Expressions[0].Value)
+				return ctx.Error(RegoDefinitionCustomKey, "values in data value %v do not match", rs[0].Expressions[0].Value)
 			}
 			return nil
 		}
@@ -109,4 +98,20 @@ func getPackageFromRegoCode(regoCode string) string {
 	// get next single word after "package"
 	packageStr := strings.Fields(regoCode[index:])
 	return packageStr[1]
+}
+
+func retrieveRegoFromSchema(regoCode string) *rego.Rego {
+	mainRegoPackage = getPackageFromRegoCode(regoCode)
+
+	var regoObjectParts []func(r *rego.Rego)
+	regoObjectParts = append(regoObjectParts, rego.Query("data."+mainRegoPackage+"."+regoFunctionEntryPoint))
+
+	regoObjectParts = append(regoObjectParts, rego.Module(mainModuleFileName, regoCode))
+
+	for _, lib := range regoCodeToEval.Libs {
+		rnd := rand.Intn(100)
+		regoObjectParts = append(regoObjectParts, rego.Module(libsModuleGeneralName+strconv.Itoa(rnd), lib))
+	}
+	r := rego.New(regoObjectParts...)
+	return r
 }

@@ -1,0 +1,19 @@
+definitions:
+  regoPattern:
+    properties:
+      regoDefinition:
+        type: object
+        required:
+          - code
+        properties:
+          libs:
+            type: array
+          code:
+            type: string
+            pattern: \bviolation\b
+allOf:
+  - $ref: "#/definitions/regoPattern"
+additionalProperties:
+  $ref: "#"
+items:
+  $ref: "#"
