@@ -1,6 +1,6 @@
 apiVersion: v1
 policies:
-  - name: governance_best_practices
+  - name: rego_policy
     isDefault: true
     rules:
       - identifier: CUSTOM_INGRESS_INCORRECT_HOST_VALUE
@@ -64,7 +64,7 @@ customRules:
             
             violation[aBool] {
             provided := {label | input.metadata.labels[label]}
-            required := {"kaki"}
+            required := {"environment"}
             missing := required - provided
             aBool := count(missing) > 0
             }
