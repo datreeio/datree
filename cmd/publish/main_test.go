@@ -2,9 +2,10 @@ package publish
 
 import (
 	"errors"
-	"github.com/santhosh-tekuri/jsonschema/v5"
 	"strings"
 	"testing"
+
+	"github.com/santhosh-tekuri/jsonschema/v5"
 
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"

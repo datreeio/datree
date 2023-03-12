@@ -4,9 +4,10 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	jsonSchemaValidator "github.com/datreeio/datree/pkg/jsonSchemaValidator/extensions"
 	"github.com/santhosh-tekuri/jsonschema/v5"
-	"strings"
 
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
@@ -150,7 +151,7 @@ func validateIfRegoRules(ctx *PublishCommandContext, customRules []interface{}) 
 			if err != nil {
 				return false, err
 			}
-			if errorsResult != nil && len(errorsResult) > 0 {
+			if len(errorsResult) > 0 {
 				ctx.Printer.PrintYamlSchemaResults(errorsResult, err)
 				return false, nil
 			}
