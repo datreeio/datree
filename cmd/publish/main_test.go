@@ -2,6 +2,7 @@ package publish
 
 import (
 	"errors"
+	"github.com/santhosh-tekuri/jsonschema/v5"
 	"strings"
 	"testing"
 
@@ -48,6 +49,10 @@ func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {
 	p.Called(messageText, messageColor)
 }
 
+func (p *PrinterMock) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, error error) {
+	p.Called(errorsResult, error)
+}
+
 type PublishClientMock struct {
 	mock.Mock
 }
@@ -75,6 +80,7 @@ func TestPublishCommand(t *testing.T) {
 
 	printerMock := &PrinterMock{}
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
+	printerMock.On("PrintYamlSchemaResults", mock.Anything, mock.Anything)
 
 	publishClientMock := &PublishClientMock{}
 
