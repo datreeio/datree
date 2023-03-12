@@ -29,7 +29,7 @@ type CustomKeyRegoDefinitionSchema map[string]interface{}
 
 var CustomKeyRegoRule = jsonschema.MustCompileString("customKeyRegoDefinition.json", `{
 	"properties" : {
-		"regoCode": {
+		"regoDefinition": {
 			"type": "string"
 		}
 	}
@@ -39,7 +39,7 @@ func (CustomKeyRegoDefinitionCompiler) Compile(ctx jsonschema.CompilerContext, m
 	if customKeyRegoRule, ok := m[RegoDefinitionCustomKey]; ok {
 		customKeyRegoRuleStr, validStr := customKeyRegoRule.(map[string]interface{})
 		if !validStr {
-			return nil, fmt.Errorf("regoCode must be a string")
+			return nil, fmt.Errorf("regoDefinition must be a string")
 		}
 
 		b, _ := json.Marshal(customKeyRegoRule)
@@ -47,7 +47,7 @@ func (CustomKeyRegoDefinitionCompiler) Compile(ctx jsonschema.CompilerContext, m
 		err := json.Unmarshal(b, &regoDefinition)
 		if err != nil {
 			// We expect a certain format, if this fails that means the format is wrong and we can ignore this validation and move on
-			return nil, fmt.Errorf("regoCode must be a string")
+			return nil, fmt.Errorf("regoDefinition must be a string")
 		}
 
 		regoCodeToEval = regoDefinition
