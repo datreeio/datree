@@ -3,16 +3,16 @@ policies:
   - name: rego_policy
     isDefault: true
     rules:
-      - identifier: CUSTOM_INGRESS_INCORRECT_HOST_VALUE
-        messageOnFailure: "host value should contain a valid organization name (*.example.com)"
-      - identifier: CUSTOM_INGRESS_INCORRECT_HOST_VALUE_2
-        messageOnFailure: "host value should contain a valid organization name (*.example.com)"
+      - identifier: CUSTOM_DEPLOYMENT_BILLING_LABEL_EXISTS
+        messageOnFailure: "deployment labels should contain billing label"
+      - identifier: CUSTOM_SECRET_ENVIRONMENT_LABEL_EXISTS
+        messageOnFailure: "secret labels should contain environment label"
 
 
 customRules:
-  - identifier: CUSTOM_INGRESS_INCORRECT_HOST_VALUE
-    name: Ensure Ingress only uses approved domain names for hostnames [CUSTOM RULE]
-    defaultMessageOnFailure: host value should contain a valid organization name (*.example.com)
+  - identifier: CUSTOM_DEPLOYMENT_BILLING_LABEL_EXISTS
+    name: Ensure Deployment has billing label [CUSTOM RULE]
+    defaultMessageOnFailure: deployment labels should contain billing label
     schema:
       # constraint schema
       if:
@@ -26,22 +26,22 @@ customRules:
           libs:
             - |
               package lib.helpers
-              make_message(isMissing) = msg {
-                          msg := sprintf("you must provide labels: %v", [isMissing])
+              check_if_missing(missing) = isMissing {
+                          isMissing := count(missing) > 0
                         }
           code: |
             package foosystemrequiredlabels
             import data.lib.helpers
             
-            violation[aBool] {
+            violation[labelIsMissing] {
             provided := {label | input.metadata.labels[label]}
             required := {"billing"}
             missing := required - provided
-            aBool := count(missing) > 0
+            labelIsMissing := helpers.check_if_missing(missing)
             }
-  - identifier: CUSTOM_INGRESS_INCORRECT_HOST_VALUE_2
-    name: Ensure Ingress only uses approved domain names for hostnames [CUSTOM RULE]
-    defaultMessageOnFailure: host value should contain a valid organization name (*.example.com)
+  - identifier: CUSTOM_SECRET_ENVIRONMENT_LABEL_EXISTS
+    name: Ensure Secret has environment label [CUSTOM RULE]
+    defaultMessageOnFailure: secret labels should contain environment label
     schema:
       # constraint schema
       if:
@@ -55,16 +55,16 @@ customRules:
           libs:
             - |
               package lib.helpers
-              make_message(isMissing) = msg {
-                          msg := sprintf("you must provide labels: %v", [isMissing])
+              check_if_missing(missing) = isMissing {
+                          isMissing := count(missing) > 0
                         }
           code: |
             package foosystemrequiredlabels
             import data.lib.helpers
             
-            violation[aBool] {
+            violation[labelIsMissing] {
             provided := {label | input.metadata.labels[label]}
             required := {"environment"}
             missing := required - provided
-            aBool := count(missing) > 0
+            labelIsMissing := helpers.check_if_missing(missing)
             }
