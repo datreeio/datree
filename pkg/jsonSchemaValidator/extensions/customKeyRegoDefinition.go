@@ -77,15 +77,16 @@ func (s CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext
 		return nil
 	} else {
 		resultsValue := (rs[0].Expressions[0].Value).([]interface{})
-		if value, ok := resultsValue[0].(bool); ok {
+		value, ok := resultsValue[0].(bool)
+		if ok {
 			if value {
 				return ctx.Error(RegoDefinitionCustomKey, "values in data value %v do not match", rs[0].Expressions[0].Value)
 			}
 			return nil
+		} else {
+			return ctx.Error(RegoDefinitionCustomKey, "violation needs to return boolean")
 		}
 	}
-
-	return nil
 }
 
 func getPackageFromRegoCode(regoCode string) string {
