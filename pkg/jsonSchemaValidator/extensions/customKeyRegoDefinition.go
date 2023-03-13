@@ -7,8 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
-	"strconv"
 	"strings"
 
 	"github.com/open-policy-agent/opa/rego"
@@ -108,8 +106,8 @@ func retrieveRegoFromSchema(regoCode string) *rego.Rego {
 	regoObjectParts = append(regoObjectParts, rego.Module(mainModuleFileName, regoCode))
 
 	for _, lib := range regoCodeToEval.Libs {
-		rnd := rand.Intn(100)
-		regoObjectParts = append(regoObjectParts, rego.Module(libsModuleGeneralName+strconv.Itoa(rnd), lib))
+		libPackageName := getPackageFromRegoCode(lib)
+		regoObjectParts = append(regoObjectParts, rego.Module(libPackageName, lib))
 	}
 	r := rego.New(regoObjectParts...)
 	return r
