@@ -17,7 +17,6 @@ var regoCodeToEval = RegoDefinition{}
 var mainRegoPackage = ""
 var mainModuleFileName = "main.rego"
 var regoFunctionEntryPoint = "violation"
-var libsModuleGeneralName = "lib.rego"
 
 const RegoDefinitionCustomKey = "regoDefinition"
 
@@ -66,15 +65,18 @@ func (s CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext
 	// Create a prepared query that can be evaluated.
 	query, err := r.PrepareForEval(regoCtx)
 	if err != nil {
-		return ctx.Error(RegoDefinitionCustomKey, "can't compile rego code")
+		return ctx.Error(RegoDefinitionCustomKey, "can't compile rego code, %s", err.Error())
 	}
 
 	// Execute the prepared query.
 	rs, err := query.Eval(regoCtx, rego.EvalInput(dataValue))
 
-	if err != nil || len(rs) != 1 || len(rs[0].Expressions) != 1 {
-		// We expect a certain format, if this fails that means the format is wrong and we can ignore this validation and move on
-		return nil
+	if err != nil {
+		return ctx.Error(RegoDefinitionCustomKey, "failed to evaluate rego due to %s", err.Error())
+	}
+
+	if len(rs) != 1 || len(rs[0].Expressions) != 1 {
+		return ctx.Error(RegoDefinitionCustomKey, "failed to evaluate rego, unexpected results")
 	} else {
 		resultsValue := (rs[0].Expressions[0].Value).([]interface{})
 		value, ok := resultsValue[0].(bool)
@@ -84,7 +86,7 @@ func (s CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext
 			}
 			return nil
 		} else {
-			return ctx.Error(RegoDefinitionCustomKey, "violation needs to return boolean")
+			return ctx.Error(RegoDefinitionCustomKey, "violation needs to return a boolean")
 		}
 	}
 }
