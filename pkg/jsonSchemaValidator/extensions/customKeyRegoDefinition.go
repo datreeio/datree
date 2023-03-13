@@ -1,5 +1,4 @@
-// This file defines a custom key to implement the logic for the rule:
-// https://hub.datree.io/built-in-rules/ensure-memory-request-limit-equal
+// This file defines a custom key to implement the logic for rego rule:
 
 package jsonSchemaValidator
 
@@ -13,12 +12,12 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
 
+const RegoDefinitionCustomKey = "regoDefinition"
+
 var regoCodeToEval = RegoDefinition{}
 var mainRegoPackage = ""
 var mainModuleFileName = "main.rego"
 var regoFunctionEntryPoint = "violation"
-
-const RegoDefinitionCustomKey = "regoDefinition"
 
 type CustomKeyRegoDefinitionCompiler struct{}
 
@@ -27,27 +26,27 @@ type CustomKeyRegoDefinitionSchema map[string]interface{}
 var CustomKeyRegoRule = jsonschema.MustCompileString("customKeyRegoDefinition.json", `{
 	"properties" : {
 		"regoDefinition": {
-			"type": "string"
+			"type": "object"
 		}
 	}
 }`)
 
 func (CustomKeyRegoDefinitionCompiler) Compile(ctx jsonschema.CompilerContext, m map[string]interface{}) (jsonschema.ExtSchema, error) {
 	if customKeyRegoRule, ok := m[RegoDefinitionCustomKey]; ok {
-		customKeyRegoRuleStr, validStr := customKeyRegoRule.(map[string]interface{})
-		if !validStr {
-			return nil, fmt.Errorf("regoDefinition must be a string")
+		customKeyRegoRuleObj, validObject := customKeyRegoRule.(map[string]interface{})
+		if !validObject {
+			return nil, fmt.Errorf("regoDefinition must be an object")
 		}
 
 		b, _ := json.Marshal(customKeyRegoRule)
 		var regoDefinition RegoDefinition
 		err := json.Unmarshal(b, &regoDefinition)
 		if err != nil {
-			return nil, fmt.Errorf("regoDefinition must be a string")
+			return nil, fmt.Errorf("regoDefinition must be an object of type RegoDefinition")
 		}
 
 		regoCodeToEval = regoDefinition
-		return CustomKeyRegoDefinitionSchema(customKeyRegoRuleStr), nil
+		return CustomKeyRegoDefinitionSchema(customKeyRegoRuleObj), nil
 	}
 	return nil, nil
 }
