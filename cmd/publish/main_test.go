@@ -2,6 +2,7 @@ package publish
 
 import (
 	"errors"
+	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"strings"
 	"testing"
 
@@ -103,6 +104,8 @@ func TestPublishCommand(t *testing.T) {
 
 func testPublishCommandSuccess(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.LocalConfig) {
 	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(&cliClient.PublishFailedResponse{}, nil).Once()
+	jsonSchemaValidator := jsonSchemaValidator.New()
+	ctx.JSONSchemaValidator = jsonSchemaValidator
 	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/valid-schema.yaml", localConfigContent)
 	assert.Equal(t, nil, err)
 }
