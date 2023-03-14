@@ -2,9 +2,10 @@ package publish
 
 import (
 	"errors"
-	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 	"strings"
 	"testing"
+
+	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
 
 	"github.com/santhosh-tekuri/jsonschema/v5"
 
