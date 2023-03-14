@@ -35,9 +35,13 @@ func (CustomKeyRegoDefinitionCompiler) Compile(ctx jsonschema.CompilerContext, m
 			return nil, fmt.Errorf("regoDefinition must be an object")
 		}
 
-		b, _ := json.Marshal(customKeyRegoRule)
+		b, err := json.Marshal(customKeyRegoRule)
+		if err != nil {
+			return nil, fmt.Errorf("regoDefinition faild to marshal to json, %s", err.Error())
+		}
+
 		var regoDefinition RegoDefinition
-		err := json.Unmarshal(b, &regoDefinition)
+		err = json.Unmarshal(b, &regoDefinition)
 		if err != nil {
 			return nil, fmt.Errorf("regoDefinition must be an object of type RegoDefinition")
 		}
