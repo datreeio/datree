@@ -8,6 +8,9 @@ definitions:
         properties:
           libs:
             type: array
+            "items": {
+              "type": "string"
+            }
           code:
             type: string
             pattern: \bviolation\b
