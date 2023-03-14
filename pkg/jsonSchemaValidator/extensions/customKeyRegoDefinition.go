@@ -14,8 +14,6 @@ import (
 
 const RegoDefinitionCustomKey = "regoDefinition"
 
-var regoCodeToEval = RegoDefinition{}
-
 type CustomKeyRegoDefinitionCompiler struct{}
 
 type CustomKeyRegoDefinitionSchema map[string]interface{}
@@ -35,18 +33,15 @@ func (CustomKeyRegoDefinitionCompiler) Compile(ctx jsonschema.CompilerContext, m
 			return nil, fmt.Errorf("regoDefinition must be an object")
 		}
 
-		b, err := json.Marshal(customKeyRegoRule)
+		regoDefinitionSchema, err := convertCustomKeyRegoDefinitionSchemaToRegoDefinitionSchema(customKeyRegoRuleObj)
 		if err != nil {
-			return nil, fmt.Errorf("regoDefinition faild to marshal to json, %s", err.Error())
+			return nil, err
 		}
 
-		var regoDefinition RegoDefinition
-		err = json.Unmarshal(b, &regoDefinition)
-		if err != nil {
-			return nil, fmt.Errorf("regoDefinition must be an object of type RegoDefinition")
+		if regoDefinitionSchema.Code == "" {
+			return nil, fmt.Errorf("regoDefinition.code can't be empty")
 		}
 
-		regoCodeToEval = regoDefinition
 		return CustomKeyRegoDefinitionSchema(customKeyRegoRuleObj), nil
 	}
 	return nil, nil
@@ -57,10 +52,18 @@ type RegoDefinition struct {
 	Code string   `json:"code"`
 }
 
-func (s CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
+func (customKeyRegoDefinitionSchema CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
+	regoDefinitionSchema, err := convertCustomKeyRegoDefinitionSchemaToRegoDefinitionSchema(customKeyRegoDefinitionSchema)
+	if err != nil {
+		return ctx.Error(RegoDefinitionCustomKey, err.Error())
+	}
+
 	regoCtx := context.Background()
 
-	r := retrieveRegoFromSchema(regoCodeToEval.Code)
+	r, err := retrieveRegoFromSchema(regoDefinitionSchema)
+	if err != nil {
+		return ctx.Error(RegoDefinitionCustomKey, "can't compile rego code, %s", err.Error())
+	}
 
 	// Create a prepared query that can be evaluated.
 	query, err := r.PrepareForEval(regoCtx)
@@ -91,30 +94,53 @@ func (s CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext
 	return nil
 }
 
-func getPackageFromRegoCode(regoCode string) string {
+func getPackageFromRegoCode(regoCode string) (string, error) {
 	const PACKAGE = "package"
 	// find the index of string "package"
 	index := strings.Index(regoCode, PACKAGE)
+	if index == -1 {
+		return "", fmt.Errorf("rego code must have a package")
+	}
 	// get next single word after "package"
 	packageStr := strings.Fields(regoCode[index:])
-	return packageStr[1]
+	return packageStr[1], nil
 }
 
-func retrieveRegoFromSchema(regoCode string) *rego.Rego {
+func retrieveRegoFromSchema(regoDefinitionSchema *RegoDefinition) (*rego.Rego, error) {
 	const mainModuleFileName = "main.rego"
 	const regoFunctionEntryPoint = "violation"
 
-	mainRegoPackage := getPackageFromRegoCode(regoCode)
+	mainRegoPackage, err := getPackageFromRegoCode(regoDefinitionSchema.Code)
+	if err != nil {
+		return nil, err
+	}
 
 	var regoObjectParts []func(r *rego.Rego)
 	regoObjectParts = append(regoObjectParts, rego.Query("data."+mainRegoPackage+"."+regoFunctionEntryPoint))
 
-	regoObjectParts = append(regoObjectParts, rego.Module(mainModuleFileName, regoCode))
+	regoObjectParts = append(regoObjectParts, rego.Module(mainModuleFileName, regoDefinitionSchema.Code))
 
-	for _, lib := range regoCodeToEval.Libs {
-		libPackageName := getPackageFromRegoCode(lib)
+	for _, lib := range regoDefinitionSchema.Libs {
+		libPackageName, err := getPackageFromRegoCode(lib)
+		if err != nil {
+			return nil, err
+		}
 		regoObjectParts = append(regoObjectParts, rego.Module(libPackageName, lib))
 	}
 	r := rego.New(regoObjectParts...)
-	return r
+	return r, nil
+}
+
+func convertCustomKeyRegoDefinitionSchemaToRegoDefinitionSchema(regoDefinitionSchema CustomKeyRegoDefinitionSchema) (*RegoDefinition, error) {
+	b, err := json.Marshal(regoDefinitionSchema)
+	if err != nil {
+		return nil, fmt.Errorf("regoDefinition failed to marshal to json, %s", err.Error())
+	}
+
+	var regoDefinition RegoDefinition
+	err = json.Unmarshal(b, &regoDefinition)
+	if err != nil {
+		return nil, fmt.Errorf("regoDefinition must be an object of type RegoDefinition %s", err.Error())
+	}
+	return &regoDefinition, nil
 }
