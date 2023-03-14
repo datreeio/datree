@@ -140,8 +140,8 @@ func publish(ctx *PublishCommandContext, path string, localConfigContent *localC
 }
 
 func validateIfRegoRules(ctx *PublishCommandContext, customRules []interface{}) (bool, error) {
-	for _, regoRule := range customRules {
-		b, _ := json.Marshal(regoRule)
+	for _, customRule := range customRules {
+		b, _ := json.Marshal(customRule)
 		regoRuleStr := string(b)
 
 		isRegoRule := strings.Contains(regoRuleStr, jsonSchemaValidator.RegoDefinitionCustomKey)
