@@ -13,7 +13,10 @@ definitions:
             }
           code:
             type: string
-            pattern: \bviolation\b
+            allOf:
+              - pattern: \bviolation\b
+              - pattern: ^package [^\s\\]+
+
 allOf:
   - $ref: "#/definitions/regoPattern"
 additionalProperties:
