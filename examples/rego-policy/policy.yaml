@@ -1,0 +1,70 @@
+apiVersion: v1
+policies:
+  - name: rego_policy
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_DEPLOYMENT_BILLING_LABEL_EXISTS
+        messageOnFailure: "deployment labels should contain billing label"
+      - identifier: CUSTOM_SECRET_ENVIRONMENT_LABEL_EXISTS
+        messageOnFailure: "secret labels should contain environment label"
+
+
+customRules:
+  - identifier: CUSTOM_DEPLOYMENT_BILLING_LABEL_EXISTS
+    name: Ensure Deployment has billing label [CUSTOM RULE]
+    defaultMessageOnFailure: deployment labels should contain billing label
+    schema:
+      # constraint schema
+      if:
+        properties:
+          kind:
+            type: string
+            enum:
+              - Deployment
+      then:
+        regoDefinition:
+          libs:
+            - |
+              package lib.helpers
+              check_if_missing(missing) = isMissing {
+                          isMissing := count(missing) > 0
+                        }
+          code: |
+            package foosystemrequiredlabels
+            import data.lib.helpers
+            
+            violation[labelIsMissing] {
+            provided := {label | input.metadata.labels[label]}
+            required := {"billing"}
+            missing := required - provided
+            labelIsMissing := helpers.check_if_missing(missing)
+            }
+  - identifier: CUSTOM_SECRET_ENVIRONMENT_LABEL_EXISTS
+    name: Ensure Secret has environment label [CUSTOM RULE]
+    defaultMessageOnFailure: secret labels should contain environment label
+    schema:
+      # constraint schema
+      if:
+        properties:
+          kind:
+            type: string
+            enum:
+              - Secret
+      then:
+        regoDefinition:
+          libs:
+            - |
+              package lib.helpers
+              check_if_missing(missing) = isMissing {
+                          isMissing := count(missing) > 0
+                        }
+          code: |
+            package foosystemrequiredlabels
+            import data.lib.helpers
+            
+            violation[labelIsMissing] {
+            provided := {label | input.metadata.labels[label]}
+            required := {"environment"}
+            missing := required - provided
+            labelIsMissing := helpers.check_if_missing(missing)
+            }

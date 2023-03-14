@@ -5,6 +5,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
+
+	"github.com/santhosh-tekuri/jsonschema/v5"
+
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/cliClient"
@@ -48,6 +52,10 @@ func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {
 	p.Called(messageText, messageColor)
 }
 
+func (p *PrinterMock) PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, error error) {
+	p.Called(errorsResult, error)
+}
+
 type PublishClientMock struct {
 	mock.Mock
 }
@@ -75,6 +83,7 @@ func TestPublishCommand(t *testing.T) {
 
 	printerMock := &PrinterMock{}
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
+	printerMock.On("PrintYamlSchemaResults", mock.Anything, mock.Anything)
 
 	publishClientMock := &PublishClientMock{}
 
@@ -96,6 +105,8 @@ func TestPublishCommand(t *testing.T) {
 
 func testPublishCommandSuccess(t *testing.T, ctx *PublishCommandContext, publishClientMock *PublishClientMock, localConfigContent *localConfig.LocalConfig) {
 	publishClientMock.On("PublishPolicies", mock.Anything, mock.Anything).Return(&cliClient.PublishFailedResponse{}, nil).Once()
+	jsonSchemaValidator := jsonSchemaValidator.New()
+	ctx.JSONSchemaValidator = jsonSchemaValidator
 	_, err := publish(ctx, "../../internal/fixtures/policyAsCode/valid-schema.yaml", localConfigContent)
 	assert.Equal(t, nil, err)
 }

@@ -1,13 +1,16 @@
 package publish
 
 import (
+	_ "embed"
+	"encoding/json"
 	"fmt"
 
-	"github.com/datreeio/datree/pkg/evaluation"
+	"github.com/santhosh-tekuri/jsonschema/v5"
 
 	"github.com/datreeio/datree/bl/files"
 	"github.com/datreeio/datree/bl/messager"
 	"github.com/datreeio/datree/pkg/cliClient"
+	"github.com/datreeio/datree/pkg/evaluation"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/spf13/cobra"
@@ -19,6 +22,7 @@ type Messager interface {
 
 type Printer interface {
 	PrintMessage(messageText string, messageColor string)
+	PrintYamlSchemaResults(errorsResult []jsonschema.Detailed, error error)
 }
 
 type LocalConfig interface {
@@ -29,13 +33,18 @@ type CliClient interface {
 	PublishPolicies(policiesConfiguration files.UnknownStruct, token string) (*cliClient.PublishFailedResponse, error)
 }
 
+type JSONSchemaValidator interface {
+	ValidateYamlSchema(yamlSchema string, yaml string) ([]jsonschema.Detailed, error)
+}
+
 type PublishCommandContext struct {
-	CliVersion       string
-	LocalConfig      LocalConfig
-	Messager         Messager
-	Printer          Printer
-	PublishCliClient CliClient
-	FilesExtractor   files.FilesExtractorInterface
+	CliVersion          string
+	LocalConfig         LocalConfig
+	Messager            Messager
+	Printer             Printer
+	PublishCliClient    CliClient
+	FilesExtractor      files.FilesExtractorInterface
+	JSONSchemaValidator JSONSchemaValidator
 }
 
 func New(ctx *PublishCommandContext) *cobra.Command {
@@ -105,11 +114,43 @@ type MessagesContext struct {
 	CliClient   *cliClient.CliClient
 }
 
+//go:embed regoDefinitionSchema.yaml
+var regoDefinitionSchemaStr string
+
 func publish(ctx *PublishCommandContext, path string, localConfigContent *localConfig.LocalConfig) (*cliClient.PublishFailedResponse, error) {
 	policiesConfiguration, err := ctx.FilesExtractor.ExtractYamlFileToUnknownStruct(path)
 	if err != nil {
 		return nil, err
 	}
 
+	if customRules, ok := policiesConfiguration["customRules"]; ok {
+		valid, err :=
+			validateRegoDefinitions(ctx, customRules.([]interface{}))
+		if err != nil {
+			return nil, err
+		}
+		if !valid {
+			return nil, fmt.Errorf("failed to validate rego custom rules")
+		}
+	}
+
 	return ctx.PublishCliClient.PublishPolicies(policiesConfiguration, localConfigContent.Token)
+}
+
+func validateRegoDefinitions(ctx *PublishCommandContext, customRules []interface{}) (bool, error) {
+	for _, customRule := range customRules {
+		b, _ := json.Marshal(customRule)
+		customRuleStr := string(b)
+
+		errorsResult, err := ctx.JSONSchemaValidator.ValidateYamlSchema(regoDefinitionSchemaStr, customRuleStr)
+
+		if err != nil {
+			return false, err
+		}
+		if len(errorsResult) > 0 {
+			ctx.Printer.PrintYamlSchemaResults(errorsResult, err)
+			return false, nil
+		}
+	}
+	return true, nil
 }
