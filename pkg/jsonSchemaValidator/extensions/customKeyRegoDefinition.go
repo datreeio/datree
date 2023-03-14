@@ -101,8 +101,8 @@ func getPackageFromRegoCode(regoCode string) string {
 }
 
 func retrieveRegoFromSchema(regoCode string) *rego.Rego {
-	var mainModuleFileName = "main.rego"
-	var regoFunctionEntryPoint = "violation"
+	const mainModuleFileName = "main.rego"
+	const regoFunctionEntryPoint = "violation"
 
 	mainRegoPackage := getPackageFromRegoCode(regoCode)
 
