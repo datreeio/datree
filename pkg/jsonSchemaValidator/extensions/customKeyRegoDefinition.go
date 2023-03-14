@@ -15,9 +15,6 @@ import (
 const RegoDefinitionCustomKey = "regoDefinition"
 
 var regoCodeToEval = RegoDefinition{}
-var mainRegoPackage = ""
-var mainModuleFileName = "main.rego"
-var regoFunctionEntryPoint = "violation"
 
 type CustomKeyRegoDefinitionCompiler struct{}
 
@@ -76,17 +73,17 @@ func (s CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext
 
 	if len(rs) != 1 || len(rs[0].Expressions) != 1 {
 		return ctx.Error(RegoDefinitionCustomKey, "failed to evaluate rego, unexpected results")
-	} else {
-		resultsValue := (rs[0].Expressions[0].Value).([]interface{})
-		value, ok := resultsValue[0].(bool)
-		if ok {
-			if value {
-				return ctx.Error(RegoDefinitionCustomKey, "values in data value %v do not match", rs[0].Expressions[0].Value)
-			}
-			return nil
-		} else {
-			return ctx.Error(RegoDefinitionCustomKey, "violation needs to return a boolean")
+	}
+
+	resultsValue := (rs[0].Expressions[0].Value).([]interface{})
+	violationReturnValue, ok := resultsValue[0].(bool)
+	if ok {
+		if violationReturnValue {
+			return ctx.Error(RegoDefinitionCustomKey, "values in data value %v do not match", rs[0].Expressions[0].Value)
 		}
+		return nil
+	} else {
+		return ctx.Error(RegoDefinitionCustomKey, "violation needs to return a boolean")
 	}
 }
 
@@ -100,7 +97,10 @@ func getPackageFromRegoCode(regoCode string) string {
 }
 
 func retrieveRegoFromSchema(regoCode string) *rego.Rego {
-	mainRegoPackage = getPackageFromRegoCode(regoCode)
+	var mainModuleFileName = "main.rego"
+	var regoFunctionEntryPoint = "violation"
+
+	mainRegoPackage := getPackageFromRegoCode(regoCode)
 
 	var regoObjectParts []func(r *rego.Rego)
 	regoObjectParts = append(regoObjectParts, rego.Query("data."+mainRegoPackage+"."+regoFunctionEntryPoint))
