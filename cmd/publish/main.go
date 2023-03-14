@@ -4,9 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"strings"
 
-	jsonSchemaValidator "github.com/datreeio/datree/pkg/jsonSchemaValidator/extensions"
 	"github.com/santhosh-tekuri/jsonschema/v5"
 
 	"github.com/datreeio/datree/bl/files"
@@ -127,7 +125,7 @@ func publish(ctx *PublishCommandContext, path string, localConfigContent *localC
 
 	if customRules, ok := policiesConfiguration["customRules"]; ok {
 		valid, err :=
-			validateIfRegoRules(ctx, customRules.([]interface{}))
+			validateRegoDefinitions(ctx, customRules.([]interface{}))
 		if err != nil {
 			return nil, err
 		}
@@ -139,22 +137,19 @@ func publish(ctx *PublishCommandContext, path string, localConfigContent *localC
 	return ctx.PublishCliClient.PublishPolicies(policiesConfiguration, localConfigContent.Token)
 }
 
-func validateIfRegoRules(ctx *PublishCommandContext, customRules []interface{}) (bool, error) {
+func validateRegoDefinitions(ctx *PublishCommandContext, customRules []interface{}) (bool, error) {
 	for _, customRule := range customRules {
 		b, _ := json.Marshal(customRule)
-		regoRuleStr := string(b)
+		customRuleStr := string(b)
 
-		isRegoRule := strings.Contains(regoRuleStr, jsonSchemaValidator.RegoDefinitionCustomKey)
-		if isRegoRule {
-			errorsResult, err := ctx.JSONSchemaValidator.ValidateYamlSchema(regoDefinitionSchemaStr, regoRuleStr)
+		errorsResult, err := ctx.JSONSchemaValidator.ValidateYamlSchema(regoDefinitionSchemaStr, customRuleStr)
 
-			if err != nil {
-				return false, err
-			}
-			if len(errorsResult) > 0 {
-				ctx.Printer.PrintYamlSchemaResults(errorsResult, err)
-				return false, nil
-			}
+		if err != nil {
+			return false, err
+		}
+		if len(errorsResult) > 0 {
+			ctx.Printer.PrintYamlSchemaResults(errorsResult, err)
+			return false, nil
 		}
 	}
 	return true, nil
