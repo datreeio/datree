@@ -60,13 +60,13 @@ func (customKeyRegoDefinitionSchema CustomKeyRegoDefinitionSchema) Validate(ctx 
 
 	regoCtx := context.Background()
 
-	r, err := retrieveRegoFromSchema(regoDefinitionSchema)
+	regoObject, err := retrieveRegoFromSchema(regoDefinitionSchema)
 	if err != nil {
 		return ctx.Error(RegoDefinitionCustomKey, "can't compile rego code, %s", err.Error())
 	}
 
 	// Create a prepared query that can be evaluated.
-	query, err := r.PrepareForEval(regoCtx)
+	query, err := regoObject.PrepareForEval(regoCtx)
 	if err != nil {
 		return ctx.Error(RegoDefinitionCustomKey, "can't compile rego code, %s", err.Error())
 	}
@@ -127,8 +127,8 @@ func retrieveRegoFromSchema(regoDefinitionSchema *RegoDefinition) (*rego.Rego, e
 		}
 		regoObjectParts = append(regoObjectParts, rego.Module(libPackageName, lib))
 	}
-	r := rego.New(regoObjectParts...)
-	return r, nil
+	regoObject := rego.New(regoObjectParts...)
+	return regoObject, nil
 }
 
 func convertCustomKeyRegoDefinitionSchemaToRegoDefinitionSchema(regoDefinitionSchema CustomKeyRegoDefinitionSchema) (*RegoDefinition, error) {
