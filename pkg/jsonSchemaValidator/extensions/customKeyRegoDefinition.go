@@ -82,15 +82,17 @@ func (customKeyRegoDefinitionSchema CustomKeyRegoDefinitionSchema) Validate(ctx 
 		return ctx.Error(RegoDefinitionCustomKey, "failed to evaluate rego, unexpected results")
 	}
 
-	resultsValue := (rs[0].Expressions[0].Value).([]interface{})
-	violationReturnValue, ok := resultsValue[0].(bool)
-	if !ok {
-		return ctx.Error(RegoDefinitionCustomKey, "violation needs to return a boolean")
+	resultValues := (rs[0].Expressions[0].Value).([]interface{})
+	for _, resultValue := range resultValues {
+		violationReturnValue, ok := resultValue.(bool)
+		if !ok {
+			return ctx.Error(RegoDefinitionCustomKey, "violation needs to return a boolean")
+		}
+		if violationReturnValue {
+			return ctx.Error(RegoDefinitionCustomKey, "values in data value %v do not match", dataValue)
+		}
 	}
 
-	if violationReturnValue {
-		return ctx.Error(RegoDefinitionCustomKey, "values in data value %v do not match", rs[0].Expressions[0].Value)
-	}
 	return nil
 }
 
