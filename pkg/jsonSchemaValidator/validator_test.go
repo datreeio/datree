@@ -18,15 +18,11 @@ const yamlFilesPath = "../../internal/fixtures/policyAsCode/custom-keys"
 const regoYamlFilesPath = "../jsonSchemaValidator/test_fixtures"
 
 func TestValidateResourceMinMaxCustomKeysFail(t *testing.T) {
-	failResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+	failResourceYamlFileContent, customRuleSchemaYamlFileContent :=
 		getResourceAndSchemaYamlContentsAsString(
 			yamlFilesPath+"/fail-yaml-file.yaml",
 			yamlFilesPath+"/schema-with-resource-quotas.yaml",
 		)
-
-	if err != nil {
-		panic(err)
-	}
 
 	jsonSchemaValidator := New()
 
@@ -37,15 +33,11 @@ func TestValidateResourceMinMaxCustomKeysFail(t *testing.T) {
 }
 
 func TestValidateResourceMinMaxCustomKeysPass(t *testing.T) {
-	passResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+	passResourceYamlFileContent, customRuleSchemaYamlFileContent :=
 		getResourceAndSchemaYamlContentsAsString(
 			yamlFilesPath+"/pass-yaml-file.yaml",
 			yamlFilesPath+"/schema-with-resource-quotas.yaml",
 		)
-
-	if err != nil {
-		panic(err)
-	}
 
 	jsonSchemaValidator := New()
 
@@ -118,15 +110,11 @@ func TestRegoDefinitionCustomKey(t *testing.T) {
 }
 
 func TestValidateRegoDefinitionCustomKeyPass(t *testing.T) {
-	passResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+	passResourceYamlFileContent, customRuleSchemaYamlFileContent :=
 		getResourceAndSchemaYamlContentsAsString(
 			regoYamlFilesPath+"/rego-rule-pass.yaml",
 			regoYamlFilesPath+"/valid-rego-definition.json",
 		)
-
-	if err != nil {
-		panic(err)
-	}
 
 	jsonSchemaValidator := New()
 
@@ -136,15 +124,11 @@ func TestValidateRegoDefinitionCustomKeyPass(t *testing.T) {
 }
 
 func TestValidateRegoDefinitionCustomKeyPassDueToResourceNotInConstraint(t *testing.T) {
-	passResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+	passResourceYamlFileContent, customRuleSchemaYamlFileContent :=
 		getResourceAndSchemaYamlContentsAsString(
 			regoYamlFilesPath+"/rego-rule-pass-due-to-not-it-constraint.yaml",
 			regoYamlFilesPath+"/valid-rego-definition.json",
 		)
-
-	if err != nil {
-		panic(err)
-	}
 
 	jsonSchemaValidator := New()
 
@@ -154,15 +138,11 @@ func TestValidateRegoDefinitionCustomKeyPassDueToResourceNotInConstraint(t *test
 }
 
 func TestValidateRegoDefinitionCustomKeyFail(t *testing.T) {
-	failResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+	failResourceYamlFileContent, customRuleSchemaYamlFileContent :=
 		getResourceAndSchemaYamlContentsAsString(
 			regoYamlFilesPath+"/rego-rule-fail.yaml",
 			regoYamlFilesPath+"/valid-rego-definition.json",
 		)
-
-	if err != nil {
-		panic(err)
-	}
 
 	jsonSchemaValidator := New()
 
@@ -173,15 +153,11 @@ func TestValidateRegoDefinitionCustomKeyFail(t *testing.T) {
 }
 
 func TestValidateRegoDefinitionCustomKeyFailDueToRegoCompile(t *testing.T) {
-	failResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+	failResourceYamlFileContent, customRuleSchemaYamlFileContent :=
 		getResourceAndSchemaYamlContentsAsString(
 			regoYamlFilesPath+"/rego-rule-pass.yaml",
 			regoYamlFilesPath+"/invalid-rego-definition-code.json",
 		)
-
-	if err != nil {
-		panic(err)
-	}
 
 	jsonSchemaValidator := New()
 
@@ -191,20 +167,20 @@ func TestValidateRegoDefinitionCustomKeyFailDueToRegoCompile(t *testing.T) {
 	assert.Contains(t, errorsResult[0].Error, "can't compile rego code, rego code must have a package")
 }
 
-func getResourceAndSchemaYamlContentsAsString(resourceToValidatePath string, schemaPath string) (string, string, error) {
+func getResourceAndSchemaYamlContentsAsString(resourceToValidatePath string, schemaPath string) (string, string) {
 	fileReader := fileReader.CreateFileReader(nil)
 
 	resourceYamlFileContent, err := fileReader.ReadFileContent(resourceToValidatePath)
 	if err != nil {
-		return "", "", err
+		panic(err)
 	}
 
 	customRuleSchemaYamlFileContent, err := fileReader.ReadFileContent(schemaPath)
 	if err != nil {
-		return "", "", err
+		panic(err)
 	}
 
-	return resourceYamlFileContent, customRuleSchemaYamlFileContent, nil
+	return resourceYamlFileContent, customRuleSchemaYamlFileContent
 }
 
 func getInterfaceFromYamlContext(yamlContent string) (interface{}, error) {
