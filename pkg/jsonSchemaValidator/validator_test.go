@@ -135,6 +135,24 @@ func TestValidateRegoDefinitionCustomKeyPass(t *testing.T) {
 	assert.Empty(t, errorsResult)
 }
 
+func TestValidateRegoDefinitionCustomKeyPassDueToResourceNotInConstraint(t *testing.T) {
+	passResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+		getResourceAndSchemaYamlContentsAsString(
+			regoYamlFilesPath+"/rego-rule-pass-due-to-not-it-constraint.yaml",
+			regoYamlFilesPath+"/valid-rego-definition.json",
+		)
+
+	if err != nil {
+		panic(err)
+	}
+
+	jsonSchemaValidator := New()
+
+	errorsResult, _ := jsonSchemaValidator.ValidateYamlSchema(customRuleSchemaYamlFileContent, passResourceYamlFileContent)
+
+	assert.Empty(t, errorsResult)
+}
+
 func TestValidateRegoDefinitionCustomKeyFail(t *testing.T) {
 	failResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
 		getResourceAndSchemaYamlContentsAsString(
