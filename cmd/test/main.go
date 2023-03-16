@@ -120,6 +120,7 @@ type EvaluationPrinter interface {
 	GetWarningsText(warnings []printer.Warning, quiet bool) string
 	GetSummaryTableText(summary printer.Summary) string
 	PrintMessage(messageText string, messageColor string)
+	PrintError(messageText string, messageColor string)
 	PrintPromptMessage(promptMessage string)
 	GetEvaluationSummaryText(evaluationSummary printer.EvaluationSummary, k8sVersion string) string
 	SetTheme(theme *printer.Theme)
@@ -223,7 +224,7 @@ func New(ctx *TestCommandContext) *cobra.Command {
 			var err error = nil
 			defer func() {
 				if err != nil {
-					ctx.Printer.PrintMessage(strings.Join([]string{"\n", err.Error(), "\n"}, ""), "error")
+					ctx.Printer.PrintError(strings.Join([]string{"\n", err.Error(), "\n"}, ""), "error")
 				}
 			}()
 
@@ -467,7 +468,7 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 		}
 	}
 
-	if testCommandData.IsOffline {
+	if testCommandData.IsOffline && testCommandData.Output == "" {
 		ctx.Printer.PrintMessage("[INFO] You're running Datree in offline mode", "cyan")
 	}
 

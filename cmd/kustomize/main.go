@@ -58,7 +58,7 @@ func New(testCtx *test.TestCommandContext, kustomizeCtx *KustomizeContext) *cobr
 			var err error = nil
 			defer func() {
 				if err != nil {
-					testCtx.Printer.PrintMessage(strings.Join([]string{"\n", err.Error(), "\n"}, ""), "error")
+					testCtx.Printer.PrintError(strings.Join([]string{"\n", err.Error(), "\n"}, ""), "error")
 				}
 			}()
 
