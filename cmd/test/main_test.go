@@ -159,6 +159,10 @@ func (p *PrinterMock) GetEvaluationSummaryText(evaluationSummary printer.Evaluat
 	return ""
 }
 
+func (p *PrinterMock) PrintError(messageText string, messageColor string) {
+	p.Called(messageText, messageColor)
+}
+
 func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {
 	p.Called(messageText, messageColor)
 }
@@ -249,6 +253,7 @@ func TestTestFlow(t *testing.T) {
 			printerMock.On("GetWarningsText", mock.Anything)
 			printerMock.On("GetSummaryTableText", mock.Anything)
 			printerMock.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
+			printerMock.On("PrintError", mock.Anything, mock.Anything)
 			printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 			printerMock.On("PrintPromptMessage", mock.Anything)
 			printerMock.On("SetTheme", mock.Anything)
@@ -698,6 +703,7 @@ func setup() {
 	printerMock.On("GetWarningsText", mock.Anything)
 	printerMock.On("GetSummaryTableText", mock.Anything)
 	printerMock.On("GetEvaluationSummaryText", mock.Anything, mock.Anything)
+	printerMock.On("PrintError", mock.Anything, mock.Anything)
 	printerMock.On("PrintMessage", mock.Anything, mock.Anything)
 	printerMock.On("PrintPromptMessage", mock.Anything)
 	printerMock.On("SetTheme", mock.Anything)

@@ -74,7 +74,7 @@ func TestGetWarningsText(t *testing.T) {
 
 	t.Run("Test GetWarningsText", func(t *testing.T) {
 
-		out = new(bytes.Buffer)
+		StdOut = new(bytes.Buffer)
 
 		got := printer.GetWarningsText(warnings, false)
 
@@ -148,7 +148,7 @@ SKIPPED
 
 	t.Run("Test GetWarningsText simple output", func(t *testing.T) {
 
-		out = new(bytes.Buffer)
+		StdOut = new(bytes.Buffer)
 
 		printer.SetTheme(CreateSimpleTheme())
 
@@ -215,7 +215,7 @@ https://github.com/datreeio/helm-datree
 
 func TestGetEvaluationSummaryText(t *testing.T) {
 	t.Run("Test GetEvaluationSummaryText", func(t *testing.T) {
-		out = new(bytes.Buffer)
+		StdOut = new(bytes.Buffer)
 		printer := CreateNewPrinter()
 		summary := EvaluationSummary{
 			ConfigsCount:              6,
@@ -243,7 +243,7 @@ func TestGetEvaluationSummaryText(t *testing.T) {
 	})
 
 	t.Run("Test GetEvaluationSummaryText with no connection warning", func(t *testing.T) {
-		out = new(bytes.Buffer)
+		StdOut = new(bytes.Buffer)
 		printer := CreateNewPrinter()
 		summary := EvaluationSummary{
 			ConfigsCount:              6,

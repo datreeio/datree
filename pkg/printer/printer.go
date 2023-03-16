@@ -13,7 +13,8 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-var out = color.Output
+var StdOut = color.Output
+var StdErr = color.Error
 
 type Printer struct {
 	Theme *Theme
@@ -318,9 +319,14 @@ func (p *Printer) GetSummaryTableText(summary Summary) string {
 	return sb.String()
 }
 
-func (p *Printer) printInColor(title string, color *color.Color) {
+func (p *Printer) printStdErrInColor(title string, color *color.Color) {
 	colorPrintFn := color.FprintfFunc()
-	colorPrintFn(out, title)
+	colorPrintFn(StdErr, title)
+}
+
+func (p *Printer) printStdOutInColor(title string, color *color.Color) {
+	colorPrintFn := color.FprintfFunc()
+	colorPrintFn(StdOut, title)
 }
 
 func (p *Printer) GetTextInColor(text string, color *color.Color) string {
@@ -345,13 +351,18 @@ func (p *Printer) createNewColor(clr string) *color.Color {
 	}
 }
 
+func (p *Printer) PrintError(messageText string, messageColor string) {
+	colorPrintFn := p.createNewColor(messageColor)
+	p.printStdErrInColor(messageText, colorPrintFn)
+}
+
 func (p *Printer) PrintMessage(messageText string, messageColor string) {
 	colorPrintFn := p.createNewColor(messageColor)
-	p.printInColor(messageText, colorPrintFn)
+	p.printStdOutInColor(messageText, colorPrintFn)
 }
 
 func (p *Printer) PrintPromptMessage(promptMessage string) {
-	fmt.Fprint(out, color.HiCyanString("\n\n"+promptMessage+" (Y/n)\n"))
+	fmt.Fprint(StdOut, color.HiCyanString("\n\n"+promptMessage+" (Y/n)\n"))
 }
 
 func (p *Printer) getPassedYamlValidationText() string {

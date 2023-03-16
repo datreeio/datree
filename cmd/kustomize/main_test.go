@@ -159,6 +159,10 @@ func (p *PrinterMock) GetEvaluationSummaryText(evaluationSummary printer.Evaluat
 	return ""
 }
 
+func (p *PrinterMock) PrintError(messageText string, messageColor string) {
+	p.Called(messageText, messageColor)
+}
+
 func (p *PrinterMock) PrintMessage(messageText string, messageColor string) {
 	p.Called(messageText, messageColor)
 }
