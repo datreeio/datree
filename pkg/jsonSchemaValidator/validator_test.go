@@ -15,16 +15,15 @@ import (
 )
 
 const yamlFilesPath = "../../internal/fixtures/policyAsCode/custom-keys"
+const regoYamlFilesPath = "../jsonSchemaValidator/test_fixtures"
 
-func TestValidateCustomKeysFail(t *testing.T) {
-	fileReader := fileReader.CreateFileReader(nil)
+func TestValidateResourceMinMaxCustomKeysFail(t *testing.T) {
+	failResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+		getResourceAndSchemaYamlContentsAsString(
+			yamlFilesPath+"/fail-yaml-file.yaml",
+			yamlFilesPath+"/schema-with-resource-quotas.yaml",
+		)
 
-	failResourceYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/fail-yaml-file.yaml")
-	if err != nil {
-		panic(err)
-	}
-
-	customRuleSchemaYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/schema-with-resource-quotas.yaml")
 	if err != nil {
 		panic(err)
 	}
@@ -37,15 +36,13 @@ func TestValidateCustomKeysFail(t *testing.T) {
 	assert.Equal(t, errorsResult[0].Error, "1G is greater then resourceMaximum 500m")
 }
 
-func TestValidateCustomKeysPass(t *testing.T) {
-	fileReader := fileReader.CreateFileReader(nil)
+func TestValidateResourceMinMaxCustomKeysPass(t *testing.T) {
+	passResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+		getResourceAndSchemaYamlContentsAsString(
+			yamlFilesPath+"/pass-yaml-file.yaml",
+			yamlFilesPath+"/schema-with-resource-quotas.yaml",
+		)
 
-	passResourceYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/pass-yaml-file.yaml")
-	if err != nil {
-		panic(err)
-	}
-
-	customRuleSchemaYamlFileContent, err := fileReader.ReadFileContent(yamlFilesPath + "/schema-with-resource-quotas.yaml")
 	if err != nil {
 		panic(err)
 	}
@@ -118,6 +115,78 @@ func TestRegoDefinitionCustomKey(t *testing.T) {
 			}
 		})
 	})
+}
+
+func TestValidateRegoDefinitionCustomKeyPass(t *testing.T) {
+	passResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+		getResourceAndSchemaYamlContentsAsString(
+			regoYamlFilesPath+"/rego-rule-pass.yaml",
+			regoYamlFilesPath+"/valid-rego-definition.json",
+		)
+
+	if err != nil {
+		panic(err)
+	}
+
+	jsonSchemaValidator := New()
+
+	errorsResult, _ := jsonSchemaValidator.ValidateYamlSchema(customRuleSchemaYamlFileContent, passResourceYamlFileContent)
+
+	assert.Empty(t, errorsResult)
+}
+
+func TestValidateRegoDefinitionCustomKeyFail(t *testing.T) {
+	failResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+		getResourceAndSchemaYamlContentsAsString(
+			regoYamlFilesPath+"/rego-rule-fail.yaml",
+			regoYamlFilesPath+"/valid-rego-definition.json",
+		)
+
+	if err != nil {
+		panic(err)
+	}
+
+	jsonSchemaValidator := New()
+
+	errorsResult, _ := jsonSchemaValidator.ValidateYamlSchema(customRuleSchemaYamlFileContent, failResourceYamlFileContent)
+
+	assert.GreaterOrEqual(t, len(errorsResult), 1)
+	assert.Contains(t, errorsResult[0].Error, "do not match")
+}
+
+func TestValidateRegoDefinitionCustomKeyFailDueToRegoCompile(t *testing.T) {
+	failResourceYamlFileContent, customRuleSchemaYamlFileContent, err :=
+		getResourceAndSchemaYamlContentsAsString(
+			regoYamlFilesPath+"/rego-rule-pass.yaml",
+			regoYamlFilesPath+"/invalid-rego-definition-code.json",
+		)
+
+	if err != nil {
+		panic(err)
+	}
+
+	jsonSchemaValidator := New()
+
+	errorsResult, _ := jsonSchemaValidator.ValidateYamlSchema(customRuleSchemaYamlFileContent, failResourceYamlFileContent)
+
+	assert.GreaterOrEqual(t, len(errorsResult), 1)
+	assert.Contains(t, errorsResult[0].Error, "can't compile rego code, rego code must have a package")
+}
+
+func getResourceAndSchemaYamlContentsAsString(resourceToValidatePath string, schemaPath string) (string, string, error) {
+	fileReader := fileReader.CreateFileReader(nil)
+
+	resourceYamlFileContent, err := fileReader.ReadFileContent(resourceToValidatePath)
+	if err != nil {
+		return "", "", err
+	}
+
+	customRuleSchemaYamlFileContent, err := fileReader.ReadFileContent(schemaPath)
+	if err != nil {
+		return "", "", err
+	}
+
+	return resourceYamlFileContent, customRuleSchemaYamlFileContent, nil
 }
 
 func getInterfaceFromYamlContext(yamlContent string) (interface{}, error) {
