@@ -468,7 +468,7 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 		}
 	}
 
-	if testCommandData.IsOffline && testCommandData.Output == "" {
+	if testCommandData.IsOffline && evaluation.IsFormattedOutputOption(testCommandData.Output) {
 		ctx.Printer.PrintMessage("\n[INFO] You're running Datree in offline mode", "cyan")
 	}
 
