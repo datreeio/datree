@@ -1,8 +1,20 @@
 {
-  "regoDefinition": {
-    "libs": [
-      "package lib.helpers\ncheck_if_missing(missing) = isMissing {\n            isMissing := count(missing) > 0\n          }\n"
-    ],
-    "code": "import data.lib.helpers\n\nviolation[labelIsMissing] {\nprovided := {label | input.metadata.labels[label]}\nrequired := {\"billing\"}\nmissing := required - provided\nlabelIsMissing := helpers.check_if_missing(missing)\n}\n"
+  "if": {
+    "properties": {
+      "kind": {
+        "type": "string",
+        "enum": [
+          "Deployment"
+        ]
+      }
+    }
+  },
+  "then": {
+    "regoDefinition": {
+      "libs": [
+        "package lib.helpers\ncheck_if_missing(missing) = isMissing {\n            isMissing := count(missing) > 0\n          }\n"
+      ],
+      "code": "import data.lib.helpers\n\nviolation[labelIsMissing] {\nprovided := {label | input.metadata.labels[label]}\nrequired := {\"billing\"}\nmissing := required - provided\nlabelIsMissing := helpers.check_if_missing(missing)\n}\n"
+    }
   }
 }
