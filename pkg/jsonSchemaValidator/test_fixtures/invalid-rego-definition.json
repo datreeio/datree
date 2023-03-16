@@ -1,0 +1,8 @@
+{
+  "regoDefinition": {
+    "libs": [
+      "package lib.helpers\ncheck_if_missing(missing) = isMissing {\n            isMissing := count(missing) > 0\n          }\n"
+    ],
+    "code": 1
+  }
+}
