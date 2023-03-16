@@ -89,7 +89,7 @@ func TestRegoDefinitionCustomKey(t *testing.T) {
 		if err := c.AddResource("test.json", strings.NewReader(validRegoDefinitionJson)); err != nil {
 			t.Fatal(err)
 		}
-		sch, err := c.Compile("test.json")
+		schema, err := c.Compile("test.json")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -99,7 +99,7 @@ func TestRegoDefinitionCustomKey(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if err := sch.Validate(jsonYamlContent); err != nil {
+			if err := schema.Validate(jsonYamlContent); err != nil {
 				t.Fatal(err)
 			}
 		})
@@ -108,7 +108,7 @@ func TestRegoDefinitionCustomKey(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := sch.Validate(jsonYamlContent); err == nil {
+			if err := schema.Validate(jsonYamlContent); err == nil {
 				t.Fatal("validation must fail")
 			} else {
 				t.Logf("%#v", err)
