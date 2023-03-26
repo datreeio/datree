@@ -124,13 +124,16 @@ func publish(ctx *PublishCommandContext, path string, localConfigContent *localC
 	}
 
 	if customRules, ok := policiesConfiguration["customRules"]; ok {
-		valid, err :=
-			validateRegoDefinitions(ctx, customRules.([]interface{}))
-		if err != nil {
-			return nil, err
-		}
-		if !valid {
-			return nil, fmt.Errorf("failed to validate rego custom rules")
+		convertedCustomRules, customRulesConversionSuccess := customRules.([]interface{})
+		if customRulesConversionSuccess {
+			valid, err :=
+				validateRegoDefinitions(ctx, convertedCustomRules)
+			if err != nil {
+				return nil, err
+			}
+			if !valid {
+				return nil, fmt.Errorf("failed to validate rego custom rules")
+			}
 		}
 	}
 
