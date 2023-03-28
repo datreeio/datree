@@ -8,15 +8,15 @@
     },
     "rules": {
       "type": "array",
-      "minItems": 105,
-      "maxItems": 105,
+      "minItems": 111,
+      "maxItems": 111,
       "items": {
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
             "minimum": 1,
-            "maximum": 105
+            "maximum": 111
           },
           "name": {
             "type": "string",
@@ -50,6 +50,7 @@
                 "CIS",
                 "CVE",
                 "Deprecation",
+                "Removed-APIs",
                 "EKS",
                 "NSA",
                 "Secrets",

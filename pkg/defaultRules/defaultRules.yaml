@@ -3561,3 +3561,334 @@ rules:
                         - bind
                         - impersonate
                         - escalate
+  - id: 106
+    name: Prevent removed APIs in Kubernetes v1.22
+    uniqueName: K8S_REMOVED_APIVERSION_1.22
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-122"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.22"
+    categories:
+      - Removed-APIs
+    complexity: easy
+    impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - admissionregistration.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - MutatingWebhookConfiguration
+                    - ValidatingWebhookConfiguration
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - apiextensions.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - CustomResourceDefinition
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - apiregistration.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - APIService
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - authentication.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - TokenReview
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - authorization.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - SubjectAccessReview
+                    - LocalSubjectAccessReview
+                    - SelfSubjectAccessReview
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - certificates.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - CertificateSigningRequest
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - coordination.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - Lease
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - extensions/v1beta1
+                  - networking.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - Ingress
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - rbac.authorization.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - ClusterRole
+                    - ClusterRoleBinding
+                    - Role
+                    - RoleBinding
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - scheduling.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - PriorityClass
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - storage.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - CSIDriver
+                    - CSINode
+                    - StorageClass
+                    - VolumeAttachment
+  - id: 107
+    name: Prevent removed APIs in Kubernetes v1.23
+    uniqueName: K8S_REMOVED_APIVERSION_1.23
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-123"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.23"
+    categories:
+      - Removed-APIs
+    complexity: easy
+    impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
+    schema:
+      properties:
+        apiVersion:
+          not:
+            enum:
+              - rbac.authorization.k8s.io/v1alpha1
+              - scheduling.k8s.io/v1alpha1
+  - id: 108
+    name: Prevent removed APIs in Kubernetes v1.24
+    uniqueName: K8S_REMOVED_APIVERSION_1.24
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-124"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.24"
+    categories:
+      - Removed-APIs
+    complexity: easy
+    impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - client.authentication.k8s.io/v1alpha1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - ExecCredential
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - node.k8s.io/v1alpha1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - RuntimeClass
+  - id: 109
+    name: Prevent removed APIs in Kubernetes v1.25
+    uniqueName: K8S_REMOVED_APIVERSION_1.25
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-125"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.25"
+    categories:
+      - Removed-APIs
+    complexity: easy
+    impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - batch/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - CronJob
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - discovery.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - EndpointSlice
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - events.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - Event
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - autoscaling/v2beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - HorizontalPodAutoscaler
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - policy/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - PodDisruptionBudget
+                    - PodSecurityPolicy
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - node.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - RuntimeClass
+  - id: 110
+    name: Prevent removed APIs in Kubernetes v1.26
+    uniqueName: K8S_REMOVED_APIVERSION_1.26
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-126"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.26"
+    categories:
+      - Removed-APIs
+    complexity: easy
+    impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - flowcontrol.apiserver.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - FlowSchema
+                    - PriorityLevelConfiguration
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - autoscaling/v2beta2
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - HorizontalPodAutoscaler
+  - id: 111
+    name: Prevent removed APIs in Kubernetes v1.27
+    uniqueName: K8S_REMOVED_APIVERSION_1.27
+    enabledByDefault: false
+    documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-127"
+    messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.27"
+    categories:
+      - Removed-APIs
+    complexity: easy
+    impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
+    schema:
+      allOf:
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - storage.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - CSIStorageCapacity
