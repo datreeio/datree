@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: CSIStorageCapacity
+metadata:
+  name: csisc-ab96d356-0d31-11ea-ade1-8b7e883d1af1
+storageClassName: some-storage-class
+nodeTopology:
+  nodeSelectorTerms:
+  - matchExpressions:
+    - key: kubernetes.io/hostname
+      operator: In
+      values:
+      - node-1
+capacity: 256G
