@@ -18,7 +18,7 @@ jobs:
       - id: define_version
         name: Define release version
         run: |-
-          OUTPUT_VERSION=$(bash scripts/define_release_version.sh 1.8.48 }})
+          OUTPUT_VERSION=$(bash scripts/define_release_version.sh "1.8.48" }})
           echo "detected version = $OUTPUT_VERSION"
           echo ::set-output name=version::$(echo $OUTPUT_VERSION)
     outputs:
