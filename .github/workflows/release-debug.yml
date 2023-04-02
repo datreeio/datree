@@ -1,6 +1,6 @@
 name: Release debug Workflow
 on:
-  pull_request:
+  push:
     branches:
       - DAT-5037-release-notes-are-not-updated-correctly
   
