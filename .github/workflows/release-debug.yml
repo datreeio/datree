@@ -18,7 +18,7 @@ jobs:
       - id: define_version
         name: Define release version
         run: |-
-          OUTPUT_VERSION=$(bash scripts/define_release_version.sh 1.8.47-rc )
+          OUTPUT_VERSION=$(bash scripts/define_release_version.sh 1.8.48-rc )
           echo "detected version = $OUTPUT_VERSION"
           echo ::set-output name=version::$(echo $OUTPUT_VERSION)
     outputs:
@@ -65,7 +65,7 @@ jobs:
       - name: Run deploy prod release file
         env:
           RELEASE_VERSION: ${{ needs.define_version_job.outputs.version }}
-        run: bash ./scripts/release.sh
+        run: bash ./scripts/release-debug.sh
         shell: bash
 
   # brew_push_formula:
