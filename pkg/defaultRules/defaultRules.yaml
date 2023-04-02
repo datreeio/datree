@@ -3568,7 +3568,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-122"
     messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.22"
     categories:
-      - Removed-APIs
+      - Deprecation
     complexity: easy
     impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
     schema:
@@ -3711,7 +3711,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-123"
     messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.23"
     categories:
-      - Removed-APIs
+      - Deprecation
     complexity: easy
     impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
     schema:
@@ -3728,7 +3728,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-124"
     messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.24"
     categories:
-      - Removed-APIs
+      - Deprecation
     complexity: easy
     impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
     schema:
@@ -3762,7 +3762,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-125"
     messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.25"
     categories:
-      - Removed-APIs
+      - Deprecation
     complexity: easy
     impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
     schema:
@@ -3841,7 +3841,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-126"
     messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.26"
     categories:
-      - Removed-APIs
+      - Deprecation
     complexity: easy
     impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
     schema:
@@ -3876,7 +3876,7 @@ rules:
     documentationUrl: "https://hub.datree.io/built-in-rules/prevent-removed-api-127"
     messageOnFailure: "Incorrect value for key `apiVersion` - the version of the resource you are trying to use is removed in k8s v1.27"
     categories:
-      - Removed-APIs
+      - Deprecation
     complexity: easy
     impact: Deploying a resource with a removed API version will cause Kubernetes to reject it
     schema:
