@@ -67,6 +67,8 @@ jobs:
           RELEASE_VERSION: ${{ needs.define_version_job.outputs.version }}
         run: bash ./scripts/release-debug.sh
         shell: bash
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1      
 
   # brew_push_formula:
   #   name: Brew push formula
