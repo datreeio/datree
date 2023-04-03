@@ -8,5 +8,6 @@ latestCliReleaseFromGithub=$(curl --silent --header "Authorization: token ${GITH
 # echo $latestCliReleaseFromGithub
 latestRelease=$(echo $latestCliReleaseFromGithub | jq -r '.tag_name' )
 latestRelease=1.8.47
+echo "niv!!"
 git log --pretty='%h %N %s %n' --no-merges --decorate=full ${latestRelease//-rc}..HEAD > ./changelog.txt
 git checkout - 
