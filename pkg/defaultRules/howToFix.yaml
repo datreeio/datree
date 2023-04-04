@@ -1117,8 +1117,8 @@ rules:
       | `scheduling.k8s.io/v1beta1` | `scheduling.k8s.io/v1` | 
       | `storage.k8s.io/v1beta1` | `storage.k8s.io/v1` |
 
-      **Example**:  
-    uniqueName: REMOVED_API_VERSION_1.22
+      **Example**:
+    uniqueName: K8S_REMOVED_APIVERSION_1.22
     ruleId: prevent-removed-api-122
     yamlExamples:
       - apiVersion: admissionregistration.k8s.io/v1
@@ -1132,8 +1132,8 @@ rules:
       | `rbac.authorization.k8s.io/v1alpha1` | `rbac.authorization.k8s.io/v1` |
       | `scheduling.k8s.io/v1alpha1` | `scheduling.k8s.io/v1` |
 
-      **Example**:  
-    uniqueName: REMOVED_API_VERSION_1.23
+      **Example**:
+    uniqueName: K8S_REMOVED_APIVERSION_1.23
     ruleId: prevent-removed-api-123
     yamlExamples:
       - apiVersion: rbac.authorization.k8s.io/v1
@@ -1147,8 +1147,8 @@ rules:
       | `client.authentication.k8s.io/v1alpha1` | `client.authentication.k8s.io/v1` |
       | `node.k8s.io/v1alpha1` | `node.k8s.io/v1` |
 
-      **Example**:  
-    uniqueName: REMOVED_API_VERSION_1.24
+      **Example**:
+    uniqueName: K8S_REMOVED_APIVERSION_1.24
     ruleId: prevent-removed-api-124
     yamlExamples:
       - apiVersion: client.authentication.k8s.io/v1
@@ -1166,8 +1166,8 @@ rules:
       | `policy/v1beta1` | `policy/v1` |
       | `node.k8s.io/v1beta1` | `node.k8s.io/v1` |
 
-      **Example**:  
-    uniqueName: REMOVED_API_VERSION_1.25
+      **Example**:
+    uniqueName: K8S_REMOVED_APIVERSION_1.25
     ruleId: prevent-removed-api-125
     yamlExamples:
       - apiVersion: client.authentication.k8s.io/v1
@@ -1181,8 +1181,8 @@ rules:
       | `flowcontrol.apiserver.k8s.io/v1beta1` | `flowcontrol.apiserver.k8s.io/v1beta3` |
       | `autoscaling/v2beta2` | `autoscaling/v2` |
 
-      **Example**:  
-    uniqueName: REMOVED_API_VERSION_1.26
+      **Example**:
+    uniqueName: K8S_REMOVED_APIVERSION_1.26
     ruleId: prevent-removed-api-126
     yamlExamples:
       - apiVersion: autoscaling/v2
@@ -1195,8 +1195,8 @@ rules:
       |-------------|---------------|
       | `storage.k8s.io/v1beta1` | `storage.k8s.io/v1` |
 
-      **Example**:  
-    uniqueName: REMOVED_API_VERSION_1.27
+      **Example**:
+    uniqueName: K8S_REMOVED_APIVERSION_1.27
     ruleId: prevent-removed-api-127
     yamlExamples:
       - apiVersion: storage.k8s.io/v1
