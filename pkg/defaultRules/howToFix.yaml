@@ -1206,8 +1206,8 @@ rules:
     uniqueName: K8S_REMOVED_APIVERSION_1.25
     ruleId: prevent-removed-api-125
     yamlExamples:
-      - apiVersion: client.authentication.k8s.io/v1
-        kind: ExecCredential
+      - apiVersion: events.k8s.io/v1
+        kind: Event
   - id: 110
     title: >-
       Use a supported API version instead of the removed one:
