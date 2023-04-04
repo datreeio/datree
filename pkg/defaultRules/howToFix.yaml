@@ -1171,6 +1171,7 @@ rules:
 
       | `node.k8s.io/v1alpha1` | `node.k8s.io/v1` |
 
+
       **Example**:
 
     uniqueName: K8S_REMOVED_APIVERSION_1.24
@@ -1199,6 +1200,7 @@ rules:
 
       | `node.k8s.io/v1beta1` | `node.k8s.io/v1` |
 
+
       **Example**:
 
     uniqueName: K8S_REMOVED_APIVERSION_1.25
@@ -1219,6 +1221,7 @@ rules:
 
       | `autoscaling/v2beta2` | `autoscaling/v2` |
 
+
       **Example**:
 
     uniqueName: K8S_REMOVED_APIVERSION_1.26
@@ -1236,6 +1239,7 @@ rules:
       |-------------|---------------|
 
       | `storage.k8s.io/v1beta1` | `storage.k8s.io/v1` |
+
 
       **Example**:
 
