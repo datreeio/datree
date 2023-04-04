@@ -5,7 +5,6 @@ release_tag=$RELEASE_VERSION
 v_release_tag=v$release_tag
 
 git fetch
-bash ./scripts/custom_changelog.sh
 
 git checkout "$release_tag-rc"
 
@@ -18,6 +17,7 @@ git push origin $v_release_tag
 export DATREE_BUILD_VERSION=$release_tag
 echo $DATREE_BUILD_VERSION
 
+bash ./scripts/custom_changelog.sh
 cat changelog.txt
 curl -sL https://git.io/goreleaser | GORELEASER_CURRENT_TAG=$DATREE_BUILD_VERSION GO_BUILD_TAG=main VERSION=v$GORELEASER_VERSION bash -s -- --rm-dist --release-notes=changelog.txt
 
