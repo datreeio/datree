@@ -5,10 +5,10 @@ git rev-parse --abbrev-ref HEAD # Show current branch
 git status
 git log -n 5 --format="%h" > latest5commits.txt 
 cat latest5commits.txt 
-
-git checkout main
-git fetch --unshallow
+git log -n 5 > latest5commits.txt 
+cat latest5commits.txt 
 git pull --unshallow
+git checkout main
 git status
 git log -n 5 --format="%h" > latest5commits.txt
 cat latest5commits.txt
