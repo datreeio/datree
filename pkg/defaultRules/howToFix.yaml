@@ -1103,8 +1103,8 @@ rules:
     title: >-
       Use a supported API version instead of the removed one:
 
-      | Removed API version | Supported API version |
 
+      | Removed API version | Supported API version |
 
       |-------------|---------------|
 
@@ -1129,6 +1129,7 @@ rules:
       | `scheduling.k8s.io/v1beta1` | `scheduling.k8s.io/v1` | 
 
       | `storage.k8s.io/v1beta1` | `storage.k8s.io/v1` |
+
 
       **Example**:
 
