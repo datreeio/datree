@@ -7,8 +7,8 @@ git log -n 5 --format="%h" > latest5commits.txt
 cat latest5commits.txt 
 
 git checkout main
-git pull
 git fetch --unshallow
+git pull --unshallow
 git status
 git log -n 5 --format="%h" > latest5commits.txt
 cat latest5commits.txt
