@@ -218,11 +218,11 @@ rules:
 
       | `apiextensions.k8s.io/v1beta1` | `apiextensions.k8s.io/v1` |
 
-      | `admissionregistration.k8s.io/v1beta1` |
-        `admissionregistration.k8s.io/v1` |
+      | `admissionregistration.k8s.io/v1beta1` | `admissionregistration.k8s.io/v1` |
 
 
       **Example**:
+
     uniqueName: K8S_DEPRECATED_APIVERSION_1.16
     ruleId: prevent-deprecated-k8s-api-116
     yamlExamples:
@@ -1104,20 +1104,34 @@ rules:
       Use a supported API version instead of the removed one:
 
       | Removed API version | Supported API version |
+
+
       |-------------|---------------|
+
       | `admissionregistration.k8s.io/v1beta1` | `admissionregistration.k8s.io/v1` |
+
       | `apiextensions.k8s.io/v1beta1` | `apiextensions.k8s.io/v1` |
+
       | `apiregistration.k8s.io/v1beta1` | `apiregistration.k8s.io/v1` |
+
       | `authentication.k8s.io/v1beta1` | `authentication.k8s.io/v1` |
+
       | `authorization.k8s.io/v1beta1` | `authorization.k8s.io/v1` |
+
       | `certificates.k8s.io/v1beta1` | `certificates.k8s.io/v1` |
+
       | `coordination.k8s.io/v1beta1` | `coordination.k8s.io/v1` |
+
       | `extensions/v1beta1`, `networking.k8s.io/v1beta1` | `networking.k8s.io/v1` |
+
       | `rbac.authorization.k8s.io/v1beta1` | `rbac.authorization.k8s.io/v1` |
+
       | `scheduling.k8s.io/v1beta1` | `scheduling.k8s.io/v1` | 
+
       | `storage.k8s.io/v1beta1` | `storage.k8s.io/v1` |
 
       **Example**:
+
     uniqueName: K8S_REMOVED_APIVERSION_1.22
     ruleId: prevent-removed-api-122
     yamlExamples:
@@ -1128,11 +1142,16 @@ rules:
       Use a supported API version instead of the removed one:
 
       | Removed API version | Supported API version |
+
       |-------------|---------------|
+
       | `rbac.authorization.k8s.io/v1alpha1` | `rbac.authorization.k8s.io/v1` |
+
       | `scheduling.k8s.io/v1alpha1` | `scheduling.k8s.io/v1` |
 
+
       **Example**:
+
     uniqueName: K8S_REMOVED_APIVERSION_1.23
     ruleId: prevent-removed-api-123
     yamlExamples:
@@ -1142,12 +1161,17 @@ rules:
     title: >-
       Use a supported API version instead of the removed one:
 
+
       | Removed API version | Supported API version |
+
       |-------------|---------------|
+
       | `client.authentication.k8s.io/v1alpha1` | `client.authentication.k8s.io/v1` |
+
       | `node.k8s.io/v1alpha1` | `node.k8s.io/v1` |
 
       **Example**:
+
     uniqueName: K8S_REMOVED_APIVERSION_1.24
     ruleId: prevent-removed-api-124
     yamlExamples:
@@ -1157,16 +1181,25 @@ rules:
     title: >-
       Use a supported API version instead of the removed one:
 
+
       | Removed API version | Supported API version |
+
       |-------------|---------------|
+
       | `batch/v1beta1` | `batch/v1` |
+
       | `discovery.k8s.io/v1beta1` | `discovery.k8s.io/v1` |
+
       | `events.k8s.io/v1beta1` | `events.k8s.io/v1` |
+
       | `autoscaling/v2beta1` | `autoscaling/v2` |
+
       | `policy/v1beta1` | `policy/v1` |
+
       | `node.k8s.io/v1beta1` | `node.k8s.io/v1` |
 
       **Example**:
+
     uniqueName: K8S_REMOVED_APIVERSION_1.25
     ruleId: prevent-removed-api-125
     yamlExamples:
@@ -1176,12 +1209,17 @@ rules:
     title: >-
       Use a supported API version instead of the removed one:
 
+
       | Removed API version | Supported API version |
+
       |-------------|---------------|
+
       | `flowcontrol.apiserver.k8s.io/v1beta1` | `flowcontrol.apiserver.k8s.io/v1beta3` |
+
       | `autoscaling/v2beta2` | `autoscaling/v2` |
 
       **Example**:
+
     uniqueName: K8S_REMOVED_APIVERSION_1.26
     ruleId: prevent-removed-api-126
     yamlExamples:
@@ -1191,11 +1229,15 @@ rules:
     title: >-
       Use a supported API version instead of the removed one:
 
+
       | Removed API version | Supported API version |
+
       |-------------|---------------|
+
       | `storage.k8s.io/v1beta1` | `storage.k8s.io/v1` |
 
       **Example**:
+
     uniqueName: K8S_REMOVED_APIVERSION_1.27
     ruleId: prevent-removed-api-127
     yamlExamples:
