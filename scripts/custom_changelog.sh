@@ -14,4 +14,5 @@ latestCliReleaseFromGithub=$(curl --silent --header "Authorization: token ${GITH
 # echo $latestCliReleaseFromGithub
 latestRelease=$(echo $latestCliReleaseFromGithub | jq -r '.tag_name' )
 git log --pretty='%h %N %s %n' --no-merges --decorate=full ${latestRelease//-rc}..HEAD > ./changelog.txt
+cat changelog.txt
 git checkout - 
