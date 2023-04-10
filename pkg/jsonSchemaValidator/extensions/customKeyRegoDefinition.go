@@ -54,7 +54,7 @@ type RegoDefinition struct {
 func (customKeyRegoDefinitionSchema CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
 	regoDefinitionSchema, err := convertCustomKeyRegoDefinitionSchemaToRegoDefinitionSchema(customKeyRegoDefinitionSchema)
 	if err != nil {
-		return ctx.Error("customKeyValidationErrorKeyPath", err.Error())
+		return ctx.Error(CustomKeyValidationErrorKeyPath, err.Error())
 	}
 
 	regoCtx := context.Background()
