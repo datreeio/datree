@@ -6,9 +6,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/santhosh-tekuri/jsonschema/v5"
-	"strings"
 )
 
 const RegoDefinitionCustomKey = "regoDefinition"
