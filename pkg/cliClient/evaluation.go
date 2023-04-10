@@ -140,12 +140,13 @@ type FailureLocation struct {
 }
 
 type Configuration struct {
-	Name             string            `json:"metadataName"`
-	Kind             string            `json:"kind"`
-	Occurrences      int               `json:"occurrences"`
-	IsSkipped        bool              `json:"isSkipped"`
-	SkipMessage      string            `json:"skipMessage"`
-	FailureLocations []FailureLocation `json:"failureLocation"`
+	Name              string            `json:"metadataName"`
+	Kind              string            `json:"kind"`
+	Occurrences       int               `json:"occurrences"`
+	IsSkipped         bool              `json:"isSkipped"`
+	SkipMessage       string            `json:"skipMessage"`
+	FailureLocations  []FailureLocation `json:"failureLocation"`
+	ValidationResults []string          `json:"validationResults"`
 }
 
 type FailedRule struct {

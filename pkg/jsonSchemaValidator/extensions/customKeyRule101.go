@@ -40,8 +40,6 @@ type Rules101 struct {
 }
 
 func (s CustomKeyRule101Schema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
-	keywordPath := "customKeyRule101"
-
 	b, _ := json.Marshal(dataValue)
 	var ruleArray []Rules101
 	err := json.Unmarshal(b, &ruleArray)
@@ -55,7 +53,7 @@ func (s CustomKeyRule101Schema) Validate(ctx jsonschema.ValidationContext, dataV
 			if resource == "pods" || resource == "*" {
 				for _, verb := range rule.Verbs {
 					if verb == "create" || verb == "*" {
-						return ctx.Error(keywordPath, "invalid verb or resource")
+						return ctx.Error(CustomKeyValidationErrorKeyPath, "invalid verb or resource")
 					}
 				}
 			}

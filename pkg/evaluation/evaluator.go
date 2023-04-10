@@ -20,7 +20,8 @@ import (
 )
 
 const (
-	SKIP_RULE_PREFIX string = "datree.skip/"
+	SKIP_RULE_PREFIX                string = "datree.skip/"
+	CustomKeyValidationErrorKeyPath string = "customKeyValidationErrorKeyPath"
 )
 
 type CLIClient interface {
@@ -216,15 +217,20 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 	}
 
 	configuration := cliClient.Configuration{
-		Name:             configurationName,
-		Kind:             configurationKind,
-		Occurrences:      occurrences,
-		IsSkipped:        false,
-		SkipMessage:      "",
-		FailureLocations: []cliClient.FailureLocation{},
+		Name:              configurationName,
+		Kind:              configurationKind,
+		Occurrences:       occurrences,
+		IsSkipped:         false,
+		SkipMessage:       "",
+		FailureLocations:  []cliClient.FailureLocation{},
+		ValidationResults: []string{},
 	}
 
+	var validationResultMessages []string
 	for _, detailedResult := range validationResult {
+		if strings.Contains(detailedResult.KeywordLocation, CustomKeyValidationErrorKeyPath) {
+			validationResultMessages = append(validationResultMessages, detailedResult.Error)
+		}
 		failedErrorLine, failedErrorColumn := e.getFailedRuleLineAndColumn(detailedResult.InstanceLocation, yamlNode)
 
 		failureLocation := cliClient.FailureLocation{
@@ -235,6 +241,8 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 
 		configuration.FailureLocations = append(configuration.FailureLocations, failureLocation)
 	}
+
+	configuration.ValidationResults = validationResultMessages
 
 	if skipRuleExists {
 		configuration.IsSkipped = true
@@ -332,12 +340,13 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 				mapper[filePath][ruleIdentifier].OccurrencesDetails = append(
 					mapper[filePath][ruleIdentifier].OccurrencesDetails,
 					OccurrenceDetails{
-						MetadataName:     configuration.Name,
-						Kind:             configuration.Kind,
-						Occurrences:      configuration.Occurrences,
-						IsSkipped:        configuration.IsSkipped,
-						SkipMessage:      configuration.SkipMessage,
-						FailureLocations: configuration.FailureLocations,
+						MetadataName:      configuration.Name,
+						Kind:              configuration.Kind,
+						Occurrences:       configuration.Occurrences,
+						IsSkipped:         configuration.IsSkipped,
+						SkipMessage:       configuration.SkipMessage,
+						FailureLocations:  configuration.FailureLocations,
+						ValidationResults: configuration.ValidationResults,
 					},
 				)
 			}

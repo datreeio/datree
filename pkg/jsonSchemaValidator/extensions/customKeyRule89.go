@@ -40,7 +40,7 @@ func (s CustomKeyRule89Schema) Validate(ctx jsonschema.ValidationContext, dataVa
 	for _, nameOfVolumeMountWithoutReadonly := range namesOfVolumeMountsWithoutReadonly {
 		for _, nameOfVolumeWithHostPath := range namesOfVolumesWithHostPath {
 			if nameOfVolumeMountWithoutReadonly == nameOfVolumeWithHostPath {
-				return ctx.Error("volumeMounts", "a container is using a hostPath volume without setting it to read-only")
+				return ctx.Error(CustomKeyValidationErrorKeyPath, "volumeMounts: a container is using a hostPath volume without setting it to read-only")
 			}
 		}
 	}

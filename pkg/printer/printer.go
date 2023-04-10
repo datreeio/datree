@@ -36,10 +36,11 @@ type FailedRule struct {
 }
 
 type OccurrenceDetails struct {
-	MetadataName     string
-	Kind             string
-	SkipMessage      string
-	FailureLocations []cliClient.FailureLocation
+	MetadataName      string
+	Kind              string
+	SkipMessage       string
+	FailureLocations  []cliClient.FailureLocation
+	ValidationResults []string
 }
 
 type InvalidYamlInfo struct {
@@ -218,6 +219,10 @@ func (p *Printer) GetWarningsText(warnings []Warning, quiet bool) string {
 							failurePath := fmt.Sprintf("%v (line: %d:%d)\n", strings.Replace(validationResult.SchemaPath, "/", ".", -1)[1:], validationResult.FailedErrorLine, validationResult.FailedErrorColumn)
 							sb.WriteString(fmt.Sprintf("      > key: %v", failurePath))
 						}
+					}
+					sb.WriteString("\n")
+					for _, validationResult := range occurrenceDetails.ValidationResults {
+						sb.WriteString(validationResult)
 					}
 					sb.WriteString("\n")
 
