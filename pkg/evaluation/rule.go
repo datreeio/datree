@@ -21,11 +21,11 @@ func (rp *Rule) GetFailedOccurrencesCount() int {
 }
 
 type OccurrenceDetails struct {
-	MetadataName      string                      `yaml:"metadataName" json:"metadataName" xml:"metadataName"`
-	Kind              string                      `yaml:"kind" json:"kind" xml:"kind"`
-	SkipMessage       string                      `yaml:"skipMessage" json:"skipMessage" xml:"skipMessage"`
-	Occurrences       int                         `yaml:"occurrences" json:"occurrences" xml:"occurrences"`
-	IsSkipped         bool                        `yaml:"isSkipped" json:"isSkipped" xml:"isSkipped"`
-	FailureLocations  []cliClient.FailureLocation `yaml:"failureLocations" json:"failureLocations" xml:"failureLocations"`
-	ValidationResults []string                    `yaml:"validationResults" json:"validationResults" xml:"validationResults"`
+	MetadataName              string                      `yaml:"metadataName" json:"metadataName" xml:"metadataName"`
+	Kind                      string                      `yaml:"kind" json:"kind" xml:"kind"`
+	SkipMessage               string                      `yaml:"skipMessage" json:"skipMessage" xml:"skipMessage"`
+	Occurrences               int                         `yaml:"occurrences" json:"occurrences" xml:"occurrences"`
+	IsSkipped                 bool                        `yaml:"isSkipped" json:"isSkipped" xml:"isSkipped"`
+	FailureLocations          []cliClient.FailureLocation `yaml:"failureLocations" json:"failureLocations" xml:"failureLocations"`
+	ValidationFailureMessages []string                    `yaml:"validationFailureMessages" json:"validationFailureMessages" xml:"validationFailureMessages"`
 }
