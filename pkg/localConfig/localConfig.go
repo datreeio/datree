@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/datreeio/datree/pkg/networkValidator"
 
@@ -13,10 +14,12 @@ import (
 )
 
 type LocalConfig struct {
-	Token         string
-	ClientId      string
-	SchemaVersion string
-	Offline       string
+	Token           string
+	ClientId        string
+	SchemaVersion   string
+	Offline         string
+	PolicyConfig    string
+	SchemaLocations []string
 }
 
 type TokenClient interface {
@@ -36,10 +39,12 @@ func NewLocalConfigClient(t TokenClient, nv *networkValidator.NetworkValidator) 
 }
 
 const (
-	clientIdKey      = "client_id"
-	tokenKey         = "token"
-	schemaVersionKey = "schema_version"
-	offlineKey       = "offline"
+	clientIdKey        = "client_id"
+	tokenKey           = "token"
+	schemaVersionKey   = "schema_version"
+	offlineKey         = "offline"
+	policyConfigKey    = "policy_config"
+	schemaLocationsKey = "schema_locations"
 )
 
 func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
@@ -55,6 +60,8 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 	clientId := viper.GetString(clientIdKey)
 	schemaVersion := viper.GetString(schemaVersionKey)
 	offline := viper.GetString(offlineKey)
+	policyConfig := viper.GetString(policyConfigKey)
+	schemaLocations := viper.GetStringSlice(schemaLocationsKey)
 
 	if offline == "" {
 		offline = "fail"
@@ -87,7 +94,7 @@ func (lc *LocalConfigClient) GetLocalConfiguration() (*LocalConfig, error) {
 		}
 	}
 
-	return &LocalConfig{Token: token, ClientId: clientId, SchemaVersion: schemaVersion, Offline: offline}, nil
+	return &LocalConfig{Token: token, ClientId: clientId, SchemaVersion: schemaVersion, Offline: offline, PolicyConfig: policyConfig, SchemaLocations: schemaLocations}, nil
 }
 
 func (lc *LocalConfigClient) Set(key string, value string) error {
@@ -101,12 +108,27 @@ func (lc *LocalConfigClient) Set(key string, value string) error {
 		return err
 	}
 
-	viper.Set(key, value)
+	tranformedValue := transformValue(key, value)
+
+	viper.Set(key, tranformedValue)
 	writeClientIdErr := viper.WriteConfig()
 	if writeClientIdErr != nil {
 		return writeClientIdErr
 	}
 	return nil
+}
+
+func transformValue(key string, value string) interface{} {
+	if key == policyConfigKey {
+		absPath, _ := filepath.Abs(value)
+		return absPath
+	}
+
+	if key == schemaLocationsKey {
+		return strings.Split(value, ",")
+	}
+
+	return value
 }
 
 func InitLocalConfigFile() error {

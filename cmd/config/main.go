@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var ConfigAvailableKeys = []string{"token", "offline"}
+var ConfigAvailableKeys = []string{"token", "offline", "policy_config", "schema_locations"}
 
 type Messager interface {
 	LoadVersionMessages(cliVersion string) chan *messager.VersionMessage
