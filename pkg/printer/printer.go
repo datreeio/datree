@@ -221,10 +221,12 @@ func (p *Printer) GetWarningsText(warnings []Warning, quiet bool) string {
 						}
 					}
 					sb.WriteString("\n")
-					for _, validationFailureMessage := range occurrenceDetails.ValidationFailureMessages {
-						sb.WriteString(validationFailureMessage)
+					if len(occurrenceDetails.ValidationFailureMessages) > 0 {
+						for _, validationFailureMessage := range occurrenceDetails.ValidationFailureMessages {
+							sb.WriteString(validationFailureMessage)
+						}
+						sb.WriteString("\n")
 					}
-					sb.WriteString("\n")
 
 				}
 				sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion))
