@@ -11,6 +11,7 @@ import (
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
+	extensions "github.com/datreeio/datree/pkg/jsonSchemaValidator/extensions"
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 
@@ -20,8 +21,7 @@ import (
 )
 
 const (
-	SKIP_RULE_PREFIX                string = "datree.skip/"
-	CustomKeyValidationErrorKeyPath string = "customKeyValidationErrorKeyPath"
+	SKIP_RULE_PREFIX string = "datree.skip/"
 )
 
 type CLIClient interface {
@@ -228,7 +228,7 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 
 	var validationFailureMessages []string
 	for _, detailedResult := range validationResult {
-		if strings.Contains(detailedResult.KeywordLocation, CustomKeyValidationErrorKeyPath) {
+		if strings.Contains(detailedResult.KeywordLocation, extensions.CustomKeyValidationErrorKeyPath) {
 			validationFailureMessages = append(validationFailureMessages, detailedResult.Error)
 		}
 		failedErrorLine, failedErrorColumn := e.getFailedRuleLineAndColumn(detailedResult.InstanceLocation, yamlNode)
