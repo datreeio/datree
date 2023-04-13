@@ -206,6 +206,7 @@ func TestEvaluateRuleWithCustomKeyThatIsNotValid(t *testing.T) {
 
 	failedRule, _ := evaluator.evaluateRule(customRuleWithRegoObj, []byte(FailureLocationsStr), "test", "Deployment", nil, yaml.Node{})
 	assert.NotEmpty(t, failedRule.Configurations[0].ValidationFailureMessages)
+	assert.Contains(t, failedRule.Configurations[0].ValidationFailureMessages[0], "can't compile rego code")
 }
 
 type evaluateArgs struct {
