@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/json"
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"io"
 	"path/filepath"
 	"testing"
@@ -188,6 +189,22 @@ func TestGetFailedRuleLineAndColumn(t *testing.T) {
 	line, column := evaluator.getFailedRuleLineAndColumn(failedLocationSchemaPath, testCaseYamlNode)
 	assert.Equal(t, 23, line)
 	assert.Equal(t, 18, column)
+}
+
+//go:embed test_fixtures/customRuleWithRego.yaml
+var customRuleWithRegoStr string
+
+func TestEvaluateRuleWithCustomKeyThatIsNotValid(t *testing.T) {
+	customRuleWithRegoByteArray := []byte(customRuleWithRegoStr)
+	var customRegoRule defaultPolicies.CustomRule
+	yaml.Unmarshal(customRuleWithRegoByteArray, &customRegoRule)
+	customRuleWithRegoObj := policy_factory.RuleWithSchema{RuleIdentifier: customRegoRule.Identifier, RuleName: customRegoRule.Name, Schema: customRegoRule.Schema, MessageOnFailure: customRegoRule.DefaultMessageOnFailure}
+
+	mockedCliClient := &mockCliClient{}
+	evaluator := New(mockedCliClient, nil)
+
+	failedRule, _ := evaluator.evaluateRule(customRuleWithRegoObj, []byte(FailureLocationsStr), "test", "Deployment", nil, yaml.Node{})
+	assert.NotEmpty(t, failedRule.Configurations[0].ValidationFailureMessages)
 }
 
 type evaluateArgs struct {
