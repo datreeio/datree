@@ -192,11 +192,11 @@ func TestGetFailedRuleLineAndColumn(t *testing.T) {
 	assert.Equal(t, 18, column)
 }
 
-//go:embed test_fixtures/customRuleWithRego.yaml
-var customRuleWithRegoStr string
+//go:embed test_fixtures/customRuleWithRegoCodeThatCantBeCompiled.yaml
+var customRuleWithRegoCodeThatCantBeCompiledStr string
 
 func TestEvaluateRuleWithCustomKeyThatIsNotValid(t *testing.T) {
-	customRuleWithRegoByteArray := []byte(customRuleWithRegoStr)
+	customRuleWithRegoByteArray := []byte(customRuleWithRegoCodeThatCantBeCompiledStr)
 	var customRegoRule defaultPolicies.CustomRule
 	_ = yaml.Unmarshal(customRuleWithRegoByteArray, &customRegoRule)
 	customRuleWithRegoObj := policy_factory.RuleWithSchema{RuleIdentifier: customRegoRule.Identifier, RuleName: customRegoRule.Name, Schema: customRegoRule.Schema, MessageOnFailure: customRegoRule.DefaultMessageOnFailure}
