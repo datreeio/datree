@@ -53,7 +53,7 @@ func (s CustomKeyRule101Schema) Validate(ctx jsonschema.ValidationContext, dataV
 			if resource == "pods" || resource == "*" {
 				for _, verb := range rule.Verbs {
 					if verb == "create" || verb == "*" {
-						return ctx.Error(CustomKeyValidationErrorKeyPath, "invalid verb or resource")
+						return ctx.Error("customKeyRule101", "invalid verb or resource")
 					}
 				}
 			}
