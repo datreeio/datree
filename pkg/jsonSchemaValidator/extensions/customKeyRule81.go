@@ -57,7 +57,7 @@ func (s CustomKeyRule81Schema) Validate(ctx jsonschema.ValidationContext, dataVa
 	}
 
 	if (resources.Requests.Memory == "" || resources.Limits.Memory == "") && (resources.Requests.Memory != resources.Limits.Memory) {
-		return ctx.Error(CustomKeyValidationErrorKeyPath, "empty value in %v", dataValue)
+		return ctx.Error("customKeyRule81", "empty value in %v", dataValue)
 	}
 
 	if resources.Requests.Memory != resources.Limits.Memory {
