@@ -1,0 +1,3 @@
+package jsonSchemaValidator
+
+var CustomKeyValidationErrorKeyPath = "customKeyValidationErrorKeyPath"

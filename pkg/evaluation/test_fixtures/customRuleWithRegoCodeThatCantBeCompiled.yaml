@@ -1,0 +1,29 @@
+identifier: CUSTOM_DEPLOYMENT_BILLING_LABEL_EXISTS
+name: Ensure Deployment has billing label [CUSTOM RULE]
+defaultMessageOnFailure: deployment labels should contain billing label
+schema:
+  if:
+    properties:
+      kind:
+        type: string
+        enum:
+          - Deployment
+  then:
+    regoDefinition:
+      libs:
+        - |
+          package lib.helpers
+          check_if_missing(missing) = isMissing {
+                      isMissing := count(missing) > 0
+                    }
+      code: |
+        package foosystemrequiredlabels
+        package foosystemrequiredlabels123
+        import data.lib.helpers
+        
+        violation[labelIsMissing] {
+        provided := {label | input.metadata.labels[label]}
+        required := {"billing"}
+        missing := required - provided
+        labelIsMissing := helpers.check_if_missing(missing)
+        }

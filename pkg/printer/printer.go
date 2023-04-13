@@ -36,10 +36,11 @@ type FailedRule struct {
 }
 
 type OccurrenceDetails struct {
-	MetadataName     string
-	Kind             string
-	SkipMessage      string
-	FailureLocations []cliClient.FailureLocation
+	MetadataName              string
+	Kind                      string
+	SkipMessage               string
+	FailureLocations          []cliClient.FailureLocation
+	ValidationFailureMessages []string
 }
 
 type InvalidYamlInfo struct {
@@ -220,6 +221,12 @@ func (p *Printer) GetWarningsText(warnings []Warning, quiet bool) string {
 						}
 					}
 					sb.WriteString("\n")
+					if len(occurrenceDetails.ValidationFailureMessages) > 0 {
+						for _, validationFailureMessage := range occurrenceDetails.ValidationFailureMessages {
+							sb.WriteString(validationFailureMessage)
+						}
+						sb.WriteString("\n")
+					}
 
 				}
 				sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Suggestion, failedRule.Suggestion))

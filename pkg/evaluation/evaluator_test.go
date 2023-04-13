@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/datreeio/datree/pkg/defaultPolicies"
+
 	"github.com/datreeio/datree/pkg/defaultRules"
 	"gopkg.in/yaml.v3"
 
@@ -188,6 +190,23 @@ func TestGetFailedRuleLineAndColumn(t *testing.T) {
 	line, column := evaluator.getFailedRuleLineAndColumn(failedLocationSchemaPath, testCaseYamlNode)
 	assert.Equal(t, 23, line)
 	assert.Equal(t, 18, column)
+}
+
+//go:embed test_fixtures/customRuleWithRegoCodeThatCantBeCompiled.yaml
+var customRuleWithRegoCodeThatCantBeCompiledStr string
+
+func TestEvaluateRuleWithCustomKeyThatIsNotValid(t *testing.T) {
+	customRuleWithRegoByteArray := []byte(customRuleWithRegoCodeThatCantBeCompiledStr)
+	var customRegoRule defaultPolicies.CustomRule
+	_ = yaml.Unmarshal(customRuleWithRegoByteArray, &customRegoRule)
+	customRuleWithRegoObj := policy_factory.RuleWithSchema{RuleIdentifier: customRegoRule.Identifier, RuleName: customRegoRule.Name, Schema: customRegoRule.Schema, MessageOnFailure: customRegoRule.DefaultMessageOnFailure}
+
+	mockedCliClient := &mockCliClient{}
+	evaluator := New(mockedCliClient, nil)
+
+	failedRule, _ := evaluator.evaluateRule(customRuleWithRegoObj, []byte(FailureLocationsStr), "test", "Deployment", nil, yaml.Node{})
+	assert.NotEmpty(t, failedRule.Configurations[0].ValidationFailureMessages)
+	assert.Contains(t, failedRule.Configurations[0].ValidationFailureMessages[0], "can't compile rego code")
 }
 
 type evaluateArgs struct {

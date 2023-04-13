@@ -116,17 +116,17 @@ func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, dataVa
 
 	dataValueStr, validStr := dataValue.(string)
 	if !validStr {
-		return ctx.Error(keywordPath, "%s must be a string", dataValueStr)
+		return ctx.Error(extensions.CustomKeyValidationErrorKeyPath, "%s must be a string", dataValueStr)
 	}
 
 	dataValueParsedQty, err := resource.ParseQuantity(dataValueStr)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed parsing data value %v", dataValue)
+		return ctx.Error(extensions.CustomKeyValidationErrorKeyPath, "failed parsing data value %v", dataValue)
 	}
 
 	schemaResourceMinParsedQty, err := resource.ParseQuantity(schemaResourceMinStr)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed parsing schema value %v", schemaResourceMinStr)
+		return ctx.Error(extensions.CustomKeyValidationErrorKeyPath, "failed parsing schema value %v", schemaResourceMinStr)
 	}
 
 	dataValueParsedQtyDecimal := dataValueParsedQty.AsDec().String()
@@ -134,12 +134,12 @@ func (s resourceMinimumSchema) Validate(ctx jsonschema.ValidationContext, dataVa
 
 	dataValueFloat, err := strconv.ParseFloat(dataValueParsedQtyDecimal, 64)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed float parsing value %v", dataValueFloat)
+		return ctx.Error(extensions.CustomKeyValidationErrorKeyPath, "failed float parsing value %v", dataValueFloat)
 	}
 
 	schemaMinValueFloat, err := strconv.ParseFloat(schemaResourceMinParsedQtyDecimal, 64)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed float parsing value %v", schemaMinValueFloat)
+		return ctx.Error(extensions.CustomKeyValidationErrorKeyPath, "failed float parsing value %v", schemaMinValueFloat)
 	}
 
 	if schemaMinValueFloat > dataValueFloat {
@@ -154,17 +154,17 @@ func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, dataVa
 
 	dataValueStr, validStr := dataValue.(string)
 	if !validStr {
-		return ctx.Error(keywordPath, "%s must be a string", dataValueStr)
+		return ctx.Error(extensions.CustomKeyValidationErrorKeyPath, "%s must be a string", dataValueStr)
 	}
 
 	dataValueParsedQty, err := resource.ParseQuantity(dataValue.(string))
 	if err != nil {
-		return ctx.Error(keywordPath, "failed parsing data value %v", dataValue)
+		return ctx.Error(extensions.CustomKeyValidationErrorKeyPath, "failed parsing data value %v", dataValue)
 	}
 
 	schemaResourceMaxParsedQty, err := resource.ParseQuantity(schemaResourceMaxStr)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed parsing schema value %v", schemaResourceMaxStr)
+		return ctx.Error(extensions.CustomKeyValidationErrorKeyPath, "failed parsing schema value %v", schemaResourceMaxStr)
 	}
 
 	dataValueParsedQtyDecimal := dataValueParsedQty.AsDec().String()
@@ -172,12 +172,12 @@ func (s resourceMaximumSchema) Validate(ctx jsonschema.ValidationContext, dataVa
 
 	dataValueFloat, err := strconv.ParseFloat(dataValueParsedQtyDecimal, 64)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed float parsing value %v", dataValueFloat)
+		return ctx.Error(extensions.CustomKeyValidationErrorKeyPath, "failed float parsing value %v", dataValueFloat)
 	}
 
 	schemaMaxValueFloat, err := strconv.ParseFloat(schemaResourceMaxParsedQtyDecimal, 64)
 	if err != nil {
-		return ctx.Error(keywordPath, "failed float parsing value %v", schemaMaxValueFloat)
+		return ctx.Error(extensions.CustomKeyValidationErrorKeyPath, "failed float parsing value %v", schemaMaxValueFloat)
 	}
 
 	if schemaMaxValueFloat < dataValueFloat {

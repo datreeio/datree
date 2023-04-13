@@ -11,6 +11,7 @@ import (
 	"github.com/datreeio/datree/pkg/cliClient"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/datreeio/datree/pkg/jsonSchemaValidator"
+	extensions "github.com/datreeio/datree/pkg/jsonSchemaValidator/extensions"
 	"github.com/datreeio/datree/pkg/utils"
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 
@@ -216,15 +217,20 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 	}
 
 	configuration := cliClient.Configuration{
-		Name:             configurationName,
-		Kind:             configurationKind,
-		Occurrences:      occurrences,
-		IsSkipped:        false,
-		SkipMessage:      "",
-		FailureLocations: []cliClient.FailureLocation{},
+		Name:                      configurationName,
+		Kind:                      configurationKind,
+		Occurrences:               occurrences,
+		IsSkipped:                 false,
+		SkipMessage:               "",
+		FailureLocations:          []cliClient.FailureLocation{},
+		ValidationFailureMessages: []string{},
 	}
 
+	var validationFailureMessages []string
 	for _, detailedResult := range validationResult {
+		if strings.Contains(detailedResult.KeywordLocation, extensions.CustomKeyValidationErrorKeyPath) {
+			validationFailureMessages = append(validationFailureMessages, detailedResult.Error)
+		}
 		failedErrorLine, failedErrorColumn := e.getFailedRuleLineAndColumn(detailedResult.InstanceLocation, yamlNode)
 
 		failureLocation := cliClient.FailureLocation{
@@ -235,6 +241,8 @@ func (e *Evaluator) evaluateRule(rule policy_factory.RuleWithSchema, configurati
 
 		configuration.FailureLocations = append(configuration.FailureLocations, failureLocation)
 	}
+
+	configuration.ValidationFailureMessages = validationFailureMessages
 
 	if skipRuleExists {
 		configuration.IsSkipped = true
@@ -332,12 +340,13 @@ func (e *Evaluator) formatEvaluationResults(evaluationResults FailedRulesByFiles
 				mapper[filePath][ruleIdentifier].OccurrencesDetails = append(
 					mapper[filePath][ruleIdentifier].OccurrencesDetails,
 					OccurrenceDetails{
-						MetadataName:     configuration.Name,
-						Kind:             configuration.Kind,
-						Occurrences:      configuration.Occurrences,
-						IsSkipped:        configuration.IsSkipped,
-						SkipMessage:      configuration.SkipMessage,
-						FailureLocations: configuration.FailureLocations,
+						MetadataName:              configuration.Name,
+						Kind:                      configuration.Kind,
+						Occurrences:               configuration.Occurrences,
+						IsSkipped:                 configuration.IsSkipped,
+						SkipMessage:               configuration.SkipMessage,
+						FailureLocations:          configuration.FailureLocations,
+						ValidationFailureMessages: configuration.ValidationFailureMessages,
 					},
 				)
 			}

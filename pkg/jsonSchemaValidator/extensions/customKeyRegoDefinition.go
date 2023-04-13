@@ -55,38 +55,38 @@ type RegoDefinition struct {
 func (customKeyRegoDefinitionSchema CustomKeyRegoDefinitionSchema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
 	regoDefinitionSchema, err := convertCustomKeyRegoDefinitionSchemaToRegoDefinitionSchema(customKeyRegoDefinitionSchema)
 	if err != nil {
-		return ctx.Error(RegoDefinitionCustomKey, err.Error())
+		return ctx.Error(CustomKeyValidationErrorKeyPath, err.Error())
 	}
 
 	regoCtx := context.Background()
 
 	regoObject, err := retrieveRegoFromSchema(regoDefinitionSchema)
 	if err != nil {
-		return ctx.Error(RegoDefinitionCustomKey, "can't compile rego code, %s", err.Error())
+		return ctx.Error(CustomKeyValidationErrorKeyPath, "can't compile rego code, %s", err.Error())
 	}
 
 	// Create a prepared query that can be evaluated.
 	query, err := regoObject.PrepareForEval(regoCtx)
 	if err != nil {
-		return ctx.Error(RegoDefinitionCustomKey, "can't compile rego code, %s", err.Error())
+		return ctx.Error(CustomKeyValidationErrorKeyPath, "can't compile rego code, %s", err.Error())
 	}
 
 	// Execute the prepared query.
 	rs, err := query.Eval(regoCtx, rego.EvalInput(dataValue))
 
 	if err != nil {
-		return ctx.Error(RegoDefinitionCustomKey, "failed to evaluate rego due to %s", err.Error())
+		return ctx.Error(CustomKeyValidationErrorKeyPath, "failed to evaluate rego due to %s", err.Error())
 	}
 
 	if len(rs) != 1 || len(rs[0].Expressions) != 1 {
-		return ctx.Error(RegoDefinitionCustomKey, "failed to evaluate rego, unexpected results")
+		return ctx.Error(CustomKeyValidationErrorKeyPath, "failed to evaluate rego, unexpected results")
 	}
 
 	resultValues := (rs[0].Expressions[0].Value).([]interface{})
 	for _, resultValue := range resultValues {
 		violationReturnValue, ok := resultValue.(bool)
 		if !ok {
-			return ctx.Error(RegoDefinitionCustomKey, "violation needs to return a boolean")
+			return ctx.Error(CustomKeyValidationErrorKeyPath, "violation needs to return a boolean")
 		}
 		if violationReturnValue {
 			return ctx.Error(RegoDefinitionCustomKey, "values in data value %v do not match", dataValue)

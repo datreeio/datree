@@ -48,8 +48,6 @@ type Limits struct {
 }
 
 func (s CustomKeyRule81Schema) Validate(ctx jsonschema.ValidationContext, dataValue interface{}) error {
-	keywordPath := "customKeyRule81"
-
 	b, _ := json.Marshal(dataValue)
 	var resources Resources
 	err := json.Unmarshal(b, &resources)
@@ -59,11 +57,11 @@ func (s CustomKeyRule81Schema) Validate(ctx jsonschema.ValidationContext, dataVa
 	}
 
 	if (resources.Requests.Memory == "" || resources.Limits.Memory == "") && (resources.Requests.Memory != resources.Limits.Memory) {
-		return ctx.Error(keywordPath, "empty value in %v", dataValue)
+		return ctx.Error("customKeyRule81", "empty value in %v", dataValue)
 	}
 
 	if resources.Requests.Memory != resources.Limits.Memory {
-		return ctx.Error(keywordPath, "values in data value %v do not match", dataValue)
+		return ctx.Error("customKeyRule81", "values in data value %v do not match", dataValue)
 	}
 
 	return nil
