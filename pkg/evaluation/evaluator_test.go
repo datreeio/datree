@@ -4,10 +4,11 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/json"
-	"github.com/datreeio/datree/pkg/defaultPolicies"
 	"io"
 	"path/filepath"
 	"testing"
+
+	"github.com/datreeio/datree/pkg/defaultPolicies"
 
 	"github.com/datreeio/datree/pkg/defaultRules"
 	"gopkg.in/yaml.v3"
@@ -197,7 +198,7 @@ var customRuleWithRegoStr string
 func TestEvaluateRuleWithCustomKeyThatIsNotValid(t *testing.T) {
 	customRuleWithRegoByteArray := []byte(customRuleWithRegoStr)
 	var customRegoRule defaultPolicies.CustomRule
-	yaml.Unmarshal(customRuleWithRegoByteArray, &customRegoRule)
+	_ = yaml.Unmarshal(customRuleWithRegoByteArray, &customRegoRule)
 	customRuleWithRegoObj := policy_factory.RuleWithSchema{RuleIdentifier: customRegoRule.Identifier, RuleName: customRegoRule.Name, Schema: customRegoRule.Schema, MessageOnFailure: customRegoRule.DefaultMessageOnFailure}
 
 	mockedCliClient := &mockCliClient{}
