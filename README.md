@@ -56,9 +56,9 @@ This will create a new namespace (datree), where Datree’s services and applica
 
 Datree scans Kubernetes resources against a centrally managed policy, and blocks those that violate your desired policies.
 
-Datree comes with multiple pre-built policies covering various use-cases, such as workload security, high availability, ArgoCD best practices, NSA hardening guide, and [many more](https://hub.datree.io/built-in-rules). 
+Datree comes with over 100 rules covering various use-cases, such as workload security, high availability, ArgoCD best practices, NSA hardening guide, and [many more](https://hub.datree.io/built-in-rules). 
 
-In addition to our built-in rules, you can write [any custom rule you wish](https://hub.datree.io/custom-rules-overview) and then run it against your Kubernetes configurations to check for rule violations. The custom rule engine is based on JSON Schema.
+In addition to our built-in rules, you can write [any custom rule you wish](https://hub.datree.io/custom-rules-overview) and then run it against your Kubernetes configurations to check for rule violations. Custom rules can be written in [JSON schema](https://hub.datree.io/custom-rules/custom-rules-overview) or in [Rego](https://hub.datree.io/custom-rules/rego-support).
 
 ## 🤩 Additional features
 
@@ -70,9 +70,14 @@ Datree offers a suite of features to make adoption seamless:
 
 ## 📊 Management dashboard (web application)
 
-Datree can be customized via code (policy as code) or via a management dashboard. The dashboard offers the following capabilities in an intuitive visual interface: 
-* Customize policies
-* Edit rules failure message
+Datree's dashboard provides valuable information about your clusters' health and stability. It details the resources that failed your policy checks, and shows you how to fix each violation.
+
+Datree can be configured via code (policy as code) or via the dashboard. The dashboard offers the following capabilities in an intuitive visual interface: 
+* Set whether failed resources are blocked or only monitored
+* Set which policy to use for your checks
+* Add resources/namespaces to ignore
+* Create & customize policies
+* Edit rules' failure message
 * Issue tokens
 * View policy check history
 * Configure Kubernetes schema version
