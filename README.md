@@ -60,22 +60,15 @@ Datree comes with over 100 rules covering various use-cases, such as workload se
 
 In addition to our built-in rules, you can write [any custom rule you wish](https://hub.datree.io/custom-rules-overview) and then run it against your Kubernetes configurations to check for rule violations. Custom rules can be written in [JSON schema](https://hub.datree.io/custom-rules/custom-rules-overview) or in [Rego](https://hub.datree.io/custom-rules/rego-support).
 
-## 🤩 Additional features
-
-Datree offers a suite of features to make adoption seamless:
-* **Monitoring** - Datree is first installed in monitoring mode that reports on policy violations, rather than block their deployments.
-* [**CLI**](https://hub.datree.io/cli/getting-started) - Help your developers find misconfigurations in their configs before deploying them, by integrating Datree into their CI.
-* **Misconfiguration prioritization** - Datree makes it easy to improve the quality of your cluster by prioritizing the misconfigurations to be fixed.
-* **Cluster score** - Rank the stability of your cluster based on the number of detected misconfigurations.
-
 ## 📊 Management dashboard (web application)
 
 Datree's dashboard provides valuable information about your clusters' health and stability. It details the resources that failed your policy checks, and shows you how to fix each violation.
 
-Datree can be configured via code (policy as code) or via the dashboard. The dashboard offers the following capabilities in an intuitive visual interface: 
-* Set whether failed resources are blocked or only monitored
-* Set which policy to use for your checks
-* Add resources/namespaces to ignore
+Datree can be configured via code or via the dashboard. The dashboard offers the following capabilities in an intuitive visual interface: 
+* Control Datree's configuration:
+  * Default action on failure - set whether resources that failed the policy check should be blocked or only monitored
+  * Set which policy to use for your checks
+  * Define resources and/or namespaces to ignore
 * Create & customize policies
 * Edit rules' failure message
 * Issue tokens
@@ -83,6 +76,14 @@ Datree can be configured via code (policy as code) or via the dashboard. The das
 * Configure Kubernetes schema version
 
 <img src="/images/dashboard-policies.png" alt="Datree-saas" width="70%">
+
+## 🤩 Additional features
+
+Datree offers a suite of features to make adoption seamless:
+* **Monitoring** - Datree is first installed in monitoring mode that reports on policy violations, rather than block their deployments.
+* [**CLI**](https://hub.datree.io/cli/getting-started) - Help your developers find misconfigurations in their configs before deploying them, by integrating Datree into their CI.
+* **Simple integrations** - Datree works seamlessly with popular CD tools such as ArgoCD and FluxCD, and comes with ready-made integrations for various CI platforms.
+* **Cluster score** - Rank the stability of your cluster based on the number of detected misconfigurations.
 
 ## Contributing
 
