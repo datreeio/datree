@@ -108,27 +108,20 @@ func (lc *LocalConfigClient) Set(key string, value string) error {
 		return err
 	}
 
-	tranformedValue := transformValue(key, value)
+	if key == policyConfigKey {
+		absPath, _ := filepath.Abs(value)
+		viper.Set(policyConfigKey, absPath)
+	} else if key == schemaLocationsKey {
+		viper.Set(schemaLocationsKey, strings.Split(value, ","))
+	} else {
+		viper.Set(key, value)
+	}
 
-	viper.Set(key, tranformedValue)
 	writeClientIdErr := viper.WriteConfig()
 	if writeClientIdErr != nil {
 		return writeClientIdErr
 	}
 	return nil
-}
-
-func transformValue(key string, value string) interface{} {
-	if key == policyConfigKey {
-		absPath, _ := filepath.Abs(value)
-		return absPath
-	}
-
-	if key == schemaLocationsKey {
-		return strings.Split(value, ",")
-	}
-
-	return value
 }
 
 func InitLocalConfigFile() error {
