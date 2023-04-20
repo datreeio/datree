@@ -298,19 +298,19 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 
 	var policies *defaultPolicies.EvaluationPrerunPolicies
 	var err error
-	policyConfigEnv := os.Getenv(DatreePolicyConfig)
 
-	if testCommandFlags.PolicyConfig != "" || localConfigContent.PolicyConfig != "" || policyConfigEnv != "" {
+	var policyConfig string
+	if testCommandFlags.PolicyConfig != "" {
+		policyConfig = testCommandFlags.PolicyConfig
+	} else if policyConfigEnv, ok := os.LookupEnv(DatreePolicyConfig); ok {
+		policyConfig = policyConfigEnv
+	} else if localConfigContent.PolicyConfig != "" {
+		policyConfig = localConfigContent.PolicyConfig
+	}
+
+	if policyConfig != "" {
 		if localConfigContent.Offline != "local" && !evaluationPrerunDataResp.IsPolicyAsCodeMode {
 			return nil, fmt.Errorf("to use custom policy-config you must first enable policy-as-code mode: https://hub.datree.io/policy-as-code")
-		}
-
-		policyConfig := testCommandFlags.PolicyConfig
-		if policyConfig == "" {
-			policyConfig = policyConfigEnv
-		}
-		if policyConfig == "" {
-			policyConfig = localConfigContent.PolicyConfig
 		}
 
 		policies, err = policy.GetPoliciesFileFromPath(policyConfig)
@@ -331,12 +331,12 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		return nil, err
 	}
 
-	schemaLocations := testCommandFlags.SchemaLocations
-	if len(schemaLocations) == 0 {
-		schemaLocationsEnv := os.Getenv(DatreeSchemaLocations)
+	var schemaLocations []string
+	if len(testCommandFlags.SchemaLocations) != 0 {
+		schemaLocations = testCommandFlags.SchemaLocations
+	} else if schemaLocationsEnv, ok := os.LookupEnv(DatreeSchemaLocations); ok {
 		schemaLocations = strings.Split(schemaLocationsEnv, ",")
-	}
-	if len(schemaLocations) == 0 {
+	} else if len(localConfigContent.SchemaLocations) != 0 {
 		schemaLocations = localConfigContent.SchemaLocations
 	}
 
