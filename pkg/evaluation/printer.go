@@ -346,14 +346,17 @@ func parseToPrinterWarnings(results *EvaluationResults, invalidYamlFiles []*extr
 			for _, ruleUniqueName := range rulesUniqueNames {
 				rule := rules[ruleUniqueName]
 				var fixLink string
+				var PACIdentifier string
 				if verbose {
 					fixLink = rule.DocumentationUrl
+					PACIdentifier = rule.Identifier
 				}
 				failedRule := printer.FailedRule{
 					Name:               rule.Name,
 					DocumentationUrl:   fixLink,
 					Suggestion:         rule.MessageOnFailure,
 					Occurrences:        rule.GetFailedOccurrencesCount(),
+					PACIdentifier:      PACIdentifier,
 					OccurrencesDetails: []printer.OccurrenceDetails{},
 				}
 				skippedRule := failedRule

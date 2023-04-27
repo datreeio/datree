@@ -32,6 +32,7 @@ type FailedRule struct {
 	Occurrences        int
 	Suggestion         string
 	DocumentationUrl   string
+	PACIdentifier      string
 	OccurrencesDetails []OccurrenceDetails
 }
 
@@ -177,6 +178,11 @@ func (p *Printer) GetWarningsText(warnings []Warning, quiet bool) string {
 
 					sb.WriteString(fmt.Sprintf("%v %v\n", p.Theme.Emoji.Skip, ruleName))
 
+					if skippedRule.PACIdentifier != "" {
+						PACIdentifier := p.Theme.Colors.Cyan.Sprint(skippedRule.PACIdentifier)
+						sb.WriteString(fmt.Sprintf("    Policy as code identifier: %v\n", PACIdentifier))
+					}
+
 					if skippedRule.DocumentationUrl != "" {
 						howToFix := p.Theme.Colors.Cyan.Sprint(skippedRule.DocumentationUrl)
 						sb.WriteString(fmt.Sprintf("    How to fix: %v\n", howToFix))
@@ -206,6 +212,11 @@ func (p *Printer) GetWarningsText(warnings []Warning, quiet bool) string {
 				ruleName := p.Theme.Colors.RedBold.Sprint(failedRule.Name)
 
 				sb.WriteString(fmt.Sprintf("%v %v %v\n", p.Theme.Emoji.Error, ruleName, occurrences))
+
+				if failedRule.PACIdentifier != "" {
+					PACIdentifier := p.Theme.Colors.Cyan.Sprint(failedRule.PACIdentifier)
+					sb.WriteString(fmt.Sprintf("    Policy as code identifier: %v\n", PACIdentifier))
+				}
 
 				if failedRule.DocumentationUrl != "" {
 					howToFix := p.Theme.Colors.Cyan.Sprint(failedRule.DocumentationUrl)
