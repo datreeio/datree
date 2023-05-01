@@ -278,6 +278,11 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&flags.Quiet, "quiet", "", false, "Don't print skipped rules messages")
 }
 
+const (
+	DatreePolicyConfig    = "DATREE_POLICY_CONFIG"
+	DatreeSchemaLocations = "DATREE_SCHEMA_LOCATION"
+)
+
 func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigContent *localConfig.LocalConfig, evaluationPrerunDataResp *cliClient.EvaluationPrerunDataResponse) (*TestCommandData, error) {
 	k8sVersion := testCommandFlags.K8sVersion
 	if k8sVersion == "" {
@@ -294,12 +299,21 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 	var policies *defaultPolicies.EvaluationPrerunPolicies
 	var err error
 
+	var policyConfig string
 	if testCommandFlags.PolicyConfig != "" {
+		policyConfig = testCommandFlags.PolicyConfig
+	} else if policyConfigEnv, ok := os.LookupEnv(DatreePolicyConfig); ok {
+		policyConfig = policyConfigEnv
+	} else if localConfigContent.PolicyConfig != "" {
+		policyConfig = localConfigContent.PolicyConfig
+	}
+
+	if policyConfig != "" {
 		if localConfigContent.Offline != "local" && !evaluationPrerunDataResp.IsPolicyAsCodeMode {
-			return nil, fmt.Errorf("to use --policy-config flag you must first enable policy-as-code mode: https://hub.datree.io/policy-as-code")
+			return nil, fmt.Errorf("to use custom policy-config you must first enable policy-as-code mode: https://hub.datree.io/policy-as-code")
 		}
 
-		policies, err = policy.GetPoliciesFileFromPath(testCommandFlags.PolicyConfig)
+		policies, err = policy.GetPoliciesFileFromPath(policyConfig)
 		if err != nil {
 			return nil, err
 		}
@@ -317,6 +331,15 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		return nil, err
 	}
 
+	var schemaLocations []string
+	if len(testCommandFlags.SchemaLocations) != 0 {
+		schemaLocations = testCommandFlags.SchemaLocations
+	} else if schemaLocationsEnv, ok := os.LookupEnv(DatreeSchemaLocations); ok {
+		schemaLocations = strings.Split(schemaLocationsEnv, ",")
+	} else if len(localConfigContent.SchemaLocations) != 0 {
+		schemaLocations = localConfigContent.SchemaLocations
+	}
+
 	testCommandOptions := &TestCommandData{Output: testCommandFlags.Output,
 		K8sVersion:            k8sVersion,
 		IgnoreMissingSchemas:  testCommandFlags.IgnoreMissingSchemas,
@@ -324,7 +347,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 		Verbose:               testCommandFlags.Verbose,
 		NoRecord:              testCommandFlags.NoRecord,
 		Policy:                policy,
-		SchemaLocations:       testCommandFlags.SchemaLocations,
+		SchemaLocations:       schemaLocations,
 		Token:                 localConfigContent.Token,
 		ClientId:              localConfigContent.ClientId,
 		RegistrationURL:       evaluationPrerunDataResp.RegistrationURL,
