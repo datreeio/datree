@@ -52,6 +52,7 @@ type K8sValidator interface {
 type TestCommandFlags struct {
 	Output               string
 	K8sVersion           string
+	ExcludePattern       string
 	IgnoreMissingSchemas bool
 	OnlyK8sFiles         bool
 	Verbose              bool
@@ -70,6 +71,7 @@ func NewTestCommandFlags() *TestCommandFlags {
 	return &TestCommandFlags{
 		Output:               "",
 		K8sVersion:           "",
+		ExcludePattern:       "",
 		IgnoreMissingSchemas: false,
 		OnlyK8sFiles:         false,
 		Verbose:              false,
@@ -127,7 +129,7 @@ type EvaluationPrinter interface {
 }
 
 type Reader interface {
-	FilterFiles(paths []string) ([]string, error)
+	FilterFiles(paths []string, excludePattern string) ([]string, error)
 }
 
 type LocalConfig interface {
@@ -144,6 +146,7 @@ type CliClient interface {
 type TestCommandData struct {
 	Output                string
 	K8sVersion            string
+	ExcludePattern        string
 	IgnoreMissingSchemas  bool
 	OnlyK8sFiles          bool
 	Verbose               bool
@@ -262,6 +265,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 
 	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.24.0")
 	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
+	cmd.Flags().StringVarP(&flags.ExcludePattern, "exclude", "", "", "Exclude paths pattern")
 
 	cmd.Flags().StringVar(&flags.PolicyConfig, "policy-config", "", "Path for local policies configuration file")
 	cmd.Flags().BoolVar(&flags.OnlyK8sFiles, "only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
@@ -342,6 +346,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 
 	testCommandOptions := &TestCommandData{Output: testCommandFlags.Output,
 		K8sVersion:            k8sVersion,
+		ExcludePattern:        testCommandFlags.ExcludePattern,
 		IgnoreMissingSchemas:  testCommandFlags.IgnoreMissingSchemas,
 		OnlyK8sFiles:          testCommandFlags.OnlyK8sFiles,
 		Verbose:               testCommandFlags.Verbose,
@@ -414,7 +419,7 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 		paths = []string{tempFile.Name()}
 	}
 
-	filesPaths, err := ctx.Reader.FilterFiles(paths)
+	filesPaths, err := ctx.Reader.FilterFiles(paths, testCommandData.ExcludePattern)
 	if err != nil {
 		return err
 	}
