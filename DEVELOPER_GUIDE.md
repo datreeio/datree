@@ -49,7 +49,7 @@ command, add a folder with the cobra command, and use it in the `cmd/root.go` fi
 
 Datree requires an internet connection to connect to our backend API.  
 While developing locally, API requests will reach our staging environment and be visible on
-the [Staging Dashboard](https://app.staging.datree.com).  
+the [Staging Dashboard](https://app.staging.datree.io).  
 All available API requests can be found under `pkg/cliClient`
 
 #### manual testing
