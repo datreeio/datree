@@ -139,6 +139,10 @@ func (val *K8sValidator) GetK8sFiles(filesConfigurationsChan chan *extractor.Fil
 }
 
 func (val *K8sValidator) isK8sFile(fileConfigurations []extractor.Configuration) bool {
+	// if the file is empty, the array is empty and doesn't enter the for loop
+	if len(fileConfigurations) == 0 {
+		return false
+	}
 	for _, configuration := range fileConfigurations {
 		has_apiVersion := configuration.ApiVersion != ""
 		has_kind := configuration.Kind != ""
