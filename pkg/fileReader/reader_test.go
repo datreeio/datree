@@ -1,6 +1,7 @@
 package fileReader
 
 import (
+	"io/fs"
 	"os"
 	"reflect"
 	"testing"
@@ -116,6 +117,74 @@ type absMock struct {
 func (c *absMock) Abs(path string) (string, error) {
 	args := c.Called(path)
 	return args.Get(0).(string), args.Error(1)
+}
+
+type filterFilesTestCase struct {
+	name string
+	args struct {
+		paths          []string
+		excludePattern string
+	}
+	mock struct {
+		stat struct {
+			response fs.FileInfo
+			err      error
+		}
+	}
+	expected struct {
+		filePaths []string
+	}
+}
+
+func TestFilterFiles(t *testing.T) {
+	stat := statMock{}
+	fileInfo := &MockFileInfo{}
+
+	tests := []filterFilesTestCase{
+		{
+			name: "success",
+			args: struct {
+				paths          []string
+				excludePattern string
+			}{
+				paths:          []string{"file1.yaml", "file2.yaml", "file3-exclude.yaml", "file4.yaml", "file5-exclude.yaml"},
+				excludePattern: "exclude.yaml",
+			},
+			mock: struct {
+				stat struct {
+					response fs.FileInfo
+					err      error
+				}
+			}{
+				stat: struct {
+					response fs.FileInfo
+					err      error
+				}{
+					response: fileInfo,
+					err:      nil,
+				},
+			},
+			expected: struct{ filePaths []string }{
+				filePaths: []string{"file1.yaml", "file2.yaml", "file4.yaml"},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			stat.On("Stat", mock.Anything).Return(tt.mock.stat.response, tt.mock.stat.err)
+			fileInfo.On("IsDir", mock.Anything).Return(false)
+			fileReader := &FileReader{
+				glob: nil,
+				stat: stat.Stat,
+			}
+
+			filteredfiles, _ := fileReader.FilterFiles(tt.args.paths, tt.args.excludePattern)
+			stat.AssertCalled(t, "Stat", tt.expected.filePaths[0])
+			fileInfo.AssertCalled(t, "IsDir")
+			assert.Equal(t, tt.expected.filePaths, filteredfiles)
+		})
+	}
 }
 
 func TestCreateFileReader(t *testing.T) {
