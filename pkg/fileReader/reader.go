@@ -59,7 +59,7 @@ func CreateFileReader(opts *FileReaderOptions) *FileReader {
 func (fr *FileReader) FilterFiles(paths []string, excludePattern string) ([]string, error) {
 	var filePaths []string
 
-	excludeRe, err := regexp.Compile(excludePattern)
+	excludeRegex, err := regexp.Compile(excludePattern)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (fr *FileReader) FilterFiles(paths []string, excludePattern string) ([]stri
 			return []string{}, err
 		}
 
-		isMatched := excludePattern != "" && excludeRe.MatchString(path)
+		isMatched := excludePattern != "" && excludeRegex.MatchString(path)
 		if !stat.IsDir() && !isMatched {
 			filePaths = append(filePaths, path)
 		}
