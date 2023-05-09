@@ -104,7 +104,6 @@ func (flags *TestCommandFlags) Validate() error {
 	}
 
 	err := validateK8sVersionFormatIfProvided(flags.K8sVersion)
-
 	if err != nil {
 		return err
 	}
@@ -112,6 +111,11 @@ func (flags *TestCommandFlags) Validate() error {
 	err = validateSkipValidationFlag(flags)
 	if err != nil {
 		return err
+	}
+
+	_, err = regexp.Compile(flags.ExcludePattern)
+	if err != nil {
+		return fmt.Errorf("invalid --exclude flag: " + err.Error())
 	}
 
 	return nil
@@ -265,7 +269,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 
 	cmd.Flags().StringVarP(&flags.K8sVersion, "schema-version", "s", "", "Set kubernetes version to validate against. Defaults to 1.24.0")
 	cmd.Flags().StringVarP(&flags.PolicyName, "policy", "p", "", "Policy name to run against")
-	cmd.Flags().StringVarP(&flags.ExcludePattern, "exclude", "", "", "Exclude paths pattern")
+	cmd.Flags().StringVarP(&flags.ExcludePattern, "exclude", "", "", "Exclude paths pattern (regex)")
 
 	cmd.Flags().StringVar(&flags.PolicyConfig, "policy-config", "", "Path for local policies configuration file")
 	cmd.Flags().BoolVar(&flags.OnlyK8sFiles, "only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
