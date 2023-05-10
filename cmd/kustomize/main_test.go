@@ -179,7 +179,7 @@ type ReaderMock struct {
 	mock.Mock
 }
 
-func (rm *ReaderMock) FilterFiles(paths []string) ([]string, error) {
+func (rm *ReaderMock) FilterFiles(paths []string, excludePattern string) ([]string, error) {
 	args := rm.Called(paths)
 	return args.Get(0).([]string), nil
 }

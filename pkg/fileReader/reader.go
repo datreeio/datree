@@ -3,6 +3,7 @@ package fileReader
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"github.com/bmatcuk/doublestar/v2"
 )
@@ -55,8 +56,13 @@ func CreateFileReader(opts *FileReaderOptions) *FileReader {
 	return fileReader
 }
 
-func (fr *FileReader) FilterFiles(paths []string) ([]string, error) {
+func (fr *FileReader) FilterFiles(paths []string, excludePattern string) ([]string, error) {
 	var filePaths []string
+
+	excludeRegex, err := regexp.Compile(excludePattern)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, path := range paths {
 		stat, err := fr.stat(path)
@@ -64,7 +70,8 @@ func (fr *FileReader) FilterFiles(paths []string) ([]string, error) {
 			return []string{}, err
 		}
 
-		if !stat.IsDir() {
+		isMatched := excludePattern != "" && excludeRegex.MatchString(path)
+		if !stat.IsDir() && !isMatched {
 			filePaths = append(filePaths, path)
 		}
 	}
