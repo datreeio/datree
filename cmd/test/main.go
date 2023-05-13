@@ -51,6 +51,7 @@ type K8sValidator interface {
 
 type TestCommandFlags struct {
 	Output               string
+	SaveResults          string
 	K8sVersion           string
 	IgnoreMissingSchemas bool
 	OnlyK8sFiles         bool
@@ -70,6 +71,7 @@ func NewTestCommandFlags() *TestCommandFlags {
 	return &TestCommandFlags{
 		Output:               "",
 		K8sVersion:           "",
+		SaveResults:          "",
 		IgnoreMissingSchemas: false,
 		OnlyK8sFiles:         false,
 		Verbose:              false,
@@ -101,6 +103,11 @@ func (flags *TestCommandFlags) Validate() error {
 			"Valid output values are - "+evaluation.OutputFormats(), outputValue)
 	}
 
+	if flags.SaveResults != "" {
+		if !evaluation.IsWritableDirectory(flags.SaveResults) {
+			return fmt.Errorf("invalid --save-results invalid directory")
+		}
+	}
 	err := validateK8sVersionFormatIfProvided(flags.K8sVersion)
 
 	if err != nil {
@@ -143,6 +150,7 @@ type CliClient interface {
 
 type TestCommandData struct {
 	Output                string
+	SaveResults           string
 	K8sVersion            string
 	IgnoreMissingSchemas  bool
 	OnlyK8sFiles          bool
@@ -267,6 +275,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&flags.OnlyK8sFiles, "only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
 	cmd.Flags().BoolVar(&flags.Verbose, "verbose", false, "Display 'How to Fix' link")
 	cmd.Flags().BoolVar(&flags.NoRecord, "no-record", false, "Don’t send policy checks metadata to the backend")
+	cmd.Flags().StringVarP(&flags.SaveResults, "save-results", "", "", "Specify the directory where you want to save the file output")
 
 	cmd.Flags().StringVar(&flags.SkipValidation, "skip-validation", "", "Skip validation step. Possible values: 'schema'")
 
@@ -341,6 +350,7 @@ func GenerateTestCommandData(testCommandFlags *TestCommandFlags, localConfigCont
 	}
 
 	testCommandOptions := &TestCommandData{Output: testCommandFlags.Output,
+		SaveResults:           testCommandFlags.SaveResults,
 		K8sVersion:            k8sVersion,
 		IgnoreMissingSchemas:  testCommandFlags.IgnoreMissingSchemas,
 		OnlyK8sFiles:          testCommandFlags.OnlyK8sFiles,
@@ -456,7 +466,7 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 		PassedPolicyCheckCount:    passedPolicyCheckCount,
 	}
 
-	err = evaluation.PrintResults(&evaluation.PrintResultsData{
+	evaluationData := &evaluation.PrintResultsData{
 		Results:               results,
 		AdditionalJUnitData:   evaluationResultData.AdditionalJUnitData,
 		InvalidYamlFiles:      validationManager.InvalidYamlFiles(),
@@ -472,8 +482,21 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 		CliVersion:            ctx.CliVersion,
 		IsCI:                  ctx.CiContext.IsCI,
 		Quiet:                 testCommandData.Quiet,
-	})
+	}
+	err = evaluation.PrintResults(evaluationData)
 
+	if testCommandData.SaveResults != "" {
+		resultsText, err := evaluation.GetjsonResult(evaluationData)
+		if err != nil {
+			return err
+		}
+
+		err = ioutil.WriteFile(testCommandData.SaveResults, []byte(resultsText), 0666)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
 	if evaluationResultData.PromptMessage != "" {
 		ctx.Printer.PrintPromptMessage(evaluationResultData.PromptMessage)
 		answer, _, err := keyboard.GetSingleKey()
