@@ -70,8 +70,8 @@ type TestCommandFlags struct {
 func NewTestCommandFlags() *TestCommandFlags {
 	return &TestCommandFlags{
 		Output:               "",
-		K8sVersion:           "",
 		SaveResults:          "",
+		K8sVersion:           "",
 		IgnoreMissingSchemas: false,
 		OnlyK8sFiles:         false,
 		Verbose:              false,
