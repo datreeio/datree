@@ -3,11 +3,17 @@ package evaluation
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 func IsWritableDirectory(directoryPath string) bool {
 	// Check if the file exists
 	if fileInfo, err := os.Stat(directoryPath); os.IsNotExist(err) {
+		extension := filepath.Ext(directoryPath)
+		if extension != ".json" {
+			fmt.Println("fuck4")
+			return false
+		}
 		_, err := os.Create(directoryPath)
 		if err != nil {
 			fmt.Println("create", err)
