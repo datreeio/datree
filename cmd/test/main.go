@@ -275,7 +275,7 @@ func (flags *TestCommandFlags) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&flags.OnlyK8sFiles, "only-k8s-files", false, "Evaluate only valid yaml files with the properties 'apiVersion' and 'kind'. Ignore everything else")
 	cmd.Flags().BoolVar(&flags.Verbose, "verbose", false, "Display 'How to Fix' link")
 	cmd.Flags().BoolVar(&flags.NoRecord, "no-record", false, "Don’t send policy checks metadata to the backend")
-	cmd.Flags().StringVarP(&flags.SaveResults, "save-results", "", "", "enter the path to the directory where you want to save the output file")
+	cmd.Flags().StringVarP(&flags.SaveResults, "save-results", "", "", "Enter the path to the directory where you want to save the output file")
 
 	cmd.Flags().StringVar(&flags.SkipValidation, "skip-validation", "", "Skip validation step. Possible values: 'schema'")
 
