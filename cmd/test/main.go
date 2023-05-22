@@ -103,11 +103,6 @@ func (flags *TestCommandFlags) Validate() error {
 			"Valid output values are - "+evaluation.OutputFormats(), outputValue)
 	}
 
-	if flags.SaveResults != "" {
-		if !evaluation.IsWritableDirectory(flags.SaveResults) {
-			return fmt.Errorf("invalid --save-results invalid directory")
-		}
-	}
 	err := validateK8sVersionFormatIfProvided(flags.K8sVersion)
 
 	if err != nil {
@@ -486,17 +481,22 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 	err = evaluation.PrintResults(evaluationData)
 
 	if testCommandData.SaveResults != "" {
-		resultsText, err := evaluation.GetjsonResult(evaluationData)
-		if err != nil {
-			return err
-		}
+		if evaluation.IsWritableDirectory(testCommandData.SaveResults) {
+			resultsText, err := evaluation.GetjsonResult(evaluationData)
+			if err != nil {
+				return err
+			}
 
-		err = ioutil.WriteFile(testCommandData.SaveResults, []byte(resultsText), 0666)
-		if err != nil {
-			fmt.Println(err)
-			return err
+			err = ioutil.WriteFile(testCommandData.SaveResults, []byte(resultsText), 0666)
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+		} else {
+			return fmt.Errorf("invalid --save-results invalid directory")
 		}
 	}
+
 	if evaluationResultData.PromptMessage != "" {
 		ctx.Printer.PrintPromptMessage(evaluationResultData.PromptMessage)
 		answer, _, err := keyboard.GetSingleKey()

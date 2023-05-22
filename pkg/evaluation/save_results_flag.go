@@ -1,33 +1,36 @@
 package evaluation
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
+
+	"golang.org/x/sys/unix"
 )
 
-func IsWritableDirectory(directoryPath string) bool {
-	// Check if the file exists
-	if fileInfo, err := os.Stat(directoryPath); os.IsNotExist(err) {
-		extension := filepath.Ext(directoryPath)
-		if extension != ".json" {
-			fmt.Println("fuck4")
-			return false
-		}
-		_, err := os.Create(directoryPath)
-		if err != nil {
-			fmt.Println("create", err)
-			return false
-		}
-		err = os.Remove(directoryPath)
-		if err != nil {
-			return false
-		}
-	} else {
-		// Check if the file has write permissions
-		if fileInfo.Mode().Perm()&0222 == 0 {
-			return false
-		}
+func IsWritableDirectory(filePath string) bool {
+	dirPath := filepath.Dir(filePath)
+
+	// Check if the directory exists
+	_, err := os.Lstat(dirPath)
+	if os.IsNotExist(err) {
+		return false
 	}
-	return true
+
+	// Check if you can edit the file
+	if unix.Access(filePath, unix.W_OK) == nil {
+		return true
+	}
+
+	// Check if you can create a file in the directory
+	dirInfo, err := os.Stat(dirPath)
+	if err == nil && dirInfo.Mode().Perm()&0200 != 0 {
+		return true
+	}
+
+	extension := filepath.Ext(filePath)
+	if extension != ".json" {
+		return false
+	}
+
+	return false
 }
