@@ -923,6 +923,9 @@ func test_testCommand_save_results_flag(t *testing.T, ctx *TestCommandContext) {
 	flags := TestCommandFlags{SaveResults: "./"}
 	err := flags.Validate()
 	assert.NoError(t, err)
+
+	err = executeTestCommand(ctx, []string{"8/*", "--save-results=" + "../non-exsisted-dir/test.json"})
+	assert.EqualError(t, err, "open ../non-exsisted-dir/test.json: no such file or directory")
 }
 
 func newFilesConfigurationsChan(path string) chan *extractor.FileConfigurations {
