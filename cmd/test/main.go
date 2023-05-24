@@ -481,19 +481,14 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 	err = evaluation.PrintResults(evaluationData)
 
 	if testCommandData.SaveResults != "" {
-		if evaluation.IsWritableDirectory(testCommandData.SaveResults) {
-			resultsText, err := evaluation.GetjsonResult(evaluationData)
-			if err != nil {
-				return err
-			}
+		resultsText, err := evaluation.GetjsonResult(evaluationData)
+		if err != nil {
+			return err
+		}
 
-			err = ioutil.WriteFile(testCommandData.SaveResults, []byte(resultsText), 0666)
-			if err != nil {
-				fmt.Println(err)
-				return err
-			}
-		} else {
-			return fmt.Errorf("invalid --save-results invalid directory")
+		err = ioutil.WriteFile(testCommandData.SaveResults, []byte(resultsText), 0666)
+		if err != nil {
+			return err
 		}
 	}
 
