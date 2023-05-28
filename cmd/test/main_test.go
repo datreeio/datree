@@ -748,6 +748,7 @@ func TestTestCommandFlagsValidation(t *testing.T) {
 	test_testCommand_output_flags_validation(t, ctx)
 	test_testCommand_version_flags_validation(t, ctx)
 	test_testCommand_no_record_flag(t, ctx)
+	test_testCommand_save_results_flag(t, ctx)
 }
 
 func TestTestCommandEmptyDir(t *testing.T) {
@@ -916,6 +917,15 @@ func test_testCommand_no_record_flag(t *testing.T, ctx *TestCommandContext) {
 	err := executeTestCommand(ctx, []string{"8/*", "--no-record"})
 	mockedEvaluator.AssertNotCalled(t, "SendEvaluationResult")
 	assert.Equal(t, ViolationsFoundError, err)
+}
+
+func test_testCommand_save_results_flag(t *testing.T, ctx *TestCommandContext) {
+	flags := TestCommandFlags{SaveResults: "./"}
+	err := flags.Validate()
+	assert.NoError(t, err)
+
+	err = executeTestCommand(ctx, []string{"8/*", "--save-results=" + "../non-exsisted-dir/test.json"})
+	assert.EqualError(t, err, "open ../non-exsisted-dir/test.json: no such file or directory")
 }
 
 func newFilesConfigurationsChan(path string) chan *extractor.FileConfigurations {
