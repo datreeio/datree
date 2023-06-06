@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	extensions "github.com/datreeio/datree/pkg/jsonSchemaValidator/extensions"
 	"github.com/ghodss/yaml"
@@ -14,10 +16,13 @@ import (
 )
 
 type JSONSchemaValidator struct {
+	rulesSchemasCache sync.Map
 }
 
 func New() *JSONSchemaValidator {
-	return &JSONSchemaValidator{}
+	return &JSONSchemaValidator{
+		rulesSchemasCache: sync.Map{},
+	}
 }
 
 type resourceMinimumCompiler struct{}
@@ -43,13 +48,25 @@ var resourceMaximum = jsonschema.MustCompileString("resourceMaximum.json", `{
 }`)
 
 func (jsv *JSONSchemaValidator) ValidateYamlSchema(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
+	startTime := time.Now()
 	jsonSchema, _ := yaml.YAMLToJSON([]byte(schemaContent))
 	jsonYamlContent, _ := yaml.YAMLToJSON([]byte(yamlContent))
-	return jsv.Validate(string(jsonSchema), jsonYamlContent)
+	yamlToJsonDuration := time.Since(startTime)
+
+	startTime = time.Now()
+	res, err := jsv.Validate(string(jsonSchema), jsonYamlContent)
+	jsonSchemaValidationDuration := time.Since(startTime)
+
+	jsonSchemaValidationPortion := float64(jsonSchemaValidationDuration) / float64(yamlToJsonDuration+jsonSchemaValidationDuration)
+
+	fmt.Println("jsonSchemaValidationPortion: ", jsonSchemaValidationPortion)
+
+	return res, err
 }
 
 func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byte) ([]jsonschema.Detailed, error) {
 	var jsonYamlContent interface{}
+
 	if err := json.Unmarshal(yamlContent, &jsonYamlContent); err != nil {
 		return nil, err
 	}
@@ -70,12 +87,20 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byt
 	compiler.RegisterExtension("customKeyRule101", extensions.CustomKeyRule101, extensions.CustomKeyRule101Compiler{})
 	compiler.RegisterExtension("customKeyRegoRule", extensions.CustomKeyRegoRule, extensions.CustomKeyRegoDefinitionCompiler{})
 
-	schema, err := compiler.Compile("schema.json")
-	if err != nil {
-		return nil, err
+	if _, ok := jsv.rulesSchemasCache.Load(schemaContent); !ok {
+		schema, err := compiler.Compile("schema.json")
+		if err != nil {
+			return nil, err
+		}
+		jsv.rulesSchemasCache.Store(schemaContent, schema)
 	}
+	schemaAny, ok := jsv.rulesSchemasCache.Load(schemaContent)
+	if !ok {
+		return nil, fmt.Errorf("failed to load schema from rulesSchemasCache")
+	}
+	schema := schemaAny.(*jsonschema.Schema)
 
-	err = schema.Validate(jsonYamlContent)
+	err := schema.Validate(jsonYamlContent)
 
 	if err != nil {
 		if validationError, ok := err.(*jsonschema.ValidationError); ok {
