@@ -3,16 +3,14 @@ package jsonSchemaValidator
 import (
 	"encoding/json"
 	"fmt"
-	"os"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
-
 	extensions "github.com/datreeio/datree/pkg/jsonSchemaValidator/extensions"
 	"github.com/ghodss/yaml"
 	"github.com/santhosh-tekuri/jsonschema/v5"
 	"k8s.io/apimachinery/pkg/api/resource"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
 )
 
 type JSONSchemaValidator struct {
@@ -48,19 +46,9 @@ var resourceMaximum = jsonschema.MustCompileString("resourceMaximum.json", `{
 }`)
 
 func (jsv *JSONSchemaValidator) ValidateYamlSchema(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
-	startTime := time.Now()
 	jsonSchema, _ := yaml.YAMLToJSON([]byte(schemaContent))
 	jsonYamlContent, _ := yaml.YAMLToJSON([]byte(yamlContent))
-	yamlToJsonDuration := time.Since(startTime)
-
-	startTime = time.Now()
 	res, err := jsv.Validate(string(jsonSchema), jsonYamlContent)
-	jsonSchemaValidationDuration := time.Since(startTime)
-
-	jsonSchemaValidationPortion := float64(jsonSchemaValidationDuration) / float64(yamlToJsonDuration+jsonSchemaValidationDuration)
-
-	fmt.Println("jsonSchemaValidationPortion: ", jsonSchemaValidationPortion)
-
 	return res, err
 }
 
