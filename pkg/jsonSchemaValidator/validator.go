@@ -52,7 +52,13 @@ func (jsv *JSONSchemaValidator) ValidateYamlSchema(schemaContent string, yamlCon
 	return res, err
 }
 
+var isPrinted = false
+
 func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byte) ([]jsonschema.Detailed, error) {
+	if isPrinted == false {
+		fmt.Println("@@@using the test version@@@")
+		isPrinted = true
+	}
 	var jsonYamlContent interface{}
 
 	if err := json.Unmarshal(yamlContent, &jsonYamlContent); err != nil {
