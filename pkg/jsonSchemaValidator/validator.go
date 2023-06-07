@@ -48,17 +48,10 @@ var resourceMaximum = jsonschema.MustCompileString("resourceMaximum.json", `{
 func (jsv *JSONSchemaValidator) ValidateYamlSchema(schemaContent string, yamlContent string) ([]jsonschema.Detailed, error) {
 	jsonSchema, _ := yaml.YAMLToJSON([]byte(schemaContent))
 	jsonYamlContent, _ := yaml.YAMLToJSON([]byte(yamlContent))
-	res, err := jsv.Validate(string(jsonSchema), jsonYamlContent)
-	return res, err
+	return jsv.Validate(string(jsonSchema), jsonYamlContent)
 }
 
-var isPrinted = false
-
 func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byte) ([]jsonschema.Detailed, error) {
-	if isPrinted == false {
-		fmt.Println("@@@using the test version@@@")
-		isPrinted = true
-	}
 	var jsonYamlContent interface{}
 
 	if err := json.Unmarshal(yamlContent, &jsonYamlContent); err != nil {
