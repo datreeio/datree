@@ -84,7 +84,10 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byt
 		jsv.rulesSchemasCache.Store(schemaContent, compiledSchema)
 		schemaAny = compiledSchema
 	}
-	schema := schemaAny.(*jsonschema.Schema)
+	schema, ok := schemaAny.(*jsonschema.Schema)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert schema to *jsonschema.Schema")
+	}
 
 	err := schema.Validate(jsonYamlContent)
 
