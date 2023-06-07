@@ -53,7 +53,6 @@ func (jsv *JSONSchemaValidator) ValidateYamlSchema(schemaContent string, yamlCon
 
 func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byte) ([]jsonschema.Detailed, error) {
 	var jsonYamlContent interface{}
-
 	if err := json.Unmarshal(yamlContent, &jsonYamlContent); err != nil {
 		return nil, err
 	}
