@@ -75,16 +75,14 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byt
 	compiler.RegisterExtension("customKeyRegoRule", extensions.CustomKeyRegoRule, extensions.CustomKeyRegoDefinitionCompiler{})
 
 	// compiler.Compile() is an expensive operation. We cache the compiled schema in rulesSchemasCache to avoid re-compiling the same schema.
-	if _, ok := jsv.rulesSchemasCache.Load(schemaContent); !ok {
-		schema, err := compiler.Compile("schema.json")
+	schemaAny, ok := jsv.rulesSchemasCache.Load(schemaContent)
+	if !ok {
+		compiledSchema, err := compiler.Compile("schema.json")
 		if err != nil {
 			return nil, err
 		}
-		jsv.rulesSchemasCache.Store(schemaContent, schema)
-	}
-	schemaAny, ok := jsv.rulesSchemasCache.Load(schemaContent)
-	if !ok {
-		return nil, fmt.Errorf("failed to load schema from rulesSchemasCache")
+		jsv.rulesSchemasCache.Store(schemaContent, compiledSchema)
+		schemaAny = compiledSchema
 	}
 	schema := schemaAny.(*jsonschema.Schema)
 
