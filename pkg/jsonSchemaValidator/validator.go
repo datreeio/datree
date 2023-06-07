@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	extensions "github.com/datreeio/datree/pkg/jsonSchemaValidator/extensions"
 	"github.com/ghodss/yaml"
@@ -14,10 +15,13 @@ import (
 )
 
 type JSONSchemaValidator struct {
+	rulesSchemasCache sync.Map
 }
 
 func New() *JSONSchemaValidator {
-	return &JSONSchemaValidator{}
+	return &JSONSchemaValidator{
+		rulesSchemasCache: sync.Map{},
+	}
 }
 
 type resourceMinimumCompiler struct{}
@@ -70,12 +74,22 @@ func (jsv *JSONSchemaValidator) Validate(schemaContent string, yamlContent []byt
 	compiler.RegisterExtension("customKeyRule101", extensions.CustomKeyRule101, extensions.CustomKeyRule101Compiler{})
 	compiler.RegisterExtension("customKeyRegoRule", extensions.CustomKeyRegoRule, extensions.CustomKeyRegoDefinitionCompiler{})
 
-	schema, err := compiler.Compile("schema.json")
-	if err != nil {
-		return nil, err
+	// compiler.Compile() is an expensive operation. We cache the compiled schema in rulesSchemasCache to avoid re-compiling the same schema.
+	schemaAny, ok := jsv.rulesSchemasCache.Load(schemaContent)
+	if !ok {
+		compiledSchema, err := compiler.Compile("schema.json")
+		if err != nil {
+			return nil, err
+		}
+		jsv.rulesSchemasCache.Store(schemaContent, compiledSchema)
+		schemaAny = compiledSchema
+	}
+	schema, ok := schemaAny.(*jsonschema.Schema)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert schema to *jsonschema.Schema")
 	}
 
-	err = schema.Validate(jsonYamlContent)
+	err := schema.Validate(jsonYamlContent)
 
 	if err != nil {
 		if validationError, ok := err.(*jsonschema.ValidationError); ok {
