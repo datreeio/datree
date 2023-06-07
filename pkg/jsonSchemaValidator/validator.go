@@ -3,14 +3,15 @@ package jsonSchemaValidator
 import (
 	"encoding/json"
 	"fmt"
-	extensions "github.com/datreeio/datree/pkg/jsonSchemaValidator/extensions"
-	"github.com/ghodss/yaml"
-	"github.com/santhosh-tekuri/jsonschema/v5"
-	"k8s.io/apimachinery/pkg/api/resource"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+
+	extensions "github.com/datreeio/datree/pkg/jsonSchemaValidator/extensions"
+	"github.com/ghodss/yaml"
+	"github.com/santhosh-tekuri/jsonschema/v5"
+	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 type JSONSchemaValidator struct {
