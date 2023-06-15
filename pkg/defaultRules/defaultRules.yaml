@@ -1722,24 +1722,30 @@ rules:
     schema:
       definitions:
         podSecurityPattern:
+          required:
+            - spec
           properties:
             spec:
+              required:
+                - securityContext
               properties:
                 securityContext:
+                  required:
+                    - runAsNonRoot
                   properties:
                     runAsNonRoot:
                       const: true
-                  required:
-                    - runAsNonRoot
-              required:
-                - securityContext
+        deploymentSecurityPattern:
           required:
             - spec
-        deploymentSecurityPattern:
           properties:
             spec:
+              required:
+                - template 
               properties:
                 template:
+                  required:
+                    - spec
                   properties:
                     spec:
                       properties:
@@ -1750,29 +1756,7 @@ rules:
                           required:
                             - runAsNonRoot
                       required:
-                        - securityContext
-                  required:
-                    - spec
-              required:
-                - template
-          required:
-            - spec
-        containerSecurityPatternInner:
-          properties:
-            spec:
-              properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      securityContext:
-                        properties:
-                          runAsNonRoot:
-                            const: true
-                        required:
-                          - runAsNonRoot
-                    required:
-                      - securityContext
+                        - securityContext          
         containerSecurityPattern:
           allOf:
             - properties:
@@ -1781,15 +1765,15 @@ rules:
                     containers:
                       type: array
                       items:
-                        properties:
-                          securityContext:
-                            properties:
-                              runAsNonRoot:
-                                const: true
-                            required:
-                              - runAsNonRoot
                         required:
                           - securityContext
+                        properties:
+                          securityContext:
+                            required:
+                              - runAsNonRoot
+                            properties:
+                              runAsNonRoot:
+                                const: true           
           additionalProperties:
             $ref: "#/definitions/containerSecurityPattern"
           items:
