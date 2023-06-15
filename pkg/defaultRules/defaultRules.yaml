@@ -1721,47 +1721,84 @@ rules:
     impact: Having non-root execution integrated at build time provides better assurance that applications will function correctly without root privileges
     schema:
       definitions:
-        containerSecurityPattern:
+        podSecurityPattern:
+          required:
+            - spec
           properties:
             spec:
+              required:
+                - securityContext
               properties:
-                containers:
-                  type: array
-                  items:
-                    properties:
-                      securityContext:
-                        properties:
-                          runAsNonRoot:
-                            const: true
+                securityContext:
+                  required:
+                    - runAsNonRoot
+                  properties:
+                    runAsNonRoot:
+                      const: true
+        deploymentSecurityPattern:
+          required:
+            - spec
+          properties:
+            spec:
+              required:
+                - template 
+              properties:
+                template:
+                  required:
+                    - spec
+                  properties:
+                    spec:
+                      properties:
+                        securityContext:
+                          properties:
+                            runAsNonRoot:
+                              const: true
+                          required:
+                            - runAsNonRoot
+                      required:
+                        - securityContext          
+        containerSecurityPattern:
+          allOf:
+            - properties:
+                spec:
+                  properties:
+                    containers:
+                      type: array
+                      items:
                         required:
-                          - runAsNonRoot
-                    required:
-                      - securityContext
-        podSecurityContextPattern:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Pod
-            required:
-              - kind
-          then:
-            properties:
-              spec:
-                properties:
-                  securityContext:
-                    properties:
-                      runAsNonRoot:
-                        const: true
-                    required:
-                      - runAsNonRoot
-      allOf:
-        - $ref: "#/definitions/containerSecurityPattern"
-        - $ref: "#/definitions/podSecurityContextPattern"
-      additionalProperties:
-        $ref: "#"
-      items:
-        $ref: "#"
+                          - securityContext
+                        properties:
+                          securityContext:
+                            required:
+                              - runAsNonRoot
+                            properties:
+                              runAsNonRoot:
+                                const: true           
+          additionalProperties:
+            $ref: "#/definitions/containerSecurityPattern"
+          items:
+            $ref: "#/definitions/containerSecurityPattern"
+      if:
+        properties:
+          kind:
+            enum:
+              - Pod
+      then:
+        anyOf:
+          - $ref: "#/definitions/podSecurityPattern"
+          - $ref: "#/definitions/containerSecurityPattern"
+      else:
+        if:
+          properties:
+            kind:
+              enum:
+                - Deployment
+        then:
+          anyOf:
+            - $ref: "#/definitions/deploymentSecurityPattern"
+            - $ref: "#/definitions/containerSecurityPattern"
+        else:
+          $ref: "#/definitions/containerSecurityPattern"
   - id: 53
     name: Prevent service account token auto-mounting on pods
     uniqueName: SRVACC_INCORRECT_AUTOMOUNTSERVICEACCOUNTTOKEN_VALUE
