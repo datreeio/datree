@@ -1850,6 +1850,7 @@ rules:
     messageOnFailure: "Missing key `name` or `generateName` - one of them must be set to apply resource to a cluster"
     categories:
       - cdk8s
+      - Other
     complexity: easy
     impact: Configurations that miss this property will pass k8s schema validation, but will fail when pushed into a cluster (i.e. when running kubectl apply/create)
     schema:
@@ -1861,6 +1862,7 @@ rules:
               properties:
                 name:
                   type: string
+                  format: hostname
               required:
                 - name
           required:
@@ -1872,6 +1874,7 @@ rules:
               properties:
                 generateName:
                   type: string
+                  format: hostname
               required:
                 - generateName
           required:
