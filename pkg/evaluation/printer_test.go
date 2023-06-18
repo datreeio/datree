@@ -2,7 +2,6 @@ package evaluation
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"testing"
 
@@ -124,8 +123,7 @@ func TestCustomOutputs(t *testing.T) {
 	assert.Equal(t, expectedOutputs.xml, xmlStdout)
 
 	JUnitStdout, _ := getJUnitOutput(&formattedOutput, additionalJUnitData, false)
-	fmt.Println(JUnitStdout)
-	//assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
+	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 
 	SarifStdout, _ := getSarifOutput(&formattedOutput, "1.0.0")
 	assert.Equal(t, expectedOutputs.sarif, SarifStdout)
@@ -140,8 +138,7 @@ func TestCustomOutputsWithVerbose(t *testing.T) {
 	assert.Equal(t, expectedOutputs.json, jsonStdout)
 
 	JUnitStdout, _ := getJUnitOutput(&formattedOutput, additionalJUnitData, true)
-	fmt.Println(JUnitStdout)
-	//assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
+	assert.Equal(t, expectedOutputs.JUnit, JUnitStdout)
 }
 
 func TestInvalidK8sCustomOutputs(t *testing.T) {
