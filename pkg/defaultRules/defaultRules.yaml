@@ -1843,15 +1843,16 @@ rules:
         - $ref: "#/definitions/podPattern"
         - $ref: "#/definitions/serviceAccountPattern"
   - id: 54
-    name: Ensure resource has a configured name
+    name: Ensure resource has a valid configured name
     uniqueName: RESOURCE_MISSING_NAME
     enabledByDefault: true
     documentationUrl: "https://hub.datree.io/built-in-rules/ensure-resource-name"
-    messageOnFailure: "Missing key `name` or `generateName` - one of them must be set to apply resource to a cluster"
+    messageOnFailure: "Invalid/missing value for key `name` or `generateName` - one of them must be set with a valid value to apply a resource to a cluster"
     categories:
       - cdk8s
+      - Other
     complexity: easy
-    impact: Configurations that miss this property will pass k8s schema validation, but will fail when pushed into a cluster (i.e. when running kubectl apply/create)
+    impact: Configurations with a missing or invalid name will pass k8s schema validation, but will fail when pushed into a cluster (i.e. when running kubectl apply/create)
     schema:
       definitions:
         metadataNamePattern:
@@ -1861,6 +1862,7 @@ rules:
               properties:
                 name:
                   type: string
+                  format: hostname
               required:
                 - name
           required:
@@ -1872,6 +1874,7 @@ rules:
               properties:
                 generateName:
                   type: string
+                  format: hostname
               required:
                 - generateName
           required:
