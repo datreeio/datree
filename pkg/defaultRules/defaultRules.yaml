@@ -3156,6 +3156,30 @@ rules:
                 not:
                   enum:
                     - CSIStorageCapacity
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - flowcontrol.apiserver.k8s.io/v1beta2
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - FlowSchema
+                    - PriorityLevelConfiguration
+        - if:
+            properties:
+              apiVersion:
+                enum:
+                  - flowcontrol.apiserver.k8s.io/v1beta1
+          then:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - FlowSchema
+                    - PriorityLevelConfiguration
   - id: 95
     name: Prevent use of the `cluster-admin` role
     uniqueName: CIS_INVALID_ROLE_CLUSTER_ADMIN
@@ -3328,53 +3352,43 @@ rules:
     impact: Using the default seccomp profile may allow risky privileges for workloads
     schema:
       definitions:
-        podAnnotationsPattern:
-          if:
-            properties:
-              kind:
-                enum:
-                  - Pod
-            required:
-              - kind
-          then:
-            properties:
-              metadata:
-                properties:
-                  annotations:
-                    properties:
-                      seccomp.security.alpha.kubernetes.io/pod:
-                        enum:
-                          - docker/default
-                          - runtime/default
-                    required:
-                      - seccomp.security.alpha.kubernetes.io/pod
-                required:
-                  - annotations
-            required:
-              - metadata
-        templateAnnotationsPattern:
+        annotationsPattern:
+          properties:
+            metadata:
+              properties:
+                annotations:
+                  properties:
+                    seccomp.security.alpha.kubernetes.io/pod:
+                      enum:
+                        - docker/default
+                        - runtime/default
+                  required:
+                    - seccomp.security.alpha.kubernetes.io/pod
+              required:
+                - annotations
+          required:
+            - metadata
+        seccompProfilePattern:
           properties:
             spec:
               properties:
-                template:
+                securityContext:
                   properties:
-                    metadata:
+                    seccompProfile:
                       properties:
-                        annotations:
-                          properties:
-                            seccomp.security.alpha.kubernetes.io/pod:
-                              enum:
-                                - docker/default
-                                - runtime/default
-                          required:
-                            - seccomp.security.alpha.kubernetes.io/pod
+                        type:
+                          enum:
+                            - RuntimeDefault
+                            - DockerDefault
                       required:
-                        - annotations
+                        - type
                   required:
-                    - metadata
-      allOf:
-        - $ref: "#/definitions/podAnnotationsPattern"
-        - $ref: "#/definitions/templateAnnotationsPattern"
+                    - seccompProfile
+              required:
+                - securityContext
+      anyOf:
+        - $ref: "#/definitions/annotationsPattern"
+        - $ref: "#/definitions/seccompProfilePattern"
       additionalProperties:
         $ref: "#"
       items:
