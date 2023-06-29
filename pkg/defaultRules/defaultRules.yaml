@@ -3352,43 +3352,53 @@ rules:
     impact: Using the default seccomp profile may allow risky privileges for workloads
     schema:
       definitions:
-        annotationsPattern:
-          properties:
-            metadata:
-              properties:
-                annotations:
-                  properties:
-                    seccomp.security.alpha.kubernetes.io/pod:
-                      enum:
-                        - docker/default
-                        - runtime/default
-                  required:
-                    - seccomp.security.alpha.kubernetes.io/pod
-              required:
-                - annotations
-          required:
-            - metadata
-        seccompProfilePattern:
+        podAnnotationsPattern:
+          if:
+            properties:
+              kind:
+                enum:
+                  - Pod
+            required:
+              - kind
+          then:
+            properties:
+              metadata:
+                properties:
+                  annotations:
+                    properties:
+                      seccomp.security.alpha.kubernetes.io/pod:
+                        enum:
+                          - docker/default
+                          - runtime/default
+                    required:
+                      - seccomp.security.alpha.kubernetes.io/pod
+                required:
+                  - annotations
+            required:
+              - metadata
+        templateAnnotationsPattern:
           properties:
             spec:
               properties:
-                securityContext:
+                template:
                   properties:
-                    seccompProfile:
+                    metadata:
                       properties:
-                        type:
-                          enum:
-                            - RuntimeDefault
-                            - DockerDefault
+                        annotations:
+                          properties:
+                            seccomp.security.alpha.kubernetes.io/pod:
+                              enum:
+                                - docker/default
+                                - runtime/default
+                          required:
+                            - seccomp.security.alpha.kubernetes.io/pod
                       required:
-                        - type
+                        - annotations
                   required:
-                    - seccompProfile
-              required:
-                - securityContext
-      anyOf:
-        - $ref: "#/definitions/annotationsPattern"
-        - $ref: "#/definitions/seccompProfilePattern"
+                    - metadata
+      allOf:
+        - $ref: "#/definitions/podAnnotationsPattern"
+        - $ref: "#/definitions/templateAnnotationsPattern"
       additionalProperties:
         $ref: "#"
       items:
