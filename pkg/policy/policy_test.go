@@ -21,12 +21,12 @@ import (
 type TestFilesByRuleId = map[int]*FailAndPassTests
 
 type FailAndPassTests struct {
-	fails  []*FileWithName
-	passes []*FileWithName
+	fails  []*FileWithPath
+	passes []*FileWithPath
 }
 
-type FileWithName struct {
-	name    string
+type FileWithPath struct {
+	path    string
 	content string
 }
 
@@ -61,7 +61,7 @@ func TestDefaultRulesValidation(t *testing.T) {
 	}
 }
 
-func validatePassing(t *testing.T, validator *jsonSchemaValidator.JSONSchemaValidator, schemaContent map[string]interface{}, ruleId int, files []*FileWithName, expectPass bool) {
+func validatePassing(t *testing.T, validator *jsonSchemaValidator.JSONSchemaValidator, schemaContent map[string]interface{}, ruleId int, files []*FileWithPath, expectPass bool) {
 	for _, file := range files {
 		schemaBytes, err := yaml.Marshal(schemaContent)
 		if err != nil {
@@ -74,10 +74,10 @@ func validatePassing(t *testing.T, validator *jsonSchemaValidator.JSONSchemaVali
 		}
 
 		if len(errorsResult) > 0 && expectPass {
-			t.Errorf("Expected validation for rule with id %d to pass, but it failed for file %s\n", ruleId, file.name)
+			t.Errorf("Expected validation for rule with id %d to pass, but it failed for file %s\n", ruleId, file.path)
 		}
 		if len(errorsResult) == 0 && !expectPass {
-			t.Errorf("Expected validation for rule with id %d to fail, but it passed for file %s\n", ruleId, file.name)
+			t.Errorf("Expected validation for rule with id %d to fail, but it passed for file %s\n", ruleId, file.path)
 		}
 	}
 }
@@ -91,13 +91,13 @@ func getTestFilesByRuleId(t *testing.T) TestFilesByRuleId {
 	}
 
 	testFilesByRuleId := make(TestFilesByRuleId)
-	for _, file := range files {
+	for _, filePath := range files {
 		// skip directories
-		if !fileExists(file) {
+		if !fileExists(filePath) {
 			continue
 		}
 
-		path, filename := filepath.Split(file)
+		path, _ := filepath.Split(filePath)
 		passOrFail := filepath.Base(path)
 		ruleId := filepath.Base(filepath.Dir(filepath.Dir(path)))
 		id, err := strconv.Atoi(ruleId)
@@ -107,7 +107,7 @@ func getTestFilesByRuleId(t *testing.T) TestFilesByRuleId {
 
 		isPass := passOrFail == "pass"
 
-		fileContent, err := fileReader.ReadFileContent(file)
+		fileContent, err := fileReader.ReadFileContent(filePath)
 		if err != nil {
 			panic(err)
 		}
@@ -116,11 +116,11 @@ func getTestFilesByRuleId(t *testing.T) TestFilesByRuleId {
 			testFilesByRuleId[id] = &FailAndPassTests{}
 		}
 
-		fileWithName := &FileWithName{name: filename, content: fileContent}
+		fileWithPath := &FileWithPath{path: filePath, content: fileContent}
 		if isPass {
-			testFilesByRuleId[id].passes = append(testFilesByRuleId[id].passes, fileWithName)
+			testFilesByRuleId[id].passes = append(testFilesByRuleId[id].passes, fileWithPath)
 		} else {
-			testFilesByRuleId[id].fails = append(testFilesByRuleId[id].fails, fileWithName)
+			testFilesByRuleId[id].fails = append(testFilesByRuleId[id].fails, fileWithPath)
 		}
 	}
 
