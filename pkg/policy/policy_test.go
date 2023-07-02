@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/defaultPolicies"
@@ -92,17 +92,26 @@ func getTestFilesByRuleId(t *testing.T) TestFilesByRuleId {
 
 	testFilesByRuleId := make(TestFilesByRuleId)
 	for _, file := range files {
-		filename, err := fileReader.GetFilename(file)
+		// skip directories
+		if !fileExists(file) {
+			continue
+		}
+
+		path, filename := filepath.Split(file)
+		passOrFail := filepath.Base(path)
+		ruleId := filepath.Base(filepath.Dir(filepath.Dir(path)))
+		id, err := strconv.Atoi(ruleId)
 		if err != nil {
 			panic(err)
 		}
+
+		isPass := passOrFail == "pass"
 
 		fileContent, err := fileReader.ReadFileContent(file)
 		if err != nil {
 			panic(err)
 		}
 
-		id, isPass := getFileData(filename)
 		if testFilesByRuleId[id] == nil {
 			testFilesByRuleId[id] = &FailAndPassTests{}
 		}
@@ -118,15 +127,12 @@ func getTestFilesByRuleId(t *testing.T) TestFilesByRuleId {
 	return testFilesByRuleId
 }
 
-func getFileData(filename string) (int, bool) {
-	parts := strings.Split(filename, "-")
-	id, err := strconv.Atoi(parts[0])
-	if err != nil {
-		panic(err)
+func fileExists(path string) bool {
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return false
 	}
-
-	isPass := strings.Contains(parts[1], "pass")
-	return id, isPass
+	return !info.IsDir()
 }
 
 func expectedPoliciesContent(t *testing.T, path string) *defaultPolicies.EvaluationPrerunPolicies {
