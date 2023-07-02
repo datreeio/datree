@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/datreeio/datree/pkg/defaultPolicies"
@@ -21,12 +21,12 @@ import (
 type TestFilesByRuleId = map[int]*FailAndPassTests
 
 type FailAndPassTests struct {
-	fails  []*FileWithName
-	passes []*FileWithName
+	fails  []*FileWithPath
+	passes []*FileWithPath
 }
 
-type FileWithName struct {
-	name    string
+type FileWithPath struct {
+	path    string
 	content string
 }
 
@@ -61,7 +61,7 @@ func TestDefaultRulesValidation(t *testing.T) {
 	}
 }
 
-func validatePassing(t *testing.T, validator *jsonSchemaValidator.JSONSchemaValidator, schemaContent map[string]interface{}, ruleId int, files []*FileWithName, expectPass bool) {
+func validatePassing(t *testing.T, validator *jsonSchemaValidator.JSONSchemaValidator, schemaContent map[string]interface{}, ruleId int, files []*FileWithPath, expectPass bool) {
 	for _, file := range files {
 		schemaBytes, err := yaml.Marshal(schemaContent)
 		if err != nil {
@@ -74,10 +74,10 @@ func validatePassing(t *testing.T, validator *jsonSchemaValidator.JSONSchemaVali
 		}
 
 		if len(errorsResult) > 0 && expectPass {
-			t.Errorf("Expected validation for rule with id %d to pass, but it failed for file %s\n", ruleId, file.name)
+			t.Errorf("Expected validation for rule with id %d to pass, but it failed for file %s\n", ruleId, file.path)
 		}
 		if len(errorsResult) == 0 && !expectPass {
-			t.Errorf("Expected validation for rule with id %d to fail, but it passed for file %s\n", ruleId, file.name)
+			t.Errorf("Expected validation for rule with id %d to fail, but it passed for file %s\n", ruleId, file.path)
 		}
 	}
 }
@@ -91,42 +91,48 @@ func getTestFilesByRuleId(t *testing.T) TestFilesByRuleId {
 	}
 
 	testFilesByRuleId := make(TestFilesByRuleId)
-	for _, file := range files {
-		filename, err := fileReader.GetFilename(file)
+	for _, filePath := range files {
+		// skip directories
+		if !fileExists(filePath) {
+			continue
+		}
+
+		path, _ := filepath.Split(filePath)
+		passOrFail := filepath.Base(path)
+		ruleId := filepath.Base(filepath.Dir(filepath.Dir(path)))
+		id, err := strconv.Atoi(ruleId)
 		if err != nil {
 			panic(err)
 		}
 
-		fileContent, err := fileReader.ReadFileContent(file)
+		isPass := passOrFail == "pass"
+
+		fileContent, err := fileReader.ReadFileContent(filePath)
 		if err != nil {
 			panic(err)
 		}
 
-		id, isPass := getFileData(filename)
 		if testFilesByRuleId[id] == nil {
 			testFilesByRuleId[id] = &FailAndPassTests{}
 		}
 
-		fileWithName := &FileWithName{name: filename, content: fileContent}
+		fileWithPath := &FileWithPath{path: filePath, content: fileContent}
 		if isPass {
-			testFilesByRuleId[id].passes = append(testFilesByRuleId[id].passes, fileWithName)
+			testFilesByRuleId[id].passes = append(testFilesByRuleId[id].passes, fileWithPath)
 		} else {
-			testFilesByRuleId[id].fails = append(testFilesByRuleId[id].fails, fileWithName)
+			testFilesByRuleId[id].fails = append(testFilesByRuleId[id].fails, fileWithPath)
 		}
 	}
 
 	return testFilesByRuleId
 }
 
-func getFileData(filename string) (int, bool) {
-	parts := strings.Split(filename, "-")
-	id, err := strconv.Atoi(parts[0])
-	if err != nil {
-		panic(err)
+func fileExists(path string) bool {
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return false
 	}
-
-	isPass := strings.Contains(parts[1], "pass")
-	return id, isPass
+	return !info.IsDir()
 }
 
 func expectedPoliciesContent(t *testing.T, path string) *defaultPolicies.EvaluationPrerunPolicies {
