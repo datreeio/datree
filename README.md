@@ -52,6 +52,9 @@ helm install -n datree datree-webhook datree-webhook/datree-admission-webhook --
 
 This will create a new namespace (datree), where Datree’s services and application resources will reside. `datree.token` is used to connect your dashboard to your cluster. Note that the installation can take up to 5 minutes.
 
+**Looking for a different installation method?**  
+Datree also supports installation via **ArgoCD**, **Flux** and **Openshift**. See our [documentation](https://hub.datree.io/) for instructions.
+
 ## ⚙️ How it works
 
 Datree scans Kubernetes resources against a centrally managed policy, and blocks those that violate your desired policies.
@@ -80,7 +83,7 @@ Datree can be configured via code or via the dashboard. The dashboard offers the
 ## 🤩 Additional features
 
 Datree offers a suite of features to make adoption seamless:
-* **Monitoring** - Datree is first installed in monitoring mode that reports on policy violations, rather than block their deployments.
+* **Monitoring** - By default, Datree is installed in monitoring mode and does not block deployments until you decide to do so.
 * [**CLI**](https://hub.datree.io/cli/getting-started) - Help your developers find misconfigurations in their configs before deploying them, by integrating Datree into their CI.
 * **Simple integrations** - Datree works seamlessly with popular CD tools such as ArgoCD and FluxCD, and comes with ready-made integrations for various CI platforms.
 * **Cluster score** - Rank the stability of your cluster based on the number of detected misconfigurations.
