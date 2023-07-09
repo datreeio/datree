@@ -20,7 +20,7 @@ build-windows-amd:
 	GOOS=windows GOARCH=amd64 go build -tags $(or $(datree_build_env),staging) -ldflags="-X github.com/datreeio/datree/cmd.CliVersion=1.0.0"
 
 test:
-	# when changing rule logic and/or tests, we want to ensure our new logic is used when running "make test"
+	# when changing rule logic in the project's defaultRules.yaml, we want to ensure our new logic is used when running "make test"
 	# if we don't delete `defaultRules.yaml`, the tests will use the old logic
 	rm -f ~/.datree/defaultRules.yaml
 	go test ./...
