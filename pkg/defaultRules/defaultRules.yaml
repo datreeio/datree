@@ -301,6 +301,12 @@ rules:
           kind:
             enum:
               - Service
+        # knative has a CRD with kind "Service", we want this rule to ignore it
+        not:
+          properties:
+            apiVersion:
+              enum:
+                - serving.knative.dev/v1
       then:
         properties:
           spec:

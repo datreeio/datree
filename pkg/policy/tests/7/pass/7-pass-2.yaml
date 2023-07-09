@@ -1,0 +1,22 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: hadartest
+  namespace: knative-serving-demo-0
+spec:
+  type: NodePort
+  template:
+    metadata:
+      annotations:
+        client.knative.dev/updateTimestamp: "2023-07-06T10:38:55Z"
+        client.knative.dev/user-image: gcr.io/knative-samples/helloworld-go
+      creationTimestamp: null
+    spec:
+      containers:
+        - image: gcr.io/knative-samples/helloworld-go
+          name: ""
+          ports:
+            - containerPort: 8080
+          resources: {}
+status: {}
