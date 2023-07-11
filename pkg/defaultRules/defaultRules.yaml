@@ -1891,6 +1891,8 @@ rules:
             not:
               enum:
                 - Kustomization
+                - ClusterRole
+                - ClusterRoleBinding
       then:
         anyOf:
           - $ref: "#/definitions/metadataNamePattern"
