@@ -1861,42 +1861,54 @@ rules:
     impact: Configurations with a missing or invalid name will pass k8s schema validation, but will fail when pushed into a cluster (i.e. when running kubectl apply/create)
     schema:
       definitions:
+        skippedResources:
+          if:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - Kustomization
+                    - ClusterRole
+                    - ClusterRoleBinding
+          then:
+            properties:
+              metadata:
+                type: object
+                anyOf:
+                  - properties:
+                      name:
+                        type: string
+                        format: hostname
+                    required:
+                      - name
+                  - properties:
+                      generateName:
+                        type: string
+                        format: hostname
+                    required:
+                      - generateName
+          required:
+            - metadata
         metadataNamePattern:
           properties:
             metadata:
               type: object
-              properties:
-                name:
-                  type: string
-                  format: hostname
-              required:
-                - name
+              anyOf:
+                - properties:
+                    name:
+                      type: string
+                  required:
+                    - name
+                - properties:
+                    generateName:
+                      type: string
+                  required:
+                    - generateName
           required:
             - metadata
-        metadataGenerateNamePattern:
-          properties:
-            metadata:
-              type: object
-              properties:
-                generateName:
-                  type: string
-                  format: hostname
-              required:
-                - generateName
-          required:
-            - metadata
-      if:
-        properties:
-          kind:
-            not:
-              enum:
-                - Kustomization
-                - ClusterRole
-                - ClusterRoleBinding
-      then:
-        anyOf:
-          - $ref: "#/definitions/metadataNamePattern"
-          - $ref: "#/definitions/metadataGenerateNamePattern"
+      allOf:
+        - $ref: "#/definitions/metadataNamePattern"
+        - $ref: "#/definitions/skippedResources"
   - id: 55
     name: Ensure each container probe has an initial delay configured
     uniqueName: CONTAINERS_INCORRECT_INITIALDELAYSECONDS_VALUE
