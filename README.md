@@ -3,8 +3,8 @@
 </p>
  
 <p align="center">
- <img src="https://img.shields.io/travis/com/datreeio/datree/staging?label=build-staging" target="_blank"></a>
- <img src="https://img.shields.io/travis/com/datreeio/datree/main?label=build-main" target="_blank"></a>
+ <img src="https://img.shields.io/github/v/release/datreeio/datree" />
+ <img src="https://github.com/datreeio/datree/actions/workflows/release.yml/badge.svg" />
  <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fdatreeio%2Fdatree&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23E7E7E7&title=views+%28today+%2F+total%29&edge_flat=false" target="_blank"></a>
  <img src="https://img.shields.io/github/downloads/datreeio/datree/total.svg" target="_blank"></a>
  <img src="https://goreportcard.com/badge/github.com/datreeio/datree" target="_blank"></a>
