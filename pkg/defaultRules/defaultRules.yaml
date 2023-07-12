@@ -1889,32 +1889,32 @@ rules:
           required:
             - metadata
         nonStrictNamesPattern:
-          if:
-            properties:
-              kind:
-                not:
-                  enum:
-                    - Kustomization
-          then:
-            properties:
-              metadata:
-                type: object
-                anyOf:
-                  - properties:
-                      name:
-                        type: string
-                    required:
-                      - name
-                  - properties:
-                      generateName:
-                        type: string
-                    required:
-                      - generateName
+          properties:
+            metadata:
+              type: object
+              anyOf:
+                - properties:
+                    name:
+                      type: string
+                  required:
+                    - name
+                - properties:
+                    generateName:
+                      type: string
+                  required:
+                    - generateName
           required:
             - metadata
-      allOf:
-        - $ref: "#/definitions/strictNamesPattern"
-        - $ref: "#/definitions/nonStrictNamesPattern"
+      if:
+        properties:
+          kind:
+            not:
+              enum:
+                - Kustomization
+      then:
+        allOf:
+          - $ref: "#/definitions/strictNamesPattern"
+          - $ref: "#/definitions/nonStrictNamesPattern"
   - id: 55
     name: Ensure each container probe has an initial delay configured
     uniqueName: CONTAINERS_INCORRECT_INITIALDELAYSECONDS_VALUE
