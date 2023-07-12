@@ -1886,8 +1886,8 @@ rules:
                         format: hostname
                     required:
                       - generateName
-          required:
-            - metadata
+            required:
+              - metadata
         nonStrictNamesPattern:
           properties:
             metadata:
