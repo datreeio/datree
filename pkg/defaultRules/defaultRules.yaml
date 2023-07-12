@@ -1861,13 +1861,12 @@ rules:
     impact: Configurations with a missing or invalid name will pass k8s schema validation, but will fail when pushed into a cluster (i.e. when running kubectl apply/create)
     schema:
       definitions:
-        skippedResources:
+        strictNamesPattern:
           if:
             properties:
               kind:
                 not:
                   enum:
-                    - Kustomization
                     - ClusterRole
                     - ClusterRoleBinding
           then:
@@ -1889,26 +1888,33 @@ rules:
                       - generateName
           required:
             - metadata
-        metadataNamePattern:
-          properties:
-            metadata:
-              type: object
-              anyOf:
-                - properties:
-                    name:
-                      type: string
-                  required:
-                    - name
-                - properties:
-                    generateName:
-                      type: string
-                  required:
-                    - generateName
+        nonStrictNamesPattern:
+          if:
+            properties:
+              kind:
+                not:
+                  enum:
+                    - Kustomization
+          then:
+            properties:
+              metadata:
+                type: object
+                anyOf:
+                  - properties:
+                      name:
+                        type: string
+                    required:
+                      - name
+                  - properties:
+                      generateName:
+                        type: string
+                    required:
+                      - generateName
           required:
             - metadata
       allOf:
-        - $ref: "#/definitions/metadataNamePattern"
-        - $ref: "#/definitions/skippedResources"
+        - $ref: "#/definitions/strictNamesPattern"
+        - $ref: "#/definitions/nonStrictNamesPattern"
   - id: 55
     name: Ensure each container probe has an initial delay configured
     uniqueName: CONTAINERS_INCORRECT_INITIALDELAYSECONDS_VALUE
