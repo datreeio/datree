@@ -53,7 +53,7 @@ helm install -n datree datree-webhook datree-webhook/datree-admission-webhook --
 This will create a new namespace (datree), where Datree’s services and application resources will reside. `datree.token` is used to connect your dashboard to your cluster. Note that the installation can take up to 5 minutes.
 
 **Looking for a different installation method?**  
-<img width="45px" src="/images/argo.png" />&nbsp;&nbsp;<img width="45px" src="/images/flux.png" />&nbsp;&nbsp;<img width="45px" src="/images/openshift.png" />  
+<a href="https://hub.datree.io"><img width="45px" src="/images/argo.png" /></a>&nbsp;&nbsp;<a href="https://hub.datree.io"><img width="45px" src="/images/flux.png" /></a>&nbsp;&nbsp;<a href="https://hub.datree.io"><img width="45px" src="/images/openshift.png" /></a>  
 Datree also supports installation via **ArgoCD**, **Flux** and **Openshift**. See our [documentation](https://hub.datree.io/) for instructions.
 
 ## ⚙️ How it works
