@@ -10,9 +10,9 @@ policies:
 
 
 customRules:
-  - identifier: CUSTOM_DEPLOYMENT_BILLING_LABEL_EXISTS
-    name: Ensure Deployment has billing label [CUSTOM RULE]
-    defaultMessageOnFailure: deployment labels should contain billing label
+  - identifier: CUSTOM_WORKLOADS_BILLING_LABEL_EXISTS
+    name: Ensure Workloads has billing label [CUSTOM RULE]
+    defaultMessageOnFailure: workloads labels should contain billing label
     schema:
       # constraint schema
       if:
