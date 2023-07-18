@@ -63,6 +63,9 @@ func (customKeyCELDefinitionSchema CustomKeyCELDefinitionSchema) Validate(ctx js
 	}
 
 	env, err := cel.NewEnv(inputs...)
+	if err != nil {
+		return ctx.Error(CustomKeyValidationErrorKeyPath, err.Error())
+	}
 
 	for _, celExpression := range CELDefinitionSchema.CELExpressions {
 		ast, issues := env.Compile(celExpression.Expression)
