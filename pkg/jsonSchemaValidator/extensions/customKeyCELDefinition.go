@@ -20,7 +20,7 @@ type CustomKeyCELDefinitionSchema []interface{}
 var CustomKeyCELRule = jsonschema.MustCompileString("customKeyCELDefinition.json", `{
 	"properties" : {
 		"CELDefinition": {
-			"type": "object"
+			"type": "array"
 		}
 	}
 }`)
