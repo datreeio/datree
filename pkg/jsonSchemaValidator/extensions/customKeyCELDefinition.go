@@ -4,7 +4,6 @@ package jsonSchemaValidator
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/google/cel-go/cel"
@@ -130,7 +129,7 @@ func getCELEnvInputs(dataValue map[string]interface{}) ([]cel.EnvOption, error) 
 	var inputs map[string]any
 	dataValueBytes, _ := json.Marshal(dataValue)
 	if err := yaml.Unmarshal(dataValueBytes, &inputs); err != nil {
-		return nil, errors.New(fmt.Sprintf("failed to decode input: %s", err))
+		return nil, fmt.Errorf("failed to decode input: %s", err)
 	}
 
 	inputVars := make([]cel.EnvOption, 0, len(inputs))
