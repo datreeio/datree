@@ -4,7 +4,7 @@ policies:
     isDefault: true
     rules:
       - identifier: CUSTOM_DEPLOYMENT_BILLING_LABEL_EXISTS
-        messageOnFailure: "deployment labels should contain billing label"
+        messageOnFailure: "workloads labels should contain billing label"
       - identifier: CUSTOM_SECRET_ENVIRONMENT_LABEL_EXISTS
         messageOnFailure: "secret labels should contain environment label"
 
