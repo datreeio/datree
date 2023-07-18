@@ -21,12 +21,13 @@ customRules:
             type: string
             enum:
               - Deployment
+              - Pod
       then:
         CELDefinition:
           - expression: "object.kind != 'Deployment' || (has(object.metadata.labels) && has(object.metadata.labels.billing))"
             message: "deployment labels should contain billing label"
-          - expression: "object.kind != 'Deployment' || (has(object.metadata.labels) && has(object.metadata.labels.billing))"
-          - expression: "object.kind != 'Deployment' || (has(object.metadata.labels) && has(object.metadata.labels.billing))"
+          - expression: "object.kind != 'Pod' || (has(object.metadata.labels) && has(object.metadata.labels.billing))"
+            message: "pod labels should contain billing label"
   - identifier: CUSTOM_SECRET_ENVIRONMENT_LABEL_EXISTS
     name: Ensure Secret has environment label [CUSTOM RULE]
     defaultMessageOnFailure: secret labels should contain environment label
@@ -40,5 +41,5 @@ customRules:
               - Secret
       then:
         CELDefinition:
-          - expression: "object.kind != 'Secret' || (has(object.metadata.labels) && has(object.metadata.labels.environment))"
+          - expression: "has(object.metadata.labels) && has(object.metadata.labels.environment)"
 
