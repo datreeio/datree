@@ -1,4 +1,4 @@
-// This file defines a custom key to implement the logic for rego rule:
+// This file defines a custom key to implement the logic for cel rule:
 
 package jsonSchemaValidator
 
@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/cel-go/cel"
 	"github.com/santhosh-tekuri/jsonschema/v5"
-	"gopkg.in/yaml.v3"
 )
 
 const CELDefinitionCustomKey = "CELDefinition"
@@ -29,7 +28,7 @@ func (CustomKeyCELDefinitionCompiler) Compile(ctx jsonschema.CompilerContext, m 
 	if customKeyCELRule, ok := m[CELDefinitionCustomKey]; ok {
 		customKeyCELRuleObj, validObject := customKeyCELRule.([]interface{})
 		if !validObject {
-			return nil, fmt.Errorf("CELDefinition must be an object")
+			return nil, fmt.Errorf("CELDefinition must be an array")
 		}
 
 		CELDefinitionSchema, err := convertCustomKeyCELDefinitionSchemaToCELDefinitionSchema(customKeyCELRuleObj)
@@ -126,14 +125,8 @@ func convertCustomKeyCELDefinitionSchemaToCELDefinitionSchema(CELDefinitionSchem
 }
 
 func getCELEnvInputs(dataValue map[string]interface{}) ([]cel.EnvOption, error) {
-	var inputs map[string]any
-	dataValueBytes, _ := json.Marshal(dataValue)
-	if err := yaml.Unmarshal(dataValueBytes, &inputs); err != nil {
-		return nil, fmt.Errorf("failed to decode input: %s", err)
-	}
-
-	inputVars := make([]cel.EnvOption, 0, len(inputs))
-	for input := range inputs {
+	inputVars := make([]cel.EnvOption, 0, len(dataValue))
+	for input := range dataValue {
 		inputVars = append(inputVars, cel.Variable(input, cel.DynType))
 	}
 	return inputVars, nil
