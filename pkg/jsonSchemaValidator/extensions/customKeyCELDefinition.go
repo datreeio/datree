@@ -52,11 +52,11 @@ func (customKeyCELDefinitionSchema CustomKeyCELDefinitionSchema) Validate(ctx js
 		return ctx.Error(CustomKeyValidationErrorKeyPath, err.Error())
 	}
 	// wrap dataValue (the resource that should be validated) inside a struct with parent object key
-	dataValueObjectWrapper := make(map[string]interface{})
-	dataValueObjectWrapper["object"] = dataValue
+	resourceWithParentKey := make(map[string]interface{})
+	resourceWithParentKey["object"] = dataValue
 
 	// prepare CEL env inputs - in our case the only input is the resource that should be validated
-	inputs, err := getCELEnvInputs(dataValueObjectWrapper)
+	inputs, err := getCELEnvInputs(resourceWithParentKey)
 	if err != nil {
 		return ctx.Error(CustomKeyValidationErrorKeyPath, err.Error())
 	}
@@ -77,7 +77,7 @@ func (customKeyCELDefinitionSchema CustomKeyCELDefinitionSchema) Validate(ctx js
 			return ctx.Error(CustomKeyValidationErrorKeyPath, "cel program construction error: %s", err)
 		}
 
-		res1, _, err := prg.Eval(dataValueObjectWrapper)
+		res1, _, err := prg.Eval(resourceWithParentKey)
 		if err != nil {
 			return ctx.Error(CustomKeyValidationErrorKeyPath, "cel evaluation error: %s", err)
 		}
