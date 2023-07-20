@@ -1,0 +1,8 @@
+{
+  "CELDefinition": [
+    {
+      "expression": "hassss(object.metadata.labels) && has(object.metadata.labels.billing)",
+      "message": "deployment labels should contain billing label"
+    }
+  ]
+}

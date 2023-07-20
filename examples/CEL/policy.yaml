@@ -1,0 +1,45 @@
+apiVersion: v1
+policies:
+  - name: CEL_policy
+    isDefault: true
+    rules:
+      - identifier: CUSTOM_DEPLOYMENT_BILLING_LABEL_EXISTS
+        messageOnFailure: "workloads labels should contain billing label"
+      - identifier: CUSTOM_SECRET_ENVIRONMENT_LABEL_EXISTS
+        messageOnFailure: "secret labels should contain environment label"
+
+
+customRules:
+  - identifier: CUSTOM_WORKLOADS_BILLING_LABEL_EXISTS
+    name: Ensure Workloads has billing label [CUSTOM RULE]
+    defaultMessageOnFailure: workloads labels should contain billing label
+    schema:
+      # constraint schema
+      if:
+        properties:
+          kind:
+            type: string
+            enum:
+              - Deployment
+              - Pod
+      then:
+        CELDefinition:
+          - expression: "object.kind != 'Deployment' || (has(object.metadata.labels) && has(object.metadata.labels.billing))"
+            message: "deployment labels should contain billing label"
+          - expression: "object.kind != 'Pod' || (has(object.metadata.labels) && has(object.metadata.labels.billing))"
+            message: "pod labels should contain billing label"
+  - identifier: CUSTOM_SECRET_ENVIRONMENT_LABEL_EXISTS
+    name: Ensure Secret has environment label [CUSTOM RULE]
+    defaultMessageOnFailure: secret labels should contain environment label
+    schema:
+      # constraint schema
+      if:
+        properties:
+          kind:
+            type: string
+            enum:
+              - Secret
+      then:
+        CELDefinition:
+          - expression: "has(object.metadata.labels) && has(object.metadata.labels.environment)"
+

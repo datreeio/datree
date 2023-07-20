@@ -1,0 +1,8 @@
+{
+  "CELDefinition": [
+    {
+      "expression": 1,
+      "message": "deployment labels should contain billing label"
+    }
+  ]
+}
