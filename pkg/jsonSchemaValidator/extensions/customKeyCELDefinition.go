@@ -90,7 +90,7 @@ func (customKeyCELDefinitionSchema CustomKeyCELDefinitionSchema) Validate(ctx js
 			return ctx.Error(CustomKeyValidationErrorKeyPath, "cel expression needs to return a boolean")
 		}
 		if !celReturnValue {
-			return ctx.Error(CustomKeyValidationErrorKeyPath, "cel expression failure message: %s", celExpression.Message)
+			return ctx.Error(CELDefinitionCustomKey, "values in data value %v do not match", dataValue)
 		}
 	}
 
@@ -99,7 +99,6 @@ func (customKeyCELDefinitionSchema CustomKeyCELDefinitionSchema) Validate(ctx js
 
 type CELExpression struct {
 	Expression string `json:"expression"`
-	Message    string `json:"message"`
 }
 
 type CELDefinition struct {
