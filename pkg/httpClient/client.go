@@ -162,7 +162,7 @@ func (c *Client) parseBody(body interface{}) (io.ReadWriter, error) {
 
 func (c *Client) getValueOfHeader(headers map[string]string, header string) string {
 	for currentHeader, currentValue := range headers {
-		if strings.ToLower(currentHeader) == strings.ToLower(header) {
+		if strings.EqualFold(currentHeader, header) {
 			return currentValue
 		}
 	}
