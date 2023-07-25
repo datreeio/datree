@@ -21,12 +21,12 @@
 
 ## Migrating to the (fully) open-source version of Datree 
 
-For existing users, It is still possible to run Datree as a standalone: https://hub.datree.io/cli/offline-mode
+For existing users, it is still possible to run Datree as a standalone: https://hub.datree.io/cli/offline-mode
 
 ## What will not be available anymore
 
-All the open source code under datreeio org will no longer be improved and maintained, including any security patches.
-In addition, the following key capabilities will not be available anymore:  
+All the archived open source repositories under datreeio org will no longer be maintained and accept any new code changes, including any security patches.
+In addition, the following key capabilities will not longer be available anymore:  
 * Centralized policy registry
 * Automatic Kubernetes schema validation
 * Access to the dashboard and all of its components (e.g. activity-log page, token management, etc.)
