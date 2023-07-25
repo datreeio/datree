@@ -9,52 +9,27 @@
  <img src="https://img.shields.io/github/downloads/datreeio/datree/total.svg" target="_blank"></a>
  <img src="https://goreportcard.com/badge/github.com/datreeio/datree" target="_blank"></a>
 </p>
-  
-<p align="center">
-  <a href="https://bit.ly/3BHwCEG" target="_blank">
-   <img src="https://img.shields.io/badge/Slack-4A154B?logo=slack&color=black&logoColor=white&style=for-the-badge alt="Join our Slack!" width="80" height="30">
-  </a> 
-</p>
 
 <p align="center">
   <a href="https://hub.datree.io/#utm_source=github&utm_medium=organic_oss"><strong>Explore the docs »</strong></a>
   <br />
 </p>
 
-# Datree
+# Datree [DEPRECATED]
 
-[Datree](https://www.datree.io/) (pronounced `/da-tree/`) secures your Kubernetes by blocking the deployment of misconfigured resources.
+[Datree](https://www.datree.io/) (pronounced `/da-tree/`) was built to secure Kubernetes workloads by blocking the deployment of misconfigured resources. **Since July 2023, the commercial company that supports and actively maintains this project has been closed.**
 
-## ✌️ Quick-start in two steps
+## Migrating to the (fully) open-source version of Datree 
 
-Install Datree to get insights on the status of your cluster and enforce your desired policies on new resources.
+For existing users, It is still possible to run Datree as a standalone: https://hub.datree.io/cli/offline-mode
 
-> **NOTE:**  
-> By default, Datree does not block misconfigured resources, it only monitors and alerts about them.  
-> To enable **enforcement mode**, see the [documentation](https://hub.datree.io/setup/behavior#options).
+## What will not be available anymore
 
-### 1. Add the Datree Helm repository
-Run the following command in your terminal:
-```terminal
-helm repo add datree-webhook https://datreeio.github.io/admission-webhook-datree
-helm repo update
-```
-
-### 2. Install Datree on your cluster
-Replace `<DATREE_TOKEN>` with the token from your [dashboard](https://app.datree.io/), and run the following command in your terminal:
-
-```terminal
-helm install -n datree datree-webhook datree-webhook/datree-admission-webhook --debug \
---create-namespace \
---set datree.token=<DATREE_TOKEN> \
---set datree.clusterName=$(kubectl config current-context)
-```
-
-This will create a new namespace (datree), where Datree’s services and application resources will reside. `datree.token` is used to connect your dashboard to your cluster. Note that the installation can take up to 5 minutes.
-
-**Looking for a different installation method?**  
-<a href="https://hub.datree.io"><img width="45px" src="/images/argo.png" /></a>&nbsp;&nbsp;<a href="https://hub.datree.io"><img width="45px" src="/images/flux.png" /></a>&nbsp;&nbsp;<a href="https://hub.datree.io"><img width="45px" src="/images/openshift.png" /></a>  
-Datree also supports installation via **ArgoCD**, **Flux** and **Openshift**. See our [documentation](https://hub.datree.io/) for instructions.
+All the open source code under datreeio org will no longer be improved and maintained, including any security patches.
+In addition, the following key capabilities will not be available anymore:  
+* Centralized policy registry
+* Automatic Kubernetes schema validation
+* Access to the dashboard and all of its components (e.g. activity-log page, token management, etc.)
 
 ## ⚙️ How it works
 
@@ -64,35 +39,8 @@ Datree comes with over 100 rules covering various use-cases, such as workload se
 
 In addition to our built-in rules, you can write [any custom rule you wish](https://hub.datree.io/custom-rules-overview) and then run it against your Kubernetes configurations to check for rule violations. Custom rules can be written in [JSON schema](https://hub.datree.io/custom-rules/custom-rules-overview) or in [Rego](https://hub.datree.io/custom-rules/rego-support).
 
-## 📊 Management dashboard (web application)
-
-Datree's dashboard provides valuable information about your clusters' health and stability. It details the resources that failed your policy checks, and shows you how to fix each violation.
-
-Datree can be configured via code or via the dashboard. The dashboard offers the following capabilities in an intuitive visual interface: 
-* Control Datree's configuration:
-  * Default action on failure - set whether resources that failed the policy check should be blocked or only monitored
-  * Set which policy to use for your checks
-  * Define resources and/or namespaces to ignore
-* Create & customize policies
-* Edit rules' failure message
-* Issue tokens
-* View policy check history
-* Configure Kubernetes schema version
-
-<img src="/images/dashboard-policies.png" alt="Datree-saas" width="70%">
-
-## 🤩 Additional features
-
-Datree offers a suite of features to make adoption seamless:
-* **Monitoring** - By default, Datree is installed in monitoring mode and does not block deployments until you decide to do so.
-* [**CLI**](https://hub.datree.io/cli/getting-started) - Help your developers find misconfigurations in their configs before deploying them, by integrating Datree into their CI.
-* **Simple integrations** - Datree works seamlessly with popular CD tools such as ArgoCD and FluxCD, and comes with ready-made integrations for various CI platforms.
-* **Cluster score** - Rank the stability of your cluster based on the number of detected misconfigurations.
-
 ## Contributing
 
-[Contributions](https://github.com/datreeio/datree/issues?q=is%3Aissue+is%3Aopen+label%3A%22up+for+grabs%22) are welcome!
-
+We want to thank our contributors for helping us build Datree ❤️
+  
 [![Contributors](https://contrib.rocks/image?repo=datreeio/datree)](https://github.com/datreeio/datree/graphs/contributors)
-
-Thank you to all the people who already contributed to Datree ❤️
