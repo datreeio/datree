@@ -1,0 +1,45 @@
+name: Cron checks
+on:
+  schedule:
+    - cron: '30 1 * * *'
+
+jobs:
+  stale_issues:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v6
+        with:
+          days-before-stale: 30
+          days-before-pr-stale: -1
+          days-before-close: 7
+          stale-issue-message: >
+            This issue has been automatically marked as stale because it has not had
+            recent activity. It will be closed if no further activity occurs. Thank you
+            for your contributions.
+          stale-issue-label: 'stale issue'
+          exempt-issue-labels: 'good first issue, WIP, question, up for grabs'
+
+  dead_readme_links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@v1.3.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --verbose --no-progress --timeout 10 --max-concurrency 2 -- './**/*.md'
+          output: ./lychee/out.md
+      
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=now::$(date +'%d-%m-%Y')"
+        
+      - name: Create issue when fail
+        if: ${{ steps.lychee.outputs.exit_code }} != 0
+        uses: peter-evans/create-issue-from-file@v3
+        with:
+          title: Automated Links Checker Report for ${{ steps.date.outputs.now }}
+          content-filepath: ./lychee/out.md
+          labels: documentation
