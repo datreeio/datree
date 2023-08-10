@@ -5,7 +5,7 @@
   language: docker_image
   pass_filenames: true
   args: [ 'test', '--only-k8s-files' ]
-  entry: --user root datree/datree:latest
+  entry: --user root --env DATREE_ACCOUNT_TOKEN datree/datree:latest
 
 - id: datree-system
   name: datree test, run using datree installed
