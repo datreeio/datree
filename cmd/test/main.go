@@ -3,7 +3,6 @@ package test
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -495,7 +494,7 @@ func test(ctx *TestCommandContext, paths []string, testCommandData *TestCommandD
 			return err
 		}
 
-		err = ioutil.WriteFile(testCommandData.SaveResults, []byte(resultsText), 0666)
+		err = os.WriteFile(testCommandData.SaveResults, []byte(resultsText), 0666)
 		if err != nil {
 			return err
 		}
@@ -705,7 +704,7 @@ func saveDefaultRulesAsFile(ctx *TestCommandContext, preRunDefaultRulesYaml stri
 	defaultRulesFilePath := filepath.Join(homeDir, ".datree", "defaultRules.yaml")
 
 	const fileReadPermission = 0644
-	_ = ioutil.WriteFile(defaultRulesFilePath, []byte(preRunDefaultRulesYaml), os.FileMode(fileReadPermission))
+	_ = os.WriteFile(defaultRulesFilePath, []byte(preRunDefaultRulesYaml), os.FileMode(fileReadPermission))
 }
 
 func shouldDisplaySpinner(IsCI bool, isInteractiveMode bool, outputOption string) bool {

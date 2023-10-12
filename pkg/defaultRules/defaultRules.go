@@ -2,7 +2,6 @@ package defaultRules
 
 import (
 	_ "embed"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -51,6 +50,6 @@ func getDefaultRulesFromFile() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defaultRulesFileContent, err := ioutil.ReadFile(filepath.Join(homeDir, ".datree", "defaultRules.yaml"))
+	defaultRulesFileContent, err := os.ReadFile(filepath.Join(homeDir, ".datree", "defaultRules.yaml"))
 	return string(defaultRulesFileContent), err
 }
