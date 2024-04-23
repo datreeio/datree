@@ -84,9 +84,11 @@ func (c *CommandRunner) CreateTempFile(tempFilePrefix string, content []byte) (s
 	if err != nil {
 		return "", err
 	}
+	defer tempFile.Close()
 
 	_, err = tempFile.Write(content)
 	if err != nil {
+		os.Remove(tempFile.Name())
 		return "", err
 	}
 
